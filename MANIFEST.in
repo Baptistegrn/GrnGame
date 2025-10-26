@@ -1,0 +1,5 @@
+
+recursive-include GrnGame/xmake *
+recursive-include Grngame/creations *
+recursive-include Grngame/exemple *
+recursive-include Grngame/dist *
