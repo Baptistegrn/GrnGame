@@ -464,7 +464,68 @@ GrnGame.init(
     nom_fenetre="Mon Jeu"
 )
 ```
+🅰️ Créer sa propre police personnalisée
 
+Pour faire sa propre police ce n'est pas avec des .ttf :
+
+📁 Structure requise
+
+Crée un dossier (par exemple font/) qui contiendra une image par caractère :
+
+assets/
+└── font/
+    ├── 32.png   # Espace (code ASCII 32)
+    ├── 33.png   # !
+    ├── 65.png   # A
+    ├── 66.png   # B
+    ├── 67.png   # C
+    ├── 97.png   # a
+    ├── 98.png   # b
+    └── ...
+
+⚙️ Règles importantes
+
+Chaque fichier représente une seule lettre ou symbole
+
+Le nom du fichier doit être le code ASCII du caractère (ex. 65.png = A)
+
+Tous les fichiers doivent être dans le même dossier
+
+Les images doivent avoir la même taille (ex. 8×8, 16×16, 32×32, etc.)
+
+les inclusions sont les caracteres ascii non etendu sur un char .
+
+💡 Exemple :
+32.png = espace
+48.png à 57.png = chiffres 0–9
+65.png à 90.png = lettres majuscules A–Z
+97.png à 122.png = lettres minuscules a–z
+
+🧩 Exemple d’utilisation
+# Dessiner du texte avec une police personnalisée
+GrnGame.dessiner_mot(
+    lien="./assets/font",    # chemin vers ton dossier de police
+    mot="Bonjour !",
+    x=10, y=10,
+    coeff=1,                 # taille du texte
+    ecart=1,                 # espacement entre lettres
+    sens=0,                  # 0=normal, 1=miroir horizontal
+    rotation=0               # rotation du texte
+)
+
+✅ Astuce
+
+Tu peux créer plusieurs styles :
+
+assets/
+├── font_pixel/
+├── font_outline/
+└── font_shadow/
+
+
+Et changer dynamiquement la police utilisée :
+
+GrnGame.dessiner_mot("./assets/font_outline", "Game Over", 40, 40, coeff=2)
 ---
 
 ## 📚 Structure de projet recommandée
@@ -477,8 +538,8 @@ mon_jeu/
 │   ├── enemy.png
 │   ├── tile.png
 │   ├── font/            # Police de caractères
-│   │   ├── a.png
-│   │   ├── b.png
+│   │   ├── 35.png
+│   │   ├── 89.png
 │   │   └── ...
 │   ├── laser.wav        # Sons
 │   ├── music.wav
