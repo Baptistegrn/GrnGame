@@ -1,9 +1,9 @@
 #include "main.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -14,13 +14,14 @@
 #define PATH_MAX MAX_PATH
 #else
 #include <dirent.h>
+#include <errno.h>
+#include <limits.h>
+#include <linux/limits.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <limits.h>
-#include <errno.h>
 #endif
 
-int ends_with_wav(const char *name)
+int ends_with_wav(const char* name)
 {
     if (!name)
     {
@@ -33,15 +34,13 @@ int ends_with_wav(const char *name)
         return 0;
     }
 
-    const char *ext = name + len - 4;
-    return (tolower((unsigned char)ext[0]) == '.' &&
-            tolower((unsigned char)ext[1]) == 'w' &&
-            tolower((unsigned char)ext[2]) == 'a' &&
-            tolower((unsigned char)ext[3]) == 'v');
+    const char* ext = name + len - 4;
+    return (tolower((unsigned char)ext[0]) == '.' && tolower((unsigned char)ext[1]) == 'w' &&
+            tolower((unsigned char)ext[2]) == 'a' && tolower((unsigned char)ext[3]) == 'v');
 }
 
 #ifdef _WIN32
-int collect_wavs(const char *dir, char ***out_list, int *out_count)
+int collect_wavs(const char* dir, char*** out_list, int* out_count)
 {
     if (!dir || !out_list || !out_count)
     {
@@ -57,8 +56,7 @@ int collect_wavs(const char *dir, char ***out_list, int *out_count)
 
     if (hFind == INVALID_HANDLE_VALUE)
     {
-        fprintf(stderr, "Erreur: Impossible d'ouvrir le dossier '%s': %lu\n",
-                dir, GetLastError());
+        fprintf(stderr, "Erreur: Impossible d'ouvrir le dossier '%s': %lu\n", dir, GetLastError());
         return -1;
     }
 
@@ -82,7 +80,7 @@ int collect_wavs(const char *dir, char ***out_list, int *out_count)
 
         else if (ends_with_wav(fd.cFileName))
         {
-            char **tmp = realloc(*out_list, sizeof(char *) * (*out_count + 1));
+            char** tmp = realloc(*out_list, sizeof(char*) * (*out_count + 1));
             if (!tmp)
             {
                 fprintf(stderr, "Erreur: Échec de réallocation mémoire lors de la collecte des WAV\n");
@@ -102,7 +100,8 @@ int collect_wavs(const char *dir, char ***out_list, int *out_count)
 
             (*out_count)++;
         }
-    } while (FindNextFile(hFind, &fd));
+    }
+    while (FindNextFile(hFind, &fd));
 
     FindClose(hFind);
     return 0;
@@ -110,7 +109,7 @@ int collect_wavs(const char *dir, char ***out_list, int *out_count)
 
 #else
 
-int collect_wavs(const char *dir, char ***out_list, int *out_count)
+int collect_wavs(const char* dir, char*** out_list, int* out_count)
 {
     if (!dir || !out_list || !out_count)
     {
@@ -118,15 +117,14 @@ int collect_wavs(const char *dir, char ***out_list, int *out_count)
         return -1;
     }
 
-    DIR *dp = opendir(dir);
+    DIR* dp = opendir(dir);
     if (!dp)
     {
-        fprintf(stderr, "Erreur: Impossible d'ouvrir le dossier '%s': %s\n",
-                dir, strerror(errno));
+        fprintf(stderr, "Erreur: Impossible d'ouvrir le dossier '%s': %s\n", dir, strerror(errno));
         return -1;
     }
 
-    struct dirent *entry;
+    struct dirent* entry;
     while ((entry = readdir(dp)) != NULL)
     {
 
@@ -141,8 +139,8 @@ int collect_wavs(const char *dir, char ***out_list, int *out_count)
         struct stat st;
         if (stat(fullpath, &st) == -1)
         {
-            fprintf(stderr, "Attention: Impossible d'obtenir les informations de '%s': %s\n",
-                    fullpath, strerror(errno));
+            fprintf(stderr, "Attention: Impossible d'obtenir les informations de '%s': %s\n", fullpath,
+                    strerror(errno));
             continue;
         }
 
@@ -157,7 +155,7 @@ int collect_wavs(const char *dir, char ***out_list, int *out_count)
 
         else if (ends_with_wav(entry->d_name))
         {
-            char **tmp = realloc(*out_list, sizeof(char *) * (*out_count + 1));
+            char** tmp = realloc(*out_list, sizeof(char*) * (*out_count + 1));
             if (!tmp)
             {
                 fprintf(stderr, "Erreur: Échec de réallocation mémoire lors de la collecte des WAV\n");

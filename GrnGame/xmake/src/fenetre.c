@@ -1,13 +1,12 @@
-
 #include "main.h"
 
 #include <SDL.h>
 #include <SDL_image.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
-int fenetre_init(Gestionnaire *gestionnaire, const char *nom_fenetre)
+int fenetre_init(Gestionnaire* gestionnaire, const char* nom_fenetre)
 {
     if (!gestionnaire)
     {
@@ -44,13 +43,9 @@ int fenetre_init(Gestionnaire *gestionnaire, const char *nom_fenetre)
     gestionnaire->plein_ecran = false;
 
     // Création de la fenêtre
-    gestionnaire->fenetre = SDL_CreateWindow(
-        nom_fenetre,
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
-        gestionnaire->largeur_actuel,
-        gestionnaire->hauteur_actuel,
-        SDL_WINDOW_SHOWN);
+    gestionnaire->fenetre =
+        SDL_CreateWindow(nom_fenetre, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, gestionnaire->largeur_actuel,
+                         gestionnaire->hauteur_actuel, SDL_WINDOW_SHOWN);
 
     if (!gestionnaire->fenetre)
     {
@@ -84,11 +79,10 @@ int fenetre_init(Gestionnaire *gestionnaire, const char *nom_fenetre)
     }
 
 
-
     return 0;
 }
 
-void colorier(Gestionnaire *jeu, int r, int g, int b)
+void colorier(Gestionnaire* jeu, int r, int g, int b)
 {
     if (!jeu)
     {
@@ -104,8 +98,7 @@ void colorier(Gestionnaire *jeu, int r, int g, int b)
 
     if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255)
     {
-        fprintf(stderr, "Erreur: Valeurs RGB invalides (%d, %d, %d). Valeurs attendues: 0-255\n",
-                r, g, b);
+        fprintf(stderr, "Erreur: Valeurs RGB invalides (%d, %d, %d). Valeurs attendues: 0-255\n", r, g, b);
         return;
     }
 

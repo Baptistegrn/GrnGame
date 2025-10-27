@@ -1,4 +1,3 @@
-
 #include "main.h"
 
 #include <stdio.h>
@@ -12,7 +11,7 @@ void set_update_callback(UpdateCallback cb)
     g_update_callback = cb;
 }
 
- void boucle_principale(Gestionnaire *jeu)
+void boucle_principale(Gestionnaire* jeu)
 {
     if (!jeu)
     {
@@ -28,7 +27,7 @@ void set_update_callback(UpdateCallback cb)
 
     if (jeu->fps <= 0)
     {
-        fprintf(stderr, "Attention: FPS invalide (%d), correction à 60 FPS\n", jeu->fps);
+        fprintf(stderr, "Attention: FPS invalide (%f), correction à 60 FPS\n", jeu->fps);
         jeu->fps = 60;
     }
 
@@ -51,8 +50,7 @@ void set_update_callback(UpdateCallback cb)
             update(jeu);
         }
 
-        actualiser(jeu, jeu->fond->dessiner, jeu->fond->bande_noir,
-                   jeu->fond->r, jeu->fond->g, jeu->fond->b);
+        actualiser(jeu, jeu->fond->dessiner, jeu->fond->bande_noir, jeu->fond->r, jeu->fond->g, jeu->fond->b);
 
         Uint32 frame_time_ms = SDL_GetTicks() - frame_start;
         float frame_time_s = frame_time_ms / 1000.0f;
@@ -72,7 +70,7 @@ void set_update_callback(UpdateCallback cb)
     liberer_jeu(jeu);
 }
 
- void update(Gestionnaire *jeu)
+void update(Gestionnaire* jeu)
 {
     if (g_update_callback)
     {

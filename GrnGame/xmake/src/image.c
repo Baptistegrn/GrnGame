@@ -1,13 +1,12 @@
-
 #include "main.h"
 
+#include <ctype.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <math.h>
 
- void ajouter_image_au_jeu(Gestionnaire *gestionnaire, image nouvelle)
+void ajouter_image_au_jeu(Gestionnaire* gestionnaire, image nouvelle)
 {
     if (!gestionnaire || !gestionnaire->image)
     {
@@ -15,12 +14,12 @@
         return;
     }
 
-    Tableau_image *jeu = gestionnaire->image;
+    Tableau_image* jeu = gestionnaire->image;
 
     if (jeu->nb_images >= jeu->capacite_images)
     {
         int nouvelle_capacite = (jeu->capacite_images == 0) ? 100 : jeu->capacite_images + 50;
-        image *nouveau_tab = realloc(jeu->tab, sizeof(image) * nouvelle_capacite);
+        image* nouveau_tab = realloc(jeu->tab, sizeof(image) * nouvelle_capacite);
 
         if (!nouveau_tab)
         {
@@ -36,9 +35,8 @@
     jeu->tab[jeu->nb_images++] = nouvelle;
 }
 
- void ajouter_image_au_tableau(Gestionnaire *gestionnaire, const char *id,
-                                      float x, float y, float w, float h,
-                                      int sens, int rotation)
+void ajouter_image_au_tableau(Gestionnaire* gestionnaire, const char* id, float x, float y, float w, float h, int sens,
+                              int rotation)
 {
     if (!gestionnaire)
     {
@@ -67,7 +65,7 @@
     img.sens = sens;
     img.rotation = rotation;
 
-    SDL_Texture *tex = recuperer_texture_par_lien(gestionnaire->textures, id);
+    SDL_Texture* tex = recuperer_texture_par_lien(gestionnaire->textures, id);
     if (!tex)
     {
         fprintf(stderr, "Erreur: Texture introuvable '%s'\n", id);
@@ -78,11 +76,8 @@
     ajouter_image_au_jeu(gestionnaire, img);
 }
 
- void ajouter_image_au_tableau_batch(Gestionnaire *gestionnaire,
-                                            const char **id,
-                                            float *x, float *y, float *w, float *h,
-                                            int *sens, int *rotation,
-                                            int taille)
+void ajouter_image_au_tableau_batch(Gestionnaire* gestionnaire, const char** id, float* x, float* y, float* w, float* h,
+                                    int* sens, int* rotation, int taille)
 {
     if (!gestionnaire)
     {
@@ -104,12 +99,11 @@
 
     for (int i = 0; i < taille; i++)
     {
-        ajouter_image_au_tableau(gestionnaire, id[i], x[i], y[i], w[i], h[i],
-                                 sens[i], rotation[i]);
+        ajouter_image_au_tableau(gestionnaire, id[i], x[i], y[i], w[i], h[i], sens[i], rotation[i]);
     }
 }
 
- void afficher_images(Gestionnaire *gestionnaire)
+void afficher_images(Gestionnaire* gestionnaire)
 {
     if (!gestionnaire || !gestionnaire->rendu || !gestionnaire->image)
     {
@@ -117,35 +111,32 @@
         return;
     }
 
-    Tableau_image *jeu = gestionnaire->image;
+    Tableau_image* jeu = gestionnaire->image;
     float coeff_largeur = (float)gestionnaire->largeur_actuel / (float)gestionnaire->largeur;
     float coeff_hauteur = (float)gestionnaire->hauteur_actuel / (float)gestionnaire->hauteur;
 
     for (int i = 0; i < jeu->nb_images; i++)
     {
-        image *img = &jeu->tab[i];
+        image* img = &jeu->tab[i];
 
         if (!img->texture)
         {
             continue;
         }
-        if (img->posx > gestionnaire->largeur || img->posx < -img->taillex ||
-            img->posy > gestionnaire->hauteur || img->posy < -img->tailley)
+        if (img->posx > gestionnaire->largeur || img->posx < -img->taillex || img->posy > gestionnaire->hauteur ||
+            img->posy < -img->tailley)
         {
             continue;
         }
 
-        SDL_Rect dst = {
-            (int)lroundf(img->posx * coeff_largeur + gestionnaire->decalage_x),
-            (int)lroundf(img->posy * coeff_hauteur + gestionnaire->decalage_y),
-            (int)lroundf(img->taillex * coeff_largeur),
-            (int)lroundf(img->tailley * coeff_hauteur)};
+        SDL_Rect dst = {(int)lroundf(img->posx * coeff_largeur + gestionnaire->decalage_x),
+                        (int)lroundf(img->posy * coeff_hauteur + gestionnaire->decalage_y),
+                        (int)lroundf(img->taillex * coeff_largeur), (int)lroundf(img->tailley * coeff_hauteur)};
 
         SDL_Point centre = {dst.w / 2, dst.h / 2};
         SDL_RendererFlip flip = (img->sens == 1) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
 
-        if (SDL_RenderCopyEx(gestionnaire->rendu, img->texture, NULL, &dst,
-                             img->rotation, &centre, flip) != 0)
+        if (SDL_RenderCopyEx(gestionnaire->rendu, img->texture, NULL, &dst, img->rotation, &centre, flip) != 0)
         {
             fprintf(stderr, "Erreur: Échec de rendu de l'image %d: %s\n", i, SDL_GetError());
         }
@@ -154,8 +145,7 @@
     jeu->nb_images = 0;
 }
 
- void dessiner_bandes_noires(SDL_Renderer *rendu, double decalage_x, double decalage_y,
-                                   int largeur, int hauteur)
+void dessiner_bandes_noires(SDL_Renderer* rendu, double decalage_x, double decalage_y, int largeur, int hauteur)
 {
     if (!rendu)
     {
@@ -183,7 +173,7 @@
     SDL_RenderFillRect(rendu, &rect_bas);
 }
 
-void actualiser(Gestionnaire *jeu, bool colorier, bool bande_noir, int r, int g, int b)
+void actualiser(Gestionnaire* jeu, bool colorier, bool bande_noir, int r, int g, int b)
 {
     if (!jeu || !jeu->rendu)
     {
@@ -191,7 +181,7 @@ void actualiser(Gestionnaire *jeu, bool colorier, bool bande_noir, int r, int g,
         return;
     }
 
-    SDL_Renderer *rendu = jeu->rendu;
+    SDL_Renderer* rendu = jeu->rendu;
 
     if (colorier)
     {

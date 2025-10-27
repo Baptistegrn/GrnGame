@@ -1,9 +1,8 @@
-
+#include <ctype.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <stdbool.h>
 #include <time.h>
 
 #include <SDL.h>
@@ -14,20 +13,11 @@
 
 #define TAILLE_CANAL 32
 
- Gestionnaire *initialisation(
-    int hauteur,
-    int largeur,
-    float fps,
-    int coeff,
-    char *lien_image,
-    char *lien_son,
-    bool dessiner,
-    bool bande_noir,
-    int r, int g, int b,
-    const char *nom_fenetre)
+Gestionnaire* initialisation(int hauteur, int largeur, float fps, int coeff, char* lien_image, char* lien_son,
+                             bool dessiner, bool bande_noir, int r, int g, int b, const char* nom_fenetre)
 {
     // Redirection de stderr vers fichier de log
-    FILE *log_file = freopen("erreurs.log", "w", stderr);
+    FILE* log_file = freopen("erreurs.log", "w", stderr);
     if (!log_file)
     {
         fprintf(stdout, "Attention: Impossible de créer le fichier erreurs.log\n");
@@ -56,7 +46,7 @@
     }
 
     // Allocation du gestionnaire principal
-    Gestionnaire *jeu = (Gestionnaire *)malloc(sizeof(Gestionnaire));
+    Gestionnaire* jeu = (Gestionnaire*)malloc(sizeof(Gestionnaire));
     if (!jeu)
     {
         fprintf(stderr, "Erreur: Échec d'allocation mémoire pour le gestionnaire principal\n");
@@ -74,11 +64,11 @@
     jeu->joystick = NULL;
 
     // Allocation des sous-structures
-    jeu->fond = (fond_actualiser *)malloc(sizeof(fond_actualiser));
-    jeu->entrees = (GestionnaireEntrees *)malloc(sizeof(GestionnaireEntrees));
-    jeu->image = (Tableau_image *)malloc(sizeof(Tableau_image));
-    jeu->textures = (GestionnaireTextures *)malloc(sizeof(GestionnaireTextures));
-    jeu->sons = (GestionnaireSon *)malloc(sizeof(GestionnaireSon));
+    jeu->fond = (fond_actualiser*)malloc(sizeof(fond_actualiser));
+    jeu->entrees = (GestionnaireEntrees*)malloc(sizeof(GestionnaireEntrees));
+    jeu->image = (Tableau_image*)malloc(sizeof(Tableau_image));
+    jeu->textures = (GestionnaireTextures*)malloc(sizeof(GestionnaireTextures));
+    jeu->sons = (GestionnaireSon*)malloc(sizeof(GestionnaireSon));
 
     if (!jeu->fond || !jeu->entrees || !jeu->image || !jeu->textures || !jeu->sons)
     {
@@ -103,7 +93,7 @@
     // Initialisation du tableau d'images
     jeu->image->capacite_images = 10;
     jeu->image->nb_images = 0;
-    jeu->image->tab = (image *)malloc(sizeof(image) * jeu->image->capacite_images);
+    jeu->image->tab = (image*)malloc(sizeof(image) * jeu->image->capacite_images);
     if (!jeu->image->tab)
     {
         fprintf(stderr, "Erreur: Échec d'allocation mémoire pour le tableau d'images\n");

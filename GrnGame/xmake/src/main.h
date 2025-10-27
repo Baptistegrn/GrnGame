@@ -3,11 +3,11 @@
 
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <SDL_mixer.h>
 
 #define TAILLE_LIEN_GT 256
 
@@ -15,45 +15,53 @@
 extern "C" {
 #endif
 
-typedef struct TextureEntry {
+typedef struct TextureEntry
+{
     char id[TAILLE_LIEN_GT];
-    SDL_Texture *texture;
+    SDL_Texture* texture;
 } TextureEntry;
 
-typedef struct GestionnaireTextures {
-    TextureEntry *entrees;
+typedef struct GestionnaireTextures
+{
+    TextureEntry* entrees;
     int taille;
     int capacite;
-    SDL_Renderer *rendu;
+    SDL_Renderer* rendu;
 } GestionnaireTextures;
 
-typedef struct SonEntry {
+typedef struct SonEntry
+{
     char id[TAILLE_LIEN_GT];
-    Mix_Chunk *son;
+    Mix_Chunk* son;
 } SonEntry;
 
-typedef struct GestionnaireSon {
-    SonEntry *entrees;
+typedef struct GestionnaireSon
+{
+    SonEntry* entrees;
     int taille;
     int capacite;
 } GestionnaireSon;
 
-typedef struct {
+typedef struct
+{
     int x;
     int y;
 } StickPos;
 
-typedef struct {
+typedef struct
+{
     StickPos left;
     StickPos right;
 } ControllerEtatJoy;
 
-typedef struct {
+typedef struct
+{
     int triggerleft;
     int triggerright;
 } Trigger;
 
-typedef struct GestionnaireEntrees {
+typedef struct GestionnaireEntrees
+{
     int mouse_x, mouse_y;
     bool mouse_pressed;
     bool mouse_just_pressed;
@@ -69,27 +77,31 @@ typedef struct GestionnaireEntrees {
     Trigger trigger;
 } GestionnaireEntrees;
 
-typedef struct {
+typedef struct
+{
     float posx, posy;
     float taillex, tailley;
     int sens;
     int rotation;
-    SDL_Texture *texture;
+    SDL_Texture* texture;
 } image;
 
-typedef struct Tableau_image {
-    image *tab;
+typedef struct Tableau_image
+{
+    image* tab;
     int nb_images;
     int capacite_images;
 } Tableau_image;
 
-typedef struct fond_actualiser {
+typedef struct fond_actualiser
+{
     int r, g, b;
     bool dessiner;
     bool bande_noir;
 } fond_actualiser;
 
-typedef struct Gestionnaire {
+typedef struct Gestionnaire
+{
     bool run;
     float dt;
     float fps;
@@ -100,84 +112,80 @@ typedef struct Gestionnaire {
     bool plein_ecran;
     Uint32 temps_frame;
 
-    SDL_Window *fenetre;
-    SDL_Renderer *rendu;
+    SDL_Window* fenetre;
+    SDL_Renderer* rendu;
 
-    fond_actualiser *fond;
-    Tableau_image *image;
-    GestionnaireEntrees *entrees;
-    GestionnaireTextures *textures;
-    GestionnaireSon *sons;
-    SDL_GameController *controller;
-    SDL_Joystick *joystick;
+    fond_actualiser* fond;
+    Tableau_image* image;
+    GestionnaireEntrees* entrees;
+    GestionnaireTextures* textures;
+    GestionnaireSon* sons;
+    SDL_GameController* controller;
+    SDL_Joystick* joystick;
 } Gestionnaire;
 
-typedef void (*UpdateCallback)(Gestionnaire *jeu);
+typedef void (*UpdateCallback)(Gestionnaire* jeu);
 
 void set_update_callback(UpdateCallback cb);
-Gestionnaire* initialisation(int hauteur, int largeur, float fps, int coeff,
-                            char *lien_image, char *lien_son,
-                            bool dessiner, bool bande_noir, int r, int g, int b,
-                            const char *nom_fenetre);
-void update(Gestionnaire *jeu);
-void boucle_principale(Gestionnaire *jeu);
-void liberer_jeu(Gestionnaire *jeu);
+Gestionnaire* initialisation(int hauteur, int largeur, float fps, int coeff, char* lien_image, char* lien_son,
+                             bool dessiner, bool bande_noir, int r, int g, int b, const char* nom_fenetre);
+void update(Gestionnaire* jeu);
+void boucle_principale(Gestionnaire* jeu);
+void liberer_jeu(Gestionnaire* jeu);
 
-int fenetre_init(Gestionnaire *gestionnaire, const char *nom_fenetre);
-void redimensionner_fenetre(Gestionnaire *gestionnaire);
-void colorier(Gestionnaire *gestionnaire, int r, int g, int b);
+int fenetre_init(Gestionnaire* gestionnaire, const char* nom_fenetre);
+void redimensionner_fenetre(Gestionnaire* gestionnaire);
+void colorier(Gestionnaire* gestionnaire, int r, int g, int b);
 
-void ajouter_image_au_tableau(Gestionnaire *gestionnaire, const char *id,
-                              float x, float y, float w, float h, int sens, int rotation);
-void ajouter_image_au_tableau_batch(Gestionnaire *gestionnaire,
-                                   const char **id, float *x, float *y, float *w, float *h,
-                                   int *sens, int *rotation, int taille);
-void ajouter_mot_dans_tableau(Gestionnaire *jeu, const char *chemin,
-                              const char *mot, float posx, float posy, float coeff,
-                              int sens, float ecart, int decalage);
-void actualiser(Gestionnaire *jeu, bool colorier, bool bande_noir, int r, int g, int b);
-void afficher_images(Gestionnaire *gestionnaire);
+void ajouter_image_au_tableau(Gestionnaire* gestionnaire, const char* id, float x, float y, float w, float h, int sens,
+                              int rotation);
+void ajouter_image_au_tableau_batch(Gestionnaire* gestionnaire, const char** id, float* x, float* y, float* w, float* h,
+                                    int* sens, int* rotation, int taille);
+void ajouter_mot_dans_tableau(Gestionnaire* jeu, const char* chemin, const char* mot, float posx, float posy,
+                              float coeff, int sens, float ecart, int decalage);
+void actualiser(Gestionnaire* jeu, bool colorier, bool bande_noir, int r, int g, int b);
+void afficher_images(Gestionnaire* gestionnaire);
 
-bool touche_juste_presse(Gestionnaire *jeu, const char *touche);
-bool touche_enfoncee(Gestionnaire *jeu, const char *touche);
-void input_update(Gestionnaire *jeu, GestionnaireEntrees *entrees);
-SDL_Scancode scancode_depuis_nom(const char *nom);
+bool touche_juste_presse(Gestionnaire* jeu, const char* touche);
+bool touche_enfoncee(Gestionnaire* jeu, const char* touche);
+void input_update(Gestionnaire* jeu, GestionnaireEntrees* entrees);
+SDL_Scancode scancode_depuis_nom(const char* nom);
 
-bool touche_mannette_enfoncee(Gestionnaire *jeu, const char *touche);
-bool touche_mannette_juste_presse(Gestionnaire *jeu, const char *touche);
-bool init_controller_joysticks(Gestionnaire *jeu, int index);
-void fermer_controller(Gestionnaire *jeu);
-void fermer_joystick(Gestionnaire *jeu);
-float* renvoie_joysticks(GestionnaireEntrees *entrees, float dead_zone);
+bool touche_mannette_enfoncee(Gestionnaire* jeu, const char* touche);
+bool touche_mannette_juste_presse(Gestionnaire* jeu, const char* touche);
+bool init_controller_joysticks(Gestionnaire* jeu, int index);
+void fermer_controller(Gestionnaire* jeu);
+void fermer_joystick(Gestionnaire* jeu);
+float* renvoie_joysticks(GestionnaireEntrees* entrees, float dead_zone);
 
-void jouer_son(Gestionnaire *gestionnaire, const char *lien, int boucle, int canal);
+void jouer_son(Gestionnaire* gestionnaire, const char* lien, int boucle, int canal);
 void arreter_canal(int canal);
-void arreter_son(Gestionnaire *gestionnaire, const char *lien);
+void arreter_son(Gestionnaire* gestionnaire, const char* lien);
 void pause_canal(int canal);
-void pause_son(Gestionnaire *gestionnaire, const char *lien);
+void pause_son(Gestionnaire* gestionnaire, const char* lien);
 void reprendre_canal(int canal);
-void reprendre_son(Gestionnaire *gestionnaire, const char *lien);
+void reprendre_son(Gestionnaire* gestionnaire, const char* lien);
 
-SDL_Texture* recuperer_texture_par_lien(GestionnaireTextures *gt, const char *lien);
-void init_gestionnaire_textures(GestionnaireTextures *gt, SDL_Renderer *rendu);
-void charger_toutes_les_textures(GestionnaireTextures *gt, const char *dossier);
-void liberer_gestionnaire_image(GestionnaireTextures *gs);
+SDL_Texture* recuperer_texture_par_lien(GestionnaireTextures* gt, const char* lien);
+void init_gestionnaire_textures(GestionnaireTextures* gt, SDL_Renderer* rendu);
+void charger_toutes_les_textures(GestionnaireTextures* gt, const char* dossier);
+void liberer_gestionnaire_image(GestionnaireTextures* gs);
 
-Mix_Chunk* recuperer_son_par_lien(GestionnaireSon *gs, const char *lien);
-void init_gestionnaire_son(GestionnaireSon *gs);
-void charger_tous_les_sons(GestionnaireSon *gs, const char *dossier);
-void liberer_gestionnaire_son(GestionnaireSon *gs);
+Mix_Chunk* recuperer_son_par_lien(GestionnaireSon* gs, const char* lien);
+void init_gestionnaire_son(GestionnaireSon* gs);
+void charger_tous_les_sons(GestionnaireSon* gs, const char* dossier);
+void liberer_gestionnaire_son(GestionnaireSon* gs);
 
-int ends_with_png(const char *name);
-int ends_with_wav(const char *name);
-void normaliser_chemin(char *chemin);
-int collect_pngs(const char *dir, char ***out_list, int *out_count);
-int collect_wavs(const char *dir, char ***out_list, int *out_count);
+int ends_with_png(const char* name);
+int ends_with_wav(const char* name);
+void normaliser_chemin(char* chemin);
+int collect_pngs(const char* dir, char*** out_list, int* out_count);
+int collect_wavs(const char* dir, char*** out_list, int* out_count);
 
-void free_gestionnaire(Gestionnaire *jeu);
-void free_tab_images(Gestionnaire *gestionnaire);
+void free_gestionnaire(Gestionnaire* jeu);
+void free_tab_images(Gestionnaire* gestionnaire);
 
-void ecrire_dans_console(const char *mot);
+void ecrire_dans_console(const char* mot);
 int random_jeu(int min, int max);
 
 double abs_val(double x);
