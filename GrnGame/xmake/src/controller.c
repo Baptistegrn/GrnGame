@@ -1,12 +1,11 @@
-
 #include "main.h"
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
-bool init_controller_joysticks(Gestionnaire *jeu, int index)
+bool init_controller_joysticks(Gestionnaire* jeu, int index)
 {
     if (!jeu)
     {
@@ -26,19 +25,17 @@ bool init_controller_joysticks(Gestionnaire *jeu, int index)
         return false;
     }
 
-    SDL_GameController *controller = SDL_GameControllerOpen(index);
+    SDL_GameController* controller = SDL_GameControllerOpen(index);
     if (!controller)
     {
-        fprintf(stderr, "Erreur: Impossible d'ouvrir la manette %d: %s\n",
-                index, SDL_GetError());
+        fprintf(stderr, "Erreur: Impossible d'ouvrir la manette %d: %s\n", index, SDL_GetError());
         return false;
     }
 
-    SDL_Joystick *joy = SDL_JoystickOpen(index);
+    SDL_Joystick* joy = SDL_JoystickOpen(index);
     if (!joy)
     {
-        fprintf(stderr, "Erreur: Impossible d'ouvrir le joystick %d: %s\n",
-                index, SDL_GetError());
+        fprintf(stderr, "Erreur: Impossible d'ouvrir le joystick %d: %s\n", index, SDL_GetError());
         SDL_GameControllerClose(controller);
         return false;
     }
@@ -47,12 +44,11 @@ bool init_controller_joysticks(Gestionnaire *jeu, int index)
     jeu->joystick = joy;
 
     // Log de confirmation
-    fprintf(stderr, "Manette %d ouverte: %s\n",
-            index, SDL_GameControllerName(controller));
+    fprintf(stderr, "Manette %d ouverte: %s\n", index, SDL_GameControllerName(controller));
     return true;
 }
 
- void fermer_controller(Gestionnaire *jeu)
+void fermer_controller(Gestionnaire* jeu)
 {
     if (!jeu)
     {
@@ -66,7 +62,7 @@ bool init_controller_joysticks(Gestionnaire *jeu, int index)
     }
 }
 
- void fermer_joystick(Gestionnaire *jeu)
+void fermer_joystick(Gestionnaire* jeu)
 {
     if (!jeu)
     {
@@ -80,7 +76,7 @@ bool init_controller_joysticks(Gestionnaire *jeu, int index)
     }
 }
 
- float *renvoie_joysticks(GestionnaireEntrees *entrees, float dead_zone)
+float* renvoie_joysticks(GestionnaireEntrees* entrees, float dead_zone)
 {
     if (!entrees)
     {
@@ -88,7 +84,7 @@ bool init_controller_joysticks(Gestionnaire *jeu, int index)
         return NULL;
     }
 
-    float *valeurs = malloc(sizeof(float) * 6);
+    float* valeurs = malloc(sizeof(float) * 6);
     if (!valeurs)
     {
         fprintf(stderr, "Erreur: Échec d'allocation mémoire pour les valeurs du joystick\n");

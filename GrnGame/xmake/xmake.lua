@@ -10,10 +10,10 @@ target("libjeu")
     set_targetdir("../dist")
     add_files("src/**.c")
     add_headerfiles("src/**.h")
-    add_rules("utils.symbols.export_all")
-    if is_mode("release") then
-        -- Ajout du LTO pour optimiser en release
-        -- set_policy("build.optimization.lto", true)
+
+    if is_mode("release") and not is_plat("windows") then
+        -- ajout de la lto en optimisation, mais pas sur windows car ca pète utils.symbols.export_all
+        set_policy("build.optimization.lto", true) 
     end
 
     if is_plat("macosx") then
@@ -26,6 +26,7 @@ target("libjeu")
     end
 
     if is_plat("windows") then
+        add_rules("utils.symbols.export_all") -- besoin d'exporter les symboles sur windows
     end
 
     add_packages("libsdl2", "libsdl2_image", "libsdl2_mixer")

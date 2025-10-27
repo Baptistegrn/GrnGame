@@ -1,4 +1,3 @@
-
 #include "main.h"
 
 #include <SDL.h>
@@ -7,18 +6,21 @@
 #include <stdlib.h>
 
 
- void redimensionner_fenetre(Gestionnaire *gestionnaire) {
-    if (!gestionnaire) {
+void redimensionner_fenetre(Gestionnaire* gestionnaire)
+{
+    if (!gestionnaire)
+    {
         fprintf(stderr, "Erreur: Gestionnaire NULL dans redimensionner_fenetre()\n");
         return;
     }
 
-    if (!gestionnaire->fenetre || !gestionnaire->rendu) {
+    if (!gestionnaire->fenetre || !gestionnaire->rendu)
+    {
         fprintf(stderr, "Erreur: Fenêtre ou renderer NULL\n");
         return;
     }
 
-    SDL_Window *fenetre = gestionnaire->fenetre;
+    SDL_Window* fenetre = gestionnaire->fenetre;
     int largeur_base = gestionnaire->largeur;
     int hauteur_base = gestionnaire->hauteur;
     int coeff_minimise = gestionnaire->coeff_minimise;
@@ -26,19 +28,22 @@
 
     // Récupération des informations de l'écran
     int display_index = SDL_GetWindowDisplayIndex(fenetre);
-    if (display_index < 0) {
+    if (display_index < 0)
+    {
         fprintf(stderr, "Erreur: Impossible d'obtenir l'index de l'écran: %s\n", SDL_GetError());
         return;
     }
 
     SDL_Rect display_bounds;
-    if (SDL_GetDisplayBounds(display_index, &display_bounds) != 0) {
+    if (SDL_GetDisplayBounds(display_index, &display_bounds) != 0)
+    {
         fprintf(stderr, "Erreur: Impossible d'obtenir les dimensions de l'écran: %s\n", SDL_GetError());
         return;
     }
 
     SDL_DisplayMode mode;
-    if (SDL_GetCurrentDisplayMode(display_index, &mode) != 0) {
+    if (SDL_GetCurrentDisplayMode(display_index, &mode) != 0)
+    {
         fprintf(stderr, "Erreur: Impossible d'obtenir le mode d'affichage: %s\n", SDL_GetError());
         return;
     }
@@ -46,7 +51,8 @@
     // Sauvegarde de la position de la souris dans l'univers du jeu
     float mouse_x_univers = 0.0f;
     float mouse_y_univers = 0.0f;
-    if (gestionnaire->entrees) {
+    if (gestionnaire->entrees)
+    {
         mouse_x_univers = gestionnaire->entrees->mouse_x;
         mouse_y_univers = gestionnaire->entrees->mouse_y;
     }
@@ -54,7 +60,8 @@
     int nouvelle_largeur, nouvelle_hauteur;
     int nouveau_decalage_x, nouveau_decalage_y;
 
-    if (plein_ecran) {
+    if (plein_ecran)
+    {
         // Passage en mode fenêtré
         nouveau_decalage_x = 0;
         nouveau_decalage_y = 0;
@@ -63,13 +70,12 @@
 
         SDL_SetWindowFullscreen(fenetre, 0);
         SDL_SetWindowSize(fenetre, nouvelle_largeur, nouvelle_hauteur);
-        SDL_SetWindowPosition(fenetre,
-            display_bounds.x + (mode.w - nouvelle_largeur) / 2,
-            display_bounds.y + (mode.h - nouvelle_hauteur) / 2
-        );
+        SDL_SetWindowPosition(fenetre, display_bounds.x + (mode.w - nouvelle_largeur) / 2,
+                              display_bounds.y + (mode.h - nouvelle_hauteur) / 2);
         SDL_SetWindowBordered(fenetre, SDL_TRUE);
-
-    } else {
+    }
+    else
+    {
         // Passage en plein écran
         int coeff_largeur = mode.w / largeur_base;
         int coeff_hauteur = mode.h / hauteur_base;
@@ -93,7 +99,8 @@
     gestionnaire->plein_ecran = !plein_ecran;
 
     // Repositionnement de la souris pour maintenir sa position relative
-    if (gestionnaire->entrees) {
+    if (gestionnaire->entrees)
+    {
         float coeff_largeur = (float)nouvelle_largeur / (float)largeur_base;
         float coeff_hauteur = (float)nouvelle_hauteur / (float)hauteur_base;
 

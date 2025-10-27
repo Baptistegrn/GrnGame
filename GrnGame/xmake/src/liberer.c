@@ -1,17 +1,17 @@
-
-#include "main.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include "main.h"
 
-void free_tab_images(Gestionnaire *gestionnaire)
+void free_tab_images(Gestionnaire* gestionnaire)
 {
     if (!gestionnaire || !gestionnaire->image)
     {
-        fprintf(stderr, "ERREUR: Gestionnaire NULL et tableau dimages vide dans la liberation image\n"); return;
+        fprintf(stderr, "ERREUR: Gestionnaire NULL et tableau dimages vide dans la liberation image\n");
+        return;
     }
 
     free(gestionnaire->image->tab);
@@ -20,11 +20,12 @@ void free_tab_images(Gestionnaire *gestionnaire)
     gestionnaire->image->capacite_images = 0;
 }
 
-void liberer_gestionnaire_son(GestionnaireSon *gs)
+void liberer_gestionnaire_son(GestionnaireSon* gs)
 {
     if (!gs)
     {
-        fprintf(stderr, "Impossible de liberer le son car le gestionnaire son est NULL\n"); return;
+        fprintf(stderr, "Impossible de liberer le son car le gestionnaire son est NULL\n");
+        return;
     }
 
     for (int i = 0; i < gs->taille; i++)
@@ -41,12 +42,12 @@ void liberer_gestionnaire_son(GestionnaireSon *gs)
     gs->capacite = 0;
 }
 
-void liberer_gestionnaire_image(GestionnaireTextures *gs)
+void liberer_gestionnaire_image(GestionnaireTextures* gs)
 {
     if (!gs)
     {
         fprintf(stderr, "Impossible de liberer limage car le gestionnaire image est NULL\n");
-         return;
+        return;
     }
 
     for (int i = 0; i < gs->taille; i++)
@@ -62,7 +63,7 @@ void liberer_gestionnaire_image(GestionnaireTextures *gs)
     gs->taille = 0;
     gs->capacite = 0;
 }
-void free_gestionnaire(Gestionnaire *jeu)
+void free_gestionnaire(Gestionnaire* jeu)
 {
     if (!jeu)
         return;
@@ -84,7 +85,7 @@ void free_gestionnaire(Gestionnaire *jeu)
     free(jeu);
 }
 
-void liberer_jeu(Gestionnaire *jeu)
+void liberer_jeu(Gestionnaire* jeu)
 {
     if (!jeu)
     {

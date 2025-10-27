@@ -1,12 +1,12 @@
 #include "input.h"
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <SDL_image.h>
 #include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-void input_update(Gestionnaire *jeu, GestionnaireEntrees *entrees)
+void input_update(Gestionnaire* jeu, GestionnaireEntrees* entrees)
 {
     if (!jeu || !entrees)
     {
@@ -121,7 +121,7 @@ void input_update(Gestionnaire *jeu, GestionnaireEntrees *entrees)
     }
 }
 
-char *normaliser_nom(const char *src)
+char* normaliser_nom(const char* src)
 {
     if (!src)
     {
@@ -129,7 +129,7 @@ char *normaliser_nom(const char *src)
     }
 
     size_t taille = strlen(src);
-    char *dst = malloc(sizeof(char) * (taille + 1));
+    char* dst = malloc(sizeof(char) * (taille + 1));
     if (!dst)
     {
         fprintf(stderr, "Erreur: Échec d'allocation mémoire pour la normalisation du nom\n");
@@ -147,40 +147,41 @@ char *normaliser_nom(const char *src)
 
 const ToucheNom touches_1[] = {
 
-    {"a", SDL_SCANCODE_A}, {"b", SDL_SCANCODE_B}, {"c", SDL_SCANCODE_C}, {"d", SDL_SCANCODE_D}, {"e", SDL_SCANCODE_E}, {"f", SDL_SCANCODE_F}, {"g", SDL_SCANCODE_G}, {"h", SDL_SCANCODE_H}, {"i", SDL_SCANCODE_I}, {"j", SDL_SCANCODE_J}, {"k", SDL_SCANCODE_K}, {"l", SDL_SCANCODE_L}, {"m", SDL_SCANCODE_M}, {"n", SDL_SCANCODE_N}, {"o", SDL_SCANCODE_O}, {"p", SDL_SCANCODE_P}, {"q", SDL_SCANCODE_Q}, {"r", SDL_SCANCODE_R}, {"s", SDL_SCANCODE_S}, {"t", SDL_SCANCODE_T}, {"u", SDL_SCANCODE_U}, {"v", SDL_SCANCODE_V}, {"w", SDL_SCANCODE_W}, {"x", SDL_SCANCODE_X}, {"y", SDL_SCANCODE_Y}, {"z", SDL_SCANCODE_Z},
+    {"a", SDL_SCANCODE_A},           {"b", SDL_SCANCODE_B},
+    {"c", SDL_SCANCODE_C},           {"d", SDL_SCANCODE_D},
+    {"e", SDL_SCANCODE_E},           {"f", SDL_SCANCODE_F},
+    {"g", SDL_SCANCODE_G},           {"h", SDL_SCANCODE_H},
+    {"i", SDL_SCANCODE_I},           {"j", SDL_SCANCODE_J},
+    {"k", SDL_SCANCODE_K},           {"l", SDL_SCANCODE_L},
+    {"m", SDL_SCANCODE_M},           {"n", SDL_SCANCODE_N},
+    {"o", SDL_SCANCODE_O},           {"p", SDL_SCANCODE_P},
+    {"q", SDL_SCANCODE_Q},           {"r", SDL_SCANCODE_R},
+    {"s", SDL_SCANCODE_S},           {"t", SDL_SCANCODE_T},
+    {"u", SDL_SCANCODE_U},           {"v", SDL_SCANCODE_V},
+    {"w", SDL_SCANCODE_W},           {"x", SDL_SCANCODE_X},
+    {"y", SDL_SCANCODE_Y},           {"z", SDL_SCANCODE_Z},
 
-    {"0", SDL_SCANCODE_0},
-    {"1", SDL_SCANCODE_1},
-    {"2", SDL_SCANCODE_2},
-    {"3", SDL_SCANCODE_3},
-    {"4", SDL_SCANCODE_4},
-    {"5", SDL_SCANCODE_5},
-    {"6", SDL_SCANCODE_6},
-    {"7", SDL_SCANCODE_7},
-    {"8", SDL_SCANCODE_8},
-    {"9", SDL_SCANCODE_9},
+    {"0", SDL_SCANCODE_0},           {"1", SDL_SCANCODE_1},
+    {"2", SDL_SCANCODE_2},           {"3", SDL_SCANCODE_3},
+    {"4", SDL_SCANCODE_4},           {"5", SDL_SCANCODE_5},
+    {"6", SDL_SCANCODE_6},           {"7", SDL_SCANCODE_7},
+    {"8", SDL_SCANCODE_8},           {"9", SDL_SCANCODE_9},
 
-    {"-", SDL_SCANCODE_MINUS},
-    {"=", SDL_SCANCODE_EQUALS},
-    {"[", SDL_SCANCODE_LEFTBRACKET},
-    {"]", SDL_SCANCODE_RIGHTBRACKET},
-    {";", SDL_SCANCODE_SEMICOLON},
-    {"'", SDL_SCANCODE_APOSTROPHE},
-    {",", SDL_SCANCODE_COMMA},
-    {".", SDL_SCANCODE_PERIOD},
-    {"/", SDL_SCANCODE_SLASH},
-    {"`", SDL_SCANCODE_GRAVE},
+    {"-", SDL_SCANCODE_MINUS},       {"=", SDL_SCANCODE_EQUALS},
+    {"[", SDL_SCANCODE_LEFTBRACKET}, {"]", SDL_SCANCODE_RIGHTBRACKET},
+    {";", SDL_SCANCODE_SEMICOLON},   {"'", SDL_SCANCODE_APOSTROPHE},
+    {",", SDL_SCANCODE_COMMA},       {".", SDL_SCANCODE_PERIOD},
+    {"/", SDL_SCANCODE_SLASH},       {"`", SDL_SCANCODE_GRAVE},
 
     {NULL, SDL_SCANCODE_UNKNOWN}};
 
 const ToucheNom touches_2[] = {
 
-    {"f1", SDL_SCANCODE_F1}, {"f2", SDL_SCANCODE_F2}, {"f3", SDL_SCANCODE_F3}, {"f4", SDL_SCANCODE_F4}, {"f5", SDL_SCANCODE_F5}, {"f6", SDL_SCANCODE_F6}, {"f7", SDL_SCANCODE_F7}, {"f8", SDL_SCANCODE_F8}, {"f9", SDL_SCANCODE_F9},
+    {"f1", SDL_SCANCODE_F1},        {"f2", SDL_SCANCODE_F2},   {"f3", SDL_SCANCODE_F3},   {"f4", SDL_SCANCODE_F4},
+    {"f5", SDL_SCANCODE_F5},        {"f6", SDL_SCANCODE_F6},   {"f7", SDL_SCANCODE_F7},   {"f8", SDL_SCANCODE_F8},
+    {"f9", SDL_SCANCODE_F9},
 
-    {"up", SDL_SCANCODE_UP},
-    {"dn", SDL_SCANCODE_DOWN},
-    {"lt", SDL_SCANCODE_LEFT},
-    {"rt", SDL_SCANCODE_RIGHT},
+    {"up", SDL_SCANCODE_UP},        {"dn", SDL_SCANCODE_DOWN}, {"lt", SDL_SCANCODE_LEFT}, {"rt", SDL_SCANCODE_RIGHT},
 
     {"\\", SDL_SCANCODE_BACKSLASH},
 
@@ -188,36 +189,25 @@ const ToucheNom touches_2[] = {
 
 const ToucheNom touches_3[] = {
 
-    {"f10", SDL_SCANCODE_F10}, {"f11", SDL_SCANCODE_F11}, {"f12", SDL_SCANCODE_F12},
+    {"f10", SDL_SCANCODE_F10},         {"f11", SDL_SCANCODE_F11},       {"f12", SDL_SCANCODE_F12},
 
-    {"esc", SDL_SCANCODE_ESCAPE},
-    {"tab", SDL_SCANCODE_TAB},
-    {"end", SDL_SCANCODE_END},
+    {"esc", SDL_SCANCODE_ESCAPE},      {"tab", SDL_SCANCODE_TAB},       {"end", SDL_SCANCODE_END},
     {"alt", SDL_SCANCODE_LALT},
 
-    {"kp0", SDL_SCANCODE_KP_0},
-    {"kp1", SDL_SCANCODE_KP_1},
-    {"kp2", SDL_SCANCODE_KP_2},
-    {"kp3", SDL_SCANCODE_KP_3},
-    {"kp4", SDL_SCANCODE_KP_4},
-    {"kp5", SDL_SCANCODE_KP_5},
-    {"kp6", SDL_SCANCODE_KP_6},
-    {"kp7", SDL_SCANCODE_KP_7},
-    {"kp8", SDL_SCANCODE_KP_8},
-    {"kp9", SDL_SCANCODE_KP_9},
-    {"kp+", SDL_SCANCODE_KP_PLUS},
-    {"kp-", SDL_SCANCODE_KP_MINUS},
-    {"kp*", SDL_SCANCODE_KP_MULTIPLY},
-    {"kp/", SDL_SCANCODE_KP_DIVIDE},
-    {"kp=", SDL_SCANCODE_KP_EQUALS},
-    {"kpe", SDL_SCANCODE_KP_ENTER},
-    {"kp.", SDL_SCANCODE_KP_PERIOD},
+    {"kp0", SDL_SCANCODE_KP_0},        {"kp1", SDL_SCANCODE_KP_1},      {"kp2", SDL_SCANCODE_KP_2},
+    {"kp3", SDL_SCANCODE_KP_3},        {"kp4", SDL_SCANCODE_KP_4},      {"kp5", SDL_SCANCODE_KP_5},
+    {"kp6", SDL_SCANCODE_KP_6},        {"kp7", SDL_SCANCODE_KP_7},      {"kp8", SDL_SCANCODE_KP_8},
+    {"kp9", SDL_SCANCODE_KP_9},        {"kp+", SDL_SCANCODE_KP_PLUS},   {"kp-", SDL_SCANCODE_KP_MINUS},
+    {"kp*", SDL_SCANCODE_KP_MULTIPLY}, {"kp/", SDL_SCANCODE_KP_DIVIDE}, {"kp=", SDL_SCANCODE_KP_EQUALS},
+    {"kpe", SDL_SCANCODE_KP_ENTER},    {"kp.", SDL_SCANCODE_KP_PERIOD},
 
     {NULL, SDL_SCANCODE_UNKNOWN}};
 
 const ToucheNom touches_longues[] = {
 
-    {"down", SDL_SCANCODE_DOWN}, {"left", SDL_SCANCODE_LEFT}, {"right", SDL_SCANCODE_RIGHT},
+    {"down", SDL_SCANCODE_DOWN},
+    {"left", SDL_SCANCODE_LEFT},
+    {"right", SDL_SCANCODE_RIGHT},
 
     {"home", SDL_SCANCODE_HOME},
     {"pgup", SDL_SCANCODE_PAGEUP},
@@ -301,12 +291,36 @@ const ToucheNom touches_longues[] = {
 
     {NULL, SDL_SCANCODE_UNKNOWN}};
 
-const ManetteBoutonNom boutons_manette[] = {
-    {"a", SDL_CONTROLLER_BUTTON_A}, {"b", SDL_CONTROLLER_BUTTON_B}, {"x", SDL_CONTROLLER_BUTTON_X}, {"y", SDL_CONTROLLER_BUTTON_Y}, {"start", SDL_CONTROLLER_BUTTON_START}, {"back", SDL_CONTROLLER_BUTTON_BACK}, {"select", SDL_CONTROLLER_BUTTON_BACK}, {"guide", SDL_CONTROLLER_BUTTON_GUIDE}, {"home", SDL_CONTROLLER_BUTTON_GUIDE}, {"lb", SDL_CONTROLLER_BUTTON_LEFTSHOULDER}, {"rb", SDL_CONTROLLER_BUTTON_RIGHTSHOULDER}, {"l1", SDL_CONTROLLER_BUTTON_LEFTSHOULDER}, {"r1", SDL_CONTROLLER_BUTTON_RIGHTSHOULDER}, {"l3", SDL_CONTROLLER_BUTTON_LEFTSTICK}, {"r3", SDL_CONTROLLER_BUTTON_RIGHTSTICK}, {"up", SDL_CONTROLLER_BUTTON_DPAD_UP}, {"down", SDL_CONTROLLER_BUTTON_DPAD_DOWN}, {"left", SDL_CONTROLLER_BUTTON_DPAD_LEFT}, {"right", SDL_CONTROLLER_BUTTON_DPAD_RIGHT}, {"share", SDL_CONTROLLER_BUTTON_MISC1}, {"paddle1", SDL_CONTROLLER_BUTTON_PADDLE1}, {"paddle2", SDL_CONTROLLER_BUTTON_PADDLE2}, {"paddle3", SDL_CONTROLLER_BUTTON_PADDLE3}, {"paddle4", SDL_CONTROLLER_BUTTON_PADDLE4}, {"touchpad", SDL_CONTROLLER_BUTTON_TOUCHPAD}, {NULL, SDL_CONTROLLER_BUTTON_INVALID}};
+const ManetteBoutonNom boutons_manette[] = {{"a", SDL_CONTROLLER_BUTTON_A},
+                                            {"b", SDL_CONTROLLER_BUTTON_B},
+                                            {"x", SDL_CONTROLLER_BUTTON_X},
+                                            {"y", SDL_CONTROLLER_BUTTON_Y},
+                                            {"start", SDL_CONTROLLER_BUTTON_START},
+                                            {"back", SDL_CONTROLLER_BUTTON_BACK},
+                                            {"select", SDL_CONTROLLER_BUTTON_BACK},
+                                            {"guide", SDL_CONTROLLER_BUTTON_GUIDE},
+                                            {"home", SDL_CONTROLLER_BUTTON_GUIDE},
+                                            {"lb", SDL_CONTROLLER_BUTTON_LEFTSHOULDER},
+                                            {"rb", SDL_CONTROLLER_BUTTON_RIGHTSHOULDER},
+                                            {"l1", SDL_CONTROLLER_BUTTON_LEFTSHOULDER},
+                                            {"r1", SDL_CONTROLLER_BUTTON_RIGHTSHOULDER},
+                                            {"l3", SDL_CONTROLLER_BUTTON_LEFTSTICK},
+                                            {"r3", SDL_CONTROLLER_BUTTON_RIGHTSTICK},
+                                            {"up", SDL_CONTROLLER_BUTTON_DPAD_UP},
+                                            {"down", SDL_CONTROLLER_BUTTON_DPAD_DOWN},
+                                            {"left", SDL_CONTROLLER_BUTTON_DPAD_LEFT},
+                                            {"right", SDL_CONTROLLER_BUTTON_DPAD_RIGHT},
+                                            {"share", SDL_CONTROLLER_BUTTON_MISC1},
+                                            {"paddle1", SDL_CONTROLLER_BUTTON_PADDLE1},
+                                            {"paddle2", SDL_CONTROLLER_BUTTON_PADDLE2},
+                                            {"paddle3", SDL_CONTROLLER_BUTTON_PADDLE3},
+                                            {"paddle4", SDL_CONTROLLER_BUTTON_PADDLE4},
+                                            {"touchpad", SDL_CONTROLLER_BUTTON_TOUCHPAD},
+                                            {NULL, SDL_CONTROLLER_BUTTON_INVALID}};
 
- SDL_Scancode scancode_depuis_nom(const char *nom_non_normalise)
+SDL_Scancode scancode_depuis_nom(const char* nom_non_normalise)
 {
-    char *nom = normaliser_nom(nom_non_normalise);
+    char* nom = normaliser_nom(nom_non_normalise);
     if (!nom || strlen(nom) == 0)
     {
         free(nom);
@@ -314,7 +328,7 @@ const ManetteBoutonNom boutons_manette[] = {
         return SDL_SCANCODE_UNKNOWN;
     }
 
-    const ToucheNom *liste = NULL;
+    const ToucheNom* liste = NULL;
     size_t longueur = strlen(nom);
 
     if (longueur == 1)
@@ -348,9 +362,9 @@ const ManetteBoutonNom boutons_manette[] = {
     return SDL_SCANCODE_UNKNOWN;
 }
 
- SDL_GameControllerButton bouton_manette_depuis_nom(const char *nom_non_normalise)
+SDL_GameControllerButton bouton_manette_depuis_nom(const char* nom_non_normalise)
 {
-    char *nom = normaliser_nom(nom_non_normalise);
+    char* nom = normaliser_nom(nom_non_normalise);
     if (!nom || strlen(nom) == 0)
     {
         free(nom);
@@ -372,7 +386,7 @@ const ManetteBoutonNom boutons_manette[] = {
     return SDL_CONTROLLER_BUTTON_INVALID;
 }
 
-bool touche_juste_presse(Gestionnaire *jeu, const char *touche)
+bool touche_juste_presse(Gestionnaire* jeu, const char* touche)
 {
     if (!jeu || !jeu->entrees || !touche)
     {
@@ -383,7 +397,7 @@ bool touche_juste_presse(Gestionnaire *jeu, const char *touche)
     return (sc != SDL_SCANCODE_UNKNOWN) && jeu->entrees->keys_pressed[sc];
 }
 
-bool touche_enfoncee(Gestionnaire *jeu, const char *touche)
+bool touche_enfoncee(Gestionnaire* jeu, const char* touche)
 {
     if (!jeu || !jeu->entrees || !touche)
     {
@@ -394,7 +408,7 @@ bool touche_enfoncee(Gestionnaire *jeu, const char *touche)
     return (sc != SDL_SCANCODE_UNKNOWN) && jeu->entrees->keys[sc];
 }
 
-bool touche_mannette_juste_presse(Gestionnaire *jeu, const char *touche)
+bool touche_mannette_juste_presse(Gestionnaire* jeu, const char* touche)
 {
     if (!jeu || !jeu->entrees || !touche)
     {
@@ -405,7 +419,7 @@ bool touche_mannette_juste_presse(Gestionnaire *jeu, const char *touche)
     return (bt != SDL_CONTROLLER_BUTTON_INVALID) && jeu->entrees->controller_pressed[bt];
 }
 
-bool touche_mannette_enfoncee(Gestionnaire *jeu, const char *touche)
+bool touche_mannette_enfoncee(Gestionnaire* jeu, const char* touche)
 {
     if (!jeu || !jeu->entrees || !touche)
     {
