@@ -1,9 +1,11 @@
-#ifndef INPUT_H
-#define INPUT_H
-
+#pragma once
 #include <SDL.h>
 #include <stdbool.h>
 #include "main.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct
 {
@@ -35,4 +37,6 @@ extern const ToucheNom touches_longues[];
 
 extern const ManetteBoutonNom boutons_manette[];
 
+#ifdef __cplusplus
+}
 #endif

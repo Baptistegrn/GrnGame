@@ -1,6 +1,4 @@
-#ifndef __IMAGE_H__
-#define __IMAGE_H__
-
+#pragma once
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
@@ -225,6 +223,4 @@ double hypot_custom(double x, double y);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

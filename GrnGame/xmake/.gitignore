@@ -1,3 +1,7 @@
 .cache/
 .xmake/
 build/
+compile_commands.json
+CMakeLists.txt
+cmake-build-*
+vsxmake2022/
