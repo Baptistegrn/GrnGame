@@ -68,6 +68,5 @@ void ecrire_dans_console(const char* mot)
         return;
     }
 
-    fprintf(stdout, "%s", mot);
-    fflush(stdout);
+    fprintf(stderr,"%s",mot);
 }
