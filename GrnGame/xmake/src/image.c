@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+
 void ajouter_image_au_jeu(Gestionnaire* gestionnaire, image nouvelle)
 {
     if (!gestionnaire || !gestionnaire->image)
