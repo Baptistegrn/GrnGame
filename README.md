@@ -1,12 +1,10 @@
-<div style="text-align: center;">
+<p align="center">
   <img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/iconex8.png" 
        width="120" 
-       alt="GrnGame Icon"
-       style="vertical-align: middle; margin-right: 10px;">
-  <span style="font-size: 32px; font-weight: bold; vertical-align: middle;">GrnGame</span>
-</div>
-
-
+       alt="GrnGame Icon" 
+       style="vertical-align: middle; margin-right: 12px;">
+  <span style="font-size: 38px; font-weight: bold; vertical-align: middle;">rnGame</span>
+</p>
 
 
 
