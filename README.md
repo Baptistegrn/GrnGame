@@ -7,7 +7,7 @@
 </p>
 
 
-** GrnGame Un moteur de jeu 2D Python puissant, conçu pour le pixel art**
+**GrnGame Un moteur de jeu 2D Python puissant, conçu pour le pixel art**
 
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/Baptistegrn/GrnGame/issues)
 
