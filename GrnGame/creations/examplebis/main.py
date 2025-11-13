@@ -3,7 +3,7 @@ import GrnGame
 camera_x = 0.0
 camera_y = 0.0
 
-# Variables du joueur
+
 joueur_x = 80.0
 joueur_y = 50.0
 joueur_vitesse_y = 0.0
@@ -11,6 +11,7 @@ joueur_en_air = True
 joueur_largeur = 16.0
 joueur_hauteur = 16.0
 g,d = False , False
+
 grille = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -25,7 +26,7 @@ grille = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ]
 
-# Conversion de la grille en liste de blocs pour la physique
+# Conversion de la grille en liste de blocs pour la physique GrnGame
 def grille_vers_blocs():
     taille_bloc = 16.0
     blocs = []
@@ -125,7 +126,7 @@ def update():
     if GrnGame.clav.enfoncee("d")and d:
         joueur_x += vitesse_deplacement * GrnGame.const.dt
     
-    # Physique platformer avec détection de collision
+    # Physique GrnGame
     joueur_x, joueur_y, joueur_vitesse_y, joueur_en_air,g,d = GrnGame.platformer_2d(
         dt=GrnGame.const.dt,
         pos_x=joueur_x,
@@ -140,18 +141,14 @@ def update():
         touches_clavier_saut=["z", "space"]
     )
     
-    # Caméra suit le joueur
     camera_x = joueur_x - 80.0 + joueur_largeur / 2.0
     camera_y = joueur_y - 80.0 + joueur_hauteur / 2.0
     
-    # Basculer plein écran
     if GrnGame.clav.juste_presser("f4"):
         GrnGame.utils.redimensionner_fenetre()
     
-    # Dessiner la grille
     dessiner_grille()
     
-    # Dessiner le joueur (rouge)
     GrnGame.image.dessiner_forme(
         x=joueur_x - camera_x,
         y=joueur_y - camera_y,
