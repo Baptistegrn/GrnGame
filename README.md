@@ -1,8 +1,7 @@
-# GrnGame
+#v<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/iconex8.png" width="120" alt="GrnGame Icon"> GrnGame
 
-<div align="center">
 
-<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/iconex8.png" width="120" alt="GrnGame Icon">
+
 
 **Un moteur de jeu 2D Python puissant, conçu pour le pixel art**
 
