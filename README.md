@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/iconex8.png" 
-       width="120" 
+       width="30" 
        alt="GrnGame Icon" 
        style="vertical-align: middle; margin-right: 10px;">
   <span style="font-size: 36px; font-weight: bold; vertical-align: middle;">GrnGame</span>
