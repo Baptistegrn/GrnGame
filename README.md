@@ -3,7 +3,7 @@
        width="120" 
        alt="GrnGame Icon" 
        style="vertical-align: middle; margin-right: 10px;">
-  <span style="font-size: 36px; font-weight: bold; line-height: 120px; vertical-align: middle;">GrnGame</span>
+  <span style="font-size: 36px; font-weight: bold; line-height: 120px; vertical-align: middle;"></span>
 </p>
 
 
