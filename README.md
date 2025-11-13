@@ -1,7 +1,7 @@
-<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/iconex8.png" >
+<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/logo_et_texte.png" >
 
 
-**GrnGame Un moteur de jeu 2D Python puissant, conçu pour le pixel art**
+**Un moteur de jeu 2D Python puissant, conçu pour le pixel art**
 
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/Baptistegrn/GrnGame/issues)
 
