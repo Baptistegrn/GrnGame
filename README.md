@@ -1,4 +1,4 @@
-#v<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/iconex8.png" width="120" alt="GrnGame Icon"> GrnGame
+<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/iconex8.png" width="120" alt="GrnGame Icon"> GrnGame
 
 
 
