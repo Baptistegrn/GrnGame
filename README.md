@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/logo_et_texte.png" alt="GrnGame Logo">
+  <img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/logo_et_textebis.png" alt="GrnGame Logo">
 <br>
   <b>Un moteur de jeu 2D Python puissant, conçu pour le pixel art</b>
 </p>
