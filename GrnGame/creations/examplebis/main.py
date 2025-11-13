@@ -1,0 +1,181 @@
+import GrnGame
+
+camera_x = 0.0
+camera_y = 0.0
+
+# Variables du joueur
+joueur_x = 80.0
+joueur_y = 50.0
+joueur_vitesse_y = 0.0
+joueur_en_air = True
+joueur_largeur = 16.0
+joueur_hauteur = 16.0
+g,d = False , False
+grille = [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1],
+    [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+    [1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+]
+
+# Conversion de la grille en liste de blocs pour la physique
+def grille_vers_blocs():
+    taille_bloc = 16.0
+    blocs = []
+    for y in range(len(grille)):
+        for x in range(len(grille[y])):
+            if grille[y][x] == 1:
+                blocs.append((x * taille_bloc, y * taille_bloc, taille_bloc, taille_bloc))
+    return blocs
+
+blocs = grille_vers_blocs()
+
+def dessiner_grille():
+    taille_bloc = 16.0
+    
+    # Listes pour le batch
+    xs = []
+    ys = []
+    ws = []
+    hs = []
+    rs = []
+    gs = []
+    bs = []
+    
+    for y in range(len(grille)):
+        for x in range(len(grille[y])):
+            if grille[y][x] == 1:
+                bloc_x = x * taille_bloc
+                bloc_y = y * taille_bloc
+                ecran_x = bloc_x - camera_x
+                ecran_y = bloc_y - camera_y
+                
+                # Bloc principal (gris foncé)
+                xs.append(ecran_x)
+                ys.append(ecran_y)
+                ws.append(taille_bloc)
+                hs.append(taille_bloc)
+                rs.append(80)
+                gs.append(80)
+                bs.append(80)
+                
+                # Bordure haut (gris clair)
+                xs.append(ecran_x)
+                ys.append(ecran_y)
+                ws.append(taille_bloc)
+                hs.append(1.0)
+                rs.append(120)
+                gs.append(120)
+                bs.append(120)
+                
+                # Bordure gauche (gris clair)
+                xs.append(ecran_x)
+                ys.append(ecran_y)
+                ws.append(1.0)
+                hs.append(taille_bloc)
+                rs.append(120)
+                gs.append(120)
+                bs.append(120)
+                
+                # Bordure bas (gris foncé)
+                xs.append(ecran_x)
+                ys.append(ecran_y + taille_bloc - 1.0)
+                ws.append(taille_bloc)
+                hs.append(1.0)
+                rs.append(40)
+                gs.append(40)
+                bs.append(40)
+                
+                # Bordure droite (gris foncé)
+                xs.append(ecran_x + taille_bloc - 1.0)
+                ys.append(ecran_y)
+                ws.append(1.0)
+                hs.append(taille_bloc)
+                rs.append(40)
+                gs.append(40)
+                bs.append(40)
+    
+    # Dessiner tout d'un coup
+    if len(xs) > 0:
+        GrnGame.image.dessiner_forme_batch(
+            xs=xs,
+            ys=ys,
+            ws=ws,
+            hs=hs,
+            rs=rs,
+            gs=gs,
+            bs=bs
+        )
+
+def update():
+    global camera_x, camera_y
+    global joueur_x, joueur_y, joueur_vitesse_y, joueur_en_air,g,d
+    
+    # Déplacement horizontal du joueur
+    vitesse_deplacement = 100.0
+    if GrnGame.clav.enfoncee("q") and g:
+        joueur_x -= vitesse_deplacement * GrnGame.const.dt
+    if GrnGame.clav.enfoncee("d")and d:
+        joueur_x += vitesse_deplacement * GrnGame.const.dt
+    
+    # Physique platformer avec détection de collision
+    joueur_x, joueur_y, joueur_vitesse_y, joueur_en_air,g,d = GrnGame.platformer_2d(
+        dt=GrnGame.const.dt,
+        pos_x=joueur_x,
+        pos_y=joueur_y,
+        larg_joueur=joueur_largeur,
+        haut_joueur=joueur_hauteur,
+        vitesse_y=joueur_vitesse_y,
+        est_en_air=joueur_en_air,
+        blocs=blocs,
+        gravite=600.0,
+        force_saut=-250.0,
+        touches_clavier_saut=["z", "space"]
+    )
+    
+    # Caméra suit le joueur
+    camera_x = joueur_x - 80.0 + joueur_largeur / 2.0
+    camera_y = joueur_y - 80.0 + joueur_hauteur / 2.0
+    
+    # Basculer plein écran
+    if GrnGame.clav.juste_presser("f4"):
+        GrnGame.utils.redimensionner_fenetre()
+    
+    # Dessiner la grille
+    dessiner_grille()
+    
+    # Dessiner le joueur (rouge)
+    GrnGame.image.dessiner_forme(
+        x=joueur_x - camera_x,
+        y=joueur_y - camera_y,
+        w=joueur_largeur,
+        h=joueur_hauteur,
+        sens=0,
+        rotation=0,
+        transparence=255,
+        r=255,
+        g=0,
+        b=0
+    )
+    
+    GrnGame.utils.colorier(200, 200, 40)
+
+GrnGame.utils.init(
+    largeur=160,
+    hauteur=160,
+    fps=128,
+    coeff=3,
+    chemin_image="./None",
+    chemin_son="./None",
+    bande_noir=True,
+    update_func=update,
+    nom_fenetre="Test Platformer 16x16",
+    chemin_erreur="erreurs.log"
+)
