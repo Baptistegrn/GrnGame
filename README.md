@@ -1,9 +1,12 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/iconex8.png" 
-       width="30" 
-       alt="GrnGame Icon" 
-       style="vertical-align: middle; margin-right: 10px;">
-  <span style="font-size: 36px; font-weight: bold; vertical-align: middle;">GrnGame</span>
+  <table>
+    <tr>
+      <td><img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/iconex8.png" width="120" alt="GrnGame Icon"></td>
+      <td style="vertical-align: middle; padding-left: 10px;">
+        <span style="font-size: 36px; font-weight: bold;">GrnGame</span>
+      </td>
+    </tr>
+  </table>
 </p>
 
 
