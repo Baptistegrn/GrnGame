@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/icone.png" width="100" alt="GrnGame Icon">
+<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/icone.png" width="120" alt="GrnGame Icon">
 
 **Un moteur de jeu 2D Python puissant, conçu pour le pixel art**
 
