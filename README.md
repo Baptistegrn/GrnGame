@@ -1,4 +1,11 @@
-<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/iconex8.png" width="120" alt="GrnGame Icon"> GrnGame
+<div style="text-align: center;">
+  <img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/iconex8.png" 
+       width="120" 
+       alt="GrnGame Icon"
+       style="vertical-align: middle; margin-right: 10px;">
+  <span style="font-size: 32px; font-weight: bold; vertical-align: middle;">GrnGame</span>
+</div>
+
 
 
 
