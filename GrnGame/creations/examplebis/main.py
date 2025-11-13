@@ -8,8 +8,8 @@ joueur_x = 80.0
 joueur_y = 50.0
 joueur_vitesse_y = 0.0
 joueur_en_air = True
-joueur_largeur = 16.0
-joueur_hauteur = 16.0
+joueur_largeur = 8.0
+joueur_hauteur = 12.0
 g,d = False , False
 
 grille = [
