@@ -1,0 +1,3 @@
+[console_scripts]
+GrnGame_app = GrnGame:compilation
+GrnGame_xmake = GrnGame.xmake.installation:installation_xmake
