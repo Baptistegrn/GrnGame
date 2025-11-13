@@ -121,9 +121,9 @@ def update():
     
     # Déplacement horizontal du joueur
     vitesse_deplacement = 100.0
-    if GrnGame.clav.enfoncee("q") and g:
+    if GrnGame.clav.enfoncee("q") and not g:
         joueur_x -= vitesse_deplacement * GrnGame.const.dt
-    if GrnGame.clav.enfoncee("d")and d:
+    if GrnGame.clav.enfoncee("d")and not d:
         joueur_x += vitesse_deplacement * GrnGame.const.dt
     
     # Physique GrnGame
