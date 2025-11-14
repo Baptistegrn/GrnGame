@@ -17,7 +17,7 @@ def charger_lib(chemin_lib, chemin_xmake):
             return lib
         except OSError as e:
             print(f"[!] Impossible de charger la librairie : {e}")
-            return None
+            #return None
 
     print(f"[!] La librairie '{chemin_lib}' est absente.")
 
