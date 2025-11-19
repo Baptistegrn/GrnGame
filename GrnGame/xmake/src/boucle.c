@@ -1,3 +1,4 @@
+#include "logging.h"
 #include "main.h"
 
 #include <stdio.h>
@@ -13,7 +14,7 @@ void boucle_principale(Gestionnaire* jeu)
 {
     if (!jeu)
     {
-        fprintf(stderr, "Erreur: Gestionnaire de jeu NULL dans la boucle principale\n");
+        log_fmt(NiveauLogErreur, "Gestionnaire NULL dans la boucle principale");
         return;
     }
 

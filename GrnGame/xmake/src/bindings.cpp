@@ -1,3 +1,4 @@
+#include "logging.h"
 #include "main.h"
 #include <cstdio>
 #include <functional>
@@ -10,7 +11,6 @@
 #include <nanobind/stl/vector.h>   // pour std::vector
 #include <nanobind/stl/tuple.h>    // pour nb::make_tuple
 #include <nanobind/stl/string.h>   // si tu manipules des strings
-
 
 struct BlocWrapper {
     float x, y, w, h;
@@ -96,18 +96,27 @@ NB_MODULE(LibGrnGame, m) {
 #ifdef NDEBUG
     nb::set_leak_warnings(false);
 #endif
+    // logging
+    nb::enum_<NiveauLog>(m, "NiveauLog")
+        .value("Debug", NiveauLogDebug)
+        .value("Info", NiveauLogInfo)
+        .value("Avertissement", NiveauLogAvertissement)
+        .value("Erreur", NiveauLogErreur);
+
+
+    m.def("log_message", &log_message);
 
     //init
     m.def("initialisation",
           [](int hauteur, int largeur, float fps, int coeff,
              std::string &lien_image, std::string &lien_son, bool bande_noir,
-             std::string &nom_fenetre, std::string &chemin_console) {
+             std::string &nom_fenetre, std::string &chemin_log) {
               return initialisation(hauteur, largeur, fps, coeff,
                                     lien_image.data(),
                                     lien_son.data(),
                                     bande_noir,
                                     nom_fenetre.data(),
-                                    chemin_console.data());
+                                    chemin_log.data());
           });
 
     m.def("boucle_principale", &boucle_principale);
@@ -239,14 +248,7 @@ NB_MODULE(LibGrnGame, m) {
         liberer_gestionnaire_image(g->textures);
     });
 
-
-
-
-
-
     m.def("platformer_2d", &platformer_2d_tuple_list_of_lists);
-
-
 
     // atribut pour acceder a ces parametres (constante) depuis python
     auto entrees_class = nb::class_<GestionnaireEntrees>(m, "GestionnaireEntrees")

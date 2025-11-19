@@ -1,4 +1,3 @@
-
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,19 +7,18 @@
 #include <SDL_image.h>
 #include <SDL_mixer.h>
 
+#include "logging.h"
 #include "main.h"
 
 #define TAILLE_CANAL 32
 
 Gestionnaire* initialisation(int hauteur, int largeur, float fps, int coeff, char* lien_image, char* lien_son,
-                            bool bande_noir, const char* nom_fenetre, char *chemin_console)
+                            bool bande_noir, const char* nom_fenetre, const char *chemin_log)
 {
-    // Redirection de stderr vers fichier de log
-    normaliser_chemin(chemin_console);
-    FILE* log_file = freopen(chemin_console, "w", stderr);
-    if (!log_file)
-    {
-        fprintf(stdout, "Attention: Impossible de créer le fichier erreurs.log\n");
+    if (chemin_log != NULL) {
+        initialiser_logging(DestinationLogFichier, chemin_log, NiveauLogAvertissement);
+    } else {
+        initialiser_logging(DestinationLogConsole, NULL, NiveauLogAvertissement);
     }
 
 

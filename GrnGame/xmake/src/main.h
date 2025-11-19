@@ -132,7 +132,7 @@ typedef void (*UpdateCallback)(Gestionnaire* jeu);
 
 void set_update_callback(UpdateCallback cb);
 Gestionnaire* initialisation(int hauteur, int largeur, float fps, int coeff, char* lien_image, char* lien_son,
-                          bool bande_noir, const char* nom_fenetre, char* chemin_console);
+                          bool bande_noir, const char* nom_fenetre, const char* chemin_log);
 void update(Gestionnaire* jeu);
 void boucle_principale(Gestionnaire* jeu);
 void liberer_jeu(Gestionnaire* jeu);
