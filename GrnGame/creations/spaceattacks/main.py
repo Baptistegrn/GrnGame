@@ -1,5 +1,5 @@
 import GrnGame as G
-
+import random
 init_mannette = False
 vies = 3
 score = 0
@@ -40,7 +40,7 @@ def collision_rect(x1, y1, w1, h1, x2, y2, w2, h2):
 
 
 def spawn_monstre():
-    x = G.maths.random(0, 340)
+    x =random.randint(0, 340)
     y = -70
     monstre = {'x': x, 'y': y}
     monstres.append(monstre)
@@ -68,11 +68,11 @@ def update_jeu():
     
     dt = G.const.dt
     
-    if G.clav.juste_presser("F3"):
+    if G.clavier.juste_presse("F3"):
         G.utils.redimensionner_fenetre()
     
     if not init_mannette:
-       init_mannette= G.man.init()
+       init_mannette= G.manette.init()
     
     G.image.dessiner("assets/fond.png", 0, 0, 400, 400)
     
@@ -81,7 +81,7 @@ def update_jeu():
         G.image.dessiner_mot("assets/police", f"SCORE: {score}", 165, 250, 1, 3)
         G.image.dessiner_mot("assets/police", "APPUIE B RESTART", 140, 300, 1, 2)
         
-        if G.man.juste_presse("B"):
+        if G.manette.juste_presse("B"):
             vies = 3
             score = 0
             game_over = False
@@ -99,7 +99,7 @@ def update_jeu():
         if invincible_timer < 0:
             invincible_timer = 0
     
-    joysticks = G.man.renvoie_joysticks()
+    joysticks = G.manette.renvoie_joysticks()
     joy_x = joysticks[0]
     joy_y = joysticks[1]
     
@@ -111,7 +111,7 @@ def update_jeu():
     if tir_cooldown > 0:
         tir_cooldown -= dt
     
-    if G.man.enfoncee("A") and tir_cooldown <= 0:
+    if G.manette.enfoncee("A") and tir_cooldown <= 0:
         tirer_projectile()
         tir_cooldown = FIRE_RATE
     

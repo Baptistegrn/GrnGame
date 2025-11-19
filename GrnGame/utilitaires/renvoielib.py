@@ -5,11 +5,11 @@ def renvoie_lib():
 
 
     if systeme == "windows":
-        lib_name = "libjeu.dll"
+        lib_name = "LibGrnGame.pyd"
     elif systeme == "linux":
-        lib_name = "libjeu.so"
+        lib_name = "LibGrnGame.so"
     elif systeme == "darwin":
-        lib_name = "libjeu.dylib"
+        lib_name = "LibGrnGame.dylib"
     else:
         raise OSError(f"Système non pris en charge : {systeme}")
 

@@ -3,7 +3,6 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 
 void redimensionner_fenetre(Gestionnaire* gestionnaire)

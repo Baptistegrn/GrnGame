@@ -1,0 +1,24 @@
+{
+    cmdlines = {
+        "xmake f -p windows -a x64 -m debug",
+        "xmake ",
+        "xmake ",
+        "xmake ",
+        "xmake check",
+        "xmake ",
+        [[xmake l c:\Users\Baptiste\.vscode\extensions\tboox.xmake-vscode-2.4.1\assets\explorer.lua]],
+        [[xmake l c:\Users\Baptiste\.vscode\extensions\tboox.xmake-vscode-2.4.1\assets\config.lua]],
+        "xmake f -p windows -a x64 -m debug",
+        "xmake ",
+        "xmake ",
+        [[xmake l c:\Users\Baptiste\.vscode\extensions\tboox.xmake-vscode-2.4.1\assets\explorer.lua]],
+        [[xmake l c:\Users\Baptiste\.vscode\extensions\tboox.xmake-vscode-2.4.1\assets\config.lua]],
+        "xmake f -p windows -a x64 -m debug",
+        "xmake ",
+        [[xmake l c:\Users\Baptiste\.vscode\extensions\tboox.xmake-vscode-2.4.1\assets\explorer.lua]],
+        [[xmake l c:\Users\Baptiste\.vscode\extensions\tboox.xmake-vscode-2.4.1\assets\config.lua]],
+        [[xmake l c:\Users\Baptiste\.vscode\extensions\tboox.xmake-vscode-2.4.1\assets\modes.lua]],
+        "xmake f -p windows -a x64 -m release",
+        "xmake "
+    }
+}

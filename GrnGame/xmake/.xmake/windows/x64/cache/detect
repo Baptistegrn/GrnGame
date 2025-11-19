@@ -1,0 +1,206 @@
+{
+    ["lib.detect.has_flags"] = {
+        ["windows_x64_c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\bin\\hostx64\\x64\\cl.exe__cc__-nologo_-O2"] = true,
+        ["windows_x64_c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\bin\\hostx64\\x64\\cl.exe__cc_cxflags_-nologo_-DNDEBUG"] = true,
+        ["windows_x64_c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\bin\\hostx64\\x64\\cl.exe__cc_cxflags_-nologo_cl_external_includedir"] = true,
+        ["windows_x64_c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\bin\\hostx64\\x64\\cl.exe__cxx__-nologo_-O2"] = true,
+        ["windows_x64_c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\bin\\hostx64\\x64\\cl.exe__cxx_cxflags_-nologo_-std:c++latest"] = true,
+        ["windows_x64_c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\bin\\hostx64\\x64\\cl.exe__cxx_cxflags_-nologo_cl_sourceDependencies"] = true,
+        ["windows_x64_c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\bin\\hostx64\\x64\\cl.exe__cxx_cxflags_-nologo_cl_external_includedir"] = true,
+        ["windows_x64_c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\bin\\hostx64\\x64\\cl.exe__cc_cxflags_-nologo_cl_sourceDependencies"] = true,
+        ["windows_x64_c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\bin\\hostx64\\x64\\cl.exe__cxx_cxflags_-nologo_-DNDEBUG"] = true,
+        ["windows_x64_c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\bin\\hostx64\\x64\\cl.exe__cxx_cxflags_-nologo_-std:c++23"] = false
+    },
+    find_program_msvc_arch_x64_plat_windows_checktoolsh = {
+        ["link.exe"] = [[C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\bin\HostX64\x64\link.exe]]
+    },
+    find_programver = {
+        ["C:\\Users\\Baptiste\\AppData\\Local\\Programs\\Python\\Python313\\python"] = "3.13.7"
+    },
+    find_program_fetch_package_xmake = {
+        ninja = false,
+        cmake = false
+    },
+    find_program_msvc_arch_x64_plat_windows_checktoolcc = {
+        ["cl.exe"] = [[C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\bin\HostX64\x64\cl.exe]]
+    },
+    find_program_msvc_arch_x64_plat_windows_checktoolcxx = {
+        ["cl.exe"] = [[C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\bin\HostX64\x64\cl.exe]]
+    },
+    find_program_msvc_arch_x64_plat_windows_checktoolld = {
+        ["link.exe"] = [[C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\bin\HostX64\x64\link.exe]]
+    },
+    find_package_windows_x64_fetch_package_xmake = {
+        ["xmake::robin-map_9f78bd54f73849379b6f0f3c0de72f67_release_v1.4.0_external"] = {
+            license = "MIT",
+            version = "v1.4.0",
+            sysincludedirs = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\r\robin-map\v1.4.0\9f78bd54f73849379b6f0f3c0de72f67\include]]
+            }
+        },
+        ["xmake::libflac_a5e16d20bdd447e8a00d8738a3780d91_release_1.5.0_external"] = {
+            libfiles = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libflac\1.5.0\a5e16d20bdd447e8a00d8738a3780d91\lib\FLAC.lib]]
+            },
+            sysincludedirs = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libflac\1.5.0\a5e16d20bdd447e8a00d8738a3780d91\include]]
+            },
+            links = {
+                "FLAC"
+            },
+            linkdirs = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libflac\1.5.0\a5e16d20bdd447e8a00d8738a3780d91\lib]]
+            },
+            version = "1.5.0",
+            license = "BSD",
+            defines = "FLAC__NO_DLL",
+            static = true
+        },
+        ["xmake::libsdl2_f34a557766754d598f0891c7a0cc318d_release_2.32.2_external"] = {
+            libfiles = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\lib\SDL2main.lib]],
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\lib\SDL2-static.lib]]
+            },
+            links = {
+                "SDL2main",
+                "SDL2-static"
+            },
+            components = {
+                main = {
+                    links = "SDL2main",
+                    syslinks = "shell32"
+                },
+                lib = {
+                    links = "SDL2-static",
+                    syslinks = {
+                        "user32",
+                        "gdi32",
+                        "winmm",
+                        "imm32",
+                        "ole32",
+                        "oleaut32",
+                        "version",
+                        "uuid",
+                        "advapi32",
+                        "setupapi",
+                        "shell32"
+                    }
+                },
+                __base = {
+                    linkdirs = {
+                        [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\lib]]
+                    },
+                    sysincludedirs = {
+                        [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\include]],
+                        [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\include\SDL2]]
+                    }
+                }
+            },
+            syslinks = {
+                "user32",
+                "gdi32",
+                "winmm",
+                "imm32",
+                "ole32",
+                "oleaut32",
+                "version",
+                "uuid",
+                "advapi32",
+                "setupapi",
+                "shell32"
+            },
+            license = "zlib",
+            sysincludedirs = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\include]],
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\include\SDL2]]
+            },
+            version = "2.32.2",
+            linkdirs = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\lib]]
+            },
+            static = true
+        },
+        ["xmake::nanobind_94727d2ac74146a8a5227aae226bee1f_release_v2.9.2_external"] = {
+            libfiles = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\n\nanobind\v2.9.2\94727d2ac74146a8a5227aae226bee1f\lib\nanobind.lib]]
+            },
+            links = {
+                "nanobind"
+            },
+            sysincludedirs = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\n\nanobind\v2.9.2\94727d2ac74146a8a5227aae226bee1f\include]]
+            },
+            linkdirs = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\n\nanobind\v2.9.2\94727d2ac74146a8a5227aae226bee1f\lib]]
+            },
+            license = "BSD-3-Clause",
+            version = "v2.9.2",
+            static = true
+        },
+        ["xmake::libsdl2_mixer_af652fb737534f249de29b7611618af0_release_2.8.1_external"] = {
+            libfiles = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_mixer\2.8.1\af652fb737534f249de29b7611618af0\lib\SDL2_mixer-static.lib]]
+            },
+            links = {
+                "SDL2_mixer-static"
+            },
+            sysincludedirs = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_mixer\2.8.1\af652fb737534f249de29b7611618af0\include]],
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_mixer\2.8.1\af652fb737534f249de29b7611618af0\include\SDL2]]
+            },
+            linkdirs = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_mixer\2.8.1\af652fb737534f249de29b7611618af0\lib]]
+            },
+            license = "zlib",
+            version = "2.8.1",
+            static = true
+        },
+        ["xmake::libsdl2_image_cddb7b4b16e2409990e3d7ccdd75f245_release_2.8.8_external"] = {
+            libfiles = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_image\2.8.8\cddb7b4b16e2409990e3d7ccdd75f245\lib\SDL2_image-static.lib]]
+            },
+            links = {
+                "SDL2_image-static"
+            },
+            sysincludedirs = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_image\2.8.8\cddb7b4b16e2409990e3d7ccdd75f245\include]],
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_image\2.8.8\cddb7b4b16e2409990e3d7ccdd75f245\include\SDL2]]
+            },
+            linkdirs = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_image\2.8.8\cddb7b4b16e2409990e3d7ccdd75f245\lib]]
+            },
+            license = "zlib",
+            version = "2.8.8",
+            static = true
+        },
+        ["xmake::python_6faae9af9f22402ab07797869df2de6e_release_3.13.2_external"] = false,
+        ["xmake::libogg_af2c8809d2664ad19beca044c040d728_release_v1.3.6_external"] = {
+            libfiles = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libogg\v1.3.6\af2c8809d2664ad19beca044c040d728\lib\ogg.lib]]
+            },
+            links = {
+                "ogg"
+            },
+            sysincludedirs = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libogg\v1.3.6\af2c8809d2664ad19beca044c040d728\include]]
+            },
+            linkdirs = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libogg\v1.3.6\af2c8809d2664ad19beca044c040d728\lib]]
+            },
+            license = "BSD",
+            version = "v1.3.6",
+            static = true
+        }
+    },
+    find_program = {
+        python = [[C:\Users\Baptiste\AppData\Local\Programs\Python\Python313\python]],
+        ["cl.exe"] = [[C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\bin\HostX64\x64\cl.exe]],
+        ["C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\cl.exe"] = [[c:\program files\microsoft visual studio\2022\community\vc\tools\msvc\14.44.35207\bin\hostx64\x64\cl.exe]],
+        ["7z"] = [[C:\Users\Baptiste\xmake\winenv\bin\7z]],
+        git = [[C:\Program Files\Git\cmd\git.exe]],
+        python3 = false,
+        ["dumpbin.exe"] = [[C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\bin\HostX64\x64\dumpbin.exe]],
+        gzip = false,
+        nim = false
+    }
+}

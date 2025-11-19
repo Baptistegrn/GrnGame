@@ -101,7 +101,6 @@ void charger_toutes_les_textures(GestionnaireTextures* gt, const char* dossier)
         fprintf(stderr, "Erreur: Chargement des textures impossible (paramètre NULL)\n");
         return;
     }
-
     char** liste_textures = NULL;
     int nb = 0;
 

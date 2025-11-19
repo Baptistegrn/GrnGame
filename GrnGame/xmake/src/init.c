@@ -1,9 +1,8 @@
-#include <ctype.h>
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -24,8 +23,6 @@ Gestionnaire* initialisation(int hauteur, int largeur, float fps, int coeff, cha
         fprintf(stdout, "Attention: Impossible de créer le fichier erreurs.log\n");
     }
 
-    // Initialisation du générateur aléatoire
-    srand((unsigned int)time(NULL));
 
     // Validation des paramètres
     if (hauteur <= 0 || largeur <= 0)

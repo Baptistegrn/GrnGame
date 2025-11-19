@@ -24,7 +24,7 @@ void liberer_gestionnaire_son(GestionnaireSon* gs)
 {
     if (!gs)
     {
-        fprintf(stderr, "Impossible de liberer le son car le gestionnaire son est NULL\n");
+        fprintf(stderr, "Impossible de libérer le son car le gestionnaire est NULL\n");
         return;
     }
 
@@ -33,11 +33,15 @@ void liberer_gestionnaire_son(GestionnaireSon* gs)
         if (gs->entrees[i].son)
         {
             Mix_FreeChunk(gs->entrees[i].son);
+            gs->entrees[i].son = NULL;
         }
     }
 
-    free(gs->entrees);
-    gs->entrees = NULL;
+    if (gs->entrees)
+    {
+        free(gs->entrees);
+        gs->entrees = NULL;
+    }
     gs->taille = 0;
     gs->capacite = 0;
 }
@@ -46,7 +50,7 @@ void liberer_gestionnaire_image(GestionnaireTextures* gs)
 {
     if (!gs)
     {
-        fprintf(stderr, "Impossible de liberer limage car le gestionnaire image est NULL\n");
+        fprintf(stderr, "Impossible de libérer l'image car le gestionnaire est NULL\n");
         return;
     }
 
@@ -55,14 +59,20 @@ void liberer_gestionnaire_image(GestionnaireTextures* gs)
         if (gs->entrees[i].texture)
         {
             SDL_DestroyTexture(gs->entrees[i].texture);
+            gs->entrees[i].texture = NULL;
         }
     }
 
-    free(gs->entrees);
-    gs->entrees = NULL;
+    if (gs->entrees)
+    {
+        free(gs->entrees);
+        gs->entrees = NULL;
+    }
     gs->taille = 0;
     gs->capacite = 0;
 }
+
+
 void free_gestionnaire(Gestionnaire* jeu)
 {
     if (!jeu)

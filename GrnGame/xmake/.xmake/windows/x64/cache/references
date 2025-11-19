@@ -1,0 +1,13 @@
+{
+    packages = {
+        [[C:\Users\Baptiste\AppData\Local\.xmake\packages\n\ninja\v1.13.1\fd5a0995dca64146a4f4c4dbff879aad]],
+        [[C:\Users\Baptiste\AppData\Local\.xmake\packages\c\cmake\4.0.3\5249d11949644178abe2f58a6ffb0624]],
+        [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d]],
+        [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_image\2.8.8\cddb7b4b16e2409990e3d7ccdd75f245]],
+        [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libogg\v1.3.6\af2c8809d2664ad19beca044c040d728]],
+        [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libflac\1.5.0\a5e16d20bdd447e8a00d8738a3780d91]],
+        [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_mixer\2.8.1\af652fb737534f249de29b7611618af0]],
+        [[C:\Users\Baptiste\AppData\Local\.xmake\packages\r\robin-map\v1.4.0\9f78bd54f73849379b6f0f3c0de72f67]],
+        [[C:\Users\Baptiste\AppData\Local\.xmake\packages\n\nanobind\v2.9.2\94727d2ac74146a8a5227aae226bee1f]]
+    }
+}

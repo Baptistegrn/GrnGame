@@ -1,8 +1,6 @@
 #include "main.h"
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 static UpdateCallback g_update_callback = NULL;
 

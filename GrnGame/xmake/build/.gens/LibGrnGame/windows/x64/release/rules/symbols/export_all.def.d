@@ -1,0 +1,23 @@
+{
+    files = {
+        [[build\.objs\LibGrnGame\windows\x64\release\src\bindings.cpp.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\boucle.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\caractere.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\chargement_image.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\chargement_son.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\controller.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\fenetre.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\hitbox.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\icone.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\image.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\init.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\input.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\liberer.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\main.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\normaliser.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\redimensionnement.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\son.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\trouver_png.c.obj]],
+        [[build\.objs\LibGrnGame\windows\x64\release\src\trouver_wav.c.obj]]
+    }
+}

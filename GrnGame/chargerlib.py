@@ -1,36 +1,45 @@
-import subprocess
-import ctypes
 import os
-import sys
-
 import shutil
+import subprocess
+import importlib.util
 
-def charger_lib(chemin_lib, chemin_xmake):
+def charger_module_nanobind(nom_module, chemin_lib, chemin_xmake):
+    # verifie que le chemin vers lib existe
     if os.path.isfile(chemin_lib):
         try:
+            # essaye de charger 
+            spec = importlib.util.spec_from_file_location(nom_module, chemin_lib)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
 
-            lib = ctypes.CDLL(chemin_lib)
-            if getattr(sys, 'frozen', False):
-                pass
-            else:
-                print(f"[+] Librairie chargée : {chemin_lib}")
-            return lib
-        except OSError as e:
-            print(f"[!] Impossible de charger la librairie : {e}")
-            return None
+            print(f"[+] Module nanobind chargé : {nom_module}")
+            return module
 
-    print(f"[!] La librairie '{chemin_lib}' est absente.")
+        except Exception as e:
+            print(f"[!] Impossible de charger le module : {e}")
+            print("[i] La lib est peut-être corrompue, suppression...")
+            try:
+                # suppression bug xmake pour remettre une version qui fonctionne sur los
+                os.remove(chemin_lib)
+            except Exception as err:
+                # erreur final retur
+                print(f"[!] Impossible de supprimer la lib : {err}")
+                return None
 
+    # soit absente soit supprimer donc on compile
+    print(f"[!] '{chemin_lib}' absent. Compilation requise.")
+    # on cherche xmake
     xmake_path = shutil.which("xmake")
+
     if not xmake_path:
-        print("[!] xmake introuvable. Impossible de compiler la DLL veuillez executer la commande GrnGame_xmake et relancer la console.")
+        print("[!] xmake introuvable.")
         return None
 
-    print("[i] xmake trouvé. Compilation en cours...")
+    print("[i] Compilation en cours...")
 
     try:
         result = subprocess.run(
-            [xmake_path]+ ["-y"],
+            [xmake_path, "-y"],
             cwd=chemin_xmake,
             check=True,
             stdout=subprocess.PIPE,
@@ -38,19 +47,24 @@ def charger_lib(chemin_lib, chemin_xmake):
             text=True
         )
         print(result.stdout)
-        print("[+] Compilation réussie.")
+        print("[+] Compilation OK.")
+
     except subprocess.CalledProcessError as e:
-        print("[!] Échec de la compilation avec xmake.")
+        print("[!] Erreur compilation.")
         print(e.stdout)
         print(e.stderr)
         return None
+    # on reesaye de charger la lib
     if os.path.isfile(chemin_lib):
         try:
-            lib = ctypes.CDLL(chemin_lib)
-            return lib
-        except OSError as e:
-            print(f"[!] Impossible de charger la librairie après compilation : {e}")
+            spec = importlib.util.spec_from_file_location(nom_module, chemin_lib)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            print("[+] Module nanobind chargé après compilation.")
+            return module
+        except Exception as e:
+            print(f"[!] Impossible de charger après compilation : {e}")
             return None
-    else:
-        print("[!] La DLL n'a pas été générée même après compilation.")
-        return None
+
+    print("[!] La lib n’a pas été générée.")
+    return None

@@ -1,8 +1,10 @@
 import os
-import sys 
+import sys
 import subprocess
+
 def compilation_main(systeme, chemin_lib):
     import argparse
+    import shutil
 
     parser = argparse.ArgumentParser(
         description="Compile un script Python en exécutable avec Grngame",
@@ -21,13 +23,15 @@ def compilation_main(systeme, chemin_lib):
     if not os.path.exists(script_to_compile):
         print(f"Erreur : Le fichier '{script_to_compile}' n'existe pas.")
         return 1
-    # separateur entre windows et linux 
+
+    # Separateur entre Windows et Linux
+    separator = ";" if systeme == "windows" else ":"
+
+    exe_name = os.path.splitext(os.path.basename(script_to_compile))[0]
     if systeme == "windows":
-        separator = ";"
-    elif systeme in ["linux", "darwin"]:
-        separator = ":"
-    else:
-        raise OSError(f"Système non pris en charge : {systeme}")
+        exe_name_sans_exe = exe_name
+        exe_name += ".exe"
+
 
     cmd = [
         "pyinstaller",
@@ -35,21 +39,23 @@ def compilation_main(systeme, chemin_lib):
         "--clean",
         f"--add-binary={chemin_lib}{separator}."
     ]
-    
+
     if args.noconsole:
         if systeme == "windows":
             cmd.append("--noconsole")
             print("Mode sans console activé")
         else:
             print("Avertissement : --noconsole est ignoré (uniquement Windows)")
-    
+
     if args.icon:
         if os.path.exists(args.icon):
             cmd.append(f"--icon={args.icon}")
             print(f"Icône ajoutée : {args.icon}")
         else:
             print(f"Avertissement : L'icône '{args.icon}' n'existe pas, elle sera ignorée.")
-    
+
+    # Ajouter l'option pour mettre l'exécutable dans le dossier courant
+    cmd.append(f"--distpath=.")
     cmd.append(script_to_compile)
     
     print("\nCommande de compilation :")
@@ -58,17 +64,11 @@ def compilation_main(systeme, chemin_lib):
     
     try:
         if systeme == "windows":
-            subprocess.run(cmd, check=True,creationflags=subprocess.CREATE_NEW_CONSOLE)
-            print("\nCompilation terminée avec succès.")
+            subprocess.run(cmd, check=True, creationflags=subprocess.CREATE_NEW_CONSOLE)
         else:
             subprocess.run(cmd, check=True)
-        exe_name = os.path.splitext(os.path.basename(script_to_compile))[0]
-        if systeme == "windows":
-            exe_name += ".exe"
-        exe_path = os.path.join("dist", exe_name)
-        print(f"Exécutable créé : {os.path.abspath(exe_path)}")
-        
-        return 0
+        exe_path = os.path.join(".", exe_name)
+        print(f"\nExécutable créé : {os.path.abspath(exe_path)}")
         
     except subprocess.CalledProcessError as e:
         print(f"\nÉchec de la compilation : {e}")
@@ -77,3 +77,15 @@ def compilation_main(systeme, chemin_lib):
         print("\nErreur : PyInstaller n'est pas installé.")
         print("Installez-le avec : pip install pyinstaller")
         return 1
+    
+    
+    # Supprimer build, dist et .spec si présents
+    for item in ["build", f"{exe_name}.spec",f"{exe_name_sans_exe}.spec"]:
+        if os.path.exists(item):
+            if os.path.isdir(item):
+                shutil.rmtree(item)
+                print(f"Dossier supprimé : {item}")
+            else:
+                os.remove(item)
+                print(f"Fichier supprimé : {item}")
+    return 0

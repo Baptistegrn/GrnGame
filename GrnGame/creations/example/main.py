@@ -37,15 +37,15 @@ def infliger_degats(perso):
 def update_jeu():
     global init_mannette
 
-    if G.clav.juste_presser("F3"):
+    if G.clavier.juste_presse("F3"):
         G.utils.redimensionner_fenetre()
     
     dt = G.const.dt
 
     if not init_mannette:
-        init_mannette = G.man.init()
+        init_mannette = G.manette.init()
     G.image.dessiner("./assets/fond.png", 0, 0, 192, 151)
-    joysticks = G.man.renvoie_joysticks()
+    joysticks = G.manette.renvoie_joysticks()
     joy0_x, joy0_y = joysticks[0], joysticks[1]
     trigger_gauche = joysticks[4]
     joy1_x, joy1_y = joysticks[2], joysticks[3]

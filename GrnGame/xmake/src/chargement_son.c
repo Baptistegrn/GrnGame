@@ -111,7 +111,6 @@ void charger_tous_les_sons(GestionnaireSon* gs, const char* dossier)
         fprintf(stderr, "Erreur: Chargement des sons impossible (paramètre NULL)\n");
         return;
     }
-
     char** liste_sons = NULL;
     int nb = 0;
 

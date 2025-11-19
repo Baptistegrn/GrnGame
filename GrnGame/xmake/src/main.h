@@ -3,16 +3,19 @@
 #include <SDL_image.h>
 #include <SDL_mixer.h>
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 
 #define TAILLE_LIEN_GT 512
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+typedef struct {
+    float x;
+    float y;
+    float w;
+    float h;
+} Bloc;
 typedef struct TextureEntry
 {
     char id[TAILLE_LIEN_GT];
@@ -191,45 +194,15 @@ void free_gestionnaire(Gestionnaire* jeu);
 void free_tab_images(Gestionnaire* gestionnaire);
 
 void ecrire_dans_console(const char* mot);
-int random_jeu(int min, int max);
-
-double abs_val(double x);
-double clamp(double x, double min, double max);
-
-double pow_custom(double base, double exp);
-double sqrt_custom(double x);
-double cbrt_custom(double x);
-
-double exp_custom(double x);
-double log_custom(double x);
-double log10_custom(double x);
-double log2_custom(double x);
-
-double sin_custom(double x);
-double cos_custom(double x);
-double tan_custom(double x);
-double asin_custom(double x);
-double acos_custom(double x);
-double atan_custom(double x);
-double atan2_custom(double y, double x);
-
-double sinh_custom(double x);
-double cosh_custom(double x);
-double tanh_custom(double x);
-double asinh_custom(double x);
-double acosh_custom(double x);
-double atanh_custom(double x);
-
-double floor_custom(double x);
-double ceil_custom(double x);
-double round_custom(double x);
-double trunc_custom(double x);
-
-double fmod_custom(double x, double y);
-double hypot_custom(double x, double y);
-
 
 void Seticone(Gestionnaire *gs,const char *chemin);
+
+void platformer_2d(float dt, float *pos_x, float *pos_y, float *vitesse_y, bool *est_en_air,
+                   float larg_joueur, float haut_joueur, const Bloc *blocs, int taille,
+                   float gravite, float force_saut,
+                   float vitesse_max_chute, float correction_mur,
+                   bool activer_saut,
+                   bool *collision_gauche, bool *collision_droite);
 #ifdef __cplusplus
 }
 #endif

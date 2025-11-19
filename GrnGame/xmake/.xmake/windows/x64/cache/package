@@ -1,0 +1,231 @@
+{
+    libsdl2_mixer = {
+        __requirestr = "libsdl2_mixer",
+        libfiles = {
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_mixer\2.8.1\af652fb737534f249de29b7611618af0\lib\SDL2_mixer-static.lib]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\lib\SDL2main.lib]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\lib\SDL2-static.lib]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libflac\1.5.0\a5e16d20bdd447e8a00d8738a3780d91\lib\FLAC.lib]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libogg\v1.3.6\af2c8809d2664ad19beca044c040d728\lib\ogg.lib]]
+        },
+        version = "2.8.1",
+        defines = "FLAC__NO_DLL",
+        installdir = [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_mixer\2.8.1\af652fb737534f249de29b7611618af0]],
+        __requireconfs = {
+            configs = {
+                system = false
+            }
+        },
+        static = true,
+        license = "zlib",
+        envs = {
+            PATH = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\n\ninja\v1.13.1\fd5a0995dca64146a4f4c4dbff879aad\bin]],
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\c\cmake\4.0.3\5249d11949644178abe2f58a6ffb0624\bin]]
+            }
+        },
+        syslinks = {
+            "user32",
+            "gdi32",
+            "winmm",
+            "imm32",
+            "ole32",
+            "oleaut32",
+            "version",
+            "uuid",
+            "advapi32",
+            "setupapi",
+            "shell32"
+        },
+        linkdirs = {
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_mixer\2.8.1\af652fb737534f249de29b7611618af0\lib]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\lib]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libflac\1.5.0\a5e16d20bdd447e8a00d8738a3780d91\lib]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libogg\v1.3.6\af2c8809d2664ad19beca044c040d728\lib]]
+        },
+        sysincludedirs = {
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_mixer\2.8.1\af652fb737534f249de29b7611618af0\include]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_mixer\2.8.1\af652fb737534f249de29b7611618af0\include\SDL2]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\include]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\include\SDL2]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libflac\1.5.0\a5e16d20bdd447e8a00d8738a3780d91\include]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libogg\v1.3.6\af2c8809d2664ad19beca044c040d728\include]]
+        },
+        links = {
+            "SDL2_mixer-static",
+            "SDL2main",
+            "SDL2-static",
+            "FLAC",
+            "ogg"
+        },
+        __enabled = true
+    },
+    libsdl2_image = {
+        __requirestr = "libsdl2_image",
+        libfiles = {
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_image\2.8.8\cddb7b4b16e2409990e3d7ccdd75f245\lib\SDL2_image-static.lib]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\lib\SDL2main.lib]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\lib\SDL2-static.lib]]
+        },
+        version = "2.8.8",
+        envs = {
+            PATH = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\n\ninja\v1.13.1\fd5a0995dca64146a4f4c4dbff879aad\bin]],
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\c\cmake\4.0.3\5249d11949644178abe2f58a6ffb0624\bin]]
+            }
+        },
+        installdir = [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_image\2.8.8\cddb7b4b16e2409990e3d7ccdd75f245]],
+        static = true,
+        license = "zlib",
+        __requireconfs = {
+            configs = {
+                system = false
+            }
+        },
+        syslinks = {
+            "user32",
+            "gdi32",
+            "winmm",
+            "imm32",
+            "ole32",
+            "oleaut32",
+            "version",
+            "uuid",
+            "advapi32",
+            "setupapi",
+            "shell32"
+        },
+        linkdirs = {
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_image\2.8.8\cddb7b4b16e2409990e3d7ccdd75f245\lib]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\lib]]
+        },
+        sysincludedirs = {
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_image\2.8.8\cddb7b4b16e2409990e3d7ccdd75f245\include]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2_image\2.8.8\cddb7b4b16e2409990e3d7ccdd75f245\include\SDL2]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\include]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\include\SDL2]]
+        },
+        links = {
+            "SDL2_image-static",
+            "SDL2main",
+            "SDL2-static"
+        },
+        __enabled = true
+    },
+    libsdl2 = {
+        __requirestr = "libsdl2",
+        libfiles = {
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\lib\SDL2main.lib]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\lib\SDL2-static.lib]]
+        },
+        version = "2.32.2",
+        envs = {
+            PATH = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\n\ninja\v1.13.1\fd5a0995dca64146a4f4c4dbff879aad\bin]],
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\c\cmake\4.0.3\5249d11949644178abe2f58a6ffb0624\bin]]
+            }
+        },
+        installdir = [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d]],
+        static = true,
+        __enabled = true,
+        __requireconfs = {
+            configs = {
+                system = false
+            }
+        },
+        syslinks = {
+            "user32",
+            "gdi32",
+            "winmm",
+            "imm32",
+            "ole32",
+            "oleaut32",
+            "version",
+            "uuid",
+            "advapi32",
+            "setupapi",
+            "shell32"
+        },
+        license = "zlib",
+        sysincludedirs = {
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\include]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\include\SDL2]]
+        },
+        __components_deps = {
+            main = "lib"
+        },
+        linkdirs = [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\lib]],
+        components = {
+            main = {
+                links = "SDL2main",
+                syslinks = "shell32"
+            },
+            __base = {
+                linkdirs = {
+                    [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\lib]]
+                },
+                sysincludedirs = {
+                    [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\include]],
+                    [[C:\Users\Baptiste\AppData\Local\.xmake\packages\l\libsdl2\2.32.2\f34a557766754d598f0891c7a0cc318d\include\SDL2]]
+                }
+            },
+            lib = {
+                links = "SDL2-static",
+                syslinks = {
+                    "user32",
+                    "gdi32",
+                    "winmm",
+                    "imm32",
+                    "ole32",
+                    "oleaut32",
+                    "version",
+                    "uuid",
+                    "advapi32",
+                    "setupapi",
+                    "shell32"
+                }
+            }
+        },
+        links = {
+            "SDL2main",
+            "SDL2-static"
+        },
+        __components_orderlist = {
+            "main",
+            "lib"
+        }
+    },
+    nanobind = {
+        __requirestr = "nanobind",
+        libfiles = [[C:\Users\Baptiste\AppData\Local\.xmake\packages\n\nanobind\v2.9.2\94727d2ac74146a8a5227aae226bee1f\lib\nanobind.lib]],
+        version = "v2.9.2",
+        envs = {
+            PYTHONPATH = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\p\python\3.13.2\6faae9af9f22402ab07797869df2de6e\Lib\site-packages]]
+            },
+            PATH = {
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\n\ninja\v1.13.1\fd5a0995dca64146a4f4c4dbff879aad\bin]],
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\c\cmake\4.0.3\5249d11949644178abe2f58a6ffb0624\bin]],
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\p\python\3.13.2\6faae9af9f22402ab07797869df2de6e\bin]],
+                [[C:\Users\Baptiste\AppData\Local\.xmake\packages\p\python\3.13.2\6faae9af9f22402ab07797869df2de6e\Scripts]]
+            }
+        },
+        installdir = [[C:\Users\Baptiste\AppData\Local\.xmake\packages\n\nanobind\v2.9.2\94727d2ac74146a8a5227aae226bee1f]],
+        static = true,
+        license = "BSD-3-Clause",
+        linkdirs = {
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\n\nanobind\v2.9.2\94727d2ac74146a8a5227aae226bee1f\lib]],
+            [[C:\Users\Baptiste\AppData\Local\Programs\Python\Python313\libs]]
+        },
+        sysincludedirs = {
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\n\nanobind\v2.9.2\94727d2ac74146a8a5227aae226bee1f\include]],
+            [[C:\Users\Baptiste\AppData\Local\.xmake\packages\r\robin-map\v1.4.0\9f78bd54f73849379b6f0f3c0de72f67\include]],
+            [[C:\Users\Baptiste\AppData\Local\Programs\Python\Python313\include]]
+        },
+        links = {
+            "nanobind",
+            "python313"
+        },
+        __enabled = true
+    }
+}

@@ -1,7 +1,6 @@
 #include "main.h"
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 float ajouter_char_dans_tableau(Gestionnaire* jeu,  char* lien_image, char lettre, float posx, float posy,

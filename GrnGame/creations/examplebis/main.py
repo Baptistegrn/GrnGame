@@ -8,8 +8,8 @@ joueur_x = 80.0
 joueur_y = 50.0
 joueur_vitesse_y = 0.0
 joueur_en_air = True
-joueur_largeur = 16.0
-joueur_hauteur = 16.0
+joueur_largeur = 10.0
+joueur_hauteur = 12.0
 g,d = False , False
 grille = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -120,32 +120,36 @@ def update():
     
     # Déplacement horizontal du joueur
     vitesse_deplacement = 100.0
-    if GrnGame.clav.enfoncee("q") and g:
+    if GrnGame.clavier.enfoncee("q") and not g:
         joueur_x -= vitesse_deplacement * GrnGame.const.dt
-    if GrnGame.clav.enfoncee("d")and d:
+    if GrnGame.clavier.enfoncee("d")and not d:
         joueur_x += vitesse_deplacement * GrnGame.const.dt
     
     # Physique platformer avec détection de collision
-    joueur_x, joueur_y, joueur_vitesse_y, joueur_en_air,g,d = GrnGame.platformer_2d(
+    
+    joueur_x, joueur_y, joueur_vitesse_y, joueur_en_air, g, d = \
+    GrnGame.utils.platformer_2d(
         dt=GrnGame.const.dt,
         pos_x=joueur_x,
         pos_y=joueur_y,
+        vitesse_y=joueur_vitesse_y,
+        en_air=joueur_en_air,
         larg_joueur=joueur_largeur,
         haut_joueur=joueur_hauteur,
-        vitesse_y=joueur_vitesse_y,
-        est_en_air=joueur_en_air,
         blocs=blocs,
         gravite=600.0,
         force_saut=-250.0,
-        touches_clavier_saut=["z", "space"]
+        activer_saut = (GrnGame.clavier.juste_presse("z")
+                        or GrnGame.clavier.juste_presse("space"))
     )
-    
+
+
     # Caméra suit le joueur
     camera_x = joueur_x - 80.0 + joueur_largeur / 2.0
     camera_y = joueur_y - 80.0 + joueur_hauteur / 2.0
     
     # Basculer plein écran
-    if GrnGame.clav.juste_presser("f4"):
+    if GrnGame.clavier.juste_presse("f4"):
         GrnGame.utils.redimensionner_fenetre()
     
     # Dessiner la grille

@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/xmake/iconex8.png" width="120" alt="GrnGame Icon">
+<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/icone/iconex8.png" width="120" alt="GrnGame Icon">
 
 **Un moteur de jeu 2D Python puissant, conçu pour le pixel art**
 
@@ -20,18 +20,17 @@
 
 ## ✨ Fonctionnalités
 
-**GrnGame est une bibliotheque légere,performante et simple pour créer des jeux 2D en Python :**
+**GrnGame est une bibliothèque légère, performante et simple pour créer des jeux 2D en Python :**
 
 * 🖼️ **Rendu optimisé** - Gestion de sprites avec batch rendering
 * 🔊 **Audio multicanal** - 32 canaux audio simultanés
 * ⌨️ **Entrées complètes** - Clavier, souris et manettes
 * 🎮 **Support gamepad** - API intuitive pour les contrôleurs
-* 🧮 **Outils mathématiques** - Bibliothèque de fonctions intégrée
 * 🚀 **Haute performance** - Optimisé pour le pixel art et les jeux rétro
 * 🪟 **Multi-plateforme** - Compatible Windows et Linux
-* 🆑​ **police custom** - Police custom sans ttf
-* ⚙️​ **Compilation** - possibilite de compiler
-* ❌​ **Erreur** - Systeme d'erreur dans un .log
+* 🆑 **Police custom** - Polices custom sans TTF
+* ⚙️ **Compilation** - Possibilité de compiler en exécutable
+* ❌ **Gestion d'erreurs** - Système d'erreur dans un fichier .log
 
 ---
 
@@ -65,7 +64,6 @@ pip install GrnGame
 import GrnGame
 ```
 
-
 ---
 
 ## 🚀 Démarrage rapide
@@ -80,7 +78,7 @@ def update():
     GrnGame.image.dessiner("./assets/player.png", 10, 10, 32, 32)
     
     # Détecter une action
-    if GrnGame.clav.juste_presser("space"):
+    if GrnGame.clavier.juste_presse("space"):
         GrnGame.son.jouer("./assets/jump.wav")
 
 # Initialiser le jeu
@@ -91,7 +89,6 @@ GrnGame.utils.init(
     coeff=4,                  # Facteur d'échelle de la fenêtre
     chemin_image="./assets",  # Dossier des images
     chemin_son="./assets",    # Dossier des sons
-    dessiner=True,            # Dessiner le fond
     bande_noir=True,          # Bandes noires si ratio différent
     update_func=update,       # Fonction appelée à chaque frame
     nom_fenetre="Mon Jeu",    # Titre de la fenêtre
@@ -112,7 +109,7 @@ GrnGame.utils.init(
 | `GrnGame.const.dt` | `float` | Delta time (temps entre frames) |
 | `GrnGame.const.fps` | `float` | FPS actuel du jeu |
 | `GrnGame.const.time` | `float` | Temps écoulé depuis le démarrage |
-| `GrnGame.const.run` | `bool` | État d'exécution du jeu |
+| `GrnGame.const.en_marche` | `bool` | État d'exécution du jeu |
 | `GrnGame.const.decalage_x` | `int` | Décalage horizontal en plein écran |
 | `GrnGame.const.decalage_y` | `int` | Décalage vertical en plein écran |
 
@@ -122,8 +119,8 @@ GrnGame.utils.init(
 
 ```python
 # Position de la souris
-x = GrnGame.const.mouse_x
-y = GrnGame.const.mouse_y
+x = GrnGame.const.souris_x
+y = GrnGame.const.souris_y
 
 # Bouton gauche
 if GrnGame.const.mouse_presse:            # Maintenu
@@ -141,14 +138,15 @@ if GrnGame.const.mouse_droit_juste_presse:  # Vient d'être pressé
 ---
 
 ### ⌨️ Entrée clavier
-**LES ENTREES CLAVIER SONT LES TOUCHES PHYSIQUES DU CLAVIER ANGLAIS  :  W equivaut a Z pour un clavier francais**
+**LES ENTRÉES CLAVIER SONT LES TOUCHES PHYSIQUES DU CLAVIER ANGLAIS : W équivaut à Z pour un clavier français**
+
 ```python
 # Détecter une pression unique
-if GrnGame.clav.juste_presser("space"):
+if GrnGame.clavier.juste_presse("space"):
     print("Espace pressé !")
 
 # Détecter une touche maintenue
-if GrnGame.clav.enfoncee("left"):
+if GrnGame.clavier.enfoncee("left"):
     position_x -= vitesse
 ```
 
@@ -211,18 +209,18 @@ if GrnGame.clav.enfoncee("left"):
 
 ```python
 # Initialiser une manette
-if GrnGame.man.init(0):  # 0 = première manette connectée
+if GrnGame.manette.init(0):  # 0 = première manette connectée
     print("Manette connectée !")
 
 # Détecter les boutons
-if GrnGame.man.juste_presse("a"):
+if GrnGame.manette.juste_presse("a"):
     print("Bouton A pressé !")
 
-if GrnGame.man.enfoncee("x"):
+if GrnGame.manette.enfoncee("x"):
     print("Bouton X maintenu")
 
 # Lire les joysticks et gâchettes
-axes = GrnGame.man.renvoie_joysticks(dead_zone=0.15)
+axes = GrnGame.manette.renvoie_joysticks(dead_zone=0.15)
 if axes:
     stick_g_x, stick_g_y, stick_d_x, stick_d_y, gachette_l, gachette_r = axes
     
@@ -231,7 +229,7 @@ if axes:
     position_y += stick_g_y * vitesse
 
 # Fermer la manette (important avant de quitter)
-GrnGame.man.fermer()
+GrnGame.manette.fermer()
 ```
 
 <details>
@@ -297,8 +295,8 @@ GrnGame.image.dessiner(
     x=10, y=20,
     w=32, h=32,
     sens=0,        # 0=normal, 1=miroir horizontal
-    rotation=0     # Rotation en degrés (0-360)
-    transparence=255,  # 0-255
+    rotation=0,    # Rotation en degrés (0-360)
+    transparence=255  # 0-255
 )
 
 # Batch rendering (plus performant pour plusieurs sprites)
@@ -309,8 +307,8 @@ GrnGame.image.dessiner_batch(
     ws=[32, 32, 48],
     hs=[32, 32, 48],
     sens=[0, 0, 1],        # Optionnel
-    rotations=[0, 0, 90]   # Optionnel
-    transparences=[255, 255, 255] # Optionnel
+    rotations=[0, 0, 90],  # Optionnel
+    transparences=[255, 255, 255]  # Optionnel
 )
 ```
 
@@ -328,13 +326,12 @@ GrnGame.image.dessiner_mot(
 )
 ```
 > 💡 **Astuce** : Les éléments sont rendus dans l'ordre d'appel. Le dernier élément dessiné apparaît au premier plan.
+
 #### Console de debug
 
 ```python
 GrnGame.utils.ecrire_console("Message de debug")
 ```
-
-
 
 ---
 
@@ -344,8 +341,9 @@ GrnGame.utils.ecrire_console("Message de debug")
 # Jouer un son
 GrnGame.son.jouer(
     lien="./assets/explosion.wav",
-    boucle=0,    # -1=infini, 1+=nombre de répétitions a partir de 1
-    canal=-1     # -1=auto, ou 0-31 = canal spécifique
+    boucle=0,    # -1=infini, 1+=nombre de répétitions à partir de 1
+    canal=-1,    # -1=auto, ou 0-31 = canal spécifique
+    volume=64    # Niveau sonore (0-128)
 )
 
 # Contrôle des canaux
@@ -367,51 +365,6 @@ GrnGame.son.reprendre("./assets/music.wav")
 
 ---
 
-### 🧮 Fonctions mathématiques
-
-```python
-# Opérations de base
-GrnGame.maths.abs_val(-5)              # Valeur absolue → 5
-GrnGame.maths.clamp(15, 0, 10)         # Limiter entre min/max → 10
-GrnGame.maths.pow(2, 8)                # Puissance → 256
-GrnGame.maths.sqrt(64)                 # Racine carrée → 8.0
-GrnGame.maths.cbrt(27)                 # Racine cubique → 3.0
-GrnGame.maths.random(10, 50)           # Nombre aléatoire entre 10 et 50
-
-# Trigonométrie
-angle = GrnGame.maths.atan2(dy, dx)    # Angle entre deux points
-distance = GrnGame.maths.hypot(dx, dy) # Distance euclidienne
-
-# Arrondis
-GrnGame.maths.floor(3.7)    # → 3.0
-GrnGame.maths.ceil(3.2)     # → 4.0
-GrnGame.maths.round(3.5)    # → 4.0
-GrnGame.maths.trunc(3.9)    # → 3.0
-
-# Logarithmes et exponentielles
-GrnGame.maths.exp(2)        # e^x
-GrnGame.maths.log(10)       # ln(x)
-GrnGame.maths.log10(100)    # log₁₀(x)
-GrnGame.maths.log2(8)       # log₂(x)
-```
-
-<details>
-<summary><b>📐 Fonctions complètes</b></summary>
-
-**Trigonométrie** : `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`
-
-**Hyperboliques** : `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`
-
-**Exponentielles** : `exp`, `log`, `log10`, `log2`
-
-**Arrondis** : `floor`, `ceil`, `round`, `trunc`
-
-**Autres** : `fmod`, `hypot`, `abs_val`, `clamp`, `pow`, `sqrt`, `cbrt`, `random`
-
-</details>
-
----
-
 ### 🎨 Gestion de la fenêtre
 
 ```python
@@ -428,7 +381,7 @@ GrnGame.utils.stopper_jeu()
 
 ### Plateforme 2D (Platformer)
 
-Pour implémenter la physique d'un jeu de plateforme 2D avec gravity, sauts et collisions de murs :
+Pour implémenter la physique d'un jeu de plateforme 2D avec gravité, sauts et collisions de murs :
 
 ```python
 from GrnGame.hitbox import platformer_2d
@@ -468,19 +421,7 @@ if collision_gauche or collision_droite:
 - `gravite=400.0` : Ajuste la vitesse de chute
 - `force_saut=-200.0` : Négatif pour sauter vers le haut
 - `vitesse_max_chute=500.0` : Limite de vitesse en chute
-- `correction_mur=100.0` : freine si frottage de mur
-
----
-
-### 🎨 Gestion de la fenêtre
-
-```python
-# Basculer en plein écran / fenêtré
-GrnGame.utils.redimensionner_fenetre()
-
-# Arrêter le jeu proprement
-GrnGame.utils.stopper_jeu()
-```
+- `correction_mur=100.0` : Freine si frottage de mur
 
 ---
 
@@ -509,7 +450,6 @@ assets/
    - `65.png` = lettre "A"
    - `97.png` = lettre "a"
    - `48.png` = chiffre "0"
-
 
 2. **Caractères supportés** : ASCII standard (0-127)
    - `32.png` = espace
@@ -577,60 +517,65 @@ mon_jeu/
 
 ```python
 import GrnGame
-
+import math
 # Variables globales
 player_x = 64
 player_y = 40
 player_speed = 50.0  # pixels par seconde
 score = 0
-m = False
+manette_initialisee = False
 
 def update():
-    global player_x, player_y, score, m
-    if not m:
-        m = GrnGame.man.init(0)
+    global player_x, player_y, score, manette_initialisee
+    
+    if not manette_initialisee:
+        manette_initialisee = GrnGame.manette.init(0)
 
     # Déplacement fluide avec delta time
     deplacement = player_speed * GrnGame.const.dt
     
-    if GrnGame.clav.enfoncee("left"):
+    if GrnGame.clavier.enfoncee("left"):
         player_x -= deplacement
-    if GrnGame.clav.enfoncee("right"):
+    if GrnGame.clavier.enfoncee("right"):
         player_x += deplacement
-    if GrnGame.clav.enfoncee("up"):
+    if GrnGame.clavier.enfoncee("up"):
         player_y -= deplacement
-    if GrnGame.clav.enfoncee("down"):
+    if GrnGame.clavier.enfoncee("down"):
         player_y += deplacement
     
     # Limiter aux bords de l'écran
-    player_x = GrnGame.maths.clamp(player_x, 0, GrnGame.const.largeur - 16)
-    player_y = GrnGame.maths.clamp(player_y, 0, GrnGame.const.hauteur - 16)
+    player_x = max(0, min(player_x, GrnGame.const.largeur - 16))
+    player_y = max(0, min(player_y, GrnGame.const.hauteur - 16))
     
     # Action avec espace
-    if GrnGame.clav.juste_presser("space"):
+    if GrnGame.clavier.juste_presse("space"):
         GrnGame.utils.redimensionner_fenetre()
         GrnGame.son.jouer("./assets/shoot.wav", boucle=1, canal=1)
         score += 10
     
     # Support manette
-    axes = GrnGame.man.renvoie_joysticks(dead_zone=0.2)
+    axes = GrnGame.manette.renvoie_joysticks(dead_zone=0.2)
     if axes:
         stick_x, stick_y = axes[0], axes[1]
         player_x += stick_x * deplacement
         player_y += stick_y * deplacement
         
-        if GrnGame.man.juste_presse("a"):
+        if GrnGame.manette.juste_presse("a"):
             GrnGame.son.jouer("./assets/shoot.wav", boucle=1, canal=1)
             score += 10
     
     # Rendu
-    GrnGame.image.dessiner("./assets/1.png", player_x, player_y, 16, 16)
+    GrnGame.image.dessiner("./assets/player.png", player_x, player_y, 16, 16)
     GrnGame.image.dessiner_mot("./assets/police", f"Score: {score}", 5, 5, 1, 1)
-    
-    GrnGame.image.dessiner_mot("./assets/police", f"FPS: {int(1/GrnGame.const.dt)}", 5, 15, 1, 1)
+    dt =GrnGame.const.dt
+    if dt != 0:
+        fps = round(1/GrnGame.const.dt)
+    else:
+        fps = 0
+    GrnGame.image.dessiner_mot("./assets/police", f"FPS: {fps}", 5, 15, 1, 1)
     
     # Quitter
-    if GrnGame.clav.juste_presser("escape"):
+    if GrnGame.clavier.juste_presse("escape"):
         GrnGame.utils.stopper_jeu()
 
 # Configuration et lancement
@@ -641,13 +586,10 @@ GrnGame.utils.init(
     coeff=6,
     chemin_image="./assets",
     chemin_son="./assets",
-    dessiner=True,
     bande_noir=True,
     update_func=update,
     nom_fenetre="Mon Jeu"
 )
-
-
 ```
 
 ---
@@ -692,7 +634,7 @@ GrnGame_app votre_fichier.py --noconsole --icon mon_icone.ico
 
 Si votre système n'est pas directement compatible, GrnGame compilera automatiquement la bibliothèque native via [xmake](https://xmake.io).
 
-Voici les etapes pour ne pas rencontrer de problemes :
+Voici les étapes pour ne pas rencontrer de problèmes :
 
 1. **Installer xmake automatiquement** :
    ```bash
@@ -730,13 +672,13 @@ Voici les etapes pour ne pas rencontrer de problemes :
 - ✅ Ne dépassez pas 32 canaux simultanés
 
 ### Problèmes de performance
-- ✅ Utilisez `dessiner_image_batch()` pour les sprites multiples
-- ✅ Réduisez le nombre d'appels à `dessiner_image()` par frame
+- ✅ Utilisez `dessiner_batch()` pour les sprites multiples
+- ✅ Réduisez le nombre d'appels à `dessiner()` par frame
 - ✅ Optimisez la taille des sprites
 
 ### La manette ne fonctionne pas
-- ✅ Appelez `init_mannette()` **après** `GrnGame.init()`
-- ✅ Appelez `fermer_controller()` avant de quitter
+- ✅ Appelez `init()` **après** `GrnGame.init()`
+- ✅ Appelez `fermer()` avant de quitter
 - ✅ Vérifiez que la manette est bien connectée avant le lancement
 
 ---
