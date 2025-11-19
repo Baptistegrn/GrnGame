@@ -5,7 +5,6 @@ add_requires("libsdl2_image", {configs = {system = false}})
 add_requires("libsdl2_mixer", {configs = {system = false}})
 add_requires("nanobind")
 add_requires("quill")
-add_requires("fmt")
 
 target("LibGrnGame")
     set_languages("cxx23")
@@ -35,4 +34,4 @@ target("LibGrnGame")
         set_extension(".pyd")
     end
 
-    add_packages("libsdl2", "libsdl2_image", "libsdl2_mixer", "nanobind", "quill", "fmt")
+    add_packages("libsdl2", "libsdl2_image", "libsdl2_mixer", "nanobind", "quill")
