@@ -184,7 +184,7 @@ GrnGame.utils.init(
     coeff=3,
     chemin_image="./assets",
     chemin_son="./assets",
-    bande_noir=True,
+    bande_noir=False,
     update_func=update,
     nom_fenetre="Test Platformer 16x16",
     chemin_erreur="errer/errs.log"

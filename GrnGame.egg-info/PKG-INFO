@@ -10,11 +10,13 @@ Classifier: Operating System :: OS Independent
 Classifier: Topic :: Games/Entertainment
 Requires-Python: >=3.8
 Description-Content-Type: text/markdown
+License-File: LICENSE
 Dynamic: author
 Dynamic: author-email
 Dynamic: classifier
 Dynamic: description
 Dynamic: description-content-type
+Dynamic: license-file
 Dynamic: requires-python
 Dynamic: summary
 
@@ -28,13 +30,13 @@ Dynamic: summary
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/Baptistegrn/GrnGame/issues)
 
-[ **Français** | [English](docs/README.en.md) ]
+[ **Français** | [English](#english-version) ]
 
 </div>
 
 **GrnGame** est un moteur de jeu 2D performant pour Python, conçu spécifiquement pour le pixel art.
 
-**PyPi pas encore mis a jour 2.0.0**
+**PyPi pas encore mis à jour 2.0.0**
 
 Avec une gestion optimisée des sprites (batch rendering) et une API intuitive inspirée de pyxel et pygame, vous pouvez créer des jeux fluides et légers facilement.
 
@@ -255,7 +257,7 @@ GrnGame.utils.init(
   Renvoie `True` tant que la touche est maintenue.
 
 <details>
-<summary><b>📋 Liste complète des touches supportées</b></summary>
+<summary><b>Liste complète des touches supportées</b></summary>
 
 **Lettres** : `a` à `z`
 
@@ -328,7 +330,7 @@ GrnGame.utils.init(
   Ferme la connexion avec la manette.
 
 <details>
-<summary><b>🎮 Boutons de manette supportés</b></summary>
+<summary><b>Boutons de manette supportés</b></summary>
 
 **Boutons faciaux** : `a`, `b`, `x`, `y`
 
@@ -358,12 +360,267 @@ Pour créer un exécutable autonome de votre jeu :
 GrnGame_app mon_jeu.py --noconsole --icon mon_icone.ico
 ```
 
-L'exécutable sera généré dans le dossier courant
+L'exécutable sera généré dans le dossier courant.
 
 ## Licence
 
 GrnGame est sous licence [MIT License](LICENSE).
 
+---
+
+# English Version
+
+**GrnGame** is a high-performance 2D game engine for Python, specifically designed for pixel art.
+
+**PyPi not yet updated to 2.0.0**
+
+With optimized sprite management (batch rendering) and an intuitive API inspired by pyxel and pygame, you can easily create smooth and lightweight games.
+
+## Specifications
+
+- Works on Windows and Linux
+- Programming in Python 3.8+
+- Optimized rendering with Batch Rendering
+- Multi-channel audio (32 simultaneous channels)
+- Complete inputs (Keyboard, Mouse, Gamepads)
+- Custom font support (Bitmap fonts)
+- Integrated 2D physics (Platformer)
+- Easy compilation to executable
+
+## Installation
+
+### Via PyPI
+
+```bash
+pip install GrnGame
+```
+
+### From Sources
+
+If your system requires native compilation (e.g., specific Linux), GrnGame will automatically use `xmake`.
+
+```bash
+# 1. Install xmake if necessary
+GrnGame_xmake
+
+# 2. Restart your terminal, then run your script
+python main.py
+```
+
+## Quick Start
+
+In your Python script, import `GrnGame`, define an `update` function, and initialize the engine.
+
+```python
+import GrnGame
+
+def update():
+    # Draw a sprite
+    GrnGame.image.draw("./assets/player.png", 10, 10, 32, 32)
+    
+    # Keyboard inputs
+    if GrnGame.clavier.just_pressed("space"):
+        GrnGame.son.play("./assets/jump.wav")
+        
+    # Quit
+    if GrnGame.clavier.just_pressed("escape"):
+        GrnGame.utils.stop_game()
+
+# Initialize the game
+GrnGame.utils.initialize(
+    width=160,               # Virtual resolution
+    height=90,               # Virtual resolution
+    fps=60,                  # Target frames per second
+    scale=4,                 # Window scale
+    image_path="./assets",   # Root folder for images
+    sound_path="./assets",   # Root folder for sounds
+    update_func=update,      # Loop function
+    window_name="My Game",
+    error_path="errors/err.log" # Path to error logs
+)
+```
+
+## API Reference
+
+### System & Constants (`GrnGame.const`, `GrnGame.utils`)
+
+#### Constants
+
+- `width`, `height`  
+  The width and height of the virtual resolution.
+
+- `dt`  
+  Time elapsed between two frames (Delta Time).
+
+- `fps`  
+  Current frames per second.
+
+- `time`  
+  Total number of frames elapsed since startup.
+
+- `mouse_x`, `mouse_y`  
+  Mouse position relative to virtual screen.
+
+- `mouse_pressed`  
+  Returns `True` if left mouse button is pressed.
+
+- `mouse_just_pressed`  
+  Returns `True` if left mouse button was just pressed this frame.
+
+- `mouse_right_pressed`  
+  Returns `True` if right mouse button is pressed.
+
+- `mouse_right_just_pressed`  
+  Returns `True` if right mouse button was just pressed this frame.
+
+- `offset_x`, `offset_y`  
+  Current camera offset (top-left corner coordinates).
+
+- `running`  
+  Returns `True` if the game is running.
+
+#### Utilities
+
+- `initialize(width, height, fps, scale, image_path, sound_path, letterbox, update_func, window_name, error_path)`  
+  Initialize the window and engine.
+
+- `stop_game()`  
+  Properly close the engine and window.
+
+- `resize_window()`  
+  Toggle between windowed and fullscreen mode.
+
+- `colorize(r, g, b)`  
+  Apply an RGB color tint to all subsequent renders.
+
+- `write_log(type_error, message)`  
+  Write a message to log files. Available types: `"info"`, `"debug"`, `"avertissement"`, `"erreur"`.
+
+- `change_log(level)`  
+  Change the logging level. Available levels: `"info"`, `"debug"`, `"avertissement"`, `"erreur"`.
+
+- `platformer_2d(dt, pos_x, pos_y, vitesse_y, en_air, larg_joueur, haut_joueur, blocs, [gravite], [force_saut], [vitesse_max_chute], [correction_mur], [activer_saut])`  
+  Integrated 2D physics for platform games. Handles gravity, jumps, and block collisions. Returns tuple `(new_pos_x, new_pos_y, new_vitesse_y, new_en_air)`.
+  - `dt` : Delta time (use `GrnGame.const.dt`)
+  - `pos_x`, `pos_y` : Current player position
+  - `vitesse_y` : Current vertical velocity
+  - `en_air` : `True` if player is airborne
+  - `larg_joueur`, `haut_joueur` : Player dimensions
+  - `blocs` : List of rectangles `[(x, y, w, h), ...]` representing collisions
+  - `gravite` : Gravity force (default: 400.0)
+  - `force_saut` : Jump force, negative value (default: -200.0)
+  - `vitesse_max_chute` : Maximum fall speed (default: 500.0)
+  - `correction_mur` : Wall collision correction distance (default: 100.0)
+  - `activer_saut` : `True` to perform a jump this frame
+
+### Graphics (`GrnGame.image`)
+
+- `draw(path, x, y, w, h, [direction], [rotation], [transparency])`  
+  Draw an image at given position. `direction` allows flipping (0=normal, 1=horizontal mirror).
+
+- `draw_batch(ids, xs, ys, ws, hs, [directions], [rotations], [transparency])`  
+  Draw a list of images in a single GPU call for maximum performance.
+
+- `draw_shape(x, y, w, h, [direction], [rotation], [transparency], [r], [g], [b])`  
+  Draw a colored rectangle (solid or with transparency).
+
+- `draw_shape_batch(xs, ys, ws, hs, [directions], [rotations], [transparencies], [rs], [gs], [bs])`  
+  Draw a list of colored rectangles in a single GPU call.
+
+- `draw_word(font_path, word, x, y, scale, spacing, [direction], [rotation], [alpha])`  
+  Display text using bitmap font (folder of PNG images).
+  - `font_path` : Path to folder containing characters (e.g., `"./fonts/my_font/"`)
+  - `word` : Text to display
+  - `x`, `y` : Text position
+  - `scale` : Text scale
+  - `spacing` : Character spacing
+  - `direction` : Horizontal flip (0=normal, 1=mirror)
+  - `rotation` : Rotation in degrees
+  - `alpha` : Transparency (0-255)
+
+- `load_all_textures(folder)`  
+  Preload all images from a folder into memory for better performance.
+
+- `load_all_sounds(folder)`  
+  Preload all sounds from a folder into memory.
+
+- `free_image_manager()`  
+  Free all loaded textures from memory.
+
+- `free_sound_manager()`  
+  Free all loaded sounds from memory.
+
+### Audio (`GrnGame.son`)
+
+- `play(path, [loop], [channel], [volume])`  
+  Play a `.wav` sound. 
+  - `loop` : Number of repetitions (-1 for infinite, 0 for single playback)
+  - `channel` : Audio channel (0-31, or -1 for automatic choice)
+  - `volume` : Playback volume (0-128, default: 64)
+
+- `stop(path)`  
+  Stop playback of a specific sound.
+
+- `stop_channel(channel)`  
+  Stop all sounds on a specific channel (0-31).
+
+- `pause_sound(path)`  
+  Pause a specific sound.
+
+- `pause_channel(channel)`  
+  Pause all sounds on a specific channel.
+
+- `resume(path)`  
+  Resume playback of a paused sound.
+
+- `resume_channel(channel)`  
+  Resume playback of all paused sounds on a specific channel.
+
+### Inputs (`GrnGame.clavier`, `GrnGame.manette`)
+
+#### Keyboard
+
+- `just_pressed(key)`  
+  Returns `True` if key was just pressed this frame. (Ex: "space", "a", "up")
+
+- `pressed(key)`  
+  Returns `True` while key is held down.
+
+#### Gamepad
+
+- `initialize([index])`  
+  Initialize gamepad. `index` specifies which gamepad to use (0 for first, default: 0).
+
+- `pressed(button)`  
+  Returns `True` if gamepad button is held down. (Ex: "a", "b", "start")
+
+- `just_pressed(button)`  
+  Returns `True` if gamepad button was just pressed this frame.
+
+- `get_joysticks([dead_zone])`  
+  Returns stick axes and triggers as list `[lx, ly, rx, ry, lt, rt]`.
+  - Values between -1.0 and 1.0 for sticks
+  - Values between 0.0 and 1.0 for triggers
+  - `dead_zone` : Threshold to ignore small deviations (default: 0.1)
+
+- `close()`  
+  Close gamepad connection.
+
+## Compilation
+
+To create a standalone executable of your game:
+
+```bash
+# Create executable (Windows .exe or Linux binary)
+GrnGame_app my_game.py --noconsole --icon my_icon.ico
+```
+
+The executable will be generated in the current folder.
+
+## License
+
+GrnGame is licensed under the [MIT License](LICENSE).
+
 <div align="center">
-Développé par Baptiste GUERIN
+Developed by Baptiste GUERIN
 </div>

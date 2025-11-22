@@ -1,3 +1,4 @@
+LICENSE
 README.md
 setup.py
 GrnGame/__init__.py
@@ -125,6 +126,7 @@ GrnGame/creations/example/assets/police/98.png
 GrnGame/creations/example/assets/police/99.png
 GrnGame/creations/examplebis/main.py
 GrnGame/creations/examplebis/platformer.gif
+GrnGame/creations/examplebis/__pycache__/pygame.cpython-313.pyc
 GrnGame/creations/examplebis/assets/_player_1.png
 GrnGame/creations/examplebis/assets/_player_2.png
 GrnGame/creations/examplebis/assets/_player_3.png
@@ -230,7 +232,10 @@ GrnGame/creations/spaceattacks/assets/police/93.png
 GrnGame/creations/spaceattacks/assets/police/97.png
 GrnGame/creations/spaceattacks/assets/police/98.png
 GrnGame/creations/spaceattacks/assets/police/99.png
+GrnGame/dist/LibGrnGame.exp
+GrnGame/dist/LibGrnGame.lib
 GrnGame/dist/LibGrnGame.pyd
+GrnGame/dist/LibGrnGame.so
 GrnGame/hitbox/hitbox2dplatformer.py
 GrnGame/hitbox/old.py
 GrnGame/icone/icone.png
@@ -243,9 +248,6 @@ GrnGame/nano/classe/son.py
 GrnGame/nano/classe/utilitaires.py
 GrnGame/utilitaires/renvoielib.py
 GrnGame/utilitaires/systeme.py
-GrnGame/xmake/compile_commands.json
-GrnGame/xmake/icone.png
-GrnGame/xmake/iconex8.png
 GrnGame/xmake/installation.py
 GrnGame/xmake/xmake.lua
 GrnGame/xmake/src/bindings.cpp

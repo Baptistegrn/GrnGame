@@ -20,13 +20,13 @@ void boucle_principale(Gestionnaire* jeu)
 
     if (!jeu->fond)
     {
-        fprintf(stderr, "Erreur: Configuration du fond d'écran manquante\n");
+        log_fmt(NiveauLogErreur, "Erreur: Configuration du fond d'écran manquante\n");
         return;
     }
 
     if (jeu->fps <= 0)
     {
-        fprintf(stderr, "Attention: FPS invalide (%f), correction à 60 FPS\n", jeu->fps);
+        log_fmt(NiveauLogErreur, "Attention: FPS invalide (%f), correction à 60 FPS\n", jeu->fps);
         jeu->fps = 60;
     }
 

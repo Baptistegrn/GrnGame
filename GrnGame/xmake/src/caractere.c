@@ -1,3 +1,4 @@
+#include "logging.h"
 #include "main.h"
 
 #include <stdio.h>
@@ -8,7 +9,7 @@ float ajouter_char_dans_tableau(Gestionnaire* jeu,  char* lien_image, char lettr
 {
     if (!jeu || !lien_image)
     {
-        fprintf(stderr, "Erreur: Paramètre NULL lors de l'ajout d'un caractère\n");
+        log_fmt(NiveauLogErreur, "Erreur: Paramètre NULL lors de l'ajout d'un caractère\n");
         return 0.0f;
     }
 
@@ -18,7 +19,7 @@ float ajouter_char_dans_tableau(Gestionnaire* jeu,  char* lien_image, char lettr
     SDL_Texture* texture = recuperer_texture_par_lien(jeu->textures, lien_image_lettre);
     if (!texture)
     {
-        fprintf(stderr, "Erreur: Texture introuvable pour le caractère '%c' (code: %d)\n", lettre,
+        log_fmt(NiveauLogAvertissement, "Erreur: Texture introuvable pour le caractère '%c' (code: %d)\n", lettre,
                 (unsigned char)lettre);
         return 0.0f;
     }
@@ -26,7 +27,7 @@ float ajouter_char_dans_tableau(Gestionnaire* jeu,  char* lien_image, char lettr
     int texW = 0, texH = 0;
     if (SDL_QueryTexture(texture, NULL, NULL, &texW, &texH) != 0)
     {
-        fprintf(stderr, "Erreur: Impossible d'obtenir les dimensions de la texture '%s': %s\n", lien_image_lettre,
+        log_fmt(NiveauLogAvertissement, "Erreur: Impossible d'obtenir les dimensions de la texture '%s': %s\n", lien_image_lettre,
                 SDL_GetError());
         return 0.0f;
     }
@@ -44,7 +45,7 @@ void ajouter_mot_dans_tableau(Gestionnaire* jeu, char* chemin, const char* mot, 
 {
     if (!jeu || !chemin || !mot)
     {
-        fprintf(stderr, "Erreur: Paramètre NULL lors de l'ajout d'un mot\n");
+        log_fmt(NiveauLogErreur, "Erreur: Paramètre NULL lors de l'ajout d'un mot\n");
         return;
     }
 

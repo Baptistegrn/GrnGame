@@ -42,13 +42,6 @@ Gestionnaire* initialisation(int hauteur, int largeur, float fps, int coeff, cha
 
     strcpy(dest, sans_ext);
     strcat(dest, suffixe);
-    if (freopen(dest, "w", stderr) != NULL) {
-        setvbuf(stderr, NULL, _IONBF, 0);
-    } else {
-        fprintf(stdout, "Attention: Impossible de créer %s\n",dest);
-    }
-    free(sans_ext);
-    free(dest);
 
     if (chemin_log != NULL) {
         initialiser_logging(DestinationLogFichier, chemin_log, NiveauLogInfo);
@@ -56,7 +49,13 @@ Gestionnaire* initialisation(int hauteur, int largeur, float fps, int coeff, cha
         initialiser_logging(DestinationLogConsole, NULL, NiveauLogInfo);
     }
 
-
+    if (freopen(dest, "w", stderr) != NULL) {
+        setvbuf(stderr, NULL, _IONBF, 0);
+    } else {
+        fprintf(stdout, "Attention: Impossible de créer %s\n",dest);
+    }
+    free(sans_ext);
+    free(dest);
     // Validation des paramètres
     if (hauteur <= 0 || largeur <= 0)
     {
@@ -192,7 +191,5 @@ Gestionnaire* initialisation(int hauteur, int largeur, float fps, int coeff, cha
         normaliser_chemin(lien_son);
         charger_tous_les_sons(jeu->sons, lien_son);
     }
-
-
     return jeu;
 }

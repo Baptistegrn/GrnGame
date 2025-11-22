@@ -8,13 +8,13 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/Baptistegrn/GrnGame/issues)
 
-[ **Français** | [English](docs/README.en.md) ]
+[ **Français** | [English](docs/README_EN.md) ]
 
 </div>
 
 **GrnGame** est un moteur de jeu 2D performant pour Python, conçu spécifiquement pour le pixel art.
 
-**PyPi pas encore mis a jour 2.0.0**
+**PyPi pas encore mis à jour 2.0.0**
 
 Avec une gestion optimisée des sprites (batch rendering) et une API intuitive inspirée de pyxel et pygame, vous pouvez créer des jeux fluides et légers facilement.
 
@@ -87,6 +87,18 @@ GrnGame.utils.init(
     chemin_erreur="erreurs/err.log" # Chemin vers les logs d'erreurs
 )
 ```
+
+## Modules Disponibles
+
+GrnGame expose les modules suivants :
+
+- `GrnGame.utils` - Utilitaires système
+- `GrnGame.const` - Constantes du jeu
+- `GrnGame.image` - Rendu graphique
+- `GrnGame.clavier` ou `GrnGame.keyboard` - Entrées clavier
+- `GrnGame.manette` ou `GrnGame.controller` - Entrées manette
+- `GrnGame.son` ou `GrnGame.song` - Gestion audio
+- `GrnGame.platformer_2d` - Physique 2D pour plateformes
 
 ## Référence API
 
@@ -198,7 +210,42 @@ GrnGame.utils.init(
 - `liberer_gestionnaire_son()`  
   Libère tous les sons chargés de la mémoire.
 
-### Audio (`GrnGame.son`)
+#### Créer une Police Bitmap Personnalisée
+
+Pour créer votre propre police bitmap :
+
+1. **Créez un dossier** pour votre police (ex: `fonts/ma_police/`)
+
+2. **Ajoutez vos images de caractères** :
+   - Un fichier PNG par caractère
+   - Nommez chaque fichier avec son **code ASCII** (ex: `65.png` pour 'A', `97.png` pour 'a')
+   - **Toutes les images doivent avoir la même taille** pour un rendu optimal
+
+3. **Structure d'exemple** :
+   ```
+   fonts/
+   └── ma_police/
+       ├── 32.png   (espace)
+       ├── 33.png   (!)
+       ├── 65.png   (A)
+       ├── 97.png   (a)
+       └── ...
+   ```
+
+4. **Utilisation** :
+   ```python
+   # Le chemin est simplement le nom du dossier
+   GrnGame.image.dessiner_mot("fonts/ma_police", "Hello!", 10, 10, 2, 1)
+   ```
+
+**Codes ASCII utiles** :
+- `32` : Espace
+- `33-47` : Ponctuation (!, ", #, $, %, etc.)
+- `48-57` : Chiffres (0-9)
+- `65-90` : Lettres majuscules (A-Z)
+- `97-122` : Lettres minuscules (a-z)
+
+### Audio (`GrnGame.son` ou `GrnGame.song`)
 
 - `jouer(lien, [boucle], [canal], [volume])`  
   Joue un son `.wav`. 
@@ -224,7 +271,7 @@ GrnGame.utils.init(
 - `reprendre_canal(canal)`  
   Reprend la lecture de tous les sons mis en pause sur un canal spécifique.
 
-### Entrées (`GrnGame.clavier`, `GrnGame.manette`)
+### Entrées (`GrnGame.clavier` / `GrnGame.keyboard`, `GrnGame.manette` / `GrnGame.controller`)
 
 #### Clavier
 
@@ -235,7 +282,7 @@ GrnGame.utils.init(
   Renvoie `True` tant que la touche est maintenue.
 
 <details>
-<summary><b>📋 Liste complète des touches supportées</b></summary>
+<summary><b>Liste complète des touches supportées</b></summary>
 
 **Lettres** : `a` à `z`
 
@@ -308,7 +355,7 @@ GrnGame.utils.init(
   Ferme la connexion avec la manette.
 
 <details>
-<summary><b>🎮 Boutons de manette supportés</b></summary>
+<summary><b>Boutons de manette supportés</b></summary>
 
 **Boutons faciaux** : `a`, `b`, `x`, `y`
 
@@ -338,7 +385,7 @@ Pour créer un exécutable autonome de votre jeu :
 GrnGame_app mon_jeu.py --noconsole --icon mon_icone.ico
 ```
 
-L'exécutable sera généré dans le dossier courant
+L'exécutable sera généré dans le dossier courant.
 
 ## Licence
 
