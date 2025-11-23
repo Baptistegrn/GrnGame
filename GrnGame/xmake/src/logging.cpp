@@ -2,7 +2,7 @@
 #include "quill/LogFunctions.h"
 #include "quill/core/LogLevel.h"
 #include <cstdarg>
-#include <format>
+//#include <format>
 #include <quill/Backend.h>
 #include <quill/Frontend.h>
 #include <quill/LogMacros.h>
@@ -24,8 +24,7 @@ quill::LogLevel niveau_log_vers_quill_log_level(NiveauLog niveau_log) {
         return quill::LogLevel::Warning;
     case NiveauLogErreur:
         return quill::LogLevel::Error;
-    default:
-        std::unreachable();
+        
     }
 }
 
