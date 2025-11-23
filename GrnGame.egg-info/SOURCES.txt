@@ -232,8 +232,6 @@ GrnGame/creations/spaceattacks/assets/police/93.png
 GrnGame/creations/spaceattacks/assets/police/97.png
 GrnGame/creations/spaceattacks/assets/police/98.png
 GrnGame/creations/spaceattacks/assets/police/99.png
-GrnGame/dist/LibGrnGame.exp
-GrnGame/dist/LibGrnGame.lib
 GrnGame/dist/LibGrnGame.pyd
 GrnGame/dist/LibGrnGame.so
 GrnGame/hitbox/hitbox2dplatformer.py
