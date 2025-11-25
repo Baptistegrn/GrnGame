@@ -124,5 +124,6 @@ G.utils.init(
     chemin_son="./assets",
     bande_noir=False,
     update_func=update_jeu,
-    nom_fenetre="Prototype Perso Joystick"
+    nom_fenetre="Prototype Perso Joystick",
+    chemin_erreur="erreurs/erreur.logs"
 )

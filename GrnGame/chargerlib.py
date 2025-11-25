@@ -17,6 +17,7 @@ def charger_module_nanobind(nom_module, chemin_lib, chemin_xmake):
 
         except Exception as e:
             print(f"[!] Impossible de charger le module : {e}")
+            print("avez vous un systeme recent et une version python entre la 3.11 et la 3.14 ?")
             print("[i] La lib est peut-être corrompue, suppression...")
             try:
                 # suppression bug xmake pour remettre une version qui fonctionne sur los

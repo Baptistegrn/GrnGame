@@ -14,7 +14,7 @@
 
 **GrnGame** est un moteur de jeu 2D performant pour Python, conçu spécifiquement pour le pixel art.
 
-**PyPi pas encore mis à jour 2.0.0**
+**PYTHON SUPPORTE : 3.11 ,3.12,3.13**
 
 Avec une gestion optimisée des sprites (batch rendering) et une API intuitive inspirée de pyxel et pygame, vous pouvez créer des jeux fluides et légers facilement.
 
