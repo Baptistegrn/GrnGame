@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: GrnGame
-Version: 2.0.0
+Version: 2.0.0.post2
 Summary: GrnGame est un moteur de jeu 2D performant pour Python, conçu spécifiquement pour le pixel art.
 Author: Baptiste GUERIN
 Author-email: baptiste.guerin34@gmail.com

@@ -110,16 +110,19 @@ def update_jeu():
                     p["etat"] = "death"
 
         dessiner_perso(p)
-        G.image.dessiner_mot("./assets/police", f"VIES:{p['vie']}", p["x"] + 5, p["y"] + 3, 0.50, 0.65)
+        x_text =float(p["x"] - 5.0)
+        y_text = float(p["y"] + 3.0)
+
+        G.image.dessiner_mot("./assets/police", "gros texte", x_text, y_text, 0.5, 1.0)
 
 G.utils.init(
-    largeur=192,
-    hauteur=151,
-    fps=120,
+    largeur=140,
+    hauteur=140,
+    fps=165,
     coeff=4,
     chemin_image="./assets",
     chemin_son="./assets",
-    bande_noir=True,
+    bande_noir=False,
     update_func=update_jeu,
     nom_fenetre="Prototype Perso Joystick"
 )

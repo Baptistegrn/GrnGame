@@ -6,7 +6,7 @@ long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="GrnGame",
-    version="2.0.0",
+    version="2.0.0.post2",
     author="Baptiste GUERIN",
     author_email="baptiste.guerin34@gmail.com",
     description="GrnGame est un moteur de jeu 2D performant pour Python, conçu spécifiquement pour le pixel art.",

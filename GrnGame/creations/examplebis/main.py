@@ -27,7 +27,6 @@ grille = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ]
 
-# Conversion de la grille en liste de blocs pour la physique
 def grille_vers_blocs():
     taille_bloc = 16.0
     blocs = []
@@ -104,7 +103,6 @@ def dessiner_grille():
                 gs.append(40)
                 bs.append(40)
     
-    # Dessiner tout d'un coup
     if len(xs) > 0:
         GrnGame.image.dessiner_forme_batch(
             xs=xs,
@@ -123,9 +121,8 @@ def update():
         frame+=1
         if frame>5:
             frame= 1
-    # Déplacement horizontal du joueur
     vitesse_deplacement = 100.0
-    if GrnGame.clavier.enfoncee("q") and not g:
+    if (GrnGame.clavier.enfoncee("q") or GrnGame.clavier.enfoncee("a")) and not g:
         joueur_x -= vitesse_deplacement * GrnGame.const.dt
         sens=0
     if GrnGame.clavier.enfoncee("d")and not d:
@@ -147,7 +144,7 @@ def update():
         gravite=600.0,
         force_saut=-250.0,
         activer_saut = (GrnGame.clavier.juste_presse("z")
-                        or GrnGame.clavier.juste_presse("space"))
+                        or GrnGame.clavier.juste_presse("space") or GrnGame.clavier.juste_presse("w") )
     )
 
 
@@ -163,7 +160,7 @@ def update():
     # Dessiner la grille
     dessiner_grille()
     
-    # Dessiner le joueur (rouge)
+    # Dessiner le joueur
     GrnGame.image.dessiner(
         lien=f"./assets/_player_{frame}.png",
         x=joueur_x - camera_x,

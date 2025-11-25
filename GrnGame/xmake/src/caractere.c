@@ -43,15 +43,24 @@ float ajouter_char_dans_tableau(Gestionnaire* jeu,  char* lien_image, char lettr
 void ajouter_mot_dans_tableau(Gestionnaire* jeu, char* chemin, const char* mot, float posx, float posy,
                               float coeff, int sens, float ecart, int rotation,int alpha)
 {
+
+
     if (!jeu || !chemin || !mot)
     {
         log_fmt(NiveauLogErreur, "Erreur: Paramètre NULL lors de l'ajout d'un mot\n");
         return;
     }
-
+    #include <math.h>
     int taille_chaine = (int)strlen(mot);
     float position_courante = 0.0f;
 
+    double decalage_x_scaled = (double)jeu->decalage_x / ( (double)jeu->largeur_actuel / (double)jeu->largeur);
+    double decalage_y_scaled = (double)jeu->decalage_y / ( (double)jeu->largeur_actuel / (double)jeu->largeur);
+    double coeff_d =    (double)jeu->largeur_actuel / (double)jeu->largeur;
+    double posx_d = (double)posx;
+    double posy_d = (double)posy;
+    posx = (float)(lround(((posx_d ) * coeff_d) + decalage_x_scaled)/ coeff_d);
+    posy = (float)(lround(((posy_d ) * coeff_d)+ decalage_y_scaled) / coeff_d);
     for (int i = 0; i < taille_chaine; i++)
     {
         float largeur =
