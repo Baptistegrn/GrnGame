@@ -1,5 +1,5 @@
 #include "input.h"
-#include "logging.h" // Ajout pour log_fmt
+#include "logging.h" 
 
 #include <SDL_image.h>
 #include <ctype.h>

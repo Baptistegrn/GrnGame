@@ -6,7 +6,7 @@ add_requires("libsdl_mixer", {system = false, configs = {shared = false}})
 add_requires("quill", {system = false, configs = {shared = false}})
 add_requires("zlib", {system = false, configs = {shared = false}})
 add_requires("expat", {system = false, configs = {shared = false}})
-add_requires("nanobind", {system = false}) 
+add_requires("nanobind", {system = false, configs = {shared = false}}) 
 
 target("LibGrnGame")
     set_languages("cxx17")

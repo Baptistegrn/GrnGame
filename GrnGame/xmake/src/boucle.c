@@ -1,13 +1,12 @@
 #include "logging.h"
 #include "main.h"
 
-#include <stdio.h>
 
 static UpdateCallback g_update_callback = NULL;
 
 void set_update_callback(UpdateCallback cb)
 {
-    g_update_callback = cb;
+    g_update_callback = cb; 
 }
 
 void boucle_principale(Gestionnaire* jeu)

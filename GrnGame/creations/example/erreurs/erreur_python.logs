@@ -1,3 +1,0 @@
-Fatal Python error: PyThreadState_Get: the function must be called with the GIL held, but the GIL is released (the current Python thread state is NULL)
-Python runtime state: finalizing (tstate=0x00007ffe8040c960)
-

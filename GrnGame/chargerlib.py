@@ -4,40 +4,33 @@ import subprocess
 import importlib.util
 
 def charger_module_nanobind(nom_module, chemin_lib, chemin_xmake):
-    # verifie que le chemin vers lib existe
+
+    def _charger_lib(path):
+        spec = importlib.util.spec_from_file_location(nom_module, path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    # Essaye de charger si existante
     if os.path.isfile(chemin_lib):
         try:
-            # essaye de charger 
-            spec = importlib.util.spec_from_file_location(nom_module, chemin_lib)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-
-            print(f"[+] Module nanobind chargé : {nom_module}")
-            return module
-
+            return _charger_lib(chemin_lib)
         except Exception as e:
             print(f"[!] Impossible de charger le module : {e}")
-            print("avez vous un systeme recent et une version python entre la 3.11 et la 3.14 ?")
             print("[i] La lib est peut-être corrompue, suppression...")
             try:
-                # suppression bug xmake pour remettre une version qui fonctionne sur los
                 os.remove(chemin_lib)
             except Exception as err:
-                # erreur final retur
                 print(f"[!] Impossible de supprimer la lib : {err}")
-                return None
 
-    # soit absente soit supprimer donc on compile
+    # Compilation si absente ou supprimée
     print(f"[!] '{chemin_lib}' absent. Compilation requise.")
-    # on cherche xmake
     xmake_path = shutil.which("xmake")
-
     if not xmake_path:
-        print("[!] xmake introuvable.")
+        print("[!] xmake introuvable. Veuillez exécuter GrnGame_xmake et relancer la console.")
         return None
 
     print("[i] Compilation en cours...")
-
     try:
         result = subprocess.run(
             [xmake_path, "-y"],
@@ -49,20 +42,16 @@ def charger_module_nanobind(nom_module, chemin_lib, chemin_xmake):
         )
         print(result.stdout)
         print("[+] Compilation OK.")
-
     except subprocess.CalledProcessError as e:
         print("[!] Erreur compilation.")
         print(e.stdout)
         print(e.stderr)
         return None
-    # on reesaye de charger la lib
+
+    # Rechargement après compilation
     if os.path.isfile(chemin_lib):
         try:
-            spec = importlib.util.spec_from_file_location(nom_module, chemin_lib)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            print("[+] Module nanobind chargé après compilation.")
-            return module
+            return _charger_lib(chemin_lib)
         except Exception as e:
             print(f"[!] Impossible de charger après compilation : {e}")
             return None

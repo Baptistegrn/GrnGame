@@ -4,7 +4,9 @@ from .utilitaires.systeme import renvoie_systeme
 from .chargerlib import charger_module_nanobind
 from .compilation import compilation_main
 chemin_package, chemin_script, chemin_lib = retour_tout_chemin()
+systeme =renvoie_systeme()
 import sys
+import ctypes
 from .hitbox.hitbox2dplatformer import platformer_2d
 
 def compilation():
@@ -12,14 +14,26 @@ def compilation():
 
 called_program = os.path.basename(sys.argv[0])
 COMMANDES_INTERDITES = {"GrnGame_app", "GrnGame_xmake","GrnGame_app.exe", "GrnGame_xmake.exe"}
+dll_path = os.path.join(chemin_package, "VC_dll")
+os.environ["PATH"] = dll_path + os.pathsep + os.environ.get("PATH", "")
 
 jeu = None
 if called_program not in COMMANDES_INTERDITES:
     try:
-        jeu = charger_module_nanobind("LibGrnGame",chemin_lib, os.path.join(chemin_package, "xmake"))
+        if systeme == "windows" and   not(getattr(sys, 'frozen', False)):
+            # Charger dynamiquement les DLL VC runtime
+            for dll_name in ["VCRUNTIME140.dll", "VCRUNTIME140_1.dll"]:
+                try:
+                    ctypes.WinDLL(os.path.join(dll_path, dll_name))
+                except OSError as e:
+                    print(f"[!] Impossible de charger {dll_name} : {e}")
 
-    except Exception:
-        print("[!] Erreur lors du chargement de la lib, le moteur est désactivé.")
+
+        # Charger le module Nanobind
+        jeu = charger_module_nanobind("LibGrnGame", chemin_lib, os.path.join(chemin_package, "xmake"))
+    except Exception as e:
+        print("[!] Erreur lors du chargement de la lib, le moteur est désactivé.", e)
+
 
         
 if jeu is not None and called_program not in COMMANDES_INTERDITES:
