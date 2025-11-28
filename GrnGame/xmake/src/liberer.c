@@ -128,6 +128,6 @@ void liberer_jeu(Gestionnaire* jeu)
     Mix_CloseAudio();
     IMG_Quit();
     SDL_Quit();
-
-    free(jeu);
+    // nanobind sen charge
+    //free(jeu);
 }
