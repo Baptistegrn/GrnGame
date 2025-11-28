@@ -1,7 +1,12 @@
 add_rules("mode.release", "mode.debug")
 
+if is_plat("linux") then 
+    add_requires("libogg", {system = false, configs = {shared = false}})
+    add_requires("libvorbis", {system = false, configs = {shared = false}})
+    add_requires("libflac", {system = false, configs = {shared = false}})
+end
 add_requires("libsdl2", {system = false, configs = {shared = false}})
-add_requires("libsdl_image", {system = false, configs = {shared = false}})
+add_requires("libsdl2_image", {system = false, configs = {shared = false}})
 add_requires("libsdl_mixer", {system = false, configs = {shared = false}})
 add_requires("quill", {system = false, configs = {shared = false}})
 add_requires("zlib", {system = false, configs = {shared = false}})
@@ -63,4 +68,6 @@ target("LibGrnGame")
         set_extension(".pyd")
     end
 
-    add_packages("libsdl", "libsdl_image", "libsdl_mixer", "zlib", "expat", "nanobind", "quill")
+    -- Note : Pas besoin d'ajouter ogg/flac ici sauf si vous utilisez leurs headers directement dans VOTRE code.
+    -- libsdl_mixer fera le lien automatiquement.
+    add_packages("libsdl2", "libsdl2_image", "libsdl_mixer", "zlib", "expat", "nanobind", "quill")
