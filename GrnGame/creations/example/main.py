@@ -21,7 +21,7 @@ def dessiner_perso(perso):
     frame_list = frames[perso["etat"]][perso["direction"]]
     frame_index = (perso["frame"] - 1) % len(frame_list)
     frame_num = frame_list[frame_index]
-    G.image.dessiner(f"./assets/{frame_num}.png", perso["x"], perso["y"], 32, 32, sens=sens)
+    G.image.dessiner(f"../assets/{frame_num}.png", perso["x"], perso["y"], 32, 32, sens=sens)
 
 def infliger_degats(perso):
     """Inflige 1 dégât si pas déjà en hurt ou mort."""
@@ -44,7 +44,7 @@ def update_jeu():
 
     if not init_mannette:
         init_mannette = G.manette.init()
-    G.image.dessiner("./assets/fond.png", 0, 0, 192, 151)
+    G.image.dessiner("../assets/fond2.png", 0, 0, 192, 151)
     joysticks = G.manette.renvoie_joysticks()
     joy0_x, joy0_y = joysticks[0], joysticks[1]
     trigger_gauche = joysticks[4]
@@ -113,15 +113,15 @@ def update_jeu():
         x_text =float(p["x"] - 5.0)
         y_text = float(p["y"] + 3.0)
 
-        G.image.dessiner_mot("./assets/police", "gros texte", x_text, y_text, 0.5, 1.0)
+        G.image.dessiner_mot("../assets/police", "gros texte", x_text, y_text, 0.5, 1.0)
 
 G.utils.init(
     largeur=140,
     hauteur=140,
     fps=165,
     coeff=4,
-    chemin_image="./assets",
-    chemin_son="./assets",
+    chemin_image="../assets",
+    chemin_son="../assets",
     bande_noir=False,
     update_func=update_jeu,
     nom_fenetre="Prototype Perso Joystick",

@@ -1,8 +1,7 @@
-#include "logging.h"
+#include "logging/logging.h"
 #include "main.h"
 #include <cstdio>
 #include <cstdlib>
-#include <functional>
 #include <stdexcept>
 
 #include <nanobind/nanobind.h>
@@ -160,32 +159,22 @@ NB_MODULE(LibGrnGame, m) {
         fermer_controller(g);
         fermer_joystick(g);
     });
-    m.def("ajouter_forme", &ajouter_forme_au_tableau);
+    m.def("ajouter_rectangle", &ajouter_rectangle);
+    m.def("ajouter_cercle", &ajouter_cercle);
+    m.def("ajouter_triangle", &ajouter_triangle);
+        m.def("ajouter_ligne", &ajouter_ligne);
 
-    m.def("ajouter_forme_batch", [](Gestionnaire* g,
-                                    std::vector<float> xs, std::vector<float> ys,
-                                    std::vector<float> ws, std::vector<float> hs,
-                                    std::vector<int> sens, std::vector<int> rotations,
-                                    std::vector<int> transparences, std::vector<int> rs,
-                                    std::vector<int> gs , std::vector<int> bs ) {
-        size_t taille = xs.size();
-        ajouter_forme_au_tableau_batch(g,
-                                       xs.data(), ys.data(), ws.data(), hs.data(),
-                                       sens.data(), rotations.data(), transparences.data(),
-                                       rs.data(), gs.data(), bs.data(),
-                                       static_cast<int>(taille));
-    });
 
     //image
-    m.def("ajouter_image", [](Gestionnaire* g, const std::string &lien, float x, float y, float w, float h,
+    m.def("ajouter_image", [](Gestionnaire* g, const std::string &lien, int x, int y, int w, int h,
                               int sens = 0, int rotation = 0, int transparence = 255) {
         ajouter_image_au_tableau(g, const_cast<char*>(lien.data()), x, y, w, h, sens, rotation, transparence);
     });
 
     m.def("ajouter_image_batch", [](Gestionnaire* g,
                                     std::vector<std::string> ids,
-                                    std::vector<float> xs, std::vector<float> ys,
-                                    std::vector<float> ws, std::vector<float> hs,
+                                    std::vector<int> xs, std::vector<int> ys,
+                                    std::vector<int> ws, std::vector<int> hs,
                                     std::vector<int> sens , std::vector<int> rotations ,
                                     std::vector<int> transparences ) {
         size_t taille = ids.size();
@@ -200,12 +189,37 @@ NB_MODULE(LibGrnGame, m) {
 
     //texte
     m.def("ajouter_mot", [](Gestionnaire* g, const std::string &lien, const std::string &mot,
-                              float x, float y, float coeff, int sens = 0, float ecart = 0,
+                              int x, int y, int coeff, int sens = 0, float ecart = 0,
                               int rotation = 0, int alpha = 255) {
         ajouter_mot_dans_tableau(g,
                                  const_cast<char*>(lien.data()),
                                  const_cast<char*>(mot.data()),
+       
+       
                                  x, y, coeff, sens, ecart, rotation, alpha);
+    });
+    //shaders
+    m.def("appliquer_shaders",
+        [](Gestionnaire* gt,
+            std::vector<int> posx,
+            std::vector<int> posy,
+            std::vector<int> r,
+            std::vector<int> g,
+            std::vector<int> b,
+            std::vector<int> a)
+    {
+        int taille = static_cast<int>(posx.size());
+
+        ajouter_shaders(
+            gt,
+            posx.data(),
+            posy.data(),
+            r.data(),
+            g.data(),
+            b.data(),
+            a.data(),
+            taille
+        );
     });
 
     //son
@@ -246,7 +260,7 @@ NB_MODULE(LibGrnGame, m) {
     });
 
     m.def("platformer_2d", &platformer_2d_tuple_list_of_lists);
-
+    m.def("afficher_curseur",&afficher_curseur);
     // atribut pour acceder a ces parametres (constante) depuis python
     auto entrees_class = nb::class_<GestionnaireEntrees>(m, "GestionnaireEntrees")
         .def_ro("mouse_x", &GestionnaireEntrees::mouse_x)

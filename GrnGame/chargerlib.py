@@ -4,7 +4,7 @@ import subprocess
 import importlib.util
 
 def charger_module_nanobind(nom_module, chemin_lib, chemin_xmake):
-
+    #print(chemin_lib,chemin_xmake)
     def _charger_lib(path):
         spec = importlib.util.spec_from_file_location(nom_module, path)
         module = importlib.util.module_from_spec(spec)

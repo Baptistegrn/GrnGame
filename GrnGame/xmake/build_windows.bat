@@ -1,1 +1,0 @@
-.\windows_commande_compilation\buildpython311.bat & .\windows_commande_compilation\buildpython312.bat & .\windows_commande_compilation\buildpython313.bat & .\windows_commande_compilation\buildpython314.bat

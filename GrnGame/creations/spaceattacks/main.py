@@ -49,14 +49,14 @@ def spawn_monstre():
 def creer_explosion(x, y):
     explosion = {'x': x, 'y': y, 'frame': 1, 'timer': 0}
     explosions.append(explosion)
-    G.son.jouer("assets/explosion.wav", boucle=1, canal=1,volume=10)
+    G.son.jouer("../assets/explosion.wav", boucle=1, canal=1,volume=10)
 
 
 def tirer_projectile():
     global projectiles
     proj = {'x': vaisseau_x + 8, 'y': vaisseau_y - 10}
     projectiles.append(proj)
-    G.son.jouer("assets/tir.wav", boucle=1, canal=2,volume=10)
+    G.son.jouer("../assets/tir.wav", boucle=1, canal=2,volume=10)
 
 
 def update_jeu():
@@ -74,12 +74,12 @@ def update_jeu():
     if not init_mannette:
        init_mannette= G.manette.init()
     
-    G.image.dessiner("assets/fond.png", 0, 0, 400, 400)
+    G.image.dessiner("../assets/fond.png", 0, 0, 400, 400)
     
     if game_over:
-        G.image.dessiner_mot("assets/police", "GAME OVER", 130, 200, 2, 3)
-        G.image.dessiner_mot("assets/police", f"SCORE: {score}", 165, 250, 1, 3)
-        G.image.dessiner_mot("assets/police", "APPUIE B RESTART", 140, 300, 1, 2)
+        G.image.dessiner_mot("../assets/police", "GAME OVER", 130, 200, 2, 3)
+        G.image.dessiner_mot("../assets/police", f"SCORE: {score}", 165, 250, 1, 3)
+        G.image.dessiner_mot("../assets/police", "APPUIE B RESTART", 140, 300, 1, 2)
         
         if G.manette.juste_presse("B"):
             vies = 3
@@ -204,20 +204,20 @@ def update_jeu():
             explosions.remove(exp)
     
     for exp in explosions:
-        G.image.dessiner(f"assets/explosion {exp['frame']}.png", exp['x'], exp['y'], 62, 62)
+        G.image.dessiner(f"../assets/explosion {exp['frame']}.png", exp['x'], exp['y'], 62, 62)
     
     for monstre in monstres:
-        G.image.dessiner(f"assets/monstre {monstre_anim_frame}.png", monstre['x'], monstre['y'], 62, 62)
+        G.image.dessiner(f"../assets/monstre {monstre_anim_frame}.png", monstre['x'], monstre['y'], 62, 62)
     
     for proj in projectiles:
-        G.image.dessiner(f"assets/projectile {projectile_anim_frame}.png", proj['x'], proj['y'], 32, 32)
+        G.image.dessiner(f"../assets/projectile {projectile_anim_frame}.png", proj['x'], proj['y'], 32, 32)
     
     if invincible_timer == 0 or int(invincible_timer * 10) % 2 == 0:
         frame_vaisseau = min(vaisseau_degats + 1, 4)
-        G.image.dessiner(f"assets/vaisseau {frame_vaisseau}.png", vaisseau_x, vaisseau_y, 48, 48)
+        G.image.dessiner(f"../assets/vaisseau {frame_vaisseau}.png", vaisseau_x, vaisseau_y, 48, 48)
     
-    G.image.dessiner_mot("assets/police", f"VIES: {vies}", 10, 10, 1, 2)
-    G.image.dessiner_mot("assets/police", f"SCORE: {score}", 300, 10, 1, 2)
+    G.image.dessiner_mot("../assets/police", f"VIES: {vies}", 10, 10, 1, 2)
+    G.image.dessiner_mot("../assets/police", f"SCORE: {score}", 300, 10, 1, 2)
 
 
 G.utils.init(
@@ -225,8 +225,8 @@ G.utils.init(
     hauteur=400,
     fps=64,
     coeff=2,
-    chemin_image="assets",
-    chemin_son="assets",
+    chemin_image="../assets",
+    chemin_son="../assets",
 
     bande_noir=True,
     update_func=update_jeu,

@@ -7,7 +7,7 @@ chemin_package, chemin_script, chemin_lib = retour_tout_chemin()
 systeme =renvoie_systeme()
 import sys
 import ctypes
-from .hitbox.hitbox2dplatformer import platformer_2d
+
 
 def compilation():
     compilation_main(renvoie_systeme(),chemin_lib)
@@ -37,21 +37,21 @@ if called_program not in COMMANDES_INTERDITES:
 
         
 if jeu is not None and called_program not in COMMANDES_INTERDITES:
-    from .nano.classe.utilitaires import utilitaires
+    from .nanobind.classe.utilitaires import utilitaires
     g = None
     utils = utilitaires(jeu)
 
-    from .nano.classe.clavier import _clavier
+    from .nanobind.classe.clavier import _clavier
     clavier = _clavier(utils)
     keyboard = clavier
-    from .nano.classe.image import _image
+    from .nanobind.classe.image import _image
     image = _image(utils)
-    from .nano.classe.constantes import constante
+    from .nanobind.classe.constantes import constante
     const = constante(utils)
-    from .nano.classe.manette import _manette
+    from .nanobind.classe.manette import _manette
     manette = _manette(utils)
     controller = manette
-    from .nano.classe.son import _son
+    from .nanobind.classe.son import _son
     son = _son(utils)
     song = son
     

@@ -14,24 +14,26 @@
 
 **GrnGame** est un moteur de jeu 2D performant pour Python, conçu spécifiquement pour le pixel art.
 
-**PYTHON SUPPORTE : 3.11 ,3.12,3.13,3.14**
+**PYTHON SUPPORTÉ : 3.11, 3.12, 3.13, 3.14**
 
 Avec une gestion optimisée des sprites (batch rendering) et une API intuitive inspirée de pyxel et pygame, vous pouvez créer des jeux fluides et légers facilement.
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/creations/example/example.gif" width="45%">
-<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/creations/spaceattacks/space.gif" width="35%">
-<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/creations/examplebis/platformer.gif" width="35%">
+<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/creations/gif/example.gif" width="45%">
+<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/creations/gif/space.gif" width="35%">
+<img src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/creations/gif/platformer.gif" width="35%">
 </div>
 
 ## Spécifications
 
 - Fonctionne sur Windows et Linux
-- Programmation en Python 3.8+
+- Programmation en Python 3.11+
 - Rendu optimisé avec Batch Rendering
 - Audio multicanal (32 canaux simultanés)
 - Entrées complètes (Clavier, Souris, Manettes)
 - Support des polices personnalisées (Bitmap fonts)
+- Primitives graphiques (cercle, rectangle, ligne, triangle)
+- Shaders de couleur personnalisables
 - Physique 2D intégrée (Platformer)
 - Compilation facile en exécutable
 
@@ -106,7 +108,7 @@ GrnGame expose les modules suivants :
 
 #### Constantes
 
-- `largeur`, `hauteur`  
+- `largeur`, `hauteur` (`width`, `height`)  
   La largeur et la hauteur de la résolution virtuelle.
 
 - `dt`  
@@ -118,46 +120,50 @@ GrnGame expose les modules suivants :
 - `time`  
   Le nombre total de frames écoulées depuis le démarrage.
 
-- `souris_x`, `souris_y`  
+- `souris_x`, `souris_y` (`mouse_x`, `mouse_y`)  
   Position de la souris relative à l'écran virtuel.
 
-- `mouse_presse`  
+- `mouse_presse` (`mouse_pressed`)  
   Renvoie `True` si le bouton gauche de la souris est enfoncé.
 
-- `mouse_juste_presse`  
+- `mouse_juste_presse` (`mouse_just_pressed`)  
   Renvoie `True` si le bouton gauche de la souris vient d'être pressé ce frame.
 
-- `mouse_droit_presse`  
+- `mouse_droit_presse` (`mouse_right_pressed`)  
   Renvoie `True` si le bouton droit de la souris est enfoncé.
 
-- `mouse_droit_juste_presse`  
+- `mouse_droit_juste_presse` (`mouse_right_just_pressed`)  
   Renvoie `True` si le bouton droit de la souris vient d'être pressé ce frame.
 
-- `decalage_x`, `decalage_y`  
+- `decalage_x`, `decalage_y` (`offset_x`, `offset_y`)  
   Le décalage actuel de la caméra (coordonnées du coin supérieur gauche).
 
-- `en_marche`  
+- `en_marche` (`running`)  
   Renvoie `True` si le jeu est en cours d'exécution.
 
 #### Utilitaires
 
 - `init(largeur, hauteur, fps, coeff, chemin_image, chemin_son, bande_noir, update_func, nom_fenetre, chemin_erreur)`  
+  (`initialize(width, height, fps, scale, image_path, sound_path, letterbox, update_func, window_name, error_path)`)  
   Initialise la fenêtre et le moteur.
 
-- `stopper_jeu()`  
+- `stopper_jeu()` (`stop_game()`)  
   Ferme proprement le moteur et la fenêtre.
 
-- `redimensionner_fenetre()`  
+- `redimensionner_fenetre()` (`resize_window()`)  
   Bascule entre le mode fenêtré et le plein écran.
 
-- `colorier(r, g, b)`  
+- `colorier(r, g, b)` (`colorize(r, g, b)`)  
   Applique une teinte de couleur RGB à tous les rendus suivants.
 
-- `ecrire_log(type_erreur, message)`  
-  Écrit un message dans les fichiers de logs. Types disponibles : `"info"`, `"debug"`, `"avertissement"`, `"erreur"`.
+- `afficher_curseur(afficher=True)` (`show_cursor(show=True)`)  
+  Affiche ou masque le curseur de la souris.
 
-- `changer_log(niveau)`  
-  Change le niveau de journalisation. Niveaux disponibles : `"info"`, `"debug"`, `"avertissement"`, `"erreur"`.
+- `ecrire_log(type_erreur, message)` (`write_log(type_error, message)`)  
+  Écrit un message dans les fichiers de logs. Types disponibles : `"info"`, `"debug"`, `"avertissement"` (`"warning"`), `"erreur"` (`"error"`).
+
+- `changer_log(niveau)` (`change_log(level)`)  
+  Change le niveau de journalisation. Niveaux disponibles : `"info"`, `"debug"`, `"avertissement"` (`"warning"`), `"erreur"` (`"error"`).
 
 - `platformer_2d(dt, pos_x, pos_y, vitesse_y, en_air, larg_joueur, haut_joueur, blocs, [gravite], [force_saut], [vitesse_max_chute], [correction_mur], [activer_saut])`  
   Physique 2D intégrée pour les jeux de plateforme. Gère la gravité, les sauts, et les collisions avec les blocs. Renvoie un tuple `(nouvelle_pos_x, nouvelle_pos_y, nouvelle_vitesse_y, nouveau_en_air)`.
@@ -175,19 +181,49 @@ GrnGame expose les modules suivants :
 
 ### Graphismes (`GrnGame.image`)
 
+#### Sprites et Images
+
 - `dessiner(lien, x, y, w, h, [sens], [rotation], [transparence])`  
+  (`draw(path, x, y, w, h, [direction], [rotation], [transparency])`)  
   Dessine une image à la position donnée. `sens` permet d'inverser l'image (0=normal, 1=miroir horizontal).
 
 - `dessiner_batch(ids, xs, ys, ws, hs, [sens], [rotations], [transparence])`  
+  (`draw_batch(ids, xs, ys, ws, hs, [directions], [rotations], [transparency])`)  
   Dessine une liste d'images en un seul appel GPU pour des performances maximales.
 
-- `dessiner_forme(x, y, w, h, [sens], [rotation], [transparence], [r], [g], [b])`  
-  Dessine un rectangle coloré (uni ou avec transparence).
+#### Primitives Graphiques
 
-- `dessiner_forme_batch(xs, ys, ws, hs, [sens], [rotations], [transparences], [rs], [gs], [bs])`  
-  Dessine une liste de rectangles colorés en un seul appel GPU.
+<div align="center">
+
+| Primitive | Démo |
+|-----------|------|
+| **Cercle** | <video src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/demo/mp4/cercle.mp4" width="200" controls></video> |
+| **Rectangle** | <video src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/demo/mp4/rectangle.mp4" width="200" controls></video> |
+| **Triangle** | <video src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/demo/mp4/triangle.mp4" width="200" controls></video> |
+| **Ligne** | <video src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/demo/mp4/ligne.mp4" width="200" controls></video> |
+
+</div>
+
+- `dessiner_ligne(x1, y1, x2, y2, [r], [g], [b])`  
+  (`draw_line(x1, y1, x2, y2, [r], [g], [b])`)  
+  Dessine une ligne entre deux points avec une couleur RGB (défaut: blanc).
+
+- `dessiner_rectangle(x, y, w, h, [r], [g], [b], [plein])`  
+  (`draw_rectangle(x, y, w, h, [r], [g], [b], [filled])`)  
+  Dessine un rectangle. `plein=True` pour un rectangle rempli, `False` pour un contour.
+
+- `dessiner_cercle(x, y, rayon, [r], [g], [b], [plein])`  
+  (`draw_circle(x, y, radius, [r], [g], [b], [filled])`)  
+  Dessine un cercle centré à (x, y). `plein=True` pour un disque, `False` pour un cercle.
+
+- `dessiner_triangle(x1, y1, x2, y2, [r], [g], [b], [plein])`  
+  (`draw_triangle(x1, y1, x2, y2, [r], [g], [b], [filled])`)  
+  Dessine un triangle avec trois sommets. `plein=True` pour un triangle rempli.
+
+#### Texte et Polices
 
 - `dessiner_mot(lien_police, mot, x, y, coeff, ecart, [sens], [rotation], [alpha])`  
+  (`draw_word(path, word, x, y, scale, spacing, [direction], [rotation], [alpha])`)  
   Affiche du texte en utilisant une police bitmap (dossier d'images PNG).
   - `lien_police` : Chemin vers le dossier contenant les caractères (ex: `"./fonts/ma_police/"`)
   - `mot` : Texte à afficher
@@ -198,16 +234,27 @@ GrnGame expose les modules suivants :
   - `rotation` : Rotation en degrés
   - `alpha` : Transparence (0-255)
 
-- `charger_toutes_les_textures(dossier)`  
+#### Shaders et Effets
+
+- `appliquer_shaders(xs, ys, [rs], [gs], [bs], [transparences])`  
+  (`apply_shaders(xs, ys, [rs], [gs], [bs], [alphas])`)  
+  Applique des shaders de couleur sur plusieurs points à la fois.
+  - `xs`, `ys` : Listes des positions
+  - `rs`, `gs`, `bs` : Listes des composantes RGB (défaut: [155, 155, 20])
+  - `transparences` : Liste des valeurs de transparence (défaut: [125])
+
+#### Gestion de Ressources
+
+- `charger_toutes_les_textures(dossier)` (`load_all_textures(folder)`)  
   Précharge toutes les images d'un dossier en mémoire pour de meilleures performances.
 
-- `charger_tous_les_sons(dossier)`  
+- `charger_tous_les_sons(dossier)` (`load_all_sounds(folder)`)  
   Précharge tous les sons d'un dossier en mémoire.
 
-- `liberer_gestionnaire_image()`  
+- `liberer_gestionnaire_image()` (`free_image_manager()`)  
   Libère toutes les textures chargées de la mémoire.
 
-- `liberer_gestionnaire_son()`  
+- `liberer_gestionnaire_son()` (`free_sound_manager()`)  
   Libère tous les sons chargés de la mémoire.
 
 #### Créer une Police Bitmap Personnalisée
@@ -248,37 +295,38 @@ Pour créer votre propre police bitmap :
 ### Audio (`GrnGame.son` ou `GrnGame.song`)
 
 - `jouer(lien, [boucle], [canal], [volume])`  
+  (`play(path, [loop], [channel], [volume])`)  
   Joue un son `.wav`. 
   - `boucle` : Nombre de répétitions (-1 pour infini, 0 pour une seule lecture)
   - `canal` : Canal audio (0-31, ou -1 pour choix automatique)
   - `volume` : Volume de lecture (0-128, défaut: 64)
 
-- `arreter(lien)`  
+- `arreter(lien)` (`stop(path)`)  
   Arrête la lecture d'un son spécifique.
 
-- `arreter_canal(canal)`  
+- `arreter_canal(canal)` (`stop_channel(channel)`)  
   Stoppe tous les sons sur un canal spécifique (0-31).
 
-- `pause(lien)`  
+- `pause(lien)` (`pause_sound(path)`)  
   Met en pause un son spécifique.
 
-- `pause_canal(canal)`  
+- `pause_canal(canal)` (`pause_channel(channel)`)  
   Met en pause tous les sons sur un canal spécifique.
 
-- `reprendre(lien)`  
+- `reprendre(lien)` (`resume(path)`)  
   Reprend la lecture d'un son mis en pause.
 
-- `reprendre_canal(canal)`  
+- `reprendre_canal(canal)` (`resume_channel(channel)`)  
   Reprend la lecture de tous les sons mis en pause sur un canal spécifique.
 
 ### Entrées (`GrnGame.clavier` / `GrnGame.keyboard`, `GrnGame.manette` / `GrnGame.controller`)
 
 #### Clavier
 
-- `juste_presse(touche)`  
+- `juste_presse(touche)` (`just_pressed(touch_name)`)  
   Renvoie `True` si la touche vient d'être pressée ce frame. (Ex: "space", "a", "up")
 
-- `enfoncee(touche)`  
+- `enfoncee(touche)` (`pressed(touch_name)`)  
   Renvoie `True` tant que la touche est maintenue.
 
 <details>
@@ -336,22 +384,22 @@ Pour créer votre propre police bitmap :
 
 #### Manette
 
-- `init([index])`  
+- `init([index])` (`initialize([index])`)  
   Initialise la manette. `index` spécifie quelle manette utiliser (0 pour la première, défaut: 0).
 
-- `enfoncee(bouton)`  
+- `enfoncee(bouton)` (`pressed(button_name)`)  
   Renvoie `True` si le bouton de la manette est maintenu. (Ex: "a", "b", "start")
 
-- `juste_presse(bouton)`  
+- `juste_presse(bouton)` (`just_pressed(button_name)`)  
   Renvoie `True` si le bouton de la manette vient d'être pressé ce frame.
 
-- `renvoie_joysticks([dead_zone])`  
+- `renvoie_joysticks([dead_zone])` (`get_joysticks([dead_zone])`)  
   Renvoie les axes des sticks et gâchettes sous forme de liste `[lx, ly, rx, ry, lt, rt]`.
   - Valeurs entre -1.0 et 1.0 pour les sticks
   - Valeurs entre 0.0 et 1.0 pour les gâchettes
   - `dead_zone` : Seuil pour ignorer les petites déviations (défaut: 0.1)
 
-- `fermer()`  
+- `fermer()` (`close()`)  
   Ferme la connexion avec la manette.
 
 <details>
@@ -375,6 +423,48 @@ Pour créer votre propre police bitmap :
 - Ordre : stick gauche X/Y, stick droit X/Y, gâchette gauche, gâchette droite
 
 </details>
+
+## Exemples de Code
+
+### Dessiner des Primitives
+
+```python
+import GrnGame
+
+def update():
+    # Cercle rouge rempli
+    GrnGame.image.dessiner_cercle(50, 50, 20, 255, 0, 0, True)
+    
+    # Rectangle bleu vide (contour)
+    GrnGame.image.dessiner_rectangle(100, 100, 40, 30, 0, 0, 255, False)
+    
+    # Ligne verte
+    GrnGame.image.dessiner_ligne(10, 10, 100, 100, 0, 255, 0)
+    
+    # Triangle jaune
+    GrnGame.image.dessiner_triangle(150, 50, 180, 80, 255, 255, 0, True)
+
+GrnGame.utils.init(largeur=200, hauteur=150, fps=60, update_func=update)
+```
+
+### Batch Rendering pour Performance
+
+```python
+import GrnGame
+
+# Position et taille de 1000 sprites
+xs = [i * 10 for i in range(1000)]
+ys = [50] * 1000
+ws = [16] * 1000
+hs = [16] * 1000
+ids = ["./assets/particle.png"] * 1000
+
+def update():
+    # Dessine 1000 sprites en un seul appel GPU
+    GrnGame.image.dessiner_batch(ids, xs, ys, ws, hs)
+
+GrnGame.utils.init(largeur=320, hauteur=180, fps=60, update_func=update)
+```
 
 ## Compilation
 

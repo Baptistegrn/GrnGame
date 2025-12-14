@@ -3,3 +3,4 @@ compile_commands.json
 .vscode
 .xmake
 build
+build_windows

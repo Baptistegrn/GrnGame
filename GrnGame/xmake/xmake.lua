@@ -7,7 +7,7 @@ if is_plat("linux") then
 end
 add_requires("libsdl2", {system = false, configs = {shared = false}})
 add_requires("libsdl2_image", {system = false, configs = {shared = false}})
-add_requires("libsdl_mixer", {system = false, configs = {shared = false}})
+add_requires("libsdl2_mixer", {system = false, configs = {shared = false}})
 add_requires("quill", {system = false, configs = {shared = false}})
 add_requires("zlib", {system = false, configs = {shared = false}})
 add_requires("expat", {system = false, configs = {shared = false}})
@@ -17,7 +17,7 @@ target("LibGrnGame")
     set_languages("cxx17")
     set_kind("shared") 
     set_targetdir("../dist")
-
+    --function python
     on_load(function (target)
         import("lib.detect.find_tool")
         
@@ -67,7 +67,4 @@ target("LibGrnGame")
         add_rules("utils.symbols.export_all")
         set_extension(".pyd")
     end
-
-    -- Note : Pas besoin d'ajouter ogg/flac ici sauf si vous utilisez leurs headers directement dans VOTRE code.
-    -- libsdl_mixer fera le lien automatiquement.
-    add_packages("libsdl2", "libsdl2_image", "libsdl_mixer", "zlib", "expat", "nanobind", "quill")
+    add_packages("libsdl2", "libsdl2_image", "libsdl2_mixer", "zlib", "expat", "nanobind", "quill")

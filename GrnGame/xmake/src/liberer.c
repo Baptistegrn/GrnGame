@@ -2,10 +2,9 @@
 #include <SDL_image.h>
 #include <SDL_mixer.h>
 #include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include "main.h"
-#include "logging.h" 
+#include "logging/logging.h" 
 
 void free_tab_images(Gestionnaire* gestionnaire)
 {
@@ -57,10 +56,10 @@ void liberer_gestionnaire_image(GestionnaireTextures* gs)
 
     for (int i = 0; i < gs->taille; i++)
     {
-        if (gs->entrees[i].texture)
+        if (gs->entrees[i].textures)
         {
-            SDL_DestroyTexture(gs->entrees[i].texture);
-            gs->entrees[i].texture = NULL;
+            liberer_liste(gs->entrees[i].textures);
+            gs->entrees[i].textures = NULL;
         }
     }
 
