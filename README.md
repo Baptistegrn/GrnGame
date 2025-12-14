@@ -37,6 +37,19 @@ Avec une gestion optimisée des sprites (batch rendering) et une API intuitive i
 - Physique 2D intégrée (Platformer)
 - Compilation facile en exécutable
 
+## Démos
+
+<div align="left">
+
+| Démo | Lien |
+|------|------|
+| **Cercle** | [Démo](https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/demo/mp4/cercle.mp4) |
+| **Rectangle** | [Démo](https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/demo/mp4/rectangle.mp4) |
+| **Triangle** | [Démo](https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/demo/mp4/triangle.mp4) |
+| **Ligne** | [Démo](https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/demo/mp4/ligne.mp4) |
+
+</div>
+
 ## Installation
 
 ### Via PyPI
@@ -47,13 +60,14 @@ pip install GrnGame
 
 ### Depuis les sources
 
-Si votre système nécessite une compilation native (ex: Linux spécifique), GrnGame utilisera automatiquement `xmake`.
+**Sur Linux**, la compilation native est nécessaire. GrnGame compilera automatiquement avec `xmake` au premier lancement :
 
 ```bash
-# 1. Installe xmake si nécessaire
+# 1. Installez xmake (nécessaire pour Linux)
 GrnGame_xmake
 
-# 2. Relancez votre terminal, puis lancez votre script
+# 2. Relancez votre terminal et assurez-vous que Python est dans votre PATH
+# 3. Lancez votre script - il compilera automatiquement au premier lancement
 python main.py
 ```
 
@@ -193,14 +207,14 @@ GrnGame expose les modules suivants :
 
 #### Primitives Graphiques
 
-<div align="center">
+<div align="left">
 
 | Primitive | Démo |
 |-----------|------|
-| **Cercle** | <video src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/demo/mp4/cercle.mp4" width="200" controls></video> |
-| **Rectangle** | <video src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/demo/mp4/rectangle.mp4" width="200" controls></video> |
-| **Triangle** | <video src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/demo/mp4/triangle.mp4" width="200" controls></video> |
-| **Ligne** | <video src="https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/demo/mp4/ligne.mp4" width="200" controls></video> |
+| **Cercle** | [Démo](https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/demo/mp4/cercle.mp4) |
+| **Rectangle** | [Démo](https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/demo/mp4/rectangle.mp4) |
+| **Triangle** | [Démo](https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/demo/mp4/triangle.mp4) |
+| **Ligne** | [Démo](https://raw.githubusercontent.com/Baptistegrn/GrnGame/main/GrnGame/demo/mp4/ligne.mp4) |
 
 </div>
 

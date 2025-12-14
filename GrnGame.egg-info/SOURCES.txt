@@ -337,7 +337,6 @@ GrnGame/demo/assets/police2/93.png
 GrnGame/demo/assets/police2/97.png
 GrnGame/demo/assets/police2/98.png
 GrnGame/demo/assets/police2/99.png
-GrnGame/dist/linux/python3.13/LibGrnGame.so
 GrnGame/dist/windows/python3.11/LibGrnGame.pyd
 GrnGame/dist/windows/python3.13/LibGrnGame.pyd
 GrnGame/dist/windows/python3.14/LibGrnGame.pyd
