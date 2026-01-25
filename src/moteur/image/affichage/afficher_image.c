@@ -1,0 +1,76 @@
+#include "../../../main.h"
+#include "SDL_stdinc.h"
+#include "affichage.h"
+
+/*
+ * Calcule les coordonnées et dimensions d'un objet à l'écran.
+ * Applique le coefficient de mise à l'échelle et les décalages de la fenêtre.
+ */
+void calculer_positions_ecran(ObjectImage *obj, unsigned char coeff, int decalage_x, int decalage_y,
+                              Sint16 *x_ecran, Sint16 *y_ecran, Sint16 *w_ecran, Sint16 *h_ecran) {
+    float px, py;
+    Sint16 tx, ty;
+
+    if (obj->type == TYPE_IMAGE) {
+        px = obj->image.posx;
+        py = obj->image.posy;
+        tx = obj->image.taillex;
+        ty = obj->image.tailley;
+    } else if (obj->type == TYPE_FORME) {
+        px = obj->forme.posx;
+        py = obj->forme.posy;
+        tx = obj->forme.taillex;
+        ty = obj->forme.tailley;
+    }
+
+    *x_ecran = SDL_lroundf(px * (float)coeff + (float)decalage_x);
+    *y_ecran = SDL_lroundf(py * (float)coeff + (float)decalage_y);
+    *w_ecran = SDL_lroundf((float)tx * (float)coeff);
+    *h_ecran = SDL_lroundf((float)ty * (float)coeff);
+}
+
+/*
+ * Affiche tous les objets (images et formes) de la liste d'affichage.
+ * Applique le culling (ne dessine pas ce qui est hors écran).
+ * Réinitialise le tableau après affichage.
+ */
+void afficher_images(void) {
+    if (!gs)
+        goto gsvide;
+    TableauImage *jeu = gs->image;
+
+    unsigned char coeff = gs->fenetre->coeff;
+    int decalage_x = gs->fenetre->decalage_x;
+    int decalage_y = gs->fenetre->decalage_y;
+
+    int decalage_x_scaled = lround((double)gs->fenetre->decalage_x / (double)coeff);
+    int decalage_y_scaled = (int)lround((double)gs->fenetre->decalage_y / (double)coeff);
+
+    for (int i = 0; i < jeu->nb_images; i++) {
+        ObjectImage *obj = &jeu->tab[i];
+
+        float obj_x = (obj->type == TYPE_IMAGE) ? obj->image.posx : obj->forme.posx;
+        float obj_y = (obj->type == TYPE_IMAGE) ? obj->image.posy : obj->forme.posy;
+        Sint16 obj_w = (obj->type == TYPE_IMAGE) ? obj->image.taillex : obj->forme.taillex;
+        Sint16 obj_h = (obj->type == TYPE_IMAGE) ? obj->image.tailley : obj->forme.tailley;
+
+        if (hors_ecran(obj_x, obj_y, obj_w, obj_h, decalage_x_scaled, decalage_y_scaled))
+            continue;
+
+        Sint16 x_ecran, y_ecran, w_ecran, h_ecran;
+
+        calculer_positions_ecran(obj, coeff, decalage_x, decalage_y, &x_ecran, &y_ecran, &w_ecran,
+                                 &h_ecran);
+
+        SDL_Rect dst = {x_ecran, y_ecran, w_ecran, h_ecran};
+
+        afficher_objet(obj, &dst, x_ecran, y_ecran, w_ecran, h_ecran, coeff);
+    }
+
+    jeu->nb_images = 0;
+
+    return;
+
+gsvide:
+    log_message(NiveauLogDebug, "empty manager in the function that displays images");
+}

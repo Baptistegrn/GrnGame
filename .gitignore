@@ -1,0 +1,5 @@
+.cache
+.xmake
+.vscode
+build
+compile_commands.json
