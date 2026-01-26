@@ -9,10 +9,7 @@ Gestionnaire *gs = NULL;
  * Retourne un pointeur vers le Gestionnaire ou quitte le programme en cas d'erreur.
  */
 Gestionnaire *initialiser(int hauteur_univers, int largeur_univers, float fps, bool bande_noir,
-                          const char *nom_fenetre, const char *chemin_log) {
-    /* Logs */
-    configurer_redirection_stderr(chemin_log);
-
+                          const char *nom_fenetre) {
     /* Paramètres par défaut */
     if (hauteur_univers <= 0 || largeur_univers <= 0) {
         log_fmt(NiveauLogErreur, "Invalid dimensions %dx%d, using 160x160", largeur_univers,

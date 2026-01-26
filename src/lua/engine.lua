@@ -41,9 +41,9 @@ ffi.cdef [[
     typedef void (*UpdateCallback)(void);
 
     //utils
-    void initialize(int h, int w, float fps, int bars, const char *title, const char *log, UpdateCallback cb);
+    void initialize(int h, int w, float fps, int bars, const char *title, UpdateCallback cb);
     void stop(void);
-    void resize(int w, int h, bool fullscreen_requested);
+    void resize(int w, int h, bool fullscreen_requested,bool window_fullscreen_requested);
     void clearScreen(int r, int g, int b);
     void logMessage(int level, char *message);
     void setLogLvl(int level);
@@ -53,7 +53,10 @@ ffi.cdef [[
     unsigned int frameCount(void);
     int offsetX(void);
     int offsetY(void);
-
+    int currentWidth(void);
+    int currentHeight(void);
+    int universeWidth(void);
+    int universeHeight(void);
     // Physique
     EntityPlatformer *hitboxPlatformer(EntityPlatformer *ent, Blocks *blocs, float v_max, float corr, int *type_lock, int size);
     EntityTopdown *hitboxTopdown(EntityTopdown *ent, Blocks *blocs, int *type_lock, int size);
@@ -104,6 +107,8 @@ ffi.cdef [[
     int mouseRightJustPressed(void);
     int mouseLeftPressed(void);
     int mouseRightPressed(void);
+    int mouseScrollVertical(void);
+    int mouseScrollHorizontal(void);
 ]]
 
 local C = ffi.C
@@ -253,6 +258,10 @@ Engine.log = C.logMessage
 Engine.setLogLvl = C.setLogLvl
 Engine.offsetX = C.offsetX
 Engine.offsetY = C.offsetY
+Engine.currentWidth = C.currentWidth
+Engine.currentHeight = C.currentHeight
+Engine.universeWidth = C.universeWidth
+Engine.universeHeight = C.universeHeight
 
 -- Input Clavier/Souris
 Engine.keyPressed = C.keyPressed
@@ -264,6 +273,8 @@ Engine.mouseLeftJustPressed = C.mouseLeftJustPressed
 Engine.mouseRightJustPressed = C.mouseRightJustPressed
 Engine.mouseLeftPressed = C.mouseLeftPressed
 Engine.mouseRightPressed = C.mouseRightPressed
+Engine.mouseScrollVertical = C.mouseScrollVertical
+Engine.mouseScrollHorizontal = C.mouseScrollHorizontal
 
 -- Input Manette
 Engine.buttonPressed = C.buttonPressed

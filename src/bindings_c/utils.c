@@ -1,3 +1,4 @@
+#include "../chemin/chemin.h"
 #include "../module_jeu/carte/carte.h"
 #include "../moteur/boucle/boucle.h"
 #include "../moteur/fenetre/fenetre.h"
@@ -22,13 +23,13 @@ static void update_trampoline() {
  * Le callback update_func est appelé à chaque frame.
  */
 void initialize(int height, int width, float fps_target, int black_bars, const char *window_title,
-                const char *log_path, UpdateCallback update_func) {
+                UpdateCallback update_func) {
 
     g_update_callback = update_func;
 
     definir_rappel_mise_a_jour(update_trampoline);
 
-    initialiser(height, width, fps_target, black_bars, window_title, log_path);
+    initialiser(height, width, fps_target, black_bars, window_title);
 
     boucle_principale();
 }
@@ -41,7 +42,9 @@ void stop() { arreter_gestionnaire(); }
 /*
  * Redimensionne la fenêtre et ajuste le mode plein écran.
  */
-void resize(int w, int h, int fullscreen) { redimensionner(w, h, fullscreen); }
+void resize(int w, int h, int fullscreen, int fenetre_fullscreen) {
+    redimensionner(w, h, fullscreen, fenetre_fullscreen);
+}
 
 /*
  * Efface l'écran avec la couleur spécifiée.

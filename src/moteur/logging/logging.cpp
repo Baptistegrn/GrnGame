@@ -54,14 +54,8 @@ void initialiser_logging(DestinationLog destination_log, const char *nom_fichier
             quill::Frontend::create_or_get_sink<quill::ConsoleSink>("console_sink"));
     }
 
-    g_logger->set_log_level(
-#ifdef DEBUG_MODE
-        quill::LogLevel::Debug
-#else
-        niveau_log_vers_quill_log_level(niveau_log)
-#endif
-    );
-    // g_logger->set_immediate_flush(1u);
+    g_logger->set_log_level(niveau_log_vers_quill_log_level(niveau_log));
+    g_logger->set_immediate_flush(1u);
     quill::info(g_logger, "logging initialized");
 #endif
 }

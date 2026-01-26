@@ -39,6 +39,8 @@ typedef struct GestionnaireEntrees {
     bool souris_juste_presse;
     bool souris_droite_presse;
     bool souris_droite_juste_presse;
+    char souris_scroll_y;
+    char souris_scroll_x;
 
     bool entrees[SDL_NUM_SCANCODES];
     bool entrees_presse[SDL_NUM_SCANCODES];

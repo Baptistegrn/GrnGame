@@ -34,7 +34,7 @@ void initialiser_fenetre(void) {
     SDL_RenderSetIntegerScale(fen->rendu, SDL_TRUE);
 
     /* redimensionnement plein ecran pour steam deck */
-    redimensionner(0, 0, true);
+    redimensionner(0, 0, true, false);
 
     if (gs->timing->run)
         log_message(NiveauLogDebug, "Initialisation successful: Window started in Fullscreen");

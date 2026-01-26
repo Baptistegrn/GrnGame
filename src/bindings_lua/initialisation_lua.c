@@ -6,56 +6,73 @@
 
 lua_State *G_LuaState = NULL;
 
-// cle : peut etre change
+// la cle peut etre change on genere dans le moteur par lutilisateur (a lui de le faire)
 unsigned char key = 0x42;
 
-void initialisation_lua() {
+void initializeLua(const char *fichier_chemin_lua) {
+#ifdef DEBUG_MODE
+    initialiser_logging(DestinationLogFichier, "../src/logs/game.logs", NiveauLogInfo);
+#endif
+
+    log_fmt(NiveauLogInfo, "Initializing Lua");
     G_LuaState = luaL_newstate();
     luaL_openlibs(G_LuaState);
+    log_fmt(NiveauLogInfo, "Lua state created");
 
-    const char *filename = "main.lua";
+    const char *filename = fichier_chemin_lua;
+    log_fmt(NiveauLogInfo, "Loading Lua file: %s", filename);
+
     FILE *f = fopen(filename, "rb");
     if (!f) {
-        printf("error : Impossible to open %s\n", filename);
-        fflush(stdout);
+        log_fmt(NiveauLogErreur, "Failed to open Lua file: %s", filename);
         return;
     }
 
-    // Mesurer la taille
     fseek(f, 0, SEEK_END);
     long size = ftell(f);
     fseek(f, 0, SEEK_SET);
 
-    unsigned char *buffer = malloc(size);
+    unsigned char *buffer = (unsigned char *)malloc(size);
+    if (!buffer) {
+        log_fmt(NiveauLogErreur, "Memory allocation failed for Lua buffer");
+        fclose(f);
+        return;
+    }
+
     fread(buffer, 1, size, f);
     fclose(f);
-    // signatures de cryptage
-    unsigned char signature[] = {0x1B, 0x45, 0x4E, 0x43};
 
+    unsigned char signature[] = {0x1B, 0x45, 0x4E, 0x43};
     int est_chiffre = (size > 4 && memcmp(buffer, signature, 4) == 0);
 
-    const char *buffer_a_charger = (const char *)buffer;
-    size_t taille_a_charger = size;
-
     if (est_chiffre) {
+        log_fmt(NiveauLogInfo, "Encrypted Lua script detected, decrypting");
         for (long i = 4; i < size; i++) {
             buffer[i] ^= key;
         }
-        buffer_a_charger = (const char *)(buffer + 4);
-        taille_a_charger = size - 4;
-    } else {
     }
 
-    // chargement lua
+    const char *buffer_a_charger = est_chiffre ? (const char *)(buffer + 4) : (const char *)buffer;
+    size_t taille_a_charger = est_chiffre ? size - 4 : size;
     int status = luaL_loadbuffer(G_LuaState, buffer_a_charger, taille_a_charger, filename);
 
-    if (status == LUA_OK) {
-        lua_pcall(G_LuaState, 0, LUA_MULTRET, 0);
+    if (status != LUA_OK) {
+        log_fmt(NiveauLogErreur, "Lua Syntax Error: %s", lua_tostring(G_LuaState, -1));
+        lua_pop(G_LuaState, 1); // On retire l'erreur de la pile
+        free(buffer);
+        return;
+    }
+
+    log_fmt(NiveauLogInfo, "Executing Lua script...");
+    status = lua_pcall(G_LuaState, 0, LUA_MULTRET, 0);
+
+    if (status != LUA_OK) {
+        log_fmt(NiveauLogErreur, "Lua Runtime Error: %s", lua_tostring(G_LuaState, -1));
+        lua_pop(G_LuaState, 1); // On retire l'erreur
     } else {
-        // erreur interpretation lua
-        printf("error Lua : %s\n", lua_tostring(G_LuaState, -1));
-        fflush(stdout);
+        log_fmt(NiveauLogInfo, "Lua script executed successfully");
     }
 
     free(buffer);
+    log_fmt(NiveauLogInfo, "Lua initialization finished");
 }

@@ -34,6 +34,8 @@ void mise_a_jour_input() {
     /* Réinitialisation des états "Just Pressed" (durée 1 frame) */
     entrees->souris_juste_presse = false;
     entrees->souris_droite_juste_presse = false;
+    entrees->souris_scroll_y = 0;
+    entrees->souris_scroll_x = 0;
 
     memset(entrees->entrees_presse, false, sizeof(entrees->entrees_presse));
     for (int i = 0; i < NB_MANETTES_MAX; i++) {
@@ -61,11 +63,49 @@ void mise_a_jour_input() {
 
         /* Dispatch des événements */
         switch (event.type) {
-
+        case SDL_MOUSEWHEEL:
+            if (event.wheel.y > 0) {
+                entrees->souris_scroll_y = 1;
+            } else if (event.wheel.y < 0) {
+                entrees->souris_scroll_y = -1;
+            }
+            if (event.wheel.x > 0) {
+                entrees->souris_scroll_x = 1;
+            } else if (event.wheel.x < 0) {
+                entrees->souris_scroll_x = -1;
+            }
+            break;
         case SDL_QUIT:
             gs->timing->run = false;
             break;
+        /* Tactile -> map sur souris */
+        case SDL_FINGERDOWN: {
+            int px = lroundf(event.tfinger.x * fenetre->largeur_univers) +
+                     lroundf((float)fenetre->decalage_x / fenetre->coeff);
+            int py = lroundf(event.tfinger.y * fenetre->hauteur_univers) +
+                     lroundf((float)fenetre->decalage_y / fenetre->coeff);
 
+            entrees->souris_x = px;
+            entrees->souris_y = py;
+
+            entrees->souris_presse = true;
+            entrees->souris_juste_presse = true;
+            break;
+        }
+
+        case SDL_FINGERUP:
+            entrees->souris_presse = false;
+            break;
+
+        case SDL_FINGERMOTION: {
+            int px = lroundf(event.tfinger.x * fenetre->largeur_univers) +
+                     lroundf((float)fenetre->decalage_x / fenetre->coeff);
+            int py = lroundf(event.tfinger.y * fenetre->hauteur_univers) +
+                     lroundf((float)fenetre->decalage_y / fenetre->coeff);
+            entrees->souris_x = px;
+            entrees->souris_y = py;
+            break;
+        }
         /* Manette : Boutons */
         case SDL_CONTROLLERBUTTONDOWN: {
             int idx = trouver_index_manette(event.cbutton.which);
@@ -109,6 +149,19 @@ void mise_a_jour_input() {
             case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
                 entrees->trigger[idx].trigger_d = event.caxis.value;
                 break;
+            }
+            break;
+        }
+
+        /* Manette : Connexion/Déconnexion */
+        case SDL_CONTROLLERDEVICEADDED:
+            init_controller_joysticks(event.cdevice.which);
+            break;
+        case SDL_CONTROLLERDEVICEREMOVED: {
+            int idx = trouver_index_manette(event.cdevice.which);
+            if (idx >= 0) {
+                fermer_controller(idx);
+                fermer_joystick(idx);
             }
             break;
         }

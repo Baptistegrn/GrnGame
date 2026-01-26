@@ -35,7 +35,7 @@ typedef struct GestionnaireFenetre {
     const char *nom_fenetre;
 } GestionnaireFenetre;
 
-void redimensionner(int w, int h, bool fullscreen_demande);
+void redimensionner(int w, int h, bool fullscreen_demande, bool fenetre_demande_fullscreen);
 void definir_icone(const char *chemin);
 void afficher_curseur(bool afficher);
 void stocker_coloriage(int r, int g, int b);

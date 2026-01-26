@@ -16,7 +16,7 @@ typedef struct Gestionnaire Gestionnaire;
 Gestionnaire *allouer_structures(void);
 
 Gestionnaire *initialiser(int hauteur_univers, int largeur_univers, float fps, bool bande_noir,
-                          const char *nom_fenetre, const char *chemin_log);
+                          const char *nom_fenetre);
 
 void initialiser_fenetre();
 

@@ -5,6 +5,7 @@
 
 #ifndef GRNGAME_H
 #define GRNGAME_H
+#include "../chemin/chemin.h"
 #include <SDL_stdinc.h>
 #include <stdbool.h>
 
@@ -76,13 +77,13 @@ typedef void (*UpdateCallback)(void);
 
 /*initialisation de la fenetre*/
 GRN_API void initialize(int heightU, int widthU, float fps_target, int black_bars,
-                        const char *window_title, const char *log_path, UpdateCallback update_func);
+                        const char *window_title, UpdateCallback update_func);
 
 /* Arrête le moteur et ferme l'application */
 GRN_API void stop(void);
 
 /* Redimensionne la fenêtre et ajuste le mode plein écran */
-GRN_API void resize(int w, int h, bool fullscreen_requested);
+GRN_API void resize(int w, int h, bool fullscreen_requested, bool window_fullscreen_requested);
 
 /* Efface l'écran avec la couleur spécifiée */
 GRN_API void clearScreen(int red, int green, int blue);
@@ -215,6 +216,12 @@ GRN_API int mouseLeftPressed(void);
 /* Vérifie si le bouton droit de la souris est maintenu enfoncé */
 GRN_API int mouseRightPressed(void);
 
+/*retourne le scrool vertical de la souris 1 ou -1*/
+GRN_API int mouseScrollVertical(void);
+
+/*retourne le scrool vertical de la souris 1 ou -1*/
+GRN_API int mouseScrollHorizontal(void);
+
 /* Récupère le delta-time (temps écoulé depuis la dernière frame) */
 GRN_API float delta(void);
 
@@ -230,8 +237,21 @@ GRN_API int offsetX(void);
 /* Récupère le décalage Y de la fenêtre */
 GRN_API int offsetY(void);
 
+/* Récupère la largeur actuelle de la fenêtre */
+GRN_API int currentWidth(void);
+
+/* Récupère la hauteur actuelle de la fenêtre */
+GRN_API int currentHeight(void);
+
+/* Récupère la largeur de l'univers */
+GRN_API int universeWidth(void);
+
+/* Récupère la hauteur de l'univers */
+GRN_API int universeHeight(void);
+
 /*lancer le moteur lua*/
-GRN_API void initialisation_lua();
+GRN_API void initializeLua(const char *file_path);
+
 #ifdef __cplusplus
 }
 #endif
