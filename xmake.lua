@@ -79,7 +79,7 @@ target("GrnGame")
         add_ldflags("-static-libgcc", "-static-libstdc++", {force=true})
     end
 
--- Application de test
+-- App
 target("App")
     set_kind("binary")
     set_targetdir(outdir)

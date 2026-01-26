@@ -24,12 +24,7 @@
 extern "C" {
 #endif
 
-typedef enum {
-    GRN_LOG_DEBUG = 0,
-    GRN_LOG_INFO = 1,
-    GRN_LOG_WARNING = 2,
-    GRN_LOG_ERROR = 3
-} GLogLevel;
+typedef enum { DEBUG = 0, INFO = 1, WARNING = 2, ERROR = 3 } LogLevel;
 
 typedef struct {
     float x;
@@ -93,14 +88,14 @@ GRN_API EntityPlatformer *hitboxPlatformer(EntityPlatformer *entite, Blocks *blo
                                            float vitesse_max_chute, float correction_mur,
                                            int *ignored_type, int size);
 
-GRN_API EntityTopdown *hitboxTopdown(EntityTopdown *entity, Blocks *blocks, int *types_ignorer,
-                                     int nb_ignorer);
+GRN_API EntityTopdown *hitboxTopdown(EntityTopdown *entity, Blocks *blocks, int *ignoredType,
+                                     int sizeIgnored);
 /*recupere les blocks a partir dun fichier*/
 GRN_API Blocks *getBlocksFromFile(const char *chemin, Uint8 pas_x, Uint8 pas_y, char separation,
                                   int excludeElement);
 
 /*Camera */
-GRN_API void cameraUpdate(Camera *cam, float target_x, float target_y, float dt);
+GRN_API void cameraUpdate(Camera *cam, float targetX, float targetY, float dt);
 
 /* Enregistre un message de log avec le niveau spécifié */
 GRN_API void logMessage(int level, char *message);
@@ -250,7 +245,7 @@ GRN_API int universeWidth(void);
 GRN_API int universeHeight(void);
 
 /*lancer le moteur lua*/
-GRN_API void initializeLua(const char *file_path);
+GRN_API void initializeLua(const char *filePath);
 
 #ifdef __cplusplus
 }
