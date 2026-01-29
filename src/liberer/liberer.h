@@ -21,11 +21,10 @@ void liberer_tableau_image(void);
 void liberer_textures(void);
 void liberer_sons(void);
 void liberer_controllers(void);
-
+void liberer_fichiers_lua(void);
 /* Fonctions de libération internes */
 void liberer_gestionnaire_son(void);
 void liberer_gestionnaire_image(void);
-void liberer_shaders(void);
 void free_tab_images(void);
 
 #ifdef __cplusplus

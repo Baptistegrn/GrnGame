@@ -100,6 +100,14 @@ Gestionnaire *initialiser(int hauteur_univers, int largeur_univers, float fps, b
     init_gestionnaire_textures();
     init_gestionnaire_son();
 
+    /* pour le hot reload en debug*/
+#ifdef DEBUG_MODE
+    gs->fichiers_lua = renvoie_fichier_dossier("../src", "lua", NULL);
+    for (int i = 0; i < gs->fichiers_lua->taille; i++) {
+        log_fmt(NiveauLogDebug, "file lua detected :%s", gs->fichiers_lua->noms[i]);
+    }
+#endif
+
     log_message(NiveauLogDebug, "Initialization successful");
     return gs;
 }

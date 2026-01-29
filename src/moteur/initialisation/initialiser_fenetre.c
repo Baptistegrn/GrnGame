@@ -16,31 +16,39 @@ void initialiser_fenetre(void) {
                          fen->largeur_univers, fen->hauteur_univers, SDL_WINDOW_SHOWN);
 
     if (!fen->fenetre) {
-        log_fmt(NiveauLogErreur, "Error SDL_CreateWindow : %s", SDL_GetError());
+        log_fmt(NiveauLogErreur, "Error: SDL_CreateWindow failed: %s", SDL_GetError());
         gs->timing->run = false;
         return;
     }
 
-    /*render */
-    fen->rendu =
-        SDL_CreateRenderer(fen->fenetre, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    /* render - essaie 1: gpu */
+    fen->rendu = SDL_CreateRenderer(fen->fenetre, -1, SDL_RENDERER_ACCELERATED);
+
+    /* render - essaie 2: cpu */
     if (!fen->rendu) {
-        log_fmt(NiveauLogErreur, "Error SDL_CreateRenderer : %s", SDL_GetError());
+        log_message(NiveauLogAvertissement,
+                    "Warning: Hardware renderer failed, trying software mode");
+        fen->rendu = SDL_CreateRenderer(fen->fenetre, -1, SDL_RENDERER_SOFTWARE);
+    }
+
+    if (!fen->rendu) {
+        log_fmt(NiveauLogErreur, "Error: SDL_CreateRenderer failed: %s", SDL_GetError());
         gs->timing->run = false;
         return;
     }
 
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0"); // Pixel Art (Nearest Neighbor)
+    /* configuration renderer */
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0"); // Pixel Art
     SDL_RenderSetIntegerScale(fen->rendu, SDL_TRUE);
 
     /* redimensionnement plein ecran pour steam deck */
     redimensionner(0, 0, true, false);
 
     if (gs->timing->run)
-        log_message(NiveauLogDebug, "Initialisation successful: Window started in Fullscreen");
+        log_message(NiveauLogDebug, "Success: Window and renderer initialized");
 
     return;
 
 gsvide:
-    log_message(NiveauLogDebug, "manager is empty in window initialization");
+    log_message(NiveauLogDebug, "Error: manager is empty in window initialization");
 }

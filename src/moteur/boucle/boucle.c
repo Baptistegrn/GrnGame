@@ -50,7 +50,9 @@ void boucle_principale(void) {
 
         /* Rendu de la frame */
         actualiser();
-
+#ifdef DEBUG_MODE
+        actualiser_rechargement();
+#endif
         /* Limitation du framerate avec délai si nécessaire */
         Uint32 frame_temps_ms = SDL_GetTicks() - frame_debut;
         float frame_temps_s = frame_temps_ms / 1000.0f;

@@ -38,6 +38,7 @@
 extern "C" {
 #endif
 #include "allouer/allouer.h"
+#include "bindings_lua/bindings_lua.h"
 #include "chemin/chemin.h"
 #include "liberer/liberer.h"
 #include "module_jeu/camera/camera.h"
@@ -68,6 +69,10 @@ typedef struct Gestionnaire {
     // todo mettre dans GestionnaireFrame
     fondActualiser *fond;
     TableauImage *image;
+    // GestionnaireFrame *frame;
+    //  en debug
+    Fichiers *fichiers_lua;
+
 } Gestionnaire;
 
 extern Gestionnaire *gs;

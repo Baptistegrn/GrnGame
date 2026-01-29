@@ -6,10 +6,11 @@
 
 lua_State *G_LuaState = NULL;
 
-// la cle peut etre change on genere dans le moteur par lutilisateur (a lui de le faire)
+// la cle peut etre change ou genere dans le moteur par lutilisateur
+// key can be change by the user
 unsigned char key = 0x42;
 
-void initializeLua(const char *fichier_chemin_lua) {
+void initialiser_lua(const char *fichier_chemin_lua) {
 #ifdef DEBUG_MODE
     initialiser_logging(DestinationLogFichier, "../src/logs/game.logs", NiveauLogInfo);
 #endif

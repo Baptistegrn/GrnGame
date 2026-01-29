@@ -30,7 +30,7 @@ void afficher_objet(ObjectImage *obj, SDL_Rect *dst, Sint16 x_ecran, Sint16 y_ec
 
 bool hors_ecran(float posx, float posy, Sint16 taillex, Sint16 tailley, int decalage_x_scaled,
                 int decalage_y_scaled);
-
+void dessiner_particules(Particule *particules);
 #ifdef __cplusplus
 }
 #endif

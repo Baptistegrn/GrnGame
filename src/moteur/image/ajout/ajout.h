@@ -14,7 +14,7 @@ extern "C" {
 
 typedef struct Liste Liste;
 
-typedef enum { TYPE_IMAGE = 0, TYPE_FORME = 1 } TypeObjet;
+typedef enum { TYPE_IMAGE = 0, TYPE_FORME = 1, TYPE_PARTICULE = 2 } TypeObjet;
 
 typedef struct {
     Uint8 r, g, b, a;
@@ -23,6 +23,7 @@ typedef struct {
     Sint16 taillex, tailley;
     bool plein;
     int type_de_forme;
+
 } Forme;
 
 typedef struct {
@@ -32,13 +33,30 @@ typedef struct {
     Uint16 rotation;
     Uint8 a;
     SDL_Texture *texture;
+    bool sprite;
+    // sprite position
+    Sint16 x1, y1;
+    Sint16 x2, y2;
 } Image;
+
+typedef struct {
+    float *posx, *posy;
+    Uint16 *rotation;
+    Uint8 *a, *r, *g, *b;
+    int taille;
+} Particule;
 
 typedef struct {
     TypeObjet type;
     Image image;
     Forme forme;
+    Particule particule;
 } ObjectImage;
+
+typedef struct {
+    const char *id;
+    Sint16 taillex, tailley;
+} Sprite;
 
 void ajouter_image_au_jeu(ObjectImage nouvelle);
 
@@ -54,7 +72,13 @@ void ajouter_cercle(float x, float y, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, b
 
 void ajouter_triangle(float x, float y, Sint16 taillex, Sint16 tailley, Uint8 r, Uint8 g, Uint8 b,
                       bool plein);
+Sprite *creer_sprite(const char *id, Sint16 taillex, Sint16 tailley);
 
+void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, Sint16 taillex,
+                               Sint16 tailley, bool sens, Uint16 rotation, Uint8 a);
+
+void ajouter_particules_au_tableau(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r,
+                                   Uint8 *g, Uint8 *b, int taille);
 #ifdef __cplusplus
 }
 #endif

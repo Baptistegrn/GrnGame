@@ -24,13 +24,13 @@ static int ajouter_char_dans_tableau(const char *lien_image, char lettre, float 
         return 0;
     }
 
-    int texW = 0, texH = 0;
-    if (SDL_QueryTexture(texture, NULL, NULL, &texW, &texH) != 0) {
+    int tex_w = 0, tex_h = 0;
+    if (SDL_QueryTexture(texture, NULL, NULL, &tex_w, &tex_h) != 0) {
         return 0;
     }
 
-    Sint16 largeur_finale = (Sint16)(texW * coeff);
-    Sint16 hauteur_finale = (Sint16)(texH * coeff);
+    Sint16 largeur_finale = (Sint16)(tex_w * coeff);
+    Sint16 hauteur_finale = (Sint16)(tex_h * coeff);
 
     ajouter_image_au_tableau(lien_image_lettre, posx, posy, largeur_finale, hauteur_finale, sens,
                              rotation, a);

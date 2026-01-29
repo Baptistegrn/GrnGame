@@ -203,7 +203,14 @@ void liberer_blocks(Blocks *ptr) {
 
     xfree(ptr);
 }
-
+void liberer_fichiers_lua(void) {
+    if (!gs)
+        return;
+    if (gs->fichiers_lua != NULL) {
+        liberer_fichiers(gs->fichiers_lua);
+        gs->fichiers_lua = NULL;
+    }
+}
 /*
   Fonction principale de destruction du moteur.
   Libère toute la mémoire allouée et ferme les sous-systèmes SDL.
@@ -222,6 +229,7 @@ void liberer_gs(void) {
     liberer_fenetre();
     liberer_fond();
     liberer_timing();
+    liberer_fichiers_lua();
     log_message(NiveauLogInfo, "manager freed successfully.");
 
     /* Fermeture des sous-systèmes SDL */

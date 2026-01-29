@@ -1,10 +1,9 @@
 #cle
 key = 0x42
-
-signature = b"\x1BENC"  
 #obligatoire main.lua doit etre le seul fichier encrypter 
 file_path = "main.lua"
 
+signature = b"\x1BENC"  
 with open(file_path, "rb") as f:
     data = f.read()
 

@@ -64,3 +64,20 @@ void drawTriangle(float x, float y, Sint16 w, Sint16 h, Uint8 red, Uint8 green, 
 void drawLine(float x1, float y1, float x2, float y2, Uint8 red, Uint8 green, Uint8 blue) {
     ajouter_ligne(x1, y1, x2, y2, red, green, blue);
 }
+
+/* Fonction pour dessiner des sprites */
+void drawSprite(Sprite *sprite, Sint16 index, float x, float y, Sint16 w, Sint16 h, bool flip,
+                Uint16 rotation, Uint8 alpha) {
+
+    ajouter_sprite_au_tableau(sprite, index, x, y, w, h, flip, rotation, alpha);
+}
+
+/* Fonction pour créer un sprite */
+Sprite *createSprite(const char *id, Sint16 width, Sint16 height) {
+    return creer_sprite(id, width, height);
+}
+/*dessine des particules*/
+void drawParticles(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r, Uint8 *g, Uint8 *b,
+                   int size) {
+    ajouter_particules_au_tableau(x, y, rotation, a, r, g, b, size);
+}

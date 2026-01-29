@@ -1,3 +1,4 @@
+#include "../bindings_lua/bindings_lua.h"
 #include "../chemin/chemin.h"
 #include "../module_jeu/carte/carte.h"
 #include "../moteur/boucle/boucle.h"
@@ -61,3 +62,5 @@ void logMessage(int level, char *message) { log_message((NiveauLog)level, messag
  * Change le niveau minimum de log affiché.
  */
 void setLogLvl(int level) { changer_niveau_log((NiveauLog)level); }
+
+void initializeLua(const char *fichier_chemin_lua) { initialiser_lua(fichier_chemin_lua); }

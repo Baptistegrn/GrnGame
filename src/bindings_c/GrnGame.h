@@ -25,6 +25,10 @@ extern "C" {
 #endif
 
 typedef enum { DEBUG = 0, INFO = 1, WARNING = 2, ERROR = 3 } LogLevel;
+typedef struct {
+    const char *id;
+    Sint16 taillex, tailley;
+} Sprite;
 
 typedef struct {
     float x;
@@ -105,7 +109,14 @@ GRN_API void setLogLvl(int level);
 /* Ajoute une image au tableau d'affichage */
 GRN_API void draw(const char *path, float x, float y, Uint16 width, Uint16 height, bool flip,
                   Uint16 rotation, Uint8 alpha);
-
+/* Ajoute un sprite au tableau d'affichage */
+GRN_API void drawSprite(Sprite *sprite, float x, float y, Sint16 w, Sint16 u, bool flip,
+                        Uint16 rotation, Uint8 alpha);
+/*dessine le tableau de particules*/
+GRN_API void drawParticles(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r, Uint8 *g,
+                           Uint8 *b, int size);
+/* Crée un sprite */
+GRN_API Sprite *createSprite(const char *id, Sint16 width, Sint16 height);
 /* Ajoute du texte au tableau d'affichage avec police custom */
 GRN_API void drawText(const char *font_path, const char *text, float x, float y, Uint16 scale,
                       bool flip, float spacing, Uint16 rotation, Uint8 alpha);

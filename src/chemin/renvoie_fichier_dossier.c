@@ -16,6 +16,7 @@ Fichiers *renvoie_fichier_dossier(const char *chemin_dossier, const char *extens
         fichiers->taille = 0;
         fichiers->capacite = 10;
         fichiers->noms = xmalloc(fichiers->capacite * sizeof(*fichiers->noms));
+        fichiers->temps = xmalloc(fichiers->capacite * sizeof(*fichiers->temps));
     }
     char chemin_recherche[TAILLE_LIEN_GT];
     snprintf(chemin_recherche, TAILLE_LIEN_GT, "%s/*", chemin_dossier);
@@ -52,8 +53,11 @@ Fichiers *renvoie_fichier_dossier(const char *chemin_dossier, const char *extens
                     fichiers->capacite *= 2;
                     fichiers->noms =
                         xrealloc(fichiers->noms, fichiers->capacite * sizeof(*fichiers->noms));
+                    fichiers->temps =
+                        xrealloc(fichiers->temps, fichiers->capacite * sizeof(*fichiers->temps));
                 }
                 snprintf(fichiers->noms[fichiers->taille], TAILLE_LIEN_GT, "%s", chemin_complet);
+                fichiers->temps[fichiers->taille] = renvoie_temp_fichier(chemin_complet);
                 fichiers->taille++;
             }
         }
@@ -86,6 +90,7 @@ Fichiers *renvoie_fichier_dossier(const char *chemin_dossier, const char *extens
         fichiers->taille = 0;
         fichiers->capacite = 10;
         fichiers->noms = xmalloc(fichiers->capacite * sizeof(*fichiers->noms));
+        fichiers->temps = xmalloc(fichiers->capacite * sizeof(*fichiers->temps));
     }
 
     DIR *dir = opendir(chemin_dossier);
@@ -120,9 +125,12 @@ Fichiers *renvoie_fichier_dossier(const char *chemin_dossier, const char *extens
                     fichiers->capacite *= 2;
                     fichiers->noms =
                         xrealloc(fichiers->noms, fichiers->capacite * sizeof(*fichiers->noms));
+                    fichiers->temps =
+                        xrealloc(fichiers->temps, fichiers->capacite * sizeof(*fichiers->temps));
                 }
 
                 snprintf(fichiers->noms[fichiers->taille], TAILLE_LIEN_GT, "%s", chemin_complet);
+                fichiers->temps[fichiers->taille] = renvoie_temp_fichier(chemin_complet);
                 fichiers->taille++;
             }
         }
