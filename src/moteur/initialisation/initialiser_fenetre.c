@@ -16,7 +16,7 @@ void initialiser_fenetre(void) {
                          fen->largeur_univers, fen->hauteur_univers, SDL_WINDOW_SHOWN);
 
     if (!fen->fenetre) {
-        log_fmt(NiveauLogErreur, "Error: SDL_CreateWindow failed: %s", SDL_GetError());
+        log_fmt(NiveauLogErreur, "SDL_CreateWindow failed: %s", SDL_GetError());
         gs->timing->run = false;
         return;
     }
@@ -26,13 +26,12 @@ void initialiser_fenetre(void) {
 
     /* render - essaie 2: cpu */
     if (!fen->rendu) {
-        log_message(NiveauLogAvertissement,
-                    "Warning: Hardware renderer failed, trying software mode");
+        log_message(NiveauLogAvertissement, "Hardware renderer failed, trying software mode");
         fen->rendu = SDL_CreateRenderer(fen->fenetre, -1, SDL_RENDERER_SOFTWARE);
     }
 
     if (!fen->rendu) {
-        log_fmt(NiveauLogErreur, "Error: SDL_CreateRenderer failed: %s", SDL_GetError());
+        log_fmt(NiveauLogErreur, "SDL_CreateRenderer failed: %s", SDL_GetError());
         gs->timing->run = false;
         return;
     }
@@ -45,10 +44,10 @@ void initialiser_fenetre(void) {
     redimensionner(0, 0, true, false);
 
     if (gs->timing->run)
-        log_message(NiveauLogDebug, "Success: Window and renderer initialized");
+        log_message(NiveauLogDebug, "Initialisation successful: Window and renderer initialized");
 
     return;
 
 gsvide:
-    log_message(NiveauLogDebug, "Error: manager is empty in window initialization");
+    log_message(NiveauLogDebug, "manager is empty in window initialization");
 }
