@@ -15,14 +15,14 @@ extern "C" {
 #endif
 
 typedef struct {
-    char id[TAILLE_LIEN_GT];
-    Liste *textures;
+    char id[TAILLE_LIEN]; /* lien */
+    Liste *textures;      /* Liste des variantes de textures */
 } TextureEntry;
 
 typedef struct GestionnaireTextures {
-    TextureEntry *entrees;
-    int capacite;
-    int taille;
+    TextureEntry *entrees; /* tableau des textures */
+    int capacite;          /* capacite du tableau */
+    int taille;            /* nombre de textures chargees */
 } GestionnaireTextures;
 
 void init_gestionnaire_textures(void);

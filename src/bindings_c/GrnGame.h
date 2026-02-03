@@ -1,14 +1,16 @@
 /*
- * API C du moteur GrnGame
- * Expose toutes les fonctionnalités du moteur graphique, audio et input
+ * GrnGame Engine C API
+ * Provides all graphics, audio and input functionality for games.
  */
 
 #ifndef GRNGAME_H
 #define GRNGAME_H
+
 #include "../chemin/chemin.h"
 #include <SDL_stdinc.h>
 #include <stdbool.h>
 
+/* Platform-specific DLL export macros */
 #if defined(_WIN32)
 #if defined(GAME_EXPORTS)
 #define GRN_API __declspec(dllexport)
@@ -16,7 +18,6 @@
 #define GRN_API __declspec(dllimport)
 #endif
 #else
-/* Linux / Mac */
 #define GRN_API __attribute__((visibility("default")))
 #endif
 
@@ -24,12 +25,16 @@
 extern "C" {
 #endif
 
+/* Log severity levels */
 typedef enum { DEBUG = 0, INFO = 1, WARNING = 2, ERROR = 3 } LogLevel;
+
+/* Sprite descriptor with texture ID and dimensions */
 typedef struct {
     const char *id;
     Sint16 taillex, tailley;
 } Sprite;
 
+/* Single collision block with position, size and type */
 typedef struct {
     float x;
     float y;
@@ -38,11 +43,14 @@ typedef struct {
     int type;
 } Block;
 
+/* Dynamic array of collision blocks */
 typedef struct {
     Block *tab;
     int size;
     int capacity;
 } Blocks;
+
+/* Entity for top-down physics */
 typedef struct {
     float x;
     float y;
@@ -50,6 +58,7 @@ typedef struct {
     float height;
 } EntityTopdown;
 
+/* Entity for platformer physics with gravity and jump */
 typedef struct {
     float x;
     float y;
@@ -64,6 +73,7 @@ typedef struct {
     bool rightLock;
 } EntityPlatformer;
 
+/* Smooth-follow camera structure */
 typedef struct {
     float x;
     float y;
@@ -72,190 +82,211 @@ typedef struct {
     int height;
 } Camera;
 
+/* Callback function type for the update loop */
 typedef void (*UpdateCallback)(void);
 
-/*initialisation de la fenetre*/
+/* Initializes the engine with window size, FPS and starts the game loop */
 GRN_API void initialize(int heightU, int widthU, float fps_target, int black_bars,
                         const char *window_title, UpdateCallback update_func);
 
-/* Arrête le moteur et ferme l'application */
+/* Stops the engine and closes the application */
 GRN_API void stop(void);
 
-/* Redimensionne la fenêtre et ajuste le mode plein écran */
+/* Resizes the window and adjusts fullscreen mode */
 GRN_API void resize(int w, int h, bool fullscreen_requested, bool window_fullscreen_requested);
 
-/* Efface l'écran avec la couleur spécifiée */
+/* Clears the screen with the specified color */
 GRN_API void clearScreen(int red, int green, int blue);
 
-/* Calcule la physique de plateforme 2D avec gestion des collisions */
+/* Computes 2D platformer physics with collision detection */
 GRN_API EntityPlatformer *hitboxPlatformer(EntityPlatformer *entite, Blocks *blocs,
                                            float vitesse_max_chute, float correction_mur,
                                            int *ignored_type, int size);
 
+/* Computes top-down physics with collision detection */
 GRN_API EntityTopdown *hitboxTopdown(EntityTopdown *entity, Blocks *blocks, int *ignoredType,
                                      int sizeIgnored);
-/*recupere les blocks a partir dun fichier*/
+
+/* Loads blocks from a file with grid spacing and separator */
 GRN_API Blocks *getBlocksFromFile(const char *chemin, Uint8 pas_x, Uint8 pas_y, char separation,
                                   int excludeElement);
 
-/*Camera */
+/* Creates an empty blocks container */
+GRN_API Blocks *createBlocks();
+
+/* Returns the number of blocks in the container */
+GRN_API int getBlocksSize(Blocks *blocks);
+
+/* Adds a block to the container */
+GRN_API void addBlock(Blocks *blocks, Block *block);
+
+/* Frees all blocks in the container */
+GRN_API void freeBlocks(Blocks *blocks);
+
+/* Updates camera position with smooth interpolation */
 GRN_API void cameraUpdate(Camera *cam, float targetX, float targetY, float dt);
 
-/* Enregistre un message de log avec le niveau spécifié */
+/* Logs a message with the specified severity level */
 GRN_API void logMessage(int level, char *message);
 
-/* Change le niveau minimum de log affiché */
+/* Sets the minimum log level to display */
 GRN_API void setLogLvl(int level);
-/* Ajoute une image au tableau d'affichage */
+
+/* Draws an image at the specified position */
 GRN_API void draw(const char *path, float x, float y, Uint16 width, Uint16 height, bool flip,
                   Uint16 rotation, Uint8 alpha);
-/* Ajoute un sprite au tableau d'affichage */
+
+/* Draws a sprite at the specified position */
 GRN_API void drawSprite(Sprite *sprite, float x, float y, Sint16 w, Sint16 u, bool flip,
                         Uint16 rotation, Uint8 alpha);
-/*dessine le tableau de particules*/
+
+/* Draws a particle array with individual transforms and colors */
 GRN_API void drawParticles(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r, Uint8 *g,
                            Uint8 *b, int size);
-/* Crée un sprite */
+
+/* Creates a sprite descriptor from an image ID */
 GRN_API Sprite *createSprite(const char *id, Sint16 width, Sint16 height);
-/* Ajoute du texte au tableau d'affichage avec police custom */
+
+/* Draws text using a custom bitmap font */
 GRN_API void drawText(const char *font_path, const char *text, float x, float y, Uint16 scale,
                       bool flip, float spacing, Uint16 rotation, Uint8 alpha);
 
-/* Charge toutes les images d'un dossier en mémoire */
+/* Loads all images from a folder into memory */
 GRN_API void loadImageFolder(const char *folder);
-/* Libère toutes les images en mémoire */
+
+/* Frees all loaded images from memory */
 GRN_API void freeImageFolder(void);
 
-/* Définit l'icône de la fenêtre */
+/* Sets the window icon */
 GRN_API void setIcon(const char *path);
 
-/* Dessine un rectangle plein ou vide */
+/* Draws a filled or outlined rectangle */
 GRN_API void drawRect(float x, float y, Sint16 width, Sint16 height, Uint8 red, Uint8 green,
                       Uint8 blue, Uint8 alpha, bool filled);
 
-/* Dessine un cercle plein ou vide */
+/* Draws a filled or outlined circle */
 GRN_API void drawCircle(float x, float y, Sint16 radius, Uint8 red, Uint8 green, Uint8 blue,
                         bool filled);
 
-/* Dessine un triangle plein ou vide */
+/* Draws a filled or outlined triangle */
 GRN_API void drawTriangle(float x, float y, Sint16 width, Sint16 height, Uint8 red, Uint8 green,
                           Uint8 blue, bool filled);
 
-/* Dessine une ligne entre deux points */
+/* Draws a line between two points */
 GRN_API void drawLine(float x1, float y1, float x2, float y2, Uint8 red, Uint8 green, Uint8 blue);
 
-/* Fonction de test pour les shaders */
+/* Shader test function */
 GRN_API void test_shaders(void);
 
-/* Lance la lecture d'un son avec options de boucle et canal */
+/* Plays a sound with loop, channel and volume options */
 GRN_API void playSound(const char *path, int loop, int channel, int volume);
 
-/* Arrête la lecture d'un son identifié par son chemin */
+/* Stops a sound identified by its path */
 GRN_API void stopSound(const char *path);
 
-/* Met en pause la lecture d'un son identifié par son chemin */
+/* Pauses a sound identified by its path */
 GRN_API void pauseSound(const char *path);
 
-/* Reprend la lecture d'un son en pause */
+/* Resumes a paused sound */
 GRN_API void resumeSound(const char *path);
 
-/* Arrête la lecture d'un canal audio spécifique */
+/* Stops playback on a specific audio channel */
 GRN_API void stopChannel(int channel);
 
-/* Met en pause la lecture d'un canal audio spécifique */
+/* Pauses playback on a specific audio channel */
 GRN_API void pauseChannel(int channel);
 
-/* Reprend la lecture d'un canal audio en pause */
+/* Resumes playback on a paused audio channel */
 GRN_API void resumeChannel(int channel);
 
-/* Charge tous les fichiers sonores d'un dossier en mémoire */
+/* Loads all sound files from a folder into memory */
 GRN_API void loadSongFolder(const char *folder);
 
-/* Libère tous les sons en mémoire */
+/* Frees all loaded sounds from memory */
 GRN_API void freeSongFolder(void);
 
-/* Vérifie si une touche vient d'être pressée (front montant) */
+/* Returns true if a key was just pressed this frame */
 GRN_API int keyJustPressed(const char *key_name);
 
-/* Vérifie si une touche est maintenue enfoncée */
+/* Returns true if a key is currently held down */
 GRN_API int keyPressed(const char *key_name);
 
-/* Affiche ou masque le curseur de la souris */
+/* Shows or hides the mouse cursor */
 GRN_API void showCursor(bool visible);
 
-/* Vérifie si un bouton de manette est maintenu enfoncé */
+/* Returns true if a controller button is currently held down */
 GRN_API int buttonPressed(const char *button_name, unsigned char index);
 
-/* Vérifie si un bouton de manette vient d'être pressé (front montant) */
+/* Returns true if a controller button was just pressed this frame */
 GRN_API int buttonJustPressed(const char *button_name, unsigned char index);
 
-/* Initialise les manettes/joysticks à partir d'un index */
+/* Initializes a game controller at the specified index */
 GRN_API void initController(unsigned char index);
 
-/* Récupère les axes des joysticks avec zone morte (retourne 6 floats) */
+/* Returns joystick axes values with deadzone applied (6 floats) */
 GRN_API float *getJoysticks(float dead_zone, unsigned char index);
 
-/* Ferme la manette */
+/* Closes a game controller at the specified index */
 GRN_API void closeController(unsigned char index);
 
-/* Ferme le joystick */
+/* Closes a joystick at the specified index */
 GRN_API void closeJoystick(unsigned char index);
 
-/* Ferme la manette et le joystick */
+/* Closes both controller and joystick at the specified index */
 GRN_API void closeTheController(unsigned char index);
 
-/* Récupère la position X de la souris */
+/* Returns the mouse X position in game coordinates */
 GRN_API int mouseX(void);
 
-/* Récupère la position Y de la souris */
+/* Returns the mouse Y position in game coordinates */
 GRN_API int mouseY(void);
 
-/* Vérifie si le bouton gauche de la souris vient d'être pressé */
+/* Returns true if the left mouse button was just pressed */
 GRN_API int mouseLeftJustPressed(void);
 
-/* Vérifie si le bouton droit de la souris vient d'être pressé */
+/* Returns true if the right mouse button was just pressed */
 GRN_API int mouseRightJustPressed(void);
 
-/* Vérifie si le bouton gauche de la souris est maintenu enfoncé */
+/* Returns true if the left mouse button is currently held down */
 GRN_API int mouseLeftPressed(void);
 
-/* Vérifie si le bouton droit de la souris est maintenu enfoncé */
+/* Returns true if the right mouse button is currently held down */
 GRN_API int mouseRightPressed(void);
 
-/*retourne le scrool vertical de la souris 1 ou -1*/
+/* Returns vertical scroll delta (1 or -1) */
 GRN_API int mouseScrollVertical(void);
 
-/*retourne le scrool vertical de la souris 1 ou -1*/
+/* Returns horizontal scroll delta (1 or -1) */
 GRN_API int mouseScrollHorizontal(void);
 
-/* Récupère le delta-time (temps écoulé depuis la dernière frame) */
+/* Returns the delta time since last frame in seconds */
 GRN_API float delta(void);
 
-/* Récupère les FPS actuels */
+/* Returns the current frames per second */
 GRN_API float fps(void);
 
-/* Récupère le nombre de frames écoulées */
+/* Returns the total number of elapsed frames */
 GRN_API unsigned int frameCount(void);
 
-/* Récupère le décalage X de la fenêtre */
+/* Returns the X offset of the game viewport */
 GRN_API int offsetX(void);
 
-/* Récupère le décalage Y de la fenêtre */
+/* Returns the Y offset of the game viewport */
 GRN_API int offsetY(void);
 
-/* Récupère la largeur actuelle de la fenêtre */
+/* Returns the current window width */
 GRN_API int currentWidth(void);
 
-/* Récupère la hauteur actuelle de la fenêtre */
+/* Returns the current window height */
 GRN_API int currentHeight(void);
 
-/* Récupère la largeur de l'univers */
+/* Returns the game universe width */
 GRN_API int universeWidth(void);
 
-/* Récupère la hauteur de l'univers */
+/* Returns the game universe height */
 GRN_API int universeHeight(void);
 
-/*lancer le moteur lua*/
+/* Initializes and runs the Lua engine with the specified script */
 GRN_API void initializeLua(const char *filePath);
 
 #ifdef __cplusplus

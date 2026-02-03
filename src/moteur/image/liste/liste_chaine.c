@@ -1,11 +1,12 @@
+/*
+ * Liste chainee pour le cache des rotations de textures.
+ */
+
 #include "../../../main.h"
 
-/*
- * Crée un nouveau nœud de liste chaînée pour stocker une texture et son angle.
- * Alloue la mémoire et initialise les pointeurs.
- */
+/* Cree un nouveau noeud de liste chainee pour stocker une texture et son angle */
 Liste *creer_liste(SDL_Texture *valeur, int angle) {
-    Liste *nouv = xmalloc(sizeof(Liste));
+    Liste *nouv = malloc_gestion_echec_compteur(sizeof(Liste));
     nouv->texture = valeur;
     nouv->angle = angle;
     nouv->suivant = NULL;
@@ -13,10 +14,7 @@ Liste *creer_liste(SDL_Texture *valeur, int angle) {
     return nouv;
 }
 
-/*
- * Ajoute une nouvelle texture au début de la liste existante.
- * Crée un nouveau nœud et le chaîne à l'ancienne tête de liste.
- */
+/* Ajoute une nouvelle texture au debut de la liste existante */
 Liste *ajouter_en_tete(Liste *liste, SDL_Texture *valeur, int angle) {
     Liste *nouv = creer_liste(valeur, angle);
 
@@ -28,10 +26,7 @@ Liste *ajouter_en_tete(Liste *liste, SDL_Texture *valeur, int angle) {
     return nouv;
 }
 
-/*
- * Parcourt la liste chaînée pour trouver la texture correspondant à l'angle
- * donné. Retourne NULL si le couple texture-angle n'est pas trouvé.
- */
+/* Parcourt la liste chainee pour trouver la texture correspondant a l'angle */
 SDL_Texture *recuperer_texture_angle_indice(Liste *liste, int angle) {
     Liste *courant = liste;
 
@@ -45,11 +40,7 @@ SDL_Texture *recuperer_texture_angle_indice(Liste *liste, int angle) {
     return NULL;
 }
 
-/*
- * Libère la mémoire de toute la liste chaînée et détruit les textures SDL
- * associées. Retourne NULL pour faciliter la remise à zéro du pointeur
- * appelant.
- */
+/* Libere la memoire de toute la liste chainee et detruit les textures SDL */
 Liste *liberer_liste(Liste *liste) {
     Liste *courant = liste;
 
@@ -61,7 +52,7 @@ Liste *liberer_liste(Liste *liste) {
             SDL_DestroyTexture(temp->texture);
         }
 
-        xfree(temp);
+        free_gestion_echec_compteur(temp);
     }
 
     return NULL;

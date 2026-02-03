@@ -1,8 +1,10 @@
+/*
+ * Gestion de l'affichage du curseur.
+ */
+
 #include "../../main.h"
 
-/*
- * Affiche ou masque le curseur de la souris selon le paramètre.
- */
+/* Affiche ou masque le curseur de la souris selon le parametre */
 void afficher_curseur(bool afficher) {
     if (afficher) {
         SDL_ShowCursor(SDL_ENABLE);

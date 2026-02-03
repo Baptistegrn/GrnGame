@@ -1,17 +1,19 @@
+/*
+ * Liberation de la structure Fichiers.
+ */
+
 #include "../main.h"
 
-/*
- * Libère la structure Fichiers et son tableau de noms.
- */
+/* Libere une structure Fichiers et ses tableaux */
 void liberer_fichiers(Fichiers *fichiers) {
     if (fichiers == NULL) {
         return;
     }
     if (fichiers->noms != NULL) {
-        xfree(fichiers->noms);
+        free_gestion_echec_compteur(fichiers->noms);
     }
     if (fichiers->temps != NULL) {
-        xfree(fichiers->temps);
+        free_gestion_echec_compteur(fichiers->temps);
     }
-    xfree(fichiers);
+    free_gestion_echec_compteur(fichiers);
 }

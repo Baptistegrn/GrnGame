@@ -1,10 +1,15 @@
+/*
+ * Mise a jour des entrees utilisateur (clavier, souris, manette).
+ * Traite la file d'evenements SDL a chaque frame.
+ */
+
 #include "../../main.h"
 #include <math.h>
 #include <string.h>
 
 /*
- * Trouve l'index local (0 à NB_MANETTES_MAX-1) d'une manette à partir de
- * son instance ID SDL. Retourne -1 si non trouvée.
+ * Trouve l'index local (0 a NB_MANETTES_MAX-1) d'une manette a partir de
+ * son instance ID SDL. Retourne -1 si non trouvee.
  */
 static int trouver_index_manette(SDL_JoystickID instance_id) {
     SDL_GameController *ctrl = SDL_GameControllerFromInstanceID(instance_id);
@@ -20,9 +25,9 @@ static int trouver_index_manette(SDL_JoystickID instance_id) {
 }
 
 /*
- * Met à jour les entrées (Clavier, Souris, Manette) pour la frame actuelle.
- * Réinitialise les états "juste pressé", récupère la position souris corrigée
- * en tenant compte du letterboxing, puis traite la file d'événements SDL.
+ * Met a jour les entrees (Clavier, Souris, Manette) pour la frame actuelle.
+ * Reinitialise les etats "juste presse", recupere la position souris corrigee
+ * en tenant compte du letterboxing, puis traite la file d'evenements SDL.
  */
 void mise_a_jour_input() {
     if (!gs)
@@ -31,7 +36,7 @@ void mise_a_jour_input() {
     GestionnaireFenetre *fenetre = gs->fenetre;
     SDL_Event event;
 
-    /* Réinitialisation des états "Just Pressed" (durée 1 frame) */
+    /* Reinitialisation des etats "Just Pressed" (duree 1 frame) */
     entrees->souris_juste_presse = false;
     entrees->souris_droite_juste_presse = false;
     entrees->souris_scroll_y = 0;
@@ -44,11 +49,11 @@ void mise_a_jour_input() {
         }
     }
 
-    /* Traitement de la file d'événements SDL */
+    /* Traitement de la file d'evenements SDL */
     while (SDL_PollEvent(&event)) {
 
-        /* Mise à jour de la position souris avec correction du letterboxing.
-           Les coordonnées écran (physiques) sont converties en coordonnées jeu
+        /* Mise a jour de la position souris avec correction du letterboxing.
+           Les coordonnees ecran (physiques) sont converties en coordonnees jeu
            (logiques) en tenant compte du ratio et des bandes noires. */
         int raw_x, raw_y;
         SDL_GetMouseState(&raw_x, &raw_y);
@@ -61,7 +66,7 @@ void mise_a_jour_input() {
         entrees->souris_y =
             (int)lroundf(((float)raw_y - (float)fenetre->decalage_y) / (float)coeff);
 
-        /* Dispatch des événements */
+        /* Dispatch des evenements */
         switch (event.type) {
         case SDL_MOUSEWHEEL:
             if (event.wheel.y > 0) {
@@ -153,7 +158,7 @@ void mise_a_jour_input() {
             break;
         }
 
-        /* Manette : Connexion/Déconnexion */
+        /* Manette : Connexion/Deconnexion */
         case SDL_CONTROLLERDEVICEADDED:
             init_controller_joysticks(event.cdevice.which);
             break;
@@ -189,7 +194,7 @@ void mise_a_jour_input() {
         case SDL_KEYDOWN:
             if (event.key.keysym.scancode < SDL_NUM_SCANCODES) {
                 entrees->entrees[event.key.keysym.scancode] = true;
-                /* N'enregistrer "juste pressé" que pour les vrais appuis, pas les répétitions */
+                /* N'enregistrer "juste presse" que pour les vrais appuis, pas les repetitions */
                 if (!event.key.repeat) {
                     entrees->entrees_presse[event.key.keysym.scancode] = true;
                 }

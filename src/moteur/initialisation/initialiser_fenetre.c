@@ -1,16 +1,17 @@
+/*
+ * Initialisation de la fenetre et du renderer SDL.
+ */
+
 #include "../../main.h"
 
-/**
- * Initialise la fenêtre et le renderer, puis délègue la configuration
- * de l'affichage à appliquer_mode_affichage pour démarrer en plein écran.
- */
+/* Initialise la fenetre et le renderer */
 void initialiser_fenetre(void) {
     if (!gs)
         goto gsvide;
 
     GestionnaireFenetre *fen = gs->fenetre;
 
-    /* création fenetre */
+    /* Creation fenetre */
     fen->fenetre =
         SDL_CreateWindow(fen->nom_fenetre, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                          fen->largeur_univers, fen->hauteur_univers, SDL_WINDOW_SHOWN);

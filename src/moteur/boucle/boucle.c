@@ -1,34 +1,33 @@
+/*
+ * Boucle principale du moteur de jeu.
+ * Gere le cycle: Entrees -> Mise a jour -> Rendu -> Timing.
+ */
+
 typedef void (*RappelMiseAJour)(void);
 
 #include "../../main.h"
 
 static RappelMiseAJour g_rappel_mise_a_jour = NULL;
 
-/*
- * Définit la fonction de rappel pour les mises à jour de logique.
- */
+/* Definit la fonction de rappel pour les mises a jour de logique */
 void definir_rappel_mise_a_jour(RappelMiseAJour cb) { g_rappel_mise_a_jour = cb; }
 
-/*
- * Exécute la logique de mise à jour via le callback si défini.
- */
+/* Execute la logique de mise a jour via le callback si defini */
 void mettre_a_jour(void) {
     if (g_rappel_mise_a_jour)
         g_rappel_mise_a_jour();
 }
 
-/*
- * Arrête proprement la boucle principale.
- */
+/* Arrete proprement la boucle principale */
 void arreter_gestionnaire(void) {
     if (gs && gs->timing)
         gs->timing->run = false;
 }
 
 /*
- * Boucle principale du jeu. Cycle: Input → Update → Render → Timing.
- * Maintient un framerate constant en utilisant des délais et calcule le delta
- * time réel.
+ * Boucle principale du jeu.
+ * Maintient un framerate constant en utilisant des delais.
+ * Calcule le delta time reel entre chaque frame.
  */
 void boucle_principale(void) {
     if (!gs)
@@ -42,10 +41,10 @@ void boucle_principale(void) {
         Uint32 frame_debut = SDL_GetTicks();
         timing->compteur_frames++;
 
-        /* Traitement des entrées */
+        /* Traitement des entrees */
         mise_a_jour_input();
 
-        /* Mise à jour de la logique du jeu */
+        /* Mise a jour de la logique du jeu */
         mettre_a_jour();
 
         /* Rendu de la frame */
@@ -53,7 +52,7 @@ void boucle_principale(void) {
 #ifdef DEBUG_MODE
         actualiser_rechargement();
 #endif
-        /* Limitation du framerate avec délai si nécessaire */
+        /* Limitation du framerate avec delai si necessaire */
         Uint32 frame_temps_ms = SDL_GetTicks() - frame_debut;
         float frame_temps_s = frame_temps_ms / 1000.0f;
 
@@ -62,7 +61,7 @@ void boucle_principale(void) {
             SDL_Delay(delai);
         }
 
-        /* Calcul du delta time réel */
+        /* Calcul du delta time reel */
         Uint32 frame_actuelle = SDL_GetTicks();
         float dt_reel = (frame_actuelle - frame_debut_avant_while) / 1000.0f;
         frame_debut_avant_while = frame_actuelle;

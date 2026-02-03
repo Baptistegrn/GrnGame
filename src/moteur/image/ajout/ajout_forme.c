@@ -1,10 +1,11 @@
+/*
+ * Ajout de formes geometriques a la liste de rendu.
+ */
+
 #include "../../../main.h"
 #include "ajout.h"
 
-/*
- * Ajoute une ligne à la liste de rendu.
- * Initialise une structure de type FORME (type 1) pour lignes.
- */
+/* Ajoute une ligne a la liste de rendu */
 void ajouter_ligne(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b) {
     if (!gs)
         goto gsvide;
@@ -35,10 +36,7 @@ gsvide:
     log_message(NiveauLogDebug, "manager is empty in add line function");
 }
 
-/*
-  Ajoute un rectangle à la liste de rendu.
-  Initialise une structure Object_image de type FORME (2).
-*/
+/* Ajoute un rectangle a la liste de rendu */
 void ajouter_rectangle(float x, float y, Sint16 taillex, Sint16 tailley, Uint8 r, Uint8 g, Uint8 b,
                        Uint8 a, bool plein) {
     if (!gs)
@@ -71,11 +69,7 @@ gsvide:
     log_message(NiveauLogDebug, "Debug : manager is empty in add rectangle function");
 }
 
-/*
-  Ajoute un cercle à la liste de rendu.
-  Initialise une structure Object_image de type FORME (3).
-  Note : posx2 et posy2 stockent le diamètre.
-*/
+/* Ajoute un cercle a la liste de rendu */
 void ajouter_cercle(float x, float y, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, bool plein) {
     if (!gs)
         goto gsvide;
@@ -106,10 +100,7 @@ gsvide:
     log_message(NiveauLogDebug, "manager is empty in add circle function");
 }
 
-/*
-  Ajoute un triangle à la liste de rendu.
-  Initialise une structure ObjectImage de type FORME (4).
-*/
+/* Ajoute un triangle a la liste de rendu */
 void ajouter_triangle(float x, float y, Sint16 taillex, Sint16 tailley, Uint8 r, Uint8 g, Uint8 b,
                       bool plein) {
     if (!gs)

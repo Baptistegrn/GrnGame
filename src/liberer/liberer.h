@@ -1,5 +1,6 @@
 /*
- * Libération des ressources et structures du moteur.
+ * Liberation des ressources du moteur.
+ * La fonction principale liberer_gs() appelle les liberateurs de chaque module.
  */
 
 #ifndef LIBERER_H
@@ -9,26 +10,11 @@
 extern "C" {
 #endif
 
-/* Fonction principale de libération */
+/* Libere toutes les ressources du gestionnaire principal */
 void liberer_gs(void);
-
-/* Fonctions de libération des sous-structures */
-void liberer_timing(void);
-void liberer_fenetre(void);
-void liberer_entrees(void);
-void liberer_fond(void);
-void liberer_tableau_image(void);
-void liberer_textures(void);
-void liberer_sons(void);
-void liberer_controllers(void);
-void liberer_fichiers_lua(void);
-/* Fonctions de libération internes */
-void liberer_gestionnaire_son(void);
-void liberer_gestionnaire_image(void);
-void free_tab_images(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /*LIBERER_H*/
+#endif /* LIBERER_H */

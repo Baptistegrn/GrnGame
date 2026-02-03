@@ -1,14 +1,15 @@
+/*
+ * Gestion de la couleur de fond.
+ */
+
 #include "../../main.h"
 #include "fenetre.h"
 
-/*
- * Stocke les informations de coloriage pour la frame courante.
- * La couleur sera appliquée au fond au début du rendu de la frame suivante.
- */
+/* Stocke les informations de coloriage pour la frame courante */
 void stocker_coloriage(int r, int g, int b) {
     if (!gs)
         goto gsvide;
-    fondActualiser *fond = gs->fond;
+    fondActualiser *fond = gs->frame->fond;
 
     /* Limitation des valeurs RGB entre 0 et 255 */
     r = SDL_clamp(r, 0, 255);

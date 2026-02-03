@@ -1,5 +1,6 @@
 /*
- * Moteur physique 2D pour la plateforme.
+ * Moteur physique 2D.
+ * Gere les collisions pour les jeux de plateforme et vue de dessus.
  */
 
 #ifndef HITBOX_H
@@ -11,34 +12,24 @@
 extern "C" {
 #endif
 
+#include "../blocs/bloc.h"
+
+/* Entite pour la physique de plateforme avec gravite et saut */
 typedef struct {
     float x;
     float y;
-    float w;
-    float h;
-    int type;
-} Block;
-
-typedef struct {
-    Block *tab;
-    int size;
-    int capacity;
-} Blocks;
-
-typedef struct {
-    float x;
-    float y;
-    float speedY;
+    float speedY; /* Vitesse verticale */
     float width;
     float height;
-    float gravity;
-    float powerJump;
-    bool inSky;
-    bool requestJump;
-    bool leftLock;
-    bool rightLock;
+    float gravity;    /* Force de gravite */
+    float powerJump;  /* Force de saut */
+    bool inSky;       /* En l'air */
+    bool requestJump; /* Demande de saut */
+    bool leftLock;    /* Bloque a gauche */
+    bool rightLock;   /* Bloque a droite */
 } EntityPlatformer;
 
+/* Entite pour la physique vue de dessus */
 typedef struct {
     float x;
     float y;
@@ -46,8 +37,14 @@ typedef struct {
     float height;
 } EntityTopdown;
 
+/* Verifie si un type de bloc doit etre ignore */
+bool est_type_ignorer(int type, int *types_a_ignorer, int nb_types);
+
+/* Calcule les collisions pour un jeu de plateforme */
 EntityPlatformer *hitbox_platforme(EntityPlatformer *entite, Blocks *blocs, float vitesse_max_chute,
                                    float correction_mur, int *types_ignorer, int nb_ignorer);
+
+/* Calcule les collisions pour un jeu vue de dessus */
 EntityTopdown *hitbox_topdown(EntityTopdown *entity, Blocks *blocks, int *types_ignorer,
                               int nb_ignorer);
 

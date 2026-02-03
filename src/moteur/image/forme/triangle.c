@@ -1,10 +1,10 @@
+/*
+ * Dessin de triangles (vides et pleins).
+ */
+
 #include "../../../main.h"
 
-/*
- * Dessine un triangle vide en traçant les contours ligne par ligne.
- * La largeur diminue en descendant pour créer l'effet triangulaire.
- * Le taux de diminution dépend du rapport largeur/hauteur.
- */
+/* Dessine un triangle vide en tracant les contours ligne par ligne */
 void dessiner_triangle_vide(float posx, float posy, Sint16 largeur, Sint16 hauteur, Uint8 r,
                             Uint8 g, Uint8 b) {
     if (!gs)
@@ -63,11 +63,7 @@ gsvide:
     log_message(NiveauLogDebug, "manager is empty in draw empty triangle");
 }
 
-/*
- * Dessine un triangle rempli en traçant des lignes horizontales qui diminuent
- * en hauteur. Le taux de diminution est adapté au ratio largeur/hauteur pour un
- * résultat bien proportionné.
- */
+/* Dessine un triangle rempli en tracant des lignes horizontales */
 void dessiner_triangle_plein(float posx, float posy, Sint16 largeur, Sint16 hauteur, Uint8 r,
                              Uint8 g, Uint8 b) {
     if (!gs)

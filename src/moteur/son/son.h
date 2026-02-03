@@ -14,14 +14,14 @@ extern "C" {
 #endif
 
 typedef struct SonEntry {
-    char id[TAILLE_LIEN_GT];
-    Mix_Chunk *son;
+    char id[TAILLE_LIEN]; /* lien */
+    Mix_Chunk *son;       /* son */
 } SonEntry;
 
 typedef struct GestionnaireSon {
-    SonEntry *entrees;
-    int taille;
-    int capacite;
+    SonEntry *entrees; /* tableau des sons */
+    int taille;        /* nombre de sons charges */
+    int capacite;      /* capacite du tableau */
 } GestionnaireSon;
 
 void jouer_son(const char *lien, int boucle, int canal, int volume);
@@ -35,7 +35,10 @@ void reprendre_son(const char *lien);
 Mix_Chunk *recuperer_son_par_lien(const char *lien);
 void init_gestionnaire_son();
 void charger_tous_les_sons(const char *dossier);
-void liberer_gestionnaire_son();
+
+/* Fonctions de liberation */
+void liberer_gestionnaire_son(void);
+void liberer_sons(void);
 
 #ifdef __cplusplus
 }

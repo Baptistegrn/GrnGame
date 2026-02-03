@@ -1,19 +1,21 @@
+/*
+ * Ajout d'images au tableau dynamique de rendu.
+ */
+
 #include "../../../main.h"
 #include "ajout.h"
 
-/*
- * Ajoute une image au tableau dynamique avec réallocation automatique.
- * Gère l'extension de capacité et l'ajout du nouvel objet.
- */
+/* Ajoute une image au tableau dynamique avec reallocation automatique */
 void ajouter_image_au_jeu(ObjectImage nouvelle) {
     if (!gs)
         goto gsvide;
-    TableauImage *jeu = gs->image;
+    TableauImage *jeu = gs->frame->image;
 
-    /* Extension de la capacité si nécessaire */
+    /* Extension de la capacite si necessaire */
     if (jeu->nb_images >= jeu->capacite_images) {
         int nouvelle_capacite = (jeu->capacite_images == 0) ? 100 : jeu->capacite_images + 50;
-        jeu->tab = xrealloc(jeu->tab, sizeof(ObjectImage) * nouvelle_capacite);
+        jeu->tab =
+            realloc_gestion_echec_compteur(jeu->tab, sizeof(ObjectImage) * nouvelle_capacite);
         jeu->capacite_images = nouvelle_capacite;
     }
 

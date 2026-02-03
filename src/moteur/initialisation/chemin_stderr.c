@@ -1,9 +1,10 @@
+/*
+ * Configuration de la redirection des erreurs vers un fichier log.
+ */
+
 #include "../../main.h"
 
-/*
- * Récupère le dernier point et garde le préfixe (sans l'extension).
- * pas utilise ici
- */
+/* Recupere le dernier point et garde le prefixe (sans l'extension) */
 char *couper_extension(const char *texte) {
     const char *pos = strrchr(texte, '.');
     int len;
@@ -22,9 +23,7 @@ char *couper_extension(const char *texte) {
     return resultat;
 }
 
-/*
- * Configure la redirection des erreurs vers un fichier log spécifique.
- */
+/* Configure la redirection des erreurs vers un fichier log */
 void configurer_redirection_stderr(const char *chemin_log) {
     if (!chemin_log) {
         initialiser_logging(DestinationLogConsole, NULL, NiveauLogInfo);

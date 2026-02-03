@@ -1,9 +1,10 @@
 /*
- * Gestion des entrées (clavier, souris, manette).
+ * Gestion des entrees (clavier, souris, manette).
+ * Contient les structures et fonctions de traitement des peripheriques.
  */
 
-#ifndef INPUT_H
-#define INPUT_H
+#ifndef ENTREES_H
+#define ENTREES_H
 
 #include "../../proprietes.h"
 #include <SDL.h>
@@ -13,21 +14,25 @@
 extern "C" {
 #endif
 
+/* Position d'un stick analogique */
 typedef struct {
     int x;
     int y;
 } StickPos;
 
+/* Etat des deux sticks de la manette */
 typedef struct {
     StickPos g;
     StickPos d;
 } ManetteEtatJoy;
 
+/* Valeurs des gachettes analogiques */
 typedef struct {
     int trigger_g;
     int trigger_d;
 } Trigger;
 
+/* Pointeurs vers les peripheriques SDL */
 typedef struct {
     SDL_GameController *manette;
     SDL_Joystick *joystick;
@@ -70,25 +75,34 @@ extern const ToucheNom touches_3[];
 extern const ToucheNom touches_longues[];
 extern const ManetteBoutonNom boutons_manette[];
 
+/* Boucle de mise a jour des entrees */
 void mise_a_jour_input(void);
 
+/* Detection clavier */
 bool touche_juste_presse(const char *touche);
 bool touche_enfoncee(const char *touche);
 
+/* Gestion des manettes */
 bool init_controller_joysticks(unsigned char index);
 void fermer_controller(unsigned char index);
 void fermer_joystick(unsigned char index);
 
-bool touche_mannette_juste_presse(const char *touche, unsigned char index);
-bool touche_mannette_enfoncee(const char *touche, unsigned char index);
+/* Detection manette */
+bool touche_manette_juste_presse(const char *touche, unsigned char index);
+bool touche_manette_enfoncee(const char *touche, unsigned char index);
 float *renvoie_joysticks(float dead_zone, unsigned char index);
 
+/* Conversion des noms */
 char *normaliser_nom(const char *src);
 SDL_Scancode scancode_depuis_nom(const char *nom_non_normalise);
 SDL_GameControllerButton bouton_manette_depuis_nom(const char *nom_non_normalise);
+
+/* Fonctions de liberation */
+void liberer_entrees(void);
+void liberer_manette(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /* ENTREES_H */

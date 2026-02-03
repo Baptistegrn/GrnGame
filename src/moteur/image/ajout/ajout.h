@@ -1,5 +1,5 @@
 /*
- * Ajout d'objets et de primitives géométriques au rendu.
+ * Ajout d'objets et de primitives geometriques au rendu.
  */
 
 #ifndef AJOUT_H
@@ -17,45 +17,45 @@ typedef struct Liste Liste;
 typedef enum { TYPE_IMAGE = 0, TYPE_FORME = 1, TYPE_PARTICULE = 2 } TypeObjet;
 
 typedef struct {
-    Uint8 r, g, b, a;
-    float posx, posy;
-    float posx2, posy2;
-    Sint16 taillex, tailley;
-    bool plein;
-    int type_de_forme;
+    Uint8 r, g, b, a;        /* couleur */
+    float posx, posy;        /* position */
+    float posx2, posy2;      /* position 2 (pour ligne) */
+    Sint16 taillex, tailley; /* taille */
+    bool plein;              /* plein ou vide */
+    int type_de_forme;       /* 0=rectangle,1=cercle,2=triangle,3=ligne */
 
 } Forme;
 
 typedef struct {
-    float posx, posy;
-    Sint16 taillex, tailley;
-    bool sens;
-    Uint16 rotation;
-    Uint8 a;
+    float posx, posy;        /* position */
+    Sint16 taillex, tailley; /* taille */
+    bool sens;               /* flip horizontal */
+    Uint16 rotation;         /* angle de rotation */
+    Uint8 a;                 /* alpha */
     SDL_Texture *texture;
-    bool sprite;
-    // sprite position
+    bool sprite; /* est un sprite */
+    /* sprite position */
     Sint16 x1, y1;
     Sint16 x2, y2;
 } Image;
 
 typedef struct {
-    float *posx, *posy;
-    Uint16 *rotation;
-    Uint8 *a, *r, *g, *b;
-    int taille;
+    float *posx, *posy;   /* positions */
+    Uint16 *rotation;     /* rotations */
+    Uint8 *a, *r, *g, *b; /* couleurs */
+    int taille;           /* nombre de particules */
 } Particule;
 
 typedef struct {
     TypeObjet type;
-    Image image;
-    Forme forme;
-    Particule particule;
+    Image image;         /* images */
+    Forme forme;         /* formes geometriques */
+    Particule particule; /* particules */
 } ObjectImage;
 
 typedef struct {
-    const char *id;
-    Sint16 taillex, tailley;
+    const char *id;          /* lien */
+    Sint16 taillex, tailley; /* taille */
 } Sprite;
 
 void ajouter_image_au_jeu(ObjectImage nouvelle);

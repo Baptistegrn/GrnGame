@@ -1,8 +1,12 @@
-#include "../../main.h"
-#include <stdbool.h>
+/*
+ * Moteur physique pour les jeux de plateforme.
+ * Gere la gravite, le saut, et les collisions avec les blocs.
+ */
 
-/* type de block ignore de la hitbox */
-static bool est_type_ignorer(int type, int *types_a_ignorer, int nb_types) {
+#include "../../main.h"
+
+/* Verifie si un type de bloc doit etre ignore */
+bool est_type_ignorer(int type, int *types_a_ignorer, int nb_types) {
     if (types_a_ignorer == NULL || nb_types <= 0)
         return false;
     for (int i = 0; i < nb_types; i++) {
@@ -12,6 +16,7 @@ static bool est_type_ignorer(int type, int *types_a_ignorer, int nb_types) {
     return false;
 }
 
+/* Calcule les coordonnees des coins d'un bloc */
 static void renvoie_bloc_hitbox(const Block *bloc, float *bloc_x1, float *bloc_y1, float *bloc_x2,
                                 float *bloc_y2) {
     *bloc_x1 = bloc->x;
@@ -20,6 +25,7 @@ static void renvoie_bloc_hitbox(const Block *bloc, float *bloc_x1, float *bloc_y
     *bloc_y2 = bloc->y + bloc->h;
 }
 
+/* Calcule la vitesse verticale avec gravite */
 static float calculer_vitesse_saut(float vitesse_y, bool en_air, float force_saut, float gravite,
                                    float dt, float vitesse_max_chute) {
     if (!en_air)
@@ -33,6 +39,7 @@ static float calculer_vitesse_saut(float vitesse_y, bool en_air, float force_sau
     return nouvelle_vitesse;
 }
 
+/* Applique un saut si l'entite est au sol */
 static float appliquer_saut(float vitesse_y, bool en_air, float force_saut, bool *nouvel_en_air,
                             bool *saute) {
     if (en_air) {
@@ -46,6 +53,7 @@ static float appliquer_saut(float vitesse_y, bool en_air, float force_saut, bool
     return force_saut;
 }
 
+/* Met a jour la position verticale avec detection du sol */
 static bool mettre_a_jour_position(float y, float vitesse_y, float dt, float sol_y,
                                    float hauteur_joueur, float *nouvelle_y,
                                    float *nouvelle_vitesse_y) {
@@ -63,6 +71,7 @@ static bool mettre_a_jour_position(float y, float vitesse_y, float dt, float sol
     return nouvel_en_air;
 }
 
+/* Detecte le sol le plus proche sous l'entite */
 static float detecter_sol(float joueur_x1, float joueur_y1, float taillex, float tailley,
                           const Block *blocs, int taille, int *types_ignorer, int nb_ignorer) {
     float sol = 1e9f;
@@ -85,6 +94,7 @@ static float detecter_sol(float joueur_x1, float joueur_y1, float taillex, float
     return sol;
 }
 
+/* Detecte les collisions avec le plafond */
 static void detecter_plafond(float joueur_x1, float joueur_y1, float joueur_vitesse_y,
                              const Block *blocs, int taille, float taillex, float tailley,
                              float *nouvelle_y1, float *nouvelle_vitesse_y, int *types_ignorer,
@@ -110,6 +120,7 @@ static void detecter_plafond(float joueur_x1, float joueur_y1, float joueur_vite
     }
 }
 
+/* Detecte les collisions avec les murs et applique la friction */
 static void detecter_collisions_murs(float joueur_x1, float joueur_y1, float joueur_vitesse_y,
                                      const Block *blocs, int taille, float taillex, float tailley,
                                      float mur, float dt, float *nouvelle_vitesse_y,
@@ -119,7 +130,7 @@ static void detecter_collisions_murs(float joueur_x1, float joueur_y1, float jou
     *nouvelle_vitesse_y = joueur_vitesse_y;
     *nouveau_x = joueur_x1;
 
-    // Réinitialisation des locks à chaque frame physique
+    /* Reinitialisation des locks a chaque frame */
     *leftLock = false;
     *rightLock = false;
 
@@ -137,28 +148,28 @@ static void detecter_collisions_murs(float joueur_x1, float joueur_y1, float jou
 
             bool contact_mur = false;
 
-            // Collision Droite du joueur (Mur à droite)
+            /* Collision avec mur a droite */
             if (joueur_x2 >= bx1 && joueur_x1 < bx1) {
                 *nouveau_x = bx1 - taillex;
                 *rightLock = true;
                 contact_mur = true;
             }
-            // Collision Gauche du joueur (Mur à gauche)
+            /* Collision avec mur a gauche */
             else if (joueur_x1 <= bx2 && joueur_x2 > bx2) {
                 *nouveau_x = bx2;
                 *leftLock = true;
                 contact_mur = true;
             }
 
+            /* Friction contre les murs */
             if (contact_mur) {
-                // Gestion de la friction (montée et descente)
                 if (joueur_vitesse_y > 0) {
-                    // Ralentit la chute
+                    /* Ralentit la chute */
                     *nouvelle_vitesse_y -= mur * dt;
                     if (*nouvelle_vitesse_y < 0)
                         *nouvelle_vitesse_y = 0;
                 } else if (joueur_vitesse_y < 0) {
-                    // Ralentit la montée (friction)
+                    /* Ralentit la montee */
                     *nouvelle_vitesse_y += mur * dt;
                     if (*nouvelle_vitesse_y > 0) {
                         *nouvelle_vitesse_y = 0;
@@ -169,6 +180,7 @@ static void detecter_collisions_murs(float joueur_x1, float joueur_y1, float jou
     }
 }
 
+/* Gere la demande de saut */
 static bool gerer_saut(float vitesse_y, bool en_air, float force_saut, bool a_sauter,
                        float *nouvelle_vy) {
     bool saute, nouvel_en_air;
@@ -182,12 +194,14 @@ static bool gerer_saut(float vitesse_y, bool en_air, float force_saut, bool a_sa
     return en_air;
 }
 
-void mettre_a_jour_physique_complete(float *x, float *y, float *vitesse_y, bool *en_air,
-                                     const Block *blocs, int taille, float dt, float largeur_joueur,
-                                     float hauteur_joueur, float gravite, float force_saut,
-                                     float vitesse_max_chute, float correction_mur,
-                                     int *types_ignorer, int nb_ignorer, bool *leftLock,
-                                     bool *rightLock) {
+/* Met a jour toute la physique d'une entite */
+static void mettre_a_jour_physique_complete(float *x, float *y, float *vitesse_y, bool *en_air,
+                                            const Block *blocs, int taille, float dt,
+                                            float largeur_joueur, float hauteur_joueur,
+                                            float gravite, float force_saut,
+                                            float vitesse_max_chute, float correction_mur,
+                                            int *types_ignorer, int nb_ignorer, bool *leftLock,
+                                            bool *rightLock) {
 
     float sol_y = detecter_sol(*x, *y, largeur_joueur, hauteur_joueur, blocs, taille, types_ignorer,
                                nb_ignorer);
@@ -216,6 +230,10 @@ void mettre_a_jour_physique_complete(float *x, float *y, float *vitesse_y, bool 
     *en_air = nouvel_en_air;
 }
 
+/*
+ * Point d'entree du moteur physique de plateforme.
+ * Met a jour la position et l'etat d'une entite en fonction des collisions.
+ */
 EntityPlatformer *hitbox_platforme(EntityPlatformer *entite, Blocks *blocs, float vitesse_max_chute,
                                    float correction_mur, int *types_ignorer, int nb_ignorer) {
     entite->inSky = gerer_saut(entite->speedY, entite->inSky, entite->powerJump,
@@ -227,5 +245,6 @@ EntityPlatformer *hitbox_platforme(EntityPlatformer *entite, Blocks *blocs, floa
                                     entite->height, entite->gravity, entite->powerJump,
                                     vitesse_max_chute, correction_mur, types_ignorer, nb_ignorer,
                                     &entite->leftLock, &entite->rightLock);
+
     return entite;
 }

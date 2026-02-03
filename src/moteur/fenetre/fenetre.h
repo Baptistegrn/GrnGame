@@ -1,5 +1,6 @@
 /*
- * Gestion de la fenêtre et du rendu SDL.
+ * Gestion de la fenetre et du rendu SDL.
+ * Contient les structures de fenetre et les fonctions de rendu.
  */
 
 #ifndef FENETRE_H
@@ -16,11 +17,14 @@ extern "C" {
 
 typedef struct Gestionnaire Gestionnaire;
 
+/* Etat du fond a dessiner pour la frame courante */
 typedef struct fondActualiser {
     bool colorier_frame;
     Uint8 r, g, b;
     bool bande_noir;
 } fondActualiser;
+
+/* Gestionnaire de fenetre et rendu */
 typedef struct GestionnaireFenetre {
     int largeur_univers;
     int hauteur_univers;
@@ -35,10 +39,17 @@ typedef struct GestionnaireFenetre {
     const char *nom_fenetre;
 } GestionnaireFenetre;
 
+/* Redimensionnement et mode fenetre */
 void redimensionner(int w, int h, bool fullscreen_demande, bool fenetre_demande_fullscreen);
+
+/* Configuration de la fenetre */
 void definir_icone(const char *chemin);
 void afficher_curseur(bool afficher);
 void stocker_coloriage(int r, int g, int b);
+
+/* Fonctions de liberation */
+void liberer_fenetre(void);
+void liberer_fond(void);
 
 #ifdef __cplusplus
 }

@@ -1,6 +1,10 @@
+/*
+ * Ajout de particules a la liste de rendu.
+ */
+
 #include "../../../main.h"
 
-/* ajoute un tableau de particules au tableau dimages */
+/* Ajoute un tableau de particules au tableau d'images */
 void ajouter_particules_au_tableau(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r,
                                    Uint8 *g, Uint8 *b, int taille) {
     if (!gs)

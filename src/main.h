@@ -1,5 +1,7 @@
 /*
- * le main.h permet ici de tout inclure dans les fichiers sans chaques dependences a la main.
+ * En-tete principal du moteur GrnGame.
+ * Centralise tous les includes necessaires pour eviter les dependances manuelles.
+ * Chaque fichier source inclut uniquement main.h.
  */
 
 #ifndef MAIN_H
@@ -9,15 +11,18 @@
 #define _POSIX_C_SOURCE 200809L
 #endif
 
+/* Bibliotheques SDL */
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
 
+/* Bibliotheques C standard */
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+/* Bibliotheques specifiques a la plateforme */
 #ifdef _WIN32
 #include <windows.h>
 #ifndef PATH_MAX
@@ -37,6 +42,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* Modules internes du moteur */
 #include "allouer/allouer.h"
 #include "bindings_lua/bindings_lua.h"
 #include "chemin/chemin.h"
@@ -46,6 +53,7 @@ extern "C" {
 #include "module_jeu/hitbox/hitbox.h"
 #include "moteur/boucle/boucle.h"
 #include "moteur/constante/constante.h"
+#include "moteur/entrees/entrees.h"
 #include "moteur/fenetre/fenetre.h"
 #include "moteur/image/affichage/affichage.h"
 #include "moteur/image/ajout/ajout.h"
@@ -56,33 +64,27 @@ extern "C" {
 #include "moteur/image/liste/liste_chaine.h"
 #include "moteur/image/rotate/rotate.h"
 #include "moteur/initialisation/initialisation.h"
-#include "moteur/input/input.h"
 #include "moteur/logging/logging.h"
 #include "moteur/son/son.h"
 
+/*
+ * Structure principale du moteur.
+ * Contient tous les gestionnaires necessaires au fonctionnement du jeu.
+ */
 typedef struct Gestionnaire {
-    GestionnaireTiming *timing;
-    GestionnaireFenetre *fenetre;
-    GestionnaireEntrees *entrees;
-    GestionnaireTextures *textures;
-    GestionnaireSon *sons;
-    // todo mettre dans GestionnaireFrame
-    fondActualiser *fond;
-    TableauImage *image;
-    // GestionnaireFrame *frame;
-    //  en debug
-    Fichiers *fichiers_lua;
-
+    GestionnaireTiming *timing;       /* Gestion du temps et de la boucle */
+    GestionnaireFenetre *fenetre;     /* Gestion de la fenetre SDL */
+    GestionnaireEntrees *entrees;     /* Gestion des entrees clavier, souris, manettes */
+    GestionnaireTextures *textures;   /* Cache des textures chargees */
+    GestionnaireSon *sons;            /* Gestion des sons et musiques */
+    GestionnaireFrameActuelle *frame; /* Donnees de la frame courante */
 } Gestionnaire;
 
+/* Instance globale du gestionnaire */
 extern Gestionnaire *gs;
 
 #ifdef __cplusplus
 }
 #endif
 
-#ifdef __cplusplus
-
-#endif
-
-#endif
+#endif /* MAIN_H */

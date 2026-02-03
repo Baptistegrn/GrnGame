@@ -1,9 +1,10 @@
+/*
+ * Fermeture des peripheriques manette.
+ */
+
 #include "../../../main.h"
 
-/*
- * Ferme le contrôleur de jeu (GameController) s'il est actif
- * et remet le pointeur à NULL pour éviter les accès invalides.
- */
+/* Ferme le controleur de jeu (GameController) s'il est actif */
 void fermer_controller(unsigned char index) {
     if (!gs)
         goto gsvide;
@@ -18,9 +19,7 @@ gsvide:
     log_message(NiveauLogDebug, "manager empty in close controller function");
 }
 
-/*
- * Ferme le joystick s'il est actif et remet le pointeur à NULL.
- */
+/* Ferme le joystick s'il est actif */
 void fermer_joystick(unsigned char index) {
     if (!gs)
         goto gsvide;

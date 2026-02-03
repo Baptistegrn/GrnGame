@@ -1,20 +1,20 @@
+/*
+ * Actualisation du rendu graphique.
+ */
+
 #include "../../../main.h"
 
-/*
- * Actualise le rendu graphique complet de la frame.
- * Applique la couleur de fond, affiche les images et shaders,
- * dessine les bandes noires de letterboxing si activées,
- * puis présente le rendu final à l'écran.
- */
+/* Actualise le rendu graphique complet de la frame */
 void actualiser() {
     if (!gs)
         goto gsvide;
     SDL_Renderer *rendu = gs->fenetre->rendu;
-    bool bande_noir = gs->fond->bande_noir;
+    bool bande_noir = gs->frame->fond->bande_noir;
 
-    if (gs->fond->colorier_frame) {
-        SDL_SetRenderDrawColor(rendu, gs->fond->r, gs->fond->g, gs->fond->b, 255);
-        gs->fond->colorier_frame = false;
+    if (gs->frame->fond->colorier_frame) {
+        SDL_SetRenderDrawColor(rendu, gs->frame->fond->r, gs->frame->fond->g, gs->frame->fond->b,
+                               255);
+        gs->frame->fond->colorier_frame = false;
     } else {
         SDL_SetRenderDrawColor(rendu, 0, 0, 0, 255);
     }

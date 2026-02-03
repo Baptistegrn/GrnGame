@@ -1,8 +1,10 @@
+/*
+ * Dessin de rectangles (vides et pleins).
+ */
+
 #include "../../../main.h"
 
-/*
- * Dessine un rectangle vide en traçant 4 lignes (haut, bas, gauche, droite).
- */
+/* Dessine un rectangle vide en tracant 4 lignes */
 void dessiner_rectangle_vide(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b) {
     float wr = (float)w;
     float hr = (float)h;
@@ -12,10 +14,7 @@ void dessiner_rectangle_vide(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uint
     dessiner_ligne_pixel(x + wr, y, x + wr, y + hr, r, g, b);
 }
 
-/*
- * Dessine un rectangle rempli avec la couleur spécifiée.
- * Applique l'échelle et le décalage écran.
- */
+/* Dessine un rectangle rempli avec la couleur specifiee */
 void dessiner_rectangle_plein(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b,
                               Uint8 a) {
     if (!gs)

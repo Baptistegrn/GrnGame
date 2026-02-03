@@ -1,18 +1,17 @@
+/*
+ * Rendu de texte via les feuilles de caracteres.
+ */
+
 #include "../../../main.h"
 
-/*
- * Ajoute un caractère individuel (texture) au tableau de rendu.
- * Construit le chemin de la texture basé sur le code ASCII du caractère,
- * puis ajoute l'image au tableau avec les transformations spécifiées.
- * Retourne la largeur du caractère pour calculer le décalage horizontal.
- */
-static int ajouter_char_dans_tableau(const char *lien_image, char lettre, float posx, float posy,
-                                     unsigned char coeff, bool sens, Uint16 rotation, Uint8 a) {
+/* Ajoute un caractere individuel (texture) au tableau de rendu */
+static Sint16 ajouter_char_dans_tableau(const char *lien_image, char lettre, float posx, float posy,
+                                        unsigned char coeff, bool sens, Uint16 rotation, Uint8 a) {
     if (!gs)
         goto gsvide;
-    char lien_image_lettre[TAILLE_LIEN_GT];
+    char lien_image_lettre[TAILLE_LIEN];
 
-    snprintf(lien_image_lettre, TAILLE_LIEN_GT, "%s/%d.png", lien_image, (unsigned char)lettre);
+    snprintf(lien_image_lettre, TAILLE_LIEN, "%s/%d.png", lien_image, (unsigned char)lettre);
 
     normaliser_chemin(lien_image_lettre);
 
@@ -42,10 +41,7 @@ gsvide:
     return 0;
 }
 
-/*
- * Affiche un mot complet en assemblant les caractères individuels.
- * Positionne chaque lettre avec l'écart spécifié entre elles.
- */
+/* Affiche un mot complet en assemblant les caracteres individuels */
 void ajouter_mot_dans_tableau(const char *chemin, const char *mot, float posx, float posy,
                               unsigned char coeff, bool sens, Sint16 ecart, Uint16 rotation,
                               Uint8 a) {
@@ -55,8 +51,8 @@ void ajouter_mot_dans_tableau(const char *chemin, const char *mot, float posx, f
     Sint16 position_courante = 0;
 
     for (int i = 0; i < taille_chaine; i++) {
-        Sint16 largeur = ajouter_char_dans_tableau(chemin, mot[i], posx + position_courante, posy,
-                                                   coeff, sens, rotation, a);
+        Sint16 largeur = ajouter_char_dans_tableau(chemin, mot[i], posx + (float)position_courante,
+                                                   posy, coeff, sens, rotation, a);
 
         position_courante += largeur + ecart;
     }

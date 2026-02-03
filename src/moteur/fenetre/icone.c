@@ -1,9 +1,10 @@
+/*
+ * Gestion de l'icone de la fenetre.
+ */
+
 #include "../../main.h"
 
-/*
- * Définit l'icône de la fenêtre SDL en chargeant une image depuis un fichier.
- * L'image est chargée, appliquée à la fenêtre, puis libérée de la mémoire.
- */
+/* Definit l'icone de la fenetre SDL en chargeant une image */
 void definir_icone(const char *chemin) {
     if (!gs)
         goto gsvide;

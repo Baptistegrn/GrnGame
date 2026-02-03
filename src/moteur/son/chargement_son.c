@@ -1,8 +1,11 @@
+/*
+ * Chargement des fichiers audio.
+ * Gere le chargement des fichiers WAV et la recuperation par lien.
+ */
+
 #include "../../main.h"
 
-/*
- * Initialise le gestionnaire de sons.
- */
+/* Initialise le gestionnaire de sons */
 void init_gestionnaire_son(void) {
     if (!gs)
         goto gsvide;
@@ -11,7 +14,7 @@ void init_gestionnaire_son(void) {
     sons->capacite = 50;
     sons->taille = 0;
 
-    sons->entrees = xmalloc(sizeof(SonEntry) * sons->capacite);
+    sons->entrees = malloc_gestion_echec_compteur(sizeof(SonEntry) * sons->capacite);
     memset(sons->entrees, 0, sizeof(SonEntry) * sons->capacite);
     return;
 
@@ -19,9 +22,7 @@ gsvide:
     log_message(NiveauLogErreur, "manager is empty during sound manager init function");
 }
 
-/*
- * Vérifie si le tableau de sons est plein et l'agrandit si nécessaire.
- */
+/* Verifie si le tableau de sons est plein et l'agrandit si necessaire */
 void agrandir_si_plein_son(void) {
     if (!gs)
         goto gsvide;
@@ -29,9 +30,10 @@ void agrandir_si_plein_son(void) {
 
     if (sons->taille >= sons->capacite) {
         int nouvelle_capacite = sons->capacite + 50;
-        sons->entrees = xrealloc(sons->entrees, sizeof(SonEntry) * nouvelle_capacite);
+        sons->entrees =
+            realloc_gestion_echec_compteur(sons->entrees, sizeof(SonEntry) * nouvelle_capacite);
 
-        /* Initialisation de la nouvelle zone à 0 */
+        /* Initialisation de la nouvelle zone a 0 */
         memset(sons->entrees + sons->capacite, 0, sizeof(SonEntry) * 50);
 
         sons->capacite = nouvelle_capacite;
@@ -42,9 +44,7 @@ gsvide:
     log_message(NiveauLogErreur, "manager is empty during sound manager reallocation function");
 }
 
-/*
- * Charge un fichier son (WAV) en mémoire.
- */
+/* Charge un fichier son (WAV) en memoire */
 Mix_Chunk *charger_un_son(const char *lien_complet) {
     if (!gs)
         goto gsvide;
@@ -53,7 +53,7 @@ Mix_Chunk *charger_un_son(const char *lien_complet) {
 
     GestionnaireSon *sons = gs->sons;
 
-    char lien_norm[TAILLE_LIEN_GT];
+    char lien_norm[TAILLE_LIEN];
     normaliser_chemin_copies(lien_norm, lien_complet);
     Mix_Chunk *existant = recuperer_son_par_lien(lien_norm);
     if (existant)
@@ -76,8 +76,8 @@ Mix_Chunk *charger_un_son(const char *lien_complet) {
     int index = sons->taille++;
     SonEntry *entree = &sons->entrees[index];
 
-    strncpy(entree->id, lien_norm, TAILLE_LIEN_GT - 1);
-    entree->id[TAILLE_LIEN_GT - 1] = '\0';
+    strncpy(entree->id, lien_norm, TAILLE_LIEN - 1);
+    entree->id[TAILLE_LIEN - 1] = '\0';
     entree->son = son;
 
     return son;
@@ -87,17 +87,15 @@ gsvide:
     return NULL;
 }
 
-/*
- * Récupère un pointeur vers un son déjà chargé.
- */
+/* Recupere un pointeur vers un son deja charge */
 Mix_Chunk *recuperer_son_par_lien(const char *lien) {
     if (!gs)
         goto gsvide;
     if (!lien)
         return NULL;
 
-    /* Copie locale pour recherche normalisée */
-    char lien_recherche[TAILLE_LIEN_GT];
+    /* Copie locale pour recherche normalisee */
+    char lien_recherche[TAILLE_LIEN];
     normaliser_chemin_copies(lien_recherche, lien);
 
     GestionnaireSon *sons = gs->sons;
@@ -116,9 +114,7 @@ gsvide:
     return NULL;
 }
 
-/*
- * Scanne un dossier et charge tous les fichiers WAV trouvés.
- */
+/* Scanne un dossier et charge tous les fichiers WAV trouves */
 void charger_tous_les_sons(const char *dossier) {
     if (!gs)
         goto gsvide;
@@ -140,7 +136,7 @@ void charger_tous_les_sons(const char *dossier) {
 
     int nb_echecs = 0;
 
-    /* 2. Boucle sur les fichiers trouvés */
+    /* Boucle sur les fichiers trouves */
     for (int i = 0; i < nb; i++) {
         Mix_Chunk *son = charger_un_son(fichiers->noms[i]);
 

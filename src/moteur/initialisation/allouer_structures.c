@@ -1,33 +1,37 @@
+/*
+ * Allocation des structures principales du gestionnaire.
+ * Initialise toutes les sous-structures avec une memoire a zero.
+ */
+
 #include "../../main.h"
 
-/*
- * Alloue les structures principales du gestionnaire.
- * Initialise l'ensemble des sous-structures : fond, shader, entrées,
- * images, textures, sons, fenêtre et timing avec allocation mémoire nulle.
- */
+/* Alloue les structures principales du gestionnaire */
 Gestionnaire *allouer_structures(void) {
-    Gestionnaire *gs = xmalloc(sizeof(Gestionnaire));
+    Gestionnaire *gs = malloc_gestion_echec_compteur(sizeof(Gestionnaire));
     memset(gs, 0, sizeof(Gestionnaire));
 
-    gs->fond = xmalloc(sizeof(fondActualiser));
-    memset(gs->fond, 0, sizeof(fondActualiser));
+    gs->frame = malloc_gestion_echec_compteur(sizeof(GestionnaireFrameActuelle));
+    memset(gs->frame, 0, sizeof(GestionnaireFrameActuelle));
 
-    gs->entrees = xmalloc(sizeof(GestionnaireEntrees));
+    gs->frame->fond = malloc_gestion_echec_compteur(sizeof(fondActualiser));
+    memset(gs->frame->fond, 0, sizeof(fondActualiser));
+
+    gs->entrees = malloc_gestion_echec_compteur(sizeof(GestionnaireEntrees));
     memset(gs->entrees, 0, sizeof(GestionnaireEntrees));
 
-    gs->image = xmalloc(sizeof(TableauImage));
-    memset(gs->image, 0, sizeof(TableauImage));
+    gs->frame->image = malloc_gestion_echec_compteur(sizeof(TableauImage));
+    memset(gs->frame->image, 0, sizeof(TableauImage));
 
-    gs->textures = xmalloc(sizeof(GestionnaireTextures));
+    gs->textures = malloc_gestion_echec_compteur(sizeof(GestionnaireTextures));
     memset(gs->textures, 0, sizeof(GestionnaireTextures));
 
-    gs->sons = xmalloc(sizeof(GestionnaireSon));
+    gs->sons = malloc_gestion_echec_compteur(sizeof(GestionnaireSon));
     memset(gs->sons, 0, sizeof(GestionnaireSon));
 
-    gs->fenetre = xmalloc(sizeof(GestionnaireFenetre));
+    gs->fenetre = malloc_gestion_echec_compteur(sizeof(GestionnaireFenetre));
     memset(gs->fenetre, 0, sizeof(GestionnaireFenetre));
 
-    gs->timing = xmalloc(sizeof(GestionnaireTiming));
+    gs->timing = malloc_gestion_echec_compteur(sizeof(GestionnaireTiming));
     memset(gs->timing, 0, sizeof(GestionnaireTiming));
 
     log_message(NiveauLogDebug, "structures allocated successfully");

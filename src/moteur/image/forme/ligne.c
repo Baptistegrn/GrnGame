@@ -1,12 +1,12 @@
+/*
+ * Dessin de lignes et de points.
+ */
+
 #include "../../../main.h"
 #include "SDL_render.h"
 #include <stdlib.h>
 
-/*
- * Dessine une ligne entre deux points en utilisant l'algorithme de Bresenham.
- * Convertit les coordonnées du jeu en pixels écran selon le coefficient
- * d'échelle.
- */
+/* Dessine une ligne entre deux points avec l'algorithme de Bresenham */
 void dessiner_ligne_pixel(float x0, float y0, float x1, float y1, Uint8 r, Uint8 g, Uint8 b) {
     if (!gs)
         goto gsvide;
@@ -34,13 +34,13 @@ void dessiner_ligne_pixel(float x0, float y0, float x1, float y1, Uint8 r, Uint8
     Sint16 e2;
 
     int n = 10;
-    SDL_Rect *pixels = xmalloc(sizeof(SDL_Rect) * n);
+    SDL_Rect *pixels = malloc_gestion_echec_compteur(sizeof(SDL_Rect) * n);
     int taille = 0;
 
     while (true) {
         if (taille >= n) {
             n = n * 2;
-            pixels = xrealloc(pixels, sizeof(SDL_Rect) * n);
+            pixels = realloc_gestion_echec_compteur(pixels, sizeof(SDL_Rect) * n);
         }
 
         pixels[taille] = (SDL_Rect){(int)x0_int, (int)y0_int, (int)coeff, (int)coeff};
@@ -61,17 +61,14 @@ void dessiner_ligne_pixel(float x0, float y0, float x1, float y1, Uint8 r, Uint8
     }
 
     SDL_RenderFillRects(gs->fenetre->rendu, pixels, taille);
-    xfree(pixels);
+    free_gestion_echec_compteur(pixels);
     return;
 
 gsvide:
     log_message(NiveauLogDebug, "manager is empty in draw pixel line");
 }
 
-/*
- * Dessine une ligne horizontale simple remplie de pixels.
- * Applique l'échelle et le décalage écran.
- */
+/* Dessine une ligne horizontale simple remplie de pixels */
 void tracer_ligne_horizontale(float x_start, float y, Sint16 w, Uint8 r, Uint8 g, Uint8 b) {
     if (!gs)
         goto gsvide;
@@ -92,10 +89,7 @@ gsvide:
     log_message(NiveauLogDebug, "manager is empty in draw horizontal line");
 }
 
-/*
- * Dessine deux points aux positions (x1,y1) et (x2,y2) de longueur n.
- * Utilisé pour tracer les contours de formes comme les cercles.
- */
+/* Dessine deux points aux positions (x1,y1) et (x2,y2) de longueur n */
 void dessiner_points_n(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b,
                        Sint16 n) {
     if (!gs)
@@ -125,10 +119,7 @@ gsvide:
     log_message(NiveauLogDebug, "manager is empty in draw points n");
 }
 
-/*
- * Dessine deux points uniques aux positions (x1,y1) et (x2,y2).
- * Chaque point a une largeur de 1 pixel.
- */
+/* Dessine deux points uniques aux positions (x1,y1) et (x2,y2) */
 void dessiner_points(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b) {
     if (!gs)
         goto gsvide;

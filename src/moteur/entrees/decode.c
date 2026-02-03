@@ -1,21 +1,25 @@
+/*
+ * Decodage des noms de touches vers les codes SDL.
+ * Conversion de chaines en SDL_Scancode et SDL_GameControllerButton.
+ */
+
 #include "../../main.h"
 
 /*
  * Convertit un nom de touche (ex: "A", "SPACE", "ENTER") en SDL_Scancode.
- * Utilise des tableaux de recherche séparés par longueur pour optimiser la
- * vitesse.
+ * Utilise des tableaux de recherche separes par longueur pour optimiser.
  */
 SDL_Scancode scancode_depuis_nom(const char *nom_non_normalise) {
     if (!nom_non_normalise)
         return SDL_SCANCODE_UNKNOWN;
 
-    /* Normalisation du nom (doit être libéré après) */
+    /* Normalisation du nom (doit etre libere apres) */
     char *nom = normaliser_nom(nom_non_normalise);
 
     const ToucheNom *liste = NULL;
     size_t longueur = strlen(nom);
 
-    /* Sélection du tableau de recherche selon la longueur du mot */
+    /* Selection du tableau de recherche selon la longueur du mot */
     if (longueur == 1) {
         liste = touches_1;
     } else if (longueur == 2) {
@@ -26,16 +30,16 @@ SDL_Scancode scancode_depuis_nom(const char *nom_non_normalise) {
         liste = touches_longues;
     }
 
-    /* Recherche linéaire dans la liste sélectionnée */
+    /* Recherche lineaire dans la liste selectionnee */
     for (int i = 0; liste[i].nom; i++) {
         if (strcmp(nom, liste[i].nom) == 0) {
             SDL_Scancode code = liste[i].code;
-            xfree(nom);
+            free_gestion_echec_compteur(nom);
             return code;
         }
     }
     log_fmt(NiveauLogErreur, "name of key not found '%s'", nom);
-    xfree(nom);
+    free_gestion_echec_compteur(nom);
 
     return SDL_SCANCODE_UNKNOWN;
 }
@@ -51,17 +55,17 @@ SDL_GameControllerButton bouton_manette_depuis_nom(const char *nom_non_normalise
     /* Normalisation du nom */
     char *nom = normaliser_nom(nom_non_normalise);
 
-    /* Recherche linéaire dans la liste globale des boutons */
+    /* Recherche lineaire dans la liste globale des boutons */
     for (int i = 0; boutons_manette[i].nom; i++) {
         if (strcmp(nom, boutons_manette[i].nom) == 0) {
             SDL_GameControllerButton bouton = boutons_manette[i].bouton;
-            xfree(nom);
+            free_gestion_echec_compteur(nom);
             return bouton;
         }
     }
 
     log_fmt(NiveauLogErreur, "name of controller button not found '%s'", nom);
-    xfree(nom);
+    free_gestion_echec_compteur(nom);
 
     return SDL_CONTROLLER_BUTTON_INVALID;
 }

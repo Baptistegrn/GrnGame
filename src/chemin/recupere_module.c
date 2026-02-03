@@ -1,27 +1,33 @@
+/*
+ * Extraction du nom de module Lua a partir d'un chemin.
+ */
+
 #include "../main.h"
 
-/*recupere le nom du module lua a partir du chemin complet
- * ex: /chemin/vers/module.lua -> module
- * a liberer par l'appelant
+/*
+ * Extrait le nom du module a partir d'un chemin complet.
+ * Exemple: /chemin/vers/module.lua -> module
+ * Retourne une chaine allouee a liberer par l'appelant.
  */
 const char *recupere_module(const char *chemin) {
     if (!chemin)
         return NULL;
-    // decoupe pour avoir le dernier /
+
+    /* Trouve le dernier separateur */
     const char *nom_fichier = strrchr(chemin, '/');
     if (nom_fichier)
         nom_fichier++;
     else
         nom_fichier = chemin;
 
-    // Trouve l'extension
+    /* Verifie l'extension .lua */
     const char *ext = strrchr(nom_fichier, '.');
     if (!ext || strcmp(ext, ".lua") != 0)
         return NULL;
 
     size_t len = ext - nom_fichier;
 
-    char *nom_module = xmalloc(len + 1);
+    char *nom_module = malloc_gestion_echec_compteur(len + 1);
     if (!nom_module)
         return NULL;
 

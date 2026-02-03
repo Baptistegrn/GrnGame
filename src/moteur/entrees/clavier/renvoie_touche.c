@@ -1,9 +1,10 @@
+/*
+ * Detection des touches clavier.
+ */
+
 #include "../../../main.h"
 
-/*
- * Vérifie si une touche clavier vient d'être pressée (Front montant).
- * Utilise le nom de la touche (ex: "A", "Space", "Left").
- */
+/* Verifie si une touche clavier vient d'etre pressee (front montant) */
 bool touche_juste_presse(const char *touche) {
     if (!gs)
         goto gsvide;
@@ -19,9 +20,7 @@ gsvide:
     return false;
 }
 
-/*
- * Vérifie si une touche clavier est maintenue enfoncée.
- */
+/* Verifie si une touche clavier est maintenue enfoncee */
 bool touche_enfoncee(const char *touche) {
     if (!gs)
         goto gsvide;

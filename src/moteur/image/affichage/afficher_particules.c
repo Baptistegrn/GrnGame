@@ -1,15 +1,19 @@
+/*
+ * Affichage optimise des particules avec rendu GPU.
+ */
+
 #include "../../../main.h"
 
 #ifdef _WIN32
-#include <malloc.h> // bug alloc windows
+#include <malloc.h> /* bug alloc windows */
 #endif
 
-// tableaux statiques pour eviter allocations
-// TODO : deplacer vers gestionnaireFrame
+/* tableaux statiques pour eviter allocations */
+/* TODO : deplacer vers gestionnaireFrame */
 static SDL_Vertex verts[MAX_PARTICULES * 4];
 static int indices[MAX_PARTICULES * 6];
 
-/* dessine les particules de maniere optimise avec du rendu gpu */
+/* Dessine les particules de maniere optimisee avec du rendu gpu */
 void dessiner_particules(Particule *particules) {
     if (!gs)
         goto gsvide;
@@ -20,32 +24,32 @@ void dessiner_particules(Particule *particules) {
     float coeff = (float)gs->fenetre->coeff;
     float decalage_x = (float)gs->fenetre->decalage_x;
     float decalage_y = (float)gs->fenetre->decalage_y;
-    // limite
+    /* limite */
     int max = (particules->taille > MAX_PARTICULES) ? MAX_PARTICULES : particules->taille;
 
-    // reset du batch
+    /* reset du batch */
     int vcount = 0;
     int icount = 0;
 
-    // ordre de construction des triangles
+    /* ordre de construction des triangles */
     int base_indices[6] = {0, 1, 2, 2, 3, 0};
 
     for (int i = 0; i < max; i++) {
-        // positions écran
+        /* positions ecran */
         int x = lroundf(particules->posx[i] * coeff + decalage_x);
         int y = lroundf(particules->posy[i] * coeff + decalage_y);
 
-        // taille = 1 pixel (scale)
+        /* taille = 1 pixel (scale) */
         int w = coeff;
         int h = coeff;
 
         float angle = (float)particules->rotation[i];
 
-        // centre du rectangle
+        /* centre du rectangle */
         float cx = x + w * 0.5f;
         float cy = y + h * 0.5f;
 
-        // coins avant rotation
+        /* coins avant rotation */
         SDL_FPoint pts[4] = {{x, y}, {x + w, y}, {x + w, y + h}, {x, y + h}};
 
         float c = cosf(angle);
@@ -53,7 +57,7 @@ void dessiner_particules(Particule *particules) {
 
         SDL_Color color = {particules->r[i], particules->g[i], particules->b[i], particules->a[i]};
 
-        // index de départ pour cette particule
+        /* index de depart pour cette particule */
         int base = vcount;
 
         for (int j = 0; j < 4; j++) {
@@ -69,7 +73,7 @@ void dessiner_particules(Particule *particules) {
             vcount++;
         }
 
-        // indices du carré (relatifs à base)
+        /* indices du carre (relatifs a base) */
         indices[icount++] = base + base_indices[0];
         indices[icount++] = base + base_indices[1];
         indices[icount++] = base + base_indices[2];
@@ -78,7 +82,7 @@ void dessiner_particules(Particule *particules) {
         indices[icount++] = base + base_indices[5];
     }
 
-    // rendu batch
+    /* rendu batch */
     if (vcount > 0 && icount > 0) {
         SDL_RenderGeometry(gs->fenetre->rendu, NULL, verts, vcount, indices, icount);
     }

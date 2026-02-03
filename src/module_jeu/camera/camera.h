@@ -1,12 +1,18 @@
+/*
+ * Systeme de camera avec suivi fluide.
+ */
+
 #ifndef CAMERA_H
 #define CAMERA_H
 
+/* Structure de camera avec position et lissage */
 typedef struct {
-    float x, y;
-    float smooth_factor; // facteur de lissage
-    int width, height;   // taille camera
+    float x, y;          /* Position de la camera */
+    float smooth_factor; /* Facteur de lissage du mouvement */
+    int width, height;   /* Dimensions de la vue */
 } Camera;
 
+/* Met a jour la position de la camera vers une cible */
 void camera_mise_a_jour(Camera *cam, float cible_x, float cible_y, float dt);
 
 #endif /* CAMERA_H */

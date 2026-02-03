@@ -1,20 +1,23 @@
+/*
+ * Initialisation des controleurs de jeu.
+ */
+
 #include "../../../main.h"
 
 /*
- * Initialise un contrôleur de jeu et son joystick associé via son index.
- * Vérifie la disponibilité et la compatibilité du périphérique avant
- * l'ouverture.
+ * Initialise un controleur de jeu et son joystick associe via son index.
+ * Verifie la disponibilite et la compatibilite du peripherique avant ouverture.
  */
 bool init_controller_joysticks(unsigned char index) {
     if (!gs)
         goto gsvide;
-    /* Vérification de l'existence de la manette */
+    /* Verification de l'existence de la manette */
     if (SDL_NumJoysticks() <= index) {
         log_fmt(NiveauLogErreur, "Error No controller available at index %d", index);
         return false;
     }
 
-    /* Vérification de la compatibilité GameController */
+    /* Verification de la compatibilite GameController */
     if (!SDL_IsGameController(index)) {
         log_fmt(NiveauLogErreur, "Error Unable to recognize device %d as a controller", index);
         return false;
@@ -27,7 +30,7 @@ bool init_controller_joysticks(unsigned char index) {
         return false;
     }
 
-    /* Ouverture du Joystick brut associé */
+    /* Ouverture du Joystick brut associe */
     SDL_Joystick *joy = SDL_JoystickOpen(index);
     if (!joy) {
         log_fmt(NiveauLogErreur, "Error Unable to open joystick %d: %s", index, SDL_GetError());

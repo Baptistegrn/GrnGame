@@ -2,7 +2,7 @@
 add_requires("libsdl2",        {configs={runtimes="MT", shared=false, pic=true}})
 add_requires("libsdl2_image",  {configs={runtimes="MT", shared=false, png=true, jpg=false, tiff=false, webp=false, pic=true}})
 add_requires("libsdl2_mixer",  {configs={runtimes="MT", shared=false, wav=true, mp3=false, flac=false, vorbis=false, pic=true}})
-add_requires("zlib",           {configs={shared=false, pic=true}})
+add_requires("zlib",           {configs={runtimes="MT",shared=false, pic=true}})
 add_requires("quill",          {configs={runtimes="MT", shared=false, pic=true}})
 add_requires("luajit",         {configs={runtimes="MT", kind="static", pic=true}})
 
@@ -86,7 +86,7 @@ target("App")
     if has_config("debug_mode") then
         add_defines("DEBUG_MODE")
     end
-    add_files("src/lua/lancer_moteur.c")
+    add_files("src/moteur_lua/lancer_moteur.c")
     -- Includes moteur
     add_includedirs("src/headers_sdl")
     add_includedirs("src/bindings_c")

@@ -1,16 +1,21 @@
+/*
+ * Affichage des objets individuels (images, formes, particules).
+ */
+
 #include "../../../main.h"
 
+/* Affiche un objet selon son type (image, forme ou particule) */
 void afficher_objet(ObjectImage *obj, SDL_Rect *dst, Sint16 x_ecran, Sint16 y_ecran, Sint16 w_ecran,
                     Sint16 h_ecran, unsigned char coeff) {
     if (!gs) {
         goto gsvide;
     }
-    // cas image/sprite
+    /* cas image/sprite */
     if (obj->type == TYPE_IMAGE) {
         if (!obj->image.texture)
             return;
 
-        // Configuration de la texture
+        /* Configuration de la texture */
         SDL_SetTextureBlendMode(obj->image.texture, SDL_BLENDMODE_BLEND);
         SDL_SetTextureAlphaMod(obj->image.texture, obj->image.a);
         SDL_SetTextureScaleMode(obj->image.texture, SDL_ScaleModeNearest);
@@ -31,22 +36,22 @@ void afficher_objet(ObjectImage *obj, SDL_Rect *dst, Sint16 x_ecran, Sint16 y_ec
                                          h_ecran, coeff);
         }
 
-        // flip
+        /* flip */
         SDL_RendererFlip flip = (obj->image.sens == 1) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
         SDL_RenderCopyEx(gs->fenetre->rendu, obj->image.texture, pSrc, dst, 0.0, NULL, flip);
 
     }
-    // forme
+    /* forme */
     else if (obj->type == TYPE_FORME) {
         SDL_SetRenderDrawBlendMode(gs->fenetre->rendu, SDL_BLENDMODE_BLEND);
 
         switch (obj->forme.type_de_forme) {
-        case 1: // Ligne
+        case 1: /* Ligne */
             dessiner_ligne_pixel(obj->forme.posx, obj->forme.posy, obj->forme.taillex,
                                  obj->forme.tailley, obj->forme.r, obj->forme.g, obj->forme.b);
             break;
 
-        case 2: // Rectangle
+        case 2: /* Rectangle */
             if (obj->forme.plein)
                 dessiner_rectangle_plein(obj->forme.posx, obj->forme.posy, obj->forme.taillex,
                                          obj->forme.tailley, obj->forme.r, obj->forme.g,
@@ -57,7 +62,7 @@ void afficher_objet(ObjectImage *obj, SDL_Rect *dst, Sint16 x_ecran, Sint16 y_ec
                                         obj->forme.b);
             break;
 
-        case 3: // Cercle
+        case 3: /* Cercle */
         {
             Sint16 rayon = obj->forme.taillex / 2;
             if (obj->forme.plein)
@@ -68,7 +73,7 @@ void afficher_objet(ObjectImage *obj, SDL_Rect *dst, Sint16 x_ecran, Sint16 y_ec
                                      obj->forme.g, obj->forme.b);
         } break;
 
-        case 4: // Triangle
+        case 4: /* Triangle */
             if (obj->forme.plein)
                 dessiner_triangle_plein(obj->forme.posx, obj->forme.posy, obj->forme.taillex,
                                         obj->forme.tailley, obj->forme.r, obj->forme.g,
@@ -82,7 +87,7 @@ void afficher_objet(ObjectImage *obj, SDL_Rect *dst, Sint16 x_ecran, Sint16 y_ec
     } else if (obj->type == TYPE_PARTICULE) {
         dessiner_particules(&obj->particule);
     }
-
+    return;
 gsvide:
     log_message(NiveauLogDebug, "empty manager in the function that displays objects");
 }

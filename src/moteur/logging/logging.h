@@ -1,5 +1,5 @@
 /*
- * Système de logging pour le moteur.
+ * Systeme de logging pour le moteur.
  */
 
 #ifndef LOGGING_H
@@ -18,10 +18,7 @@ typedef enum NiveauLog {
     NiveauLogErreur
 } NiveauLog;
 
-typedef enum DestinationLog {
-    DestinationLogConsole,
-    DestinationLogFichier
-} DestinationLog;
+typedef enum DestinationLog { DestinationLogConsole, DestinationLogFichier } DestinationLog;
 
 void initialiser_logging(DestinationLog destination, const char *nom_fichier, NiveauLog niveau);
 

@@ -1,16 +1,22 @@
+/*
+ * Gestionnaire d'allocation memoire securise.
+ * Termine le programme en cas d'echec d'allocation.
+ * En mode MALLOC_MODE, affiche le compteur d'allocations.
+ */
+
 #include "../main.h"
 #include <inttypes.h>
 #include <stddef.h>
 #include <stdlib.h>
 
-/*
- * Allocation mémoire sécurisée avec verrouilage en cas d'échec.
- * Quitte le programme si la mémoire système est insuffisante.
- */
-
+/* Compteur d'allocations actives */
 static Uint32 compteur = 0;
 
-void *xmalloc(size_t taille) {
+/*
+ * Alloue de la memoire avec gestion d'erreur.
+ * Quitte le programme si l'allocation echoue.
+ */
+void *malloc_gestion_echec_compteur(size_t taille) {
     void *ptr = malloc(taille);
 
     if (!ptr && taille > 0) {
@@ -26,10 +32,10 @@ void *xmalloc(size_t taille) {
 }
 
 /*
- * Réallocation mémoire sécurisée avec verrouilage en cas d'échec.
- * Quitte le programme si la mémoire système est insuffisante.
+ * Realloue de la memoire avec gestion d'erreur.
+ * Quitte le programme si la reallocation echoue.
  */
-void *xrealloc(void *bloc, size_t taille) {
+void *realloc_gestion_echec_compteur(void *bloc, size_t taille) {
     if (!bloc) {
         compteur++;
     }
@@ -42,7 +48,8 @@ void *xrealloc(void *bloc, size_t taille) {
     return ptr;
 }
 
-void xfree(void *ptr) {
+/* Libere la memoire et decremente le compteur */
+void free_gestion_echec_compteur(void *ptr) {
     if (!ptr) {
         return;
     }

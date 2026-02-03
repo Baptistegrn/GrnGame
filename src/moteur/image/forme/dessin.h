@@ -1,5 +1,5 @@
 /*
- * Primitives géométriques de dessin (ligne, cercle, rectangle, triangle).
+ * Primitives geometriques de dessin (ligne, cercle, rectangle, triangle).
  */
 
 #ifndef DESSIN_H

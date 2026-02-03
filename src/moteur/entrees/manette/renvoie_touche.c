@@ -1,15 +1,19 @@
+/*
+ * Detection des touches et axes de la manette.
+ */
+
 #include "../../../main.h"
 
 /*
- * Récupère les axes normalisés (sticks et gâchettes) de la manette.
- * Retourne un tableau de 6 flottants alloué dynamiquement.
+ * Recupere les axes normalises (sticks et gachettes) de la manette.
+ * Retourne un tableau de 6 flottants alloue dynamiquement.
  * Indices : 0-1 (Stick G), 2-3 (Stick D), 4-5 (Triggers).
  */
 float *renvoie_joysticks(float dead_zone, unsigned char index) {
     if (!gs)
         goto gsvide;
     /* Allocation */
-    float *valeurs = xmalloc(sizeof(float) * 6);
+    float *valeurs = malloc_gestion_echec_compteur(sizeof(float) * 6);
 
     /* Normalisation des valeurs entre -1.0 et 1.0 */
     const float normalisation = 32766.0f;
@@ -24,7 +28,7 @@ float *renvoie_joysticks(float dead_zone, unsigned char index) {
     valeurs[2] = (float)entrees->Joy[index].d.x / normalisation;
     valeurs[3] = (float)entrees->Joy[index].d.y / normalisation;
 
-    /* Triggers (Gâchettes) */
+    /* Triggers (Gachettes) */
     valeurs[4] = (float)entrees->trigger[index].trigger_g / normalisation;
     valeurs[5] = (float)entrees->trigger[index].trigger_d / normalisation;
     /* Application de la zone morte (Deadzone) */
@@ -41,11 +45,8 @@ gsvide:
     return NULL;
 }
 
-/*
- * Vérifie si un bouton de la manette vient d'être pressé (Front descendant).
- * Utilise le nom du bouton ("A", "B", "Start", etc.).
- */
-bool touche_mannette_juste_presse(const char *touche, unsigned char index) {
+/* Verifie si un bouton de la manette vient d'etre presse (front montant) */
+bool touche_manette_juste_presse(const char *touche, unsigned char index) {
     if (!gs)
         goto gsvide;
     if (!touche)
@@ -60,10 +61,8 @@ gsvide:
     return false;
 }
 
-/*
- * Vérifie si un bouton de la manette est actuellement maintenu enfoncé.
- */
-bool touche_mannette_enfoncee(const char *touche, unsigned char index) {
+/* Verifie si un bouton de la manette est maintenu enfonce */
+bool touche_manette_enfoncee(const char *touche, unsigned char index) {
     if (!gs)
         goto gsvide;
     if (!touche)

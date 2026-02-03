@@ -1,12 +1,13 @@
+/*
+ * Dessin de cercles (vides et pleins).
+ */
+
 #include "../../../main.h"
 
-/*
- * Dessine un cercle vide en utilisant l'algorithme de Bresenham.
- * Trace les points/lignes horizontales aux extrémités de chaque diamètre.
- */
+/* Dessine un cercle vide avec l'algorithme de Bresenham */
 void dessiner_cercle_vide(float xc, float yc, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b) {
     if (rayon <= 0)
-        return; // protection
+        return; /* protection */
 
     for (Sint16 dy = 0; dy < rayon; dy++) {
         Sint16 demi_largeur = (Sint16)sqrt((double)(rayon * rayon - dy * dy));
@@ -31,7 +32,7 @@ void dessiner_cercle_vide(float xc, float yc, Sint16 rayon, Uint8 r, Uint8 g, Ui
     }
 }
 
-/*tracage ligne par ligne selon la longueur de pythagore */
+/* Tracage ligne par ligne selon la longueur de pythagore */
 void dessiner_cercle_plein(float xc, float yc, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b) {
     for (Sint16 dy = 0; dy <= rayon; dy++) {
         Sint16 demi_largeur = (Sint16)sqrt(rayon * rayon - dy * dy);

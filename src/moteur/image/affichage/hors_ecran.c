@@ -1,10 +1,11 @@
+/*
+ * Detection de culling pour les objets hors ecran.
+ */
+
 #include "../../../main.h"
 #include "SDL_stdinc.h"
 
-/*
- * Vérifie si un objet est situé hors de la zone visible de l'écran (Culling).
- * Retourne true si l'objet ne doit pas être affiché.
- */
+/* Verifie si un objet est situe hors de la zone visible de l'ecran */
 bool hors_ecran(float posx, float posy, Sint16 taillex, Sint16 tailley, int decalage_x_scaled,
                 int decalage_y_scaled) {
     if (!gs)

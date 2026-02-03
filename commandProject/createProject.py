@@ -7,7 +7,7 @@ import argparse
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 
-SRC_LUA = os.path.join(ROOT, "src", "lua")
+SRC_LUA = os.path.join(ROOT, "src", "moteur_lua")
 BIN_DIR = os.path.join(ROOT, "bin")
 
 parser = argparse.ArgumentParser(
@@ -71,17 +71,11 @@ copy(os.path.join(win_bin, "GrnGame.dll"),
 copy(os.path.join(win_bin, "GrnGame.lib"),
      os.path.join(project_root, "windows"))
 
-copy(os.path.join(win_bin, "gamecontrollerdb.txt"),
-     os.path.join(project_root, "windows"))
-
 # Linux
 copy(os.path.join(win_bin, "App"),
      os.path.join(project_root, "linux"))
 
 copy(os.path.join(win_bin, "libGrnGame.so"),
-     os.path.join(project_root, "linux"))
-
-copy(os.path.join(win_bin, "gamecontrollerdb.txt"),
      os.path.join(project_root, "linux"))
 
 print("\n\nProject create :", project_root)

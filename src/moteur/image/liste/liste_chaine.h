@@ -1,5 +1,5 @@
 /*
- * Liste chaînée pour le cache des rotations de textures.
+ * Liste chainee pour le cache des rotations de textures.
  */
 
 #ifndef LISTE_CHAINE_H
@@ -15,9 +15,9 @@ extern "C" {
 #endif
 
 typedef struct Liste {
-  SDL_Texture *texture;
-  int angle;
-  struct Liste *suivant;
+    SDL_Texture *texture;  /* texture */
+    int angle;             /* angle de rotation de recherche */
+    struct Liste *suivant; /* element suivant */
 } Liste;
 
 Liste *creer_liste(SDL_Texture *valeur, int angle);

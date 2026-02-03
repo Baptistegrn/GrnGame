@@ -1,6 +1,13 @@
+/*
+ * Mise a jour de la camera avec interpolation.
+ */
+
 #include "../../main.h"
 
-/* met a jour le systeme de camera selon dt et un facteur lissant */
+/*
+ * Deplace la camera vers une cible avec interpolation lineaire.
+ * Le facteur de lissage controle la vitesse de suivi.
+ */
 void camera_mise_a_jour(Camera *cam, float cible_x, float cible_y, float dt) {
     if (!cam)
         return;

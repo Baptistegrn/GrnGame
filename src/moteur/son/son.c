@@ -1,9 +1,11 @@
+/*
+ * Lecture et controle des sons.
+ * Gere les canaux audio, la lecture, la pause et l'arret.
+ */
+
 #include "../../main.h"
 
-/*
- * Joue un son sur un canal spécifique avec volume et boucles configurables.
- * Le canal -1 permet SDL_Mixer de choisir automatiquement un canal libre.
- */
+/* Joue un son sur un canal specifique avec volume et boucles configurables */
 void jouer_son(const char *lien, int boucle, int canal, int volume) {
     if (!gs)
         goto gsvide;
@@ -13,14 +15,14 @@ void jouer_son(const char *lien, int boucle, int canal, int volume) {
         return;
     }
 
-    /* Vérification du numéro de canal */
+    /* Verification du numero de canal */
     int nb_canaux = TAILLE_CANAL;
     if (canal < -1 || canal >= nb_canaux) {
         log_fmt(NiveauLogErreur, "invalid channel number (%d)", canal);
         return;
     }
 
-    /* Récupération de la ressource audio */
+    /* Recuperation de la ressource audio */
     Mix_Chunk *son = recuperer_son_par_lien(lien);
     if (!son) {
         log_fmt(NiveauLogErreur, "sound not found '%s'", lien);
@@ -48,9 +50,7 @@ gsvide:
     log_message(NiveauLogDebug, "manager empty in play sound function");
 }
 
-/*
- * Arrête la lecture d'un son spécifique en parcourant tous les canaux.
- */
+/* Arrete la lecture d'un son specifique en parcourant tous les canaux */
 void arreter_son(const char *lien) {
     if (!gs)
         goto gsvide;
@@ -67,7 +67,7 @@ void arreter_son(const char *lien) {
     int nb_canaux = TAILLE_CANAL;
     int canaux_arretes = 0;
 
-    /* Arrête tous les canaux jouant ce son */
+    /* Arrete tous les canaux jouant ce son */
     for (int i = 0; i < nb_canaux; i++) {
         if (Mix_GetChunk(i) == son) {
             Mix_HaltChannel(i);
@@ -84,9 +84,7 @@ gsvide:
     log_message(NiveauLogDebug, "manager empty in stop sound function");
 }
 
-/*
- * Arrête immédiatement la lecture sur un canal donné.
- */
+/* Arrete immediatement la lecture sur un canal donne */
 void arreter_canal(int canal) {
     int nb_canaux = TAILLE_CANAL;
 
@@ -99,9 +97,7 @@ void arreter_canal(int canal) {
         Mix_HaltChannel(canal);
 }
 
-/*
- * Reprend la lecture d'un canal mis en pause.
- */
+/* Reprend la lecture d'un canal mis en pause */
 void reprendre_canal(int canal) {
     int nb_canaux = TAILLE_CANAL;
 
@@ -113,9 +109,7 @@ void reprendre_canal(int canal) {
     Mix_Resume(canal);
 }
 
-/*
- * Met en pause la lecture d'un canal donné  Continuez la lecture après une pause.
- */
+/* Met en pause la lecture d'un canal donne */
 void pause_canal(int canal) {
     int nb_canaux = TAILLE_CANAL;
 
@@ -128,9 +122,7 @@ void pause_canal(int canal) {
         Mix_Pause(canal);
 }
 
-/*
- * Met en pause un son spécifique en parcourant tous les canaux actifs.
- */
+/* Met en pause un son specifique en parcourant tous les canaux actifs */
 void pause_son(const char *lien) {
     if (!gs)
         goto gsvide;
@@ -165,9 +157,7 @@ gsvide:
     log_message(NiveauLogDebug, "manager empty in pause sound function");
 }
 
-/*
- * Reprend la lecture d'un son spécifique mis en pause.
- */
+/* Reprend la lecture d'un son specifique mis en pause */
 void reprendre_son(const char *lien) {
     if (!gs)
         goto gsvide;

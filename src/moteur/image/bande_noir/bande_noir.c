@@ -1,10 +1,10 @@
+/*
+ * Dessin des bandes noires de letterboxing.
+ */
+
 #include "../../../main.h"
 
-/*
- * Dessine les bandes noires de padding lorsque l'écran n'est pas proportionnel
- * à la résolution virtuelle. Remplit les 4 bordures (gauche, droite, haut,
- * bas).
- */
+/* Dessine les bandes noires de padding sur les bordures de l'ecran */
 void dessiner_bandes_noires(int decalage_x, int decalage_y) {
     if (!gs)
         goto gsvide;

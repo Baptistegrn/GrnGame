@@ -1,5 +1,5 @@
 /*
- * Rendu de texte via les feuilles de caractères.
+ * Rendu de texte via les feuilles de caracteres.
  */
 
 #ifndef CARACTERE_H

@@ -1,11 +1,12 @@
+/*
+ * Affichage des images et formes a l'ecran.
+ */
+
 #include "../../../main.h"
 #include "SDL_stdinc.h"
 #include "affichage.h"
 
-/*
- * Calcule les coordonnées et dimensions d'un objet à l'écran.
- * Applique le coefficient de mise à l'échelle et les décalages de la fenêtre.
- */
+/* Calcule les coordonnees et dimensions d'un objet a l'ecran */
 void calculer_positions_ecran(ObjectImage *obj, unsigned char coeff, int decalage_x, int decalage_y,
                               Sint16 *x_ecran, Sint16 *y_ecran, Sint16 *w_ecran, Sint16 *h_ecran) {
     float px, py;
@@ -29,15 +30,11 @@ void calculer_positions_ecran(ObjectImage *obj, unsigned char coeff, int decalag
     *h_ecran = SDL_lroundf((float)ty * (float)coeff);
 }
 
-/*
- * Affiche tous les objets (images et formes) de la liste d'affichage.
- * Applique le culling (ne dessine pas ce qui est hors écran).
- * Réinitialise le tableau après affichage.
- */
+/* Affiche tous les objets (images et formes) de la liste d'affichage */
 void afficher_images(void) {
     if (!gs)
         goto gsvide;
-    TableauImage *jeu = gs->image;
+    TableauImage *jeu = gs->frame->image;
 
     unsigned char coeff = gs->fenetre->coeff;
     int decalage_x = gs->fenetre->decalage_x;

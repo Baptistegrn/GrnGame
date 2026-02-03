@@ -26,4 +26,4 @@ void configurer_redirection_stderr(const char *chemin_log);
 }
 #endif
 
-#endif
+#endif /* INITIALISER_H */

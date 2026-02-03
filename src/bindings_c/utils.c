@@ -1,3 +1,8 @@
+/*
+ * Bindings C pour les fonctions utilitaires.
+ * Initialisation du moteur, logging et controle de la boucle.
+ */
+
 #include "../bindings_lua/bindings_lua.h"
 #include "../chemin/chemin.h"
 #include "../module_jeu/carte/carte.h"
@@ -9,58 +14,38 @@
 typedef void (*UpdateCallback)(void);
 static UpdateCallback g_update_callback = NULL;
 
-/*
- * Trampoline C → C : fonction appelée par le moteur C,
- * qui appelle le callback de mise à jour.
- */
-static void update_trampoline() {
+/* Fonction trampoline appelee par le moteur a chaque frame */
+static void update_trampoline(void) {
     if (g_update_callback) {
         g_update_callback();
     }
 }
 
-/*
- * Initialise le moteur graphique et démarre la boucle principale.
- * Le callback update_func est appelé à chaque frame.
- */
+/* Initialise le moteur et demarre la boucle principale */
 void initialize(int height, int width, float fps_target, int black_bars, const char *window_title,
                 UpdateCallback update_func) {
-
     g_update_callback = update_func;
-
     definir_rappel_mise_a_jour(update_trampoline);
-
     initialiser(height, width, fps_target, black_bars, window_title);
-
     boucle_principale();
 }
 
-/*
- * Arrête le moteur et ferme l'application.
- */
-void stop() { arreter_gestionnaire(); }
+/* Arrete le moteur et ferme l'application */
+void stop(void) { arreter_gestionnaire(); }
 
-/*
- * Redimensionne la fenêtre et ajuste le mode plein écran.
- */
+/* Redimensionne la fenetre et ajuste le mode plein ecran */
 void resize(int w, int h, int fullscreen, int fenetre_fullscreen) {
     redimensionner(w, h, fullscreen, fenetre_fullscreen);
 }
 
-/*
- * Efface l'écran avec la couleur spécifiée.
- */
+/* Definit la couleur de fond de l'ecran */
 void clearScreen(int red, int green, int blue) { stocker_coloriage(red, green, blue); }
 
-/*
- * Enregistre un message de log avec le niveau spécifié.
- * level: 0=Debug, 1=Info, 2=Warning, 3=Error
- */
+/* Enregistre un message de log (0=Debug, 1=Info, 2=Warning, 3=Error) */
 void logMessage(int level, char *message) { log_message((NiveauLog)level, message); }
 
-/*
- * Change le niveau minimum de log affiché.
- */
+/* Change le niveau minimum de log affiche */
 void setLogLvl(int level) { changer_niveau_log((NiveauLog)level); }
 
+/* Initialise et execute le moteur Lua */
 void initializeLua(const char *fichier_chemin_lua) { initialiser_lua(fichier_chemin_lua); }
