@@ -3,7 +3,6 @@
  */
 
 #include "../../../main.h"
-#include "ajout.h"
 
 /* Ajoute une image au tableau dynamique avec reallocation automatique */
 void ajouter_image_au_jeu(ObjectImage nouvelle) {

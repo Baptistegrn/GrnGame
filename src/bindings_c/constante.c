@@ -55,3 +55,6 @@ int universeWidth(void) { return largeur_univers(); }
 
 /* Retourne la hauteur de l'univers (resolution de base) */
 int universeHeight(void) { return hauteur_univers(); }
+
+/* Retourne vrai si la fenetre est minimisee */
+bool windowMinimised(void) { return fenetre_est_minimise(); }

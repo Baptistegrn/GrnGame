@@ -33,16 +33,23 @@ void initialize(int height, int width, float fps_target, int black_bars, const c
 /* Arrete le moteur et ferme l'application */
 void stop(void) { arreter_gestionnaire(); }
 
-/* Redimensionne la fenetre et ajuste le mode plein ecran */
-void resize(int w, int h, int fullscreen, int fenetre_fullscreen) {
-    redimensionner(w, h, fullscreen, fenetre_fullscreen);
-}
+/* mode plein ecran */
+void fullscreen() { passer_plein_ecran(); }
+
+/* mode fenetre plein ecran */
+void windowedFullscreen() { passer_fenetre_maximisee(); }
+
+/* mode fenetre */
+void windowed(int width, int height) { passer_fenetre_taille(width, height); }
+
+/* mode fenetre avec coeff et centrage */
+void windowedMinimised(int coeff) { passer_fenetre_coeff(coeff); }
 
 /* Definit la couleur de fond de l'ecran */
 void clearScreen(int red, int green, int blue) { stocker_coloriage(red, green, blue); }
 
 /* Enregistre un message de log (0=Debug, 1=Info, 2=Warning, 3=Error) */
-void logMessage(int level, char *message) { log_message((NiveauLog)level, message); }
+void logMessage(int level, const char *message) { log_message((NiveauLog)level, message); }
 
 /* Change le niveau minimum de log affiche */
 void setLogLvl(int level) { changer_niveau_log((NiveauLog)level); }

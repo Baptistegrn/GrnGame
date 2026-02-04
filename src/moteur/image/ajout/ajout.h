@@ -6,6 +6,7 @@
 #define AJOUT_H
 
 #include "../../../proprietes.h"
+#include "SDL_stdinc.h"
 #include <SDL.h>
 #include <stdbool.h>
 #ifdef __cplusplus
@@ -30,7 +31,8 @@ typedef struct {
     float posx, posy;        /* position */
     Sint16 taillex, tailley; /* taille */
     bool sens;               /* flip horizontal */
-    Uint16 rotation;         /* angle de rotation */
+    Uint16 rotation_p;       /* angle de rotation pixel perfect */
+    Uint16 rotation;         /* angle de rotation non pixel perfect */
     Uint8 a;                 /* alpha */
     SDL_Texture *texture;
     bool sprite; /* est un sprite */
@@ -61,21 +63,22 @@ typedef struct {
 void ajouter_image_au_jeu(ObjectImage nouvelle);
 
 void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 taillex, Sint16 tailley,
-                              bool sens, Uint16 rotation, Uint8 a);
+                              bool sens, Uint16 rotation_p, Uint16 rotation, Uint8 a);
 
-void ajouter_ligne(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b);
+void ajouter_ligne(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
 void ajouter_rectangle(float x, float y, Sint16 taillex, Sint16 tailley, Uint8 r, Uint8 g, Uint8 b,
                        Uint8 a, bool plein);
 
-void ajouter_cercle(float x, float y, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, bool plein);
+void ajouter_cercle(float x, float y, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, Uint8 a, bool plein);
 
 void ajouter_triangle(float x, float y, Sint16 taillex, Sint16 tailley, Uint8 r, Uint8 g, Uint8 b,
-                      bool plein);
+                      Uint8 a, bool plein);
 Sprite *creer_sprite(const char *id, Sint16 taillex, Sint16 tailley);
 
 void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, Sint16 taillex,
-                               Sint16 tailley, bool sens, Uint16 rotation, Uint8 a);
+                               Sint16 tailley, bool sens, Uint16 rotation_p, Uint16 rotation,
+                               Uint8 a);
 
 void ajouter_particules_au_tableau(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r,
                                    Uint8 *g, Uint8 *b, int taille);

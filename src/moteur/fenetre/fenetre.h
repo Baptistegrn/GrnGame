@@ -40,7 +40,11 @@ typedef struct GestionnaireFenetre {
 } GestionnaireFenetre;
 
 /* Redimensionnement et mode fenetre */
-void redimensionner(int w, int h, bool fullscreen_demande, bool fenetre_demande_fullscreen);
+void passer_plein_ecran(void);
+void passer_fenetre_maximisee(void);
+void passer_fenetre_taille(int largeur, int hauteur);
+void passer_fenetre_coeff(int coeff);
+void appliquer_redimensionnement(int largeur_cible, int hauteur_cible);
 
 /* Configuration de la fenetre */
 void definir_icone(const char *chemin);

@@ -4,7 +4,6 @@
  */
 
 #include "../main.h"
-#include <stdlib.h>
 
 /*
  * Libere toutes les ressources du moteur.

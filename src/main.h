@@ -62,7 +62,7 @@ extern "C" {
 #include "moteur/image/chargement/chargement_image.h"
 #include "moteur/image/forme/dessin.h"
 #include "moteur/image/liste/liste_chaine.h"
-#include "moteur/image/rotate/rotate.h"
+#include "moteur/image/rotation/rotation.h"
 #include "moteur/initialisation/initialisation.h"
 #include "moteur/logging/logging.h"
 #include "moteur/son/son.h"

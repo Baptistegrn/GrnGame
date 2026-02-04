@@ -6,7 +6,6 @@
 #ifndef GRNGAME_H
 #define GRNGAME_H
 
-#include "../chemin/chemin.h"
 #include <SDL_stdinc.h>
 #include <stdbool.h>
 
@@ -92,8 +91,17 @@ GRN_API void initialize(int heightU, int widthU, float fps_target, int black_bar
 /* Stops the engine and closes the application */
 GRN_API void stop(void);
 
-/* Resizes the window and adjusts fullscreen mode */
-GRN_API void resize(int w, int h, bool fullscreen_requested, bool window_fullscreen_requested);
+/* Switches to fullscreen mode */
+GRN_API void fullscreen(void);
+
+/* Switches to windowed maximized mode */
+GRN_API void windowedFullscreen(void);
+
+/* Switches to windowed mode with specific size */
+GRN_API void windowed(int width, int height);
+
+/* Switches to windowed mode with universe scaling factor */
+GRN_API void windowedMinimised(int coeff);
 
 /* Clears the screen with the specified color */
 GRN_API void clearScreen(int red, int green, int blue);
@@ -127,19 +135,18 @@ GRN_API void freeBlocks(Blocks *blocks);
 GRN_API void cameraUpdate(Camera *cam, float targetX, float targetY, float dt);
 
 /* Logs a message with the specified severity level */
-GRN_API void logMessage(int level, char *message);
+GRN_API void logMessage(int level, const char *message);
 
 /* Sets the minimum log level to display */
 GRN_API void setLogLvl(int level);
 
 /* Draws an image at the specified position */
 GRN_API void draw(const char *path, float x, float y, Uint16 width, Uint16 height, bool flip,
-                  Uint16 rotation, Uint8 alpha);
+                  Uint16 rotationP, Uint16 rotation, Uint8 alpha);
 
 /* Draws a sprite at the specified position */
 GRN_API void drawSprite(Sprite *sprite, float x, float y, Sint16 w, Sint16 u, bool flip,
-                        Uint16 rotation, Uint8 alpha);
-
+                        Uint16 rotationP, Uint16 rotation, Uint8 alpha);
 /* Draws a particle array with individual transforms and colors */
 GRN_API void drawParticles(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r, Uint8 *g,
                            Uint8 *b, int size);
@@ -149,7 +156,7 @@ GRN_API Sprite *createSprite(const char *id, Sint16 width, Sint16 height);
 
 /* Draws text using a custom bitmap font */
 GRN_API void drawText(const char *font_path, const char *text, float x, float y, Uint16 scale,
-                      bool flip, float spacing, Uint16 rotation, Uint8 alpha);
+                      bool flip, float spacing, Uint16 rotationP, Uint16 rotation, Uint8 alpha);
 
 /* Loads all images from a folder into memory */
 GRN_API void loadImageFolder(const char *folder);
@@ -166,14 +173,14 @@ GRN_API void drawRect(float x, float y, Sint16 width, Sint16 height, Uint8 red, 
 
 /* Draws a filled or outlined circle */
 GRN_API void drawCircle(float x, float y, Sint16 radius, Uint8 red, Uint8 green, Uint8 blue,
-                        bool filled);
-
+                        Uint8 alpha, bool filled);
 /* Draws a filled or outlined triangle */
 GRN_API void drawTriangle(float x, float y, Sint16 width, Sint16 height, Uint8 red, Uint8 green,
-                          Uint8 blue, bool filled);
+                          Uint8 blue, Uint8 alpha, bool filled);
 
 /* Draws a line between two points */
-GRN_API void drawLine(float x1, float y1, float x2, float y2, Uint8 red, Uint8 green, Uint8 blue);
+GRN_API void drawLine(float x1, float y1, float x2, float y2, Uint8 red, Uint8 green, Uint8 blue,
+                      Uint8 alpha);
 
 /* Shader test function */
 GRN_API void test_shaders(void);
@@ -285,6 +292,9 @@ GRN_API int universeWidth(void);
 
 /* Returns the game universe height */
 GRN_API int universeHeight(void);
+
+/* Returns true if the window is minimised */
+GRN_API bool windowMinimised(void);
 
 /* Initializes and runs the Lua engine with the specified script */
 GRN_API void initializeLua(const char *filePath);

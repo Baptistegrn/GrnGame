@@ -1,16 +1,11 @@
 /*
- * Mise a jour des entrees utilisateur (clavier, souris, manette).
+ * Mise a jour des entrees (clavier, souris, manette).
  * Traite la file d'evenements SDL a chaque frame.
  */
 
 #include "../../main.h"
-#include <math.h>
-#include <string.h>
 
-/*
- * Trouve l'index local (0 a NB_MANETTES_MAX-1) d'une manette a partir de
- * son instance ID SDL. Retourne -1 si non trouvee.
- */
+/* Trouve l'index local d'une manette a partir de son instance ID SDL */
 static int trouver_index_manette(SDL_JoystickID instance_id) {
     SDL_GameController *ctrl = SDL_GameControllerFromInstanceID(instance_id);
     if (!ctrl)
@@ -24,19 +19,16 @@ static int trouver_index_manette(SDL_JoystickID instance_id) {
     return -1;
 }
 
-/*
- * Met a jour les entrees (Clavier, Souris, Manette) pour la frame actuelle.
- * Reinitialise les etats "juste presse", recupere la position souris corrigee
- * en tenant compte du letterboxing, puis traite la file d'evenements SDL.
- */
+/* Met a jour les entrees pour la frame actuelle */
 void mise_a_jour_input() {
     if (!gs)
         goto gsvide;
+
     GestionnaireEntrees *entrees = gs->entrees;
     GestionnaireFenetre *fenetre = gs->fenetre;
     SDL_Event event;
 
-    /* Reinitialisation des etats "Just Pressed" (duree 1 frame) */
+    /* Reinitialisation des etats "juste presse" */
     entrees->souris_juste_presse = false;
     entrees->souris_droite_juste_presse = false;
     entrees->souris_scroll_y = 0;
@@ -49,50 +41,70 @@ void mise_a_jour_input() {
         }
     }
 
-    /* Traitement de la file d'evenements SDL */
+    /* Mise a jour position souris */
+    int souris_x, souris_y;
+    SDL_GetMouseState(&souris_x, &souris_y);
+    int coeff = fenetre->coeff;
+    entrees->souris_x = (int)lroundf(((float)souris_x - (float)fenetre->decalage_x) / (float)coeff);
+    entrees->souris_y = (int)lroundf(((float)souris_y - (float)fenetre->decalage_y) / (float)coeff);
+
+    /* Traitement des evenements SDL */
     while (SDL_PollEvent(&event)) {
-
-        /* Mise a jour de la position souris avec correction du letterboxing.
-           Les coordonnees ecran (physiques) sont converties en coordonnees jeu
-           (logiques) en tenant compte du ratio et des bandes noires. */
-        int raw_x, raw_y;
-        SDL_GetMouseState(&raw_x, &raw_y);
-
-        int coeff = fenetre->coeff;
-
-        entrees->souris_x =
-            (int)lroundf(((float)raw_x - (float)fenetre->decalage_x) / (float)coeff);
-
-        entrees->souris_y =
-            (int)lroundf(((float)raw_y - (float)fenetre->decalage_y) / (float)coeff);
-
-        /* Dispatch des evenements */
         switch (event.type) {
-        case SDL_MOUSEWHEEL:
-            if (event.wheel.y > 0) {
-                entrees->souris_scroll_y = 1;
-            } else if (event.wheel.y < 0) {
-                entrees->souris_scroll_y = -1;
+        case SDL_WINDOWEVENT:
+            switch (event.window.event) {
+            case SDL_WINDOWEVENT_CLOSE:
+                gs->timing->run = false;
+                break;
+            case SDL_WINDOWEVENT_RESIZED:
+            case SDL_WINDOWEVENT_SIZE_CHANGED:
+                appliquer_redimensionnement(event.window.data1, event.window.data2);
+                break;
+            case SDL_WINDOWEVENT_MAXIMIZED: {
+                int w, h;
+                SDL_GetWindowSize(gs->fenetre->fenetre, &w, &h);
+                appliquer_redimensionnement(w, h);
+                break;
             }
-            if (event.wheel.x > 0) {
-                entrees->souris_scroll_x = 1;
-            } else if (event.wheel.x < 0) {
-                entrees->souris_scroll_x = -1;
+            case SDL_WINDOWEVENT_FOCUS_LOST:
+                gs->timing->en_pause = true;
+                break;
+            case SDL_WINDOWEVENT_MINIMIZED:
+                gs->timing->en_pause = true;
+                gs->timing->minimise = true;
+                break;
+            case SDL_WINDOWEVENT_FOCUS_GAINED:
+                gs->timing->en_pause = false;
+                break;
+            case SDL_WINDOWEVENT_RESTORED:
+                gs->timing->en_pause = false;
+                gs->timing->minimise = false;
+                break;
+            default:
+                break;
             }
             break;
+
+        case SDL_MOUSEWHEEL:
+            if (event.wheel.y > 0)
+                entrees->souris_scroll_y = 1;
+            else if (event.wheel.y < 0)
+                entrees->souris_scroll_y = -1;
+            if (event.wheel.x > 0)
+                entrees->souris_scroll_x = 1;
+            else if (event.wheel.x < 0)
+                entrees->souris_scroll_x = -1;
+            break;
+
         case SDL_QUIT:
             gs->timing->run = false;
             break;
-        /* Tactile -> map sur souris */
+
         case SDL_FINGERDOWN: {
-            int px = lroundf(event.tfinger.x * fenetre->largeur_univers) +
-                     lroundf((float)fenetre->decalage_x / fenetre->coeff);
-            int py = lroundf(event.tfinger.y * fenetre->hauteur_univers) +
-                     lroundf((float)fenetre->decalage_y / fenetre->coeff);
-
-            entrees->souris_x = px;
-            entrees->souris_y = py;
-
+            entrees->souris_x = lroundf(event.tfinger.x * fenetre->largeur_univers) +
+                                lroundf((float)fenetre->decalage_x / fenetre->coeff);
+            entrees->souris_y = lroundf(event.tfinger.y * fenetre->hauteur_univers) +
+                                lroundf((float)fenetre->decalage_y / fenetre->coeff);
             entrees->souris_presse = true;
             entrees->souris_juste_presse = true;
             break;
@@ -103,15 +115,13 @@ void mise_a_jour_input() {
             break;
 
         case SDL_FINGERMOTION: {
-            int px = lroundf(event.tfinger.x * fenetre->largeur_univers) +
-                     lroundf((float)fenetre->decalage_x / fenetre->coeff);
-            int py = lroundf(event.tfinger.y * fenetre->hauteur_univers) +
-                     lroundf((float)fenetre->decalage_y / fenetre->coeff);
-            entrees->souris_x = px;
-            entrees->souris_y = py;
+            entrees->souris_x = lroundf(event.tfinger.x * fenetre->largeur_univers) +
+                                lroundf((float)fenetre->decalage_x / fenetre->coeff);
+            entrees->souris_y = lroundf(event.tfinger.y * fenetre->hauteur_univers) +
+                                lroundf((float)fenetre->decalage_y / fenetre->coeff);
             break;
         }
-        /* Manette : Boutons */
+
         case SDL_CONTROLLERBUTTONDOWN: {
             int idx = trouver_index_manette(event.cbutton.which);
             if (idx >= 0 && event.cbutton.button < SDL_CONTROLLER_BUTTON_MAX) {
@@ -129,12 +139,10 @@ void mise_a_jour_input() {
             break;
         }
 
-        /* Manette : Axes */
         case SDL_CONTROLLERAXISMOTION: {
             int idx = trouver_index_manette(event.caxis.which);
             if (idx < 0)
                 break;
-
             switch (event.caxis.axis) {
             case SDL_CONTROLLER_AXIS_LEFTX:
                 entrees->Joy[idx].g.x = event.caxis.value;
@@ -158,10 +166,10 @@ void mise_a_jour_input() {
             break;
         }
 
-        /* Manette : Connexion/Deconnexion */
         case SDL_CONTROLLERDEVICEADDED:
             init_controller_joysticks(event.cdevice.which);
             break;
+
         case SDL_CONTROLLERDEVICEREMOVED: {
             int idx = trouver_index_manette(event.cdevice.which);
             if (idx >= 0) {
@@ -171,7 +179,6 @@ void mise_a_jour_input() {
             break;
         }
 
-        /* Souris */
         case SDL_MOUSEBUTTONDOWN:
             if (event.button.button == SDL_BUTTON_LEFT) {
                 entrees->souris_presse = true;
@@ -183,21 +190,17 @@ void mise_a_jour_input() {
             break;
 
         case SDL_MOUSEBUTTONUP:
-            if (event.button.button == SDL_BUTTON_LEFT) {
+            if (event.button.button == SDL_BUTTON_LEFT)
                 entrees->souris_presse = false;
-            } else if (event.button.button == SDL_BUTTON_RIGHT) {
+            else if (event.button.button == SDL_BUTTON_RIGHT)
                 entrees->souris_droite_presse = false;
-            }
             break;
 
-        /* Clavier */
         case SDL_KEYDOWN:
             if (event.key.keysym.scancode < SDL_NUM_SCANCODES) {
                 entrees->entrees[event.key.keysym.scancode] = true;
-                /* N'enregistrer "juste presse" que pour les vrais appuis, pas les repetitions */
-                if (!event.key.repeat) {
+                if (!event.key.repeat)
                     entrees->entrees_presse[event.key.keysym.scancode] = true;
-                }
             }
             break;
 
@@ -211,7 +214,6 @@ void mise_a_jour_input() {
             break;
         }
     }
-
     return;
 
 gsvide:

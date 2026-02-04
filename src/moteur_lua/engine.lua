@@ -50,9 +50,12 @@ ffi.cdef [[
     /* moteur */
     void initialize(int h, int w, float fps, int bars, const char *title, UpdateCallback cb);
     void stop(void);
-    void resize(int w, int h, bool fullscreen_requested, bool window_fullscreen_requested);
+    void windowedMinimised(int coeff);
+    void windowed(int width, int height);
+    void windowedFullscreen(void);
+    void fullscreen(void);
     void clearScreen(int r, int g, int b);
-    void logMessage(int level, char *message);
+    void logMessage(int level, const char *message);
     void setLogLvl(int level);
     float delta(void);
     float fps(void);
@@ -63,6 +66,7 @@ ffi.cdef [[
     int currentHeight(void);
     int universeWidth(void);
     int universeHeight(void);
+    bool windowMinimised(void);
 
     /* blocks */
     Blocks *createBlocks();
@@ -77,17 +81,17 @@ ffi.cdef [[
     void cameraUpdate(Camera *c, float tx, float ty, float dt);
 
     /* graphiques */
-    void draw(const char *path, float x, float y, Uint16 w, Uint16 h, bool flip, Uint16 rot, Uint8 a);
-    void drawSprite(Sprite *sprite, Sint16 index, float x, float y, Sint16 w, Sint16 h, bool flip, Uint16 rotation, Uint8 alpha);
+    void draw(const char *path, float x, float y, Uint16 w, Uint16 h, bool flip, Uint16 rotP, Uint16 rot, Uint8 a);
+    void drawSprite(Sprite *sprite, Sint16 index, float x, float y, Sint16 w, Sint16 h, bool flip, Uint16 rotP, Uint16 rot, Uint8 alpha);
     Sprite *createSprite(const char *id, Sint16 width, Sint16 height);
-    void drawText(const char *font, const char *txt, float x, float y, Uint16 sc, bool f, float sp, Uint16 r, Uint8 a);
+    void drawText(const char *font, const char *txt, float x, float y, Uint16 sc, bool f, float sp, Uint16 rotP, Uint16 rot, Uint8 a);
     void loadImageFolder(const char *folder);
     void freeImageFolder(void);
     void setIcon(const char *path);
     void drawRect(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b, Uint8 a, bool filled);
-    void drawCircle(float x, float y, Sint16 radius, Uint8 r, Uint8 g, Uint8 b, bool filled);
-    void drawTriangle(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b, bool filled);
-    void drawLine(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b);
+    void drawCircle(float x, float y, Sint16 radius, Uint8 r, Uint8 g, Uint8 b,Uint8 a, bool filled);
+    void drawTriangle(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b, Uint8 a, bool filled);
+    void drawLine(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
     void drawParticles(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r, Uint8 *g, Uint8 *b, int size);
 
     /* audio */
@@ -262,12 +266,18 @@ Engine.Blocks = Blocks
 -- Core
 Engine.initialize = C.initialize
 Engine.stop = C.stop
-Engine.resize = C.resize
+Engine.windowedMinimised = C.windowedMinimised
+Engine.windowed = C.windowed
+Engine.windowedFullscreen = C.windowedFullscreen
+Engine.fullscreen = C.fullscreen
 Engine.clear = C.clearScreen
 Engine.delta = C.delta
 Engine.fps = C.fps
 Engine.log = C.logMessage
 Engine.setLogLvl = C.setLogLvl
+Engine.minimised = C.windowMinimised
+Engine.frameCount = C.frameCount
+
 
 -- Graphics
 Engine.draw = C.draw
@@ -300,5 +310,8 @@ Engine.mouseRightJustPressed = C.mouseRightJustPressed
 -- Window info
 Engine.universeWidth = C.universeWidth
 Engine.universeHeight = C.universeHeight
-
+Engine.offsetX = C.offsetX
+Engine.offsetY = C.offsetY
+Engine.currentWidth = C.currentWidth
+Engine.currentHeight = C.currentHeight
 return Engine

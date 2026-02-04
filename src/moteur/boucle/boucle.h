@@ -24,6 +24,8 @@ typedef struct GestionnaireTiming {
     float dt;               /* delta time */
     float fps;              /* frames per second */
     Uint32 compteur_frames; /* compteur de frames */
+    bool en_pause;          /* indique si le jeu est en pause */
+    bool minimise;          /* indique si la fenetre est minimise */
 } GestionnaireTiming;
 
 typedef struct GestionnaireFrameActuelle {

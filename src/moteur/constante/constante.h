@@ -7,6 +7,7 @@
 #define CONSTANTE_H
 
 #include <SDL.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,7 +42,7 @@ int hauteur_actuelle(void);
 int largeur_univers(void);
 int hauteur_univers(void);
 int coeff(void);
-
+bool fenetre_est_minimise(void);
 #ifdef __cplusplus
 }
 #endif

@@ -32,12 +32,26 @@ void arreter_gestionnaire(void) {
 void boucle_principale(void) {
     if (!gs)
         goto gsvide;
-
+    /* si pause */
+    if (gs->timing->en_pause) {
+        log_message(NiveauLogInfo, "main loop ended due to pause");
+        return;
+    }
     GestionnaireTiming *timing = gs->timing;
     Uint32 frame_debut_avant_while = SDL_GetTicks();
     const float dt_theorique = 1.0f / (float)timing->fps;
 
     while (timing->run) {
+        /* Si en pause, on attend et on traite seulement les evenements */
+        if (timing->en_pause) {
+            /* mise a jour des events pour restaurer l'etat */
+            mise_a_jour_input();
+            SDL_Delay(100);
+            /* Reset du temps pour eviter un dt enorme a la reprise */
+            frame_debut_avant_while = SDL_GetTicks();
+            continue;
+        }
+
         Uint32 frame_debut = SDL_GetTicks();
         timing->compteur_frames++;
 
@@ -58,6 +72,10 @@ void boucle_principale(void) {
 
         if (frame_temps_s < dt_theorique) {
             Uint32 delai = (Uint32)((dt_theorique - frame_temps_s) * 1000.0f);
+            /* si minimise on augmente le delai */
+            if (gs->timing->minimise) {
+                delai *= 10;
+            }
             SDL_Delay(delai);
         }
 

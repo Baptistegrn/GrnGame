@@ -6,7 +6,8 @@
 
 /* Ajoute un caractere individuel (texture) au tableau de rendu */
 static Sint16 ajouter_char_dans_tableau(const char *lien_image, char lettre, float posx, float posy,
-                                        unsigned char coeff, bool sens, Uint16 rotation, Uint8 a) {
+                                        unsigned char coeff, bool sens, Uint16 rotationP,
+                                        Uint16 rotation, Uint8 a) {
     if (!gs)
         goto gsvide;
     char lien_image_lettre[TAILLE_LIEN];
@@ -32,7 +33,7 @@ static Sint16 ajouter_char_dans_tableau(const char *lien_image, char lettre, flo
     Sint16 hauteur_finale = (Sint16)(tex_h * coeff);
 
     ajouter_image_au_tableau(lien_image_lettre, posx, posy, largeur_finale, hauteur_finale, sens,
-                             rotation, a);
+                             rotationP, rotation, a);
 
     return largeur_finale;
 
@@ -43,8 +44,8 @@ gsvide:
 
 /* Affiche un mot complet en assemblant les caracteres individuels */
 void ajouter_mot_dans_tableau(const char *chemin, const char *mot, float posx, float posy,
-                              unsigned char coeff, bool sens, Sint16 ecart, Uint16 rotation,
-                              Uint8 a) {
+                              unsigned char coeff, bool sens, Sint16 ecart, Uint16 rotationP,
+                              Uint16 rotation, Uint8 a) {
     if (!gs)
         goto gsvide;
     int taille_chaine = strlen(mot);
@@ -52,7 +53,7 @@ void ajouter_mot_dans_tableau(const char *chemin, const char *mot, float posx, f
 
     for (int i = 0; i < taille_chaine; i++) {
         Sint16 largeur = ajouter_char_dans_tableau(chemin, mot[i], posx + (float)position_courante,
-                                                   posy, coeff, sens, rotation, a);
+                                                   posy, coeff, sens, rotationP, rotation, a);
 
         position_courante += largeur + ecart;
     }

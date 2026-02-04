@@ -3,60 +3,53 @@
  */
 
 #include "../../../main.h"
-#include "SDL_render.h"
-#include <stdlib.h>
 
-/* Dessine une ligne entre deux points avec l'algorithme de Bresenham */
-void dessiner_ligne_pixel(float x0, float y0, float x1, float y1, Uint8 r, Uint8 g, Uint8 b) {
+/* Dessine une ligne entre deux points avec l'algorithme de Bresenham (pixel art) */
+void dessiner_ligne_pixel(float x0, float y0, float x1, float y1, Uint8 r, Uint8 g, Uint8 b,
+                          Uint8 a) {
     if (!gs)
         goto gsvide;
-    unsigned int coeff = gs->fenetre->coeff;
+    unsigned char coeff = gs->fenetre->coeff;
     int decalage_x = gs->fenetre->decalage_x;
     int decalage_y = gs->fenetre->decalage_y;
 
-    SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, 255);
+    SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
 
-    float screen_x0 = x0 * (float)coeff + (float)decalage_x;
-    float screen_y0 = y0 * (float)coeff + (float)decalage_y;
-    float screen_x1 = x1 * (float)coeff + (float)decalage_x;
-    float screen_y1 = y1 * (float)coeff + (float)decalage_y;
+    /* Bresenham */
+    float dx = fabsf(x1 - x0);
+    float dy = fabsf(y1 - y0);
+    float sx = x0 < x1 ? 1.0f : -1.0f;
+    float sy = y0 < y1 ? 1.0f : -1.0f;
+    float err = (dx > dy ? dx : -dy) / 2.0f;
+    float e2;
 
-    Sint16 x0_int = SDL_lroundf(screen_x0);
-    Sint16 y0_int = SDL_lroundf(screen_y0);
-    Sint16 x1_int = SDL_lroundf(screen_x1);
-    Sint16 y1_int = SDL_lroundf(screen_y1);
-
-    Sint16 dx = abs(x1_int - x0_int);
-    Sint16 dy = abs(y1_int - y0_int);
-    Sint16 sx = x0_int < x1_int ? 1 : -1;
-    Sint16 sy = y0_int < y1_int ? 1 : -1;
-    Sint16 err = (dx > dy ? dx : -dy) / 2;
-    Sint16 e2;
-
-    int n = 10;
-    SDL_Rect *pixels = malloc_gestion_echec_compteur(sizeof(SDL_Rect) * n);
+    int capacite = 10;
+    SDL_Rect *pixels = malloc_gestion_echec_compteur(sizeof(SDL_Rect) * capacite);
     int taille = 0;
 
     while (true) {
-        if (taille >= n) {
-            n = n * 2;
-            pixels = realloc_gestion_echec_compteur(pixels, sizeof(SDL_Rect) * n);
+        if (taille >= capacite) {
+            capacite = capacite * 2;
+            pixels = realloc_gestion_echec_compteur(pixels, sizeof(SDL_Rect) * capacite);
         }
 
-        pixels[taille] = (SDL_Rect){(int)x0_int, (int)y0_int, (int)coeff, (int)coeff};
+        /* Redimensionner */
+        int ecran_x = (int)SDL_roundf(x0 * (float)coeff) + decalage_x;
+        int ecran_y = (int)SDL_roundf(y0 * (float)coeff) + decalage_y;
+        pixels[taille] = (SDL_Rect){ecran_x, ecran_y, (int)coeff, (int)coeff};
         taille++;
 
-        if (x0_int == x1_int && y0_int == y1_int)
+        if (x0 == x1 && y0 == y1)
             break;
 
         e2 = err;
         if (e2 > -dx) {
             err -= dy;
-            x0_int += sx;
+            x0 += sx;
         }
         if (e2 < dy) {
             err += dx;
-            y0_int += sy;
+            y0 += sy;
         }
     }
 
@@ -68,20 +61,18 @@ gsvide:
     log_message(NiveauLogDebug, "manager is empty in draw pixel line");
 }
 
-/* Dessine une ligne horizontale simple remplie de pixels */
-void tracer_ligne_horizontale(float x_start, float y, Sint16 w, Uint8 r, Uint8 g, Uint8 b) {
+/* Dessine une ligne horizontale simple remplie de pixels avec w et r*/
+void tracer_ligne_horizontale(float x, float y, Sint16 w, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
     if (!gs)
         goto gsvide;
     unsigned char coeff = gs->fenetre->coeff;
-    SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, 255);
+    SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
 
-    float screen_x_start = x_start * (float)coeff + (float)gs->fenetre->decalage_x;
-    float screen_y = y * (float)coeff + (float)gs->fenetre->decalage_y;
+    float ecran_x = x * (float)coeff + (float)gs->fenetre->decalage_x;
+    float ecran_y = y * (float)coeff + (float)gs->fenetre->decalage_y;
 
-    Sint16 x_start_int = SDL_lroundf(screen_x_start);
-    Sint16 y_int = SDL_lroundf(screen_y);
-
-    SDL_Rect ligne = {(int)x_start_int, (int)y_int, (int)(w * coeff), (int)coeff};
+    SDL_Rect ligne = {(int)SDL_roundf(ecran_x), (int)SDL_roundf(ecran_y), (int)(w * coeff),
+                      (int)coeff};
     SDL_RenderFillRect(gs->fenetre->rendu, &ligne);
     return;
 
@@ -89,13 +80,56 @@ gsvide:
     log_message(NiveauLogDebug, "manager is empty in draw horizontal line");
 }
 
+/* dessine une ligne horizontale en float */
+void tracer_ligne_horizontale_float(float x, float y, float longueur, Uint8 r, Uint8 g, Uint8 b,
+                                    Uint8 a) {
+    if (!gs)
+        goto gsvide;
+
+    unsigned char coeff = gs->fenetre->coeff;
+
+    SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
+
+    float x_ecran = x * (float)coeff + (float)gs->fenetre->decalage_x;
+    float y_ecran = y * (float)coeff + (float)gs->fenetre->decalage_y;
+
+    SDL_Rect ligne = {(int)SDL_roundf(x_ecran), (int)SDL_roundf(y_ecran),
+                      (int)SDL_lroundf(longueur * (float)coeff), (int)coeff};
+    SDL_RenderFillRect(gs->fenetre->rendu, &ligne);
+    return;
+
+gsvide:
+    log_message(NiveauLogDebug, "manager is empty in draw horizontal line float");
+}
+
+/* dessine une ligne verticale en float */
+void tracer_ligne_verticale_float(float x, float y, float longueur, Uint8 r, Uint8 g, Uint8 b,
+                                  Uint8 a) {
+    if (!gs)
+        goto gsvide;
+
+    unsigned char coeff = gs->fenetre->coeff;
+    SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
+
+    float ecran_x = x * (float)coeff + (float)gs->fenetre->decalage_x;
+    float ecran_y = y * (float)coeff + (float)gs->fenetre->decalage_y;
+
+    SDL_Rect ligne = {(int)SDL_roundf(ecran_x), (int)SDL_roundf(ecran_y), (int)coeff,
+                      (int)SDL_lroundf(longueur * (float)coeff)};
+    SDL_RenderFillRect(gs->fenetre->rendu, &ligne);
+    return;
+
+gsvide:
+    log_message(NiveauLogDebug, "manager is empty in draw vertical line float");
+}
+
 /* Dessine deux points aux positions (x1,y1) et (x2,y2) de longueur n */
-void dessiner_points_n(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b,
+void dessiner_points_n(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a,
                        Sint16 n) {
     if (!gs)
         goto gsvide;
     unsigned char coeff = gs->fenetre->coeff;
-    SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, 255);
+    SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
     SDL_Rect pixels[2];
 
     float screen_x1 = x1 * (float)coeff + (float)gs->fenetre->decalage_x;
@@ -120,11 +154,11 @@ gsvide:
 }
 
 /* Dessine deux points uniques aux positions (x1,y1) et (x2,y2) */
-void dessiner_points(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b) {
+void dessiner_points(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
     if (!gs)
         goto gsvide;
     unsigned char coeff = gs->fenetre->coeff;
-    SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, 255);
+    SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
     SDL_Rect pixels[2];
 
     float screen_x1 = x1 * (float)coeff + (float)gs->fenetre->decalage_x;

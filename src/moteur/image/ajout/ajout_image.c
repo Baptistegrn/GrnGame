@@ -3,16 +3,15 @@
  */
 
 #include "../../../main.h"
-#include "ajout.h"
 
 /* Ajoute une image au tableau de rendu avec gestion du cache de rotation */
 void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 taillex, Sint16 tailley,
-                              bool sens, Uint16 rotation, Uint8 a) {
+                              bool sens, Uint16 rotation_p, Uint16 rotation, Uint8 a) {
     if (!gs)
         goto gsvide;
     /* Correction rotation */
-    if (rotation > 359) {
-        rotation = 0;
+    if (rotation_p > 359) {
+        rotation_p = 0;
 
         log_fmt(NiveauLogAvertissement, "Rotation invalid for image %s correction to 0", id);
     }
@@ -28,28 +27,27 @@ void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 taillex, 
     obj.image.taillex = taillex;
     obj.image.tailley = tailley;
     obj.image.sens = sens;
+    obj.image.rotation_p = rotation_p;
     obj.image.rotation = rotation;
     obj.image.a = a;
 
     /* Gestion du cache d'angle */
-    if (rotation == 0) {
+    if (rotation_p == 0) {
         obj.image.texture = recuperer_texture_par_lien(id);
     } else {
-        obj.image.texture = recuperer_texture_variante(id, rotation);
+        obj.image.texture = recuperer_texture_variante(id, rotation_p);
 
         if (!obj.image.texture) {
             SDL_Texture *texture_base = recuperer_texture_par_lien(id);
 
             if (texture_base) {
-                SDL_RendererFlip flip = (sens == 0) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-
                 obj.image.texture =
-                    creer_texture_tournee_rapide(texture_base, taillex, tailley, rotation, flip);
+                    creer_texture_angle(texture_base, taillex, tailley, rotation_p, SDL_FLIP_NONE);
 
                 if (obj.image.texture) {
                     ajouter_variante_cache(
 
-                        id, obj.image.texture, rotation);
+                        id, obj.image.texture, rotation_p);
                 }
             }
         }
@@ -71,7 +69,8 @@ gsvide:
 
 /* Ajoute un sprite au tableau de rendu */
 void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, Sint16 taillex,
-                               Sint16 tailley, bool sens, Uint16 rotation, Uint8 a) {
+                               Sint16 tailley, bool sens, Uint16 rotation_p, Uint16 rotation,
+                               Uint8 a) {
     if (!gs)
         goto gsvide;
 
@@ -93,6 +92,7 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
     obj.image.taillex = taillex;
     obj.image.tailley = tailley;
     obj.image.sens = sens;
+    obj.image.rotation_p = rotation_p;
     obj.image.rotation = rotation;
     obj.image.a = a;
     obj.image.sprite = true;
@@ -105,11 +105,10 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
         if (!obj.image.texture) {
             SDL_Texture *texture_base = recuperer_texture_par_lien(id);
             if (texture_base) {
-                SDL_RendererFlip flip = (sens == 0) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
                 obj.image.texture =
-                    creer_texture_tournee_rapide(texture_base, taillex, tailley, rotation, flip);
+                    creer_texture_angle(texture_base, taillex, tailley, rotation_p, SDL_FLIP_NONE);
                 if (obj.image.texture) {
-                    ajouter_variante_cache(id, obj.image.texture, rotation);
+                    ajouter_variante_cache(id, obj.image.texture, rotation_p);
                 }
             }
         }

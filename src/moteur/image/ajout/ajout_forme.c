@@ -3,10 +3,9 @@
  */
 
 #include "../../../main.h"
-#include "ajout.h"
 
 /* Ajoute une ligne a la liste de rendu */
-void ajouter_ligne(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b) {
+void ajouter_ligne(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
     if (!gs)
         goto gsvide;
     ObjectImage obj;
@@ -16,16 +15,17 @@ void ajouter_ligne(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uin
     r = SDL_clamp(r, 0, 255);
     g = SDL_clamp(g, 0, 255);
     b = SDL_clamp(b, 0, 255);
-
+    a = SDL_clamp(a, 0, 255);
     obj.type = TYPE_FORME;
     obj.forme.type_de_forme = 1;
     obj.forme.posx = x1;
     obj.forme.posy = y1;
-    obj.forme.taillex = x2;
-    obj.forme.tailley = y2;
+    obj.forme.posx2 = x2;
+    obj.forme.posy2 = y2;
     obj.forme.r = r;
     obj.forme.g = g;
     obj.forme.b = b;
+    obj.forme.a = a;
     obj.forme.plein = true;
 
     ajouter_image_au_jeu(obj);
@@ -70,7 +70,8 @@ gsvide:
 }
 
 /* Ajoute un cercle a la liste de rendu */
-void ajouter_cercle(float x, float y, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, bool plein) {
+void ajouter_cercle(float x, float y, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                    bool plein) {
     if (!gs)
         goto gsvide;
     ObjectImage obj;
@@ -80,7 +81,7 @@ void ajouter_cercle(float x, float y, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, b
     r = SDL_clamp(r, 0, 255);
     g = SDL_clamp(g, 0, 255);
     b = SDL_clamp(b, 0, 255);
-
+    a = SDL_clamp(a, 0, 255);
     obj.type = TYPE_FORME;
     obj.forme.type_de_forme = 3;
     obj.forme.posx = x;
@@ -90,6 +91,7 @@ void ajouter_cercle(float x, float y, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, b
     obj.forme.r = r;
     obj.forme.g = g;
     obj.forme.b = b;
+    obj.forme.a = a;
     obj.forme.plein = plein;
 
     ajouter_image_au_jeu(obj);
@@ -102,7 +104,7 @@ gsvide:
 
 /* Ajoute un triangle a la liste de rendu */
 void ajouter_triangle(float x, float y, Sint16 taillex, Sint16 tailley, Uint8 r, Uint8 g, Uint8 b,
-                      bool plein) {
+                      Uint8 a, bool plein) {
     if (!gs)
         goto gsvide;
     ObjectImage obj;
@@ -112,6 +114,7 @@ void ajouter_triangle(float x, float y, Sint16 taillex, Sint16 tailley, Uint8 r,
     r = SDL_clamp(r, 0, 255);
     g = SDL_clamp(g, 0, 255);
     b = SDL_clamp(b, 0, 255);
+    a = SDL_clamp(a, 0, 255);
 
     obj.type = TYPE_FORME;
     obj.forme.type_de_forme = 4;
@@ -122,6 +125,7 @@ void ajouter_triangle(float x, float y, Sint16 taillex, Sint16 tailley, Uint8 r,
     obj.forme.r = r;
     obj.forme.g = g;
     obj.forme.b = b;
+    obj.forme.a = a;
     obj.forme.plein = plein;
 
     ajouter_image_au_jeu(obj);

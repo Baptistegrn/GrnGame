@@ -5,88 +5,12 @@
 
 #include "../../main.h"
 
-/*
- * Redimensionne la fenetre selon le mode demande.
- * Gere le plein ecran, le mode fenetre maximise et le mode fenetre normal.
- * Calcule les bandes noires et le coefficient de mise a l'echelle.
+/* Fonction pour calculer le coefficient et appliquer le redimensionnement (appel dans le event sdl)
  */
-void redimensionner(int w, int h, bool fullscreen_demande, bool fenetre_demande_fullscreen) {
-    if (!gs)
-        goto gsvide;
-
+void appliquer_redimensionnement(int largeur_cible, int hauteur_cible) {
     GestionnaireFenetre *f = gs->fenetre;
-    SDL_Window *fenetre_sdl = f->fenetre;
 
-    if (f->largeur_univers <= 0 || f->hauteur_univers <= 0) {
-        log_message(NiveauLogErreur, "Dimensions of the universe are invalid");
-        return;
-    }
-
-    /* Info ecran */
-    int index_ecran = SDL_GetWindowDisplayIndex(fenetre_sdl);
-    SDL_Rect limites_ecran;
-    SDL_DisplayMode mode_bureau;
-
-    /* Recupere la resolution totale (plein ecran) */
-    if (index_ecran < 0 || SDL_GetDesktopDisplayMode(index_ecran, &mode_bureau) != 0) {
-        log_message(NiveauLogErreur, "Impossible to get display information");
-        return;
-    }
-
-    /* Recupere la zone utilisable (sans barre des taches) */
-    if (SDL_GetDisplayUsableBounds(index_ecran, &limites_ecran) != 0) {
-        log_message(NiveauLogErreur, "Impossible to get usable display bounds");
-        return;
-    }
-
-    /* Sauvegarde de la position actuelle de la souris (univers) */
-    float souris_x_jeu = 0, souris_y_jeu = 0;
-    if (gs->entrees) {
-        souris_x_jeu = (float)gs->entrees->souris_x;
-        souris_y_jeu = (float)gs->entrees->souris_y;
-    }
-
-    int largeur_cible, hauteur_cible;
-    int decalage_x = 0;
-    int decalage_y = 0;
-
-    /* Si fullscreen demande */
-    if (fullscreen_demande) {
-        largeur_cible = mode_bureau.w;
-        hauteur_cible = mode_bureau.h;
-
-        SDL_SetWindowFullscreen(fenetre_sdl, SDL_WINDOW_FULLSCREEN_DESKTOP);
-    }
-
-    /* Si fenetre fullscreen demandee (barre des taches visible) */
-    if (fenetre_demande_fullscreen) {
-        largeur_cible = limites_ecran.w;
-        hauteur_cible = limites_ecran.h;
-
-        SDL_SetWindowFullscreen(fenetre_sdl, 0);
-        SDL_SetWindowBordered(fenetre_sdl, SDL_TRUE);
-        SDL_SetWindowSize(fenetre_sdl, largeur_cible, hauteur_cible);
-        SDL_SetWindowPosition(fenetre_sdl, limites_ecran.x, limites_ecran.y);
-    }
-
-    /* Sinon fenetre normale */
-    if (!fullscreen_demande && !fenetre_demande_fullscreen) {
-        largeur_cible = w;
-        hauteur_cible = h;
-
-        SDL_SetWindowFullscreen(fenetre_sdl, 0);
-        SDL_SetWindowSize(fenetre_sdl, largeur_cible, hauteur_cible);
-
-        if (largeur_cible < mode_bureau.w && hauteur_cible < mode_bureau.h) {
-            SDL_SetWindowBordered(fenetre_sdl, SDL_TRUE);
-        }
-
-        /* Centrage de la fenetre sur l'ecran */
-        SDL_SetWindowPosition(fenetre_sdl, limites_ecran.x + (mode_bureau.w - largeur_cible) / 2,
-                              limites_ecran.y + (mode_bureau.h - hauteur_cible) / 2);
-    }
-
-    /* On cherche le plus petit coeff */
+    /* plus petit coefficient */
     int coeff_w = largeur_cible / f->largeur_univers;
     int coeff_h = hauteur_cible / f->hauteur_univers;
     int n_coeff = (coeff_w < coeff_h) ? coeff_w : coeff_h;
@@ -98,31 +22,119 @@ void redimensionner(int w, int h, bool fullscreen_demande, bool fenetre_demande_
     int hauteur_jeu_reelle = f->hauteur_univers * n_coeff;
 
     /* Decalage (bandes noires) */
-    decalage_x = (largeur_cible - largeur_jeu_reelle) / 2;
-    decalage_y = (hauteur_cible - hauteur_jeu_reelle) / 2;
+    int decalage_x = (largeur_cible - largeur_jeu_reelle) / 2;
+    int decalage_y = (hauteur_cible - hauteur_jeu_reelle) / 2;
 
     f->largeur_actuelle = largeur_cible;
     f->hauteur_actuelle = hauteur_cible;
     f->decalage_x = decalage_x;
     f->decalage_y = decalage_y;
-    f->plein_ecran = fullscreen_demande;
     f->coeff = (unsigned char)n_coeff;
-
-    /* Repositionne la souris apres redimensionnement */
-    if (gs->entrees) {
-        int souris_x_physique = lroundf((souris_x_jeu * (float)n_coeff) + (float)decalage_x);
-        int souris_y_physique = lroundf((souris_y_jeu * (float)n_coeff) + (float)decalage_y);
-        SDL_WarpMouseInWindow(fenetre_sdl, souris_x_physique, souris_y_physique);
-        gs->entrees->souris_x = souris_x_jeu;
-        gs->entrees->souris_y = souris_y_jeu;
-    }
 
     log_fmt(NiveauLogDebug, "Display updated: %s (%dx%d) | Coeff: %d | Offset: %d,%d",
             f->plein_ecran ? "Fullscreen" : "Window", largeur_cible, hauteur_cible, n_coeff,
             decalage_x, decalage_y);
+}
+
+/* Passe en mode plein ecran */
+void passer_plein_ecran(void) {
+    if (!gs)
+        goto gsvide;
+
+    GestionnaireFenetre *f = gs->fenetre;
+    SDL_Window *fenetre_sdl = f->fenetre;
+
+    int index_ecran = SDL_GetWindowDisplayIndex(fenetre_sdl);
+    SDL_DisplayMode mode_bureau;
+
+    if (index_ecran < 0 || SDL_GetDesktopDisplayMode(index_ecran, &mode_bureau) != 0) {
+        log_message(NiveauLogErreur, "Impossible to get display information");
+        return;
+    }
+
+    SDL_SetWindowFullscreen(fenetre_sdl, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    f->plein_ecran = true;
+    return;
+
+gsvide:
+    log_message(NiveauLogDebug, "manager is empty in passer_plein_ecran");
+}
+
+/* Passe en mode fenetre maximisee (avec barre des taches et titre) */
+void passer_fenetre_maximisee(void) {
+    if (!gs || !gs->fenetre) {
+        log_message(NiveauLogDebug, "manager is empty in passer_fenetre_maximisee");
+        return;
+    }
+
+    SDL_Window *fenetre_sdl = gs->fenetre->fenetre;
+
+    /* quitter le plein ecran */
+    SDL_SetWindowFullscreen(fenetre_sdl, 0);
+
+    /* autoriser le redimensionnement */
+    SDL_SetWindowResizable(fenetre_sdl, SDL_TRUE);
+
+    /* remettre les bordures et le titre */
+    SDL_SetWindowBordered(fenetre_sdl, SDL_TRUE);
+
+    /* maximiser la fenetre */
+    SDL_MaximizeWindow(fenetre_sdl);
+    gs->fenetre->plein_ecran = false;
+}
+
+/* Passe en mode fenetre avec une taille specifique */
+void passer_fenetre_taille(int largeur, int hauteur) {
+    if (!gs)
+        goto gsvide;
+
+    GestionnaireFenetre *f = gs->fenetre;
+    SDL_Window *fenetre_sdl = f->fenetre;
+
+    int index_ecran = SDL_GetWindowDisplayIndex(fenetre_sdl);
+    SDL_DisplayMode mode_bureau;
+    SDL_Rect limites_ecran;
+
+    if (index_ecran < 0 || SDL_GetDesktopDisplayMode(index_ecran, &mode_bureau) != 0) {
+        log_message(NiveauLogErreur, "Impossible to get display information");
+        return;
+    }
+
+    if (SDL_GetDisplayUsableBounds(index_ecran, &limites_ecran) != 0) {
+        log_message(NiveauLogErreur, "Impossible to get usable display bounds");
+        return;
+    }
+
+    SDL_SetWindowFullscreen(fenetre_sdl, 0);
+    SDL_SetWindowBordered(fenetre_sdl, SDL_TRUE);
+    SDL_SetWindowSize(fenetre_sdl, largeur, hauteur);
+
+    /* Centrage de la fenetre sur l'ecran */
+    SDL_SetWindowPosition(fenetre_sdl, limites_ecran.x + (limites_ecran.w - largeur) / 2,
+                          limites_ecran.y + (limites_ecran.h - hauteur) / 2);
+    f->plein_ecran = false;
 
     return;
 
 gsvide:
-    log_message(NiveauLogDebug, "Window manager or window is empty during resizing");
+    log_message(NiveauLogDebug, "manager is empty in passer_fenetre_taille");
+}
+
+/* Passe en mode fenetre avec un coefficient de l'univers */
+void passer_fenetre_coeff(int coeff) {
+    if (!gs)
+        goto gsvide;
+
+    if (coeff < 1)
+        coeff = 1;
+
+    GestionnaireFenetre *f = gs->fenetre;
+    int largeur = f->largeur_univers * coeff;
+    int hauteur = f->hauteur_univers * coeff;
+
+    passer_fenetre_taille(largeur, hauteur);
+    return;
+
+gsvide:
+    log_message(NiveauLogDebug, "manager is empty in passer_fenetre_coeff");
 }

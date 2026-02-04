@@ -58,3 +58,6 @@ int hauteur_univers() { return gs->fenetre->hauteur_univers; }
 
 /* Renvoie le coefficient de mise a l'echelle */
 int coeff() { return gs->fenetre->coeff; }
+
+/* renvoie si la fenetre est minimise */
+bool fenetre_est_minimise() { return gs->timing->en_pause; }

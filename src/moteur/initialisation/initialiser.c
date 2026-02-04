@@ -38,6 +38,8 @@ Gestionnaire *initialiser(int hauteur_univers, int largeur_univers, float fps, b
     /* Configuration interne */
     gs->timing->run = true;
     gs->timing->fps = fps;
+    gs->timing->en_pause = false;
+    gs->timing->minimise = false;
 
     gs->fenetre->hauteur_univers = hauteur_univers;
     gs->fenetre->largeur_univers = largeur_univers;

@@ -5,13 +5,14 @@
 #include "../../../main.h"
 
 /* Dessine un rectangle vide en tracant 4 lignes */
-void dessiner_rectangle_vide(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b) {
+void dessiner_rectangle_vide(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b,
+                             Uint8 a) {
     float wr = (float)w;
     float hr = (float)h;
-    dessiner_ligne_pixel(x, y, x + wr, y, r, g, b);
-    dessiner_ligne_pixel(x, y + hr, x + wr, y + hr, r, g, b);
-    dessiner_ligne_pixel(x, y, x, y + hr, r, g, b);
-    dessiner_ligne_pixel(x + wr, y, x + wr, y + hr, r, g, b);
+    dessiner_ligne_pixel(x, y, x + wr, y, r, g, b, a);
+    dessiner_ligne_pixel(x, y + hr, x + wr, y + hr, r, g, b, a);
+    dessiner_ligne_pixel(x, y, x, y + hr, r, g, b, a);
+    dessiner_ligne_pixel(x + wr, y, x + wr, y + hr, r, g, b, a);
 }
 
 /* Dessine un rectangle rempli avec la couleur specifiee */

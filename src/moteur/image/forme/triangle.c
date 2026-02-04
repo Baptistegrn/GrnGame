@@ -6,7 +6,7 @@
 
 /* Dessine un triangle vide en tracant les contours ligne par ligne */
 void dessiner_triangle_vide(float posx, float posy, Sint16 largeur, Sint16 hauteur, Uint8 r,
-                            Uint8 g, Uint8 b) {
+                            Uint8 g, Uint8 b, Uint8 a) {
     if (!gs)
         goto gsvide;
 
@@ -20,9 +20,9 @@ void dessiner_triangle_vide(float posx, float posy, Sint16 largeur, Sint16 haute
             float x_end = x_start + (float)current_w - 1.0f;
 
             if (current_y == y_base) {
-                tracer_ligne_horizontale(x_start, current_y, current_w, r, g, b);
+                tracer_ligne_horizontale(x_start, current_y, current_w, r, g, b, a);
             } else {
-                dessiner_points(x_start, current_y, x_end, current_y, r, g, b);
+                dessiner_points(x_start, current_y, x_end, current_y, r, g, b, a);
             }
 
             current_y -= 1.0f;
@@ -43,9 +43,9 @@ void dessiner_triangle_vide(float posx, float posy, Sint16 largeur, Sint16 haute
             float x_end = x_start + (float)current_w - 1.0f;
 
             if (current_y == y_base) {
-                tracer_ligne_horizontale(x_start, current_y, current_w, r, g, b);
+                tracer_ligne_horizontale(x_start, current_y, current_w, r, g, b, a);
             } else {
-                dessiner_points(x_start, current_y, x_end, current_y, r, g, b);
+                dessiner_points(x_start, current_y, x_end, current_y, r, g, b, a);
             }
 
             current_y -= 1.0f;
@@ -65,7 +65,7 @@ gsvide:
 
 /* Dessine un triangle rempli en tracant des lignes horizontales */
 void dessiner_triangle_plein(float posx, float posy, Sint16 largeur, Sint16 hauteur, Uint8 r,
-                             Uint8 g, Uint8 b) {
+                             Uint8 g, Uint8 b, Uint8 a) {
     if (!gs)
         goto gsvide;
 
@@ -75,8 +75,7 @@ void dessiner_triangle_plein(float posx, float posy, Sint16 largeur, Sint16 haut
     if (largeur >= hauteur) {
         while (current_w > 0 && current_y >= posy) {
             float x_start = posx + ((float)largeur - (float)current_w) / 2.0f;
-            tracer_ligne_horizontale(x_start, current_y, current_w, r, g, b);
-
+            tracer_ligne_horizontale(x_start, current_y, current_w, r, g, b, a);
             current_y -= 1.0f;
             Sint16 diff = largeur - hauteur;
             current_w -= (diff > 50) ? 4 : 2;
@@ -92,7 +91,7 @@ void dessiner_triangle_plein(float posx, float posy, Sint16 largeur, Sint16 haut
 
         while (current_w > 0 && current_y >= posy) {
             float x_start = posx + ((float)largeur - (float)current_w) / 2.0f;
-            tracer_ligne_horizontale(x_start, current_y, current_w, r, g, b);
+            tracer_ligne_horizontale(x_start, current_y, current_w, r, g, b, a);
 
             current_y -= 1.0f;
             count_epaisseur++;

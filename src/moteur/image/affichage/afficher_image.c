@@ -51,7 +51,9 @@ void afficher_images(void) {
         Sint16 obj_w = (obj->type == TYPE_IMAGE) ? obj->image.taillex : obj->forme.taillex;
         Sint16 obj_h = (obj->type == TYPE_IMAGE) ? obj->image.tailley : obj->forme.tailley;
 
-        if (hors_ecran(obj_x, obj_y, obj_w, obj_h, decalage_x_scaled, decalage_y_scaled))
+        bool est_ligne = (obj->type == TYPE_FORME && obj->forme.type_de_forme == 1);
+        if (hors_ecran(obj_x, obj_y, obj_w, obj_h, decalage_x_scaled, decalage_y_scaled) &&
+            !est_ligne)
             continue;
 
         Sint16 x_ecran, y_ecran, w_ecran, h_ecran;
