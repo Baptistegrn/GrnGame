@@ -1,2 +1,6 @@
 src/moteur/initialisation/mapping_data.h linguist-generated
-src/headers_sdl/* linguist-generated
+src/headers_sdl/begin_code.h linguist-generated
+src/headers_sdl/close_code.h linguist-generated
+src/headers_sdl/SDL_config.h linguist-generated
+src/headers_sdl/SDL_platform.h linguist-generated
+src/headers_sdl/SDL_stdinc.h linguist-generated
