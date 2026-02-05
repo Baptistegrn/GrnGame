@@ -43,12 +43,6 @@ void drawCircle(float x, float y, Sint16 radius, Uint8 red, Uint8 green, Uint8 b
     ajouter_cercle(x, y, radius, red, green, blue, alpha, filled);
 }
 
-/* Dessine un triangle plein ou vide */
-void drawTriangle(float x, float y, Sint16 w, Sint16 h, Uint8 red, Uint8 green, Uint8 blue,
-                  Uint8 alpha, bool filled) {
-    ajouter_triangle(x, y, w, h, red, green, blue, alpha, filled);
-}
-
 /* Dessine une ligne entre deux points */
 void drawLine(float x1, float y1, float x2, float y2, Uint8 red, Uint8 green, Uint8 blue,
               Uint8 alpha) {

@@ -174,9 +174,6 @@ GRN_API void drawRect(float x, float y, Sint16 width, Sint16 height, Uint8 red, 
 /* Draws a filled or outlined circle */
 GRN_API void drawCircle(float x, float y, Sint16 radius, Uint8 red, Uint8 green, Uint8 blue,
                         Uint8 alpha, bool filled);
-/* Draws a filled or outlined triangle */
-GRN_API void drawTriangle(float x, float y, Sint16 width, Sint16 height, Uint8 red, Uint8 green,
-                          Uint8 blue, Uint8 alpha, bool filled);
 
 /* Draws a line between two points */
 GRN_API void drawLine(float x1, float y1, float x2, float y2, Uint8 red, Uint8 green, Uint8 blue,

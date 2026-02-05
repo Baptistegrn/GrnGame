@@ -93,17 +93,6 @@ void afficher_objet(ObjectImage *obj, SDL_Rect *dst, Sint16 x_ecran, Sint16 y_ec
                 dessiner_cercle_vide(obj->forme.posx, obj->forme.posy, rayon, obj->forme.r,
                                      obj->forme.g, obj->forme.b, obj->forme.a);
         } break;
-
-        case 4: /* Triangle */
-            if (obj->forme.plein)
-                dessiner_triangle_plein(obj->forme.posx, obj->forme.posy, obj->forme.taillex,
-                                        obj->forme.tailley, obj->forme.r, obj->forme.g,
-                                        obj->forme.b, obj->forme.a);
-            else
-                dessiner_triangle_vide(obj->forme.posx, obj->forme.posy, obj->forme.taillex,
-                                       obj->forme.tailley, obj->forme.r, obj->forme.g, obj->forme.b,
-                                       obj->forme.a);
-            break;
         }
     } else if (obj->type == TYPE_PARTICULE) {
         dessiner_particules(&obj->particule);

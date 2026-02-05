@@ -101,37 +101,3 @@ void ajouter_cercle(float x, float y, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, U
 gsvide:
     log_message(NiveauLogDebug, "manager is empty in add circle function");
 }
-
-/* Ajoute un triangle a la liste de rendu */
-void ajouter_triangle(float x, float y, Sint16 taillex, Sint16 tailley, Uint8 r, Uint8 g, Uint8 b,
-                      Uint8 a, bool plein) {
-    if (!gs)
-        goto gsvide;
-    ObjectImage obj;
-    memset(&obj, 0, sizeof(ObjectImage));
-
-    /* Limitation des valeurs RGB entre 0 et 255 */
-    r = SDL_clamp(r, 0, 255);
-    g = SDL_clamp(g, 0, 255);
-    b = SDL_clamp(b, 0, 255);
-    a = SDL_clamp(a, 0, 255);
-
-    obj.type = TYPE_FORME;
-    obj.forme.type_de_forme = 4;
-    obj.forme.posx = x;
-    obj.forme.posy = y;
-    obj.forme.taillex = taillex;
-    obj.forme.tailley = tailley;
-    obj.forme.r = r;
-    obj.forme.g = g;
-    obj.forme.b = b;
-    obj.forme.a = a;
-    obj.forme.plein = plein;
-
-    ajouter_image_au_jeu(obj);
-
-    return;
-
-gsvide:
-    log_message(NiveauLogDebug, "manager is empty in add triangle function");
-}

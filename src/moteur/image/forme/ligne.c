@@ -23,7 +23,7 @@ void dessiner_ligne_pixel(float x0, float y0, float x1, float y1, Uint8 r, Uint8
     float err = (dx > dy ? dx : -dy) / 2.0f;
     float e2;
 
-    int capacite = 10;
+    int capacite = 50;
     SDL_Rect *pixels = malloc_gestion_echec_compteur(sizeof(SDL_Rect) * capacite);
     int taille = 0;
 
@@ -59,25 +59,6 @@ void dessiner_ligne_pixel(float x0, float y0, float x1, float y1, Uint8 r, Uint8
 
 gsvide:
     log_message(NiveauLogDebug, "manager is empty in draw pixel line");
-}
-
-/* Dessine une ligne horizontale simple remplie de pixels avec w et r*/
-void tracer_ligne_horizontale(float x, float y, Sint16 w, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-    if (!gs)
-        goto gsvide;
-    unsigned char coeff = gs->fenetre->coeff;
-    SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
-
-    float ecran_x = x * (float)coeff + (float)gs->fenetre->decalage_x;
-    float ecran_y = y * (float)coeff + (float)gs->fenetre->decalage_y;
-
-    SDL_Rect ligne = {(int)SDL_roundf(ecran_x), (int)SDL_roundf(ecran_y), (int)(w * coeff),
-                      (int)coeff};
-    SDL_RenderFillRect(gs->fenetre->rendu, &ligne);
-    return;
-
-gsvide:
-    log_message(NiveauLogDebug, "manager is empty in draw horizontal line");
 }
 
 /* dessine une ligne horizontale en float */
@@ -123,9 +104,9 @@ gsvide:
     log_message(NiveauLogDebug, "manager is empty in draw vertical line float");
 }
 
-/* Dessine deux points aux positions (x1,y1) et (x2,y2) de longueur n */
+/* Dessine deux points aux positions (x1,y1) et (x2,y2) de longueur n (float) */
 void dessiner_points_n(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                       Sint16 n) {
+                       float n) {
     if (!gs)
         goto gsvide;
     unsigned char coeff = gs->fenetre->coeff;
@@ -142,8 +123,9 @@ void dessiner_points_n(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g,
     Sint16 x2_int = SDL_lroundf(screen_x2);
     Sint16 y2_int = SDL_lroundf(screen_y2);
 
-    pixels[0] = (SDL_Rect){(int)x1_int, (int)y1_int, (int)(coeff * n), (int)coeff};
-    pixels[1] = (SDL_Rect){(int)(x2_int - n), (int)y2_int, (int)(coeff * n), (int)coeff};
+    Sint16 width = (Sint16)SDL_lroundf(n * (float)coeff);
+    pixels[0] = (SDL_Rect){(int)x1_int, (int)y1_int, (int)width, (int)coeff};
+    pixels[1] = (SDL_Rect){(int)(x2_int - width), (int)y2_int, (int)width, (int)coeff};
 
     SDL_RenderFillRects(gs->fenetre->rendu, pixels, 2);
 

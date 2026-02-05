@@ -23,7 +23,7 @@ typedef struct {
     float posx2, posy2;      /* position 2 (pour ligne) */
     Sint16 taillex, tailley; /* taille */
     bool plein;              /* plein ou vide */
-    int type_de_forme;       /* 0=rectangle,1=cercle,2=triangle,3=ligne */
+    int type_de_forme;       /* 1=ligne,2=rectangle,3=cercle */
 
 } Forme;
 
@@ -72,8 +72,6 @@ void ajouter_rectangle(float x, float y, Sint16 taillex, Sint16 tailley, Uint8 r
 
 void ajouter_cercle(float x, float y, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, Uint8 a, bool plein);
 
-void ajouter_triangle(float x, float y, Sint16 taillex, Sint16 tailley, Uint8 r, Uint8 g, Uint8 b,
-                      Uint8 a, bool plein);
 Sprite *creer_sprite(const char *id, Sint16 taillex, Sint16 tailley);
 
 void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, Sint16 taillex,

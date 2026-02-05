@@ -24,18 +24,9 @@ void dessiner_rectangle_vide(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uint
 void dessiner_rectangle_plein(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b,
                               Uint8 a);
 
-void dessiner_triangle_plein(float posx, float posy, Sint16 largeur, Sint16 hauteur, Uint8 r,
-                             Uint8 g, Uint8 b, Uint8 a);
-
-void dessiner_triangle_vide(float posx, float posy, Sint16 largeur, Sint16 hauteur, Uint8 r,
-                            Uint8 g, Uint8 b, Uint8 a);
-
 void dessiner_points(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 void dessiner_points_n(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                       Sint16 n);
-
-void tracer_ligne_horizontale(float x_start, float y, Sint16 w, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-void tracer_ligne_verticale(float x, float y_start, Sint16 h, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+                       float n);
 
 void tracer_ligne_horizontale_float(float x, float y, float longueur, Uint8 r, Uint8 g, Uint8 b,
                                     Uint8 a);

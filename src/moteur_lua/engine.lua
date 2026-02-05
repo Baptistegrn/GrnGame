@@ -90,7 +90,6 @@ ffi.cdef [[
     void setIcon(const char *path);
     void drawRect(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b, Uint8 a, bool filled);
     void drawCircle(float x, float y, Sint16 radius, Uint8 r, Uint8 g, Uint8 b,Uint8 a, bool filled);
-    void drawTriangle(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b, Uint8 a, bool filled);
     void drawLine(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
     void drawParticles(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r, Uint8 *g, Uint8 *b, int size);
 
