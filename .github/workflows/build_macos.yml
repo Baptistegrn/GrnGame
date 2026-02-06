@@ -26,7 +26,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-xmake-
       - name: Configure xmake
-        run: xmake f -p macos -a arm64 -m release -y -v
+        run: xmake f -p macosx -a arm64 -m release -y -v
       - name: Build
         run: xmake -v
       - name: Upload Binaries
