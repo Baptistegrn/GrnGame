@@ -1,0 +1,32 @@
+name: Build macos
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install xmake
+        run: |
+          curl -fsSL https://xmake.io/shget.text | bash
+          source ~/.xmake/profile
+
+      - name: Configure & Build
+        run: |
+          source ~/.xmake/profile
+          xmake f -p macos -a arm64
+          xmake -v
+          xmake
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: build/
