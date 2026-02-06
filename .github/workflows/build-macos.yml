@@ -18,6 +18,11 @@ jobs:
           curl -fsSL https://xmake.io/shget.text | bash
           source ~/.xmake/profile
 
+      - name: Update xrepo
+        run: |
+          source ~/.xmake/profile
+          xrepo update-repo
+
       - name: Configure & Build
         run: |
           source ~/.xmake/profile
