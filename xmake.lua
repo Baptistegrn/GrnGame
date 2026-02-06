@@ -3,8 +3,8 @@ add_requires("libsdl2",        {configs={runtimes="MT", shared=false, pic=true}}
 add_requires("libsdl2_image",  {configs={runtimes="MT", shared=false, png=true, jpg=false, tiff=false, webp=false, pic=true}})
 add_requires("libsdl2_mixer",  {configs={runtimes="MT", shared=false, wav=true, mp3=false, flac=false, vorbis=false, pic=true}})
 add_requires("zlib",           {configs={runtimes="MT", shared=false, pic=true}})
-add_requires("quill",          {version="master", configs={runtimes="MT", shared=false, pic=true}})
-add_requires("luajit",         {version="v2.1", configs={runtimes="MT", kind="static", pic=true, gc64=true}})
+add_requires("quill",          {version="v10.1.0",configs={runtimes="MT", shared=false, pic=true}})
+add_requires("luajit",         {configs={runtimes="MT", kind="static", pic=true, gc64=true}})
 
 -- Règle globale
 add_rules("mode.release")
