@@ -18,6 +18,11 @@ jobs:
           curl -fsSL https://xmake.io/shget.text | bash
           source ~/.xmake/profile
 
+      - name: Install dependencies (Homebrew)
+        run: |
+          brew update
+          brew install luajit quill 
+
       - name: Update xrepo
         run: |
           source ~/.xmake/profile

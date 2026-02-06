@@ -62,8 +62,6 @@ target("GrnGame")
     end
 
     if is_plat("macosx") then
-        -- Pour macOS : chemins locaux (à adapter selon votre installation) 
-        -- Exemple : /usr/local/opt/luajit ou /opt/homebrew/opt/luajit
         add_includedirs("/usr/local/opt/luajit/include", "/opt/homebrew/opt/luajit/include")
         add_linkdirs("/usr/local/opt/luajit/lib", "/opt/homebrew/opt/luajit/lib")
         add_links("luajit-5.1")
