@@ -61,8 +61,10 @@ void mise_a_jour_input() {
                 appliquer_redimensionnement(event.window.data1, event.window.data2);
                 break;
             case SDL_WINDOWEVENT_MAXIMIZED: {
+                /* ​recuperation de la taille obligatoire pour le plein ecran fenetre ​ */
                 int w, h;
                 SDL_GetWindowSize(gs->fenetre->fenetre, &w, &h);
+
                 appliquer_redimensionnement(w, h);
                 break;
             }

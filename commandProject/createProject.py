@@ -47,7 +47,7 @@ mkdir(os.path.join(project_root, "windows"))
 mkdir(os.path.join(project_root, "linux"))
 
 # lua
-copy(os.path.join(SRC_LUA, "encrypter.py"),
+copy(os.path.join(SRC_LUA, "encrypt.py"),
      os.path.join(project_root, "src"))
 
 copy(os.path.join(SRC_LUA, "main.lua"),

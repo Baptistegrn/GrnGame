@@ -77,6 +77,11 @@ target("GrnGame")
         add_syslinks("pthread", "dl", "m")
         --c++ en statique
         add_ldflags("-static-libgcc", "-static-libstdc++", {force=true})
+
+    elseif is_plat("macosx") then
+        -- Frameworks macOS pour SDL
+        add_frameworks("Cocoa", "IOKit", "CoreVideo", "CoreAudio", "AudioToolbox", "Carbon", "ForceFeedback")
+        add_syslinks("iconv")
     end
 
 -- App
@@ -99,6 +104,10 @@ target("App")
         set_runtimes("MT")
 
     elseif is_plat("linux") then
-        -- pour charger grngame.dll
+        -- pour charger libGrnGame.so
         add_rpathdirs("$ORIGIN")
+
+    elseif is_plat("macosx") then
+        -- pour charger libGrnGame.dylib
+        add_rpathdirs("@executable_path")
     end

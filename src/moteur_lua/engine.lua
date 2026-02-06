@@ -102,6 +102,7 @@ ffi.cdef [[
     void pauseChannel(int channel);
     void resumeChannel(int channel);
     void loadSongFolder(const char *folder);
+
     void freeSongFolder(void);
 
     /* input */
@@ -283,7 +284,6 @@ Engine.draw = C.draw
 Engine.createSprite = C.createSprite
 Engine.drawRect = C.drawRect
 Engine.drawCircle = C.drawCircle
-Engine.drawTriangle = C.drawTriangle
 Engine.drawLine = C.drawLine
 Engine.drawText = C.drawText
 Engine.loadImageFolder = C.loadImageFolder

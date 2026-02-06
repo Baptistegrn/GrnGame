@@ -6,9 +6,7 @@
 
 /* Dessine un cercle vide avec épaisseur et lignes horizontales en haut/bas */
 void dessiner_cercle_vide(float xc, float yc, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-    if (rayon <= 0)
-        return; /* protection */
-
+    char decalage = 0;
     for (Sint16 dy = 0; dy <= rayon; dy++) {
         Sint16 demi_largeur = (Sint16)sqrt((double)(rayon * rayon - dy * dy));
         Sint16 demi_largeur_suiv =
@@ -23,8 +21,12 @@ void dessiner_cercle_vide(float xc, float yc, Sint16 rayon, Uint8 r, Uint8 g, Ui
         Sint16 largeur_ligne = demi_largeur * 2;
 
         if (dy == 0) {
-            /* Haut : points aux extrêmes */
-            dessiner_points(x_gauche, yc, x_droite - 1.0f, yc, r, g, b, a);
+            /* si rayon plus grand que 6 alors on dessine pas un point plus long au centre*/
+            if (rayon >= 6) {
+                dessiner_points(x_gauche + 1.0f, yc, x_droite - 2.0f, yc, r, g, b, a);
+            } else {
+                dessiner_points(x_gauche, yc, x_droite - 1.0f, yc, r, g, b, a);
+            }
         } else if (dy == rayon) {
             /* Bas : lignes horizontales */
             tracer_ligne_horizontale_float(x_start, yc - (float)dy, (float)largeur_ligne, r, g, b,
@@ -32,7 +34,7 @@ void dessiner_cercle_vide(float xc, float yc, Sint16 rayon, Uint8 r, Uint8 g, Ui
             tracer_ligne_horizontale_float(x_start, yc + (float)dy, (float)largeur_ligne, r, g, b,
                                            a);
         } else {
-            /* Milieu : points épais aux côtés */
+            /* Milieu : points epais aux cotes */
             dessiner_points_n(x_gauche, yc - (float)dy, x_droite, yc - (float)dy, r, g, b, a,
                               epaisseur);
             dessiner_points_n(x_gauche, yc + (float)dy, x_droite, yc + (float)dy, r, g, b, a,
@@ -49,7 +51,14 @@ void dessiner_cercle_plein(float xc, float yc, Sint16 rayon, Uint8 r, Uint8 g, U
         float x_start = xc - (float)demi_largeur;
 
         if (dy == 0) {
-            tracer_ligne_horizontale_float(x_start, yc, (float)largeur_ligne, r, g, b, a);
+            if (rayon >= 6) {
+                /* si rayon plus grand que 6 alors on dessine pas un point plus long au centre*/
+                tracer_ligne_horizontale_float(x_start + 1.0f, yc, (float)largeur_ligne - 2.0f, r,
+                                               g, b, a);
+            } else {
+                tracer_ligne_horizontale_float(x_start, yc, (float)largeur_ligne, r, g, b, a);
+            }
+
         } else {
             tracer_ligne_horizontale_float(x_start, yc - (float)dy, (float)largeur_ligne, r, g, b,
                                            a);

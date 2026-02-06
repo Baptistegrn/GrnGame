@@ -5,9 +5,6 @@
  */
 
 #include "../main.h"
-#include <inttypes.h>
-#include <stddef.h>
-#include <stdlib.h>
 
 /* Compteur d'allocations actives */
 static Uint32 compteur = 0;
