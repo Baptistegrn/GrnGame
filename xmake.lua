@@ -3,8 +3,8 @@ add_requires("libsdl2",        {configs={runtimes="MT", shared=false, pic=true}}
 add_requires("libsdl2_image",  {configs={runtimes="MT", shared=false, png=true, jpg=false, tiff=false, webp=false, pic=true}})
 add_requires("libsdl2_mixer",  {configs={runtimes="MT", shared=false, wav=true, mp3=false, flac=false, vorbis=false, pic=true}})
 add_requires("zlib",           {configs={runtimes="MT", shared=false, pic=true}})
-add_requires("quill",          {version="v10.1.0",configs={runtimes="MT", shared=false, pic=true}})
-add_requires("luajit",         {configs={runtimes="MT", kind="static", pic=true, gc64=true}})
+add_requires("quill",          {configs={runtimes="MT", shared=false, pic=true}})
+add_requires("lua",            {configs={runtimes="MT", kind="static", pic=true}})
 
 -- Règle globale
 add_rules("mode.release")
@@ -52,7 +52,7 @@ target("GrnGame")
         "libsdl2_mixer",
         "zlib",
         "quill",
-        "luajit"
+        "lua"
     )
 
     --flags
