@@ -1,5 +1,5 @@
 /*
- * Extraction du nom de module Lua a partir d'un chemin.
+ * Extraction du nom de module Lua a partir dun chemin.
  */
 
 #include "../main.h"
