@@ -32,7 +32,7 @@ jobs:
         run: |
           source ~/.xmake/profile
           xmake f -p macos -a arm64
-          xmake -v
+          xmake -y
           xmake
 
       - name: Upload artifact
