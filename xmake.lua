@@ -3,8 +3,12 @@ add_requires("libsdl2",        {configs={runtimes="MT", shared=false, pic=true}}
 add_requires("libsdl2_image",  {configs={runtimes="MT", shared=false, png=true, jpg=false, tiff=false, webp=false, pic=true}})
 add_requires("libsdl2_mixer",  {configs={runtimes="MT", shared=false, wav=true, mp3=false, flac=false, vorbis=false, pic=true}})
 add_requires("zlib",           {configs={runtimes="MT",shared=false, pic=true}})
-add_requires("quill",          {configs={runtimes="MT", shared=false, pic=true}})
-add_requires("luajit",         {configs={runtimes="MT", kind="static", pic=true}})
+
+-- quill , luajit install manually on macos
+if not is_plat("macosx") then
+    add_requires("quill",          {configs={runtimes="MT", shared=false, pic=true}})
+    add_requires("luajit",         {configs={runtimes="MT", kind="static", pic=true}})
+end
 
 -- Règle globale
 add_rules("mode.release")
@@ -50,10 +54,20 @@ target("GrnGame")
         "libsdl2",
         "libsdl2_image",
         "libsdl2_mixer",
-        "zlib",
-        "quill",
-        "luajit"
+        "zlib"
     )
+    
+    if not is_plat("macosx") then
+        add_packages("quill", "luajit")
+    end
+
+    if is_plat("macosx") then
+        -- Pour macOS : chemins locaux (à adapter selon votre installation) 
+        -- Exemple : /usr/local/opt/luajit ou /opt/homebrew/opt/luajit
+        add_includedirs("/usr/local/opt/luajit/include", "/opt/homebrew/opt/luajit/include")
+        add_linkdirs("/usr/local/opt/luajit/lib", "/opt/homebrew/opt/luajit/lib")
+        add_links("luajit-5.1")
+    end
 
     -- Defines
     if has_config("debug_mode") then
