@@ -4,12 +4,6 @@ add_requires("libsdl2_image",  {configs={runtimes="MT", shared=false, png=true, 
 add_requires("libsdl2_mixer",  {configs={runtimes="MT", shared=false, wav=true, mp3=false, flac=false, vorbis=false, pic=true}})
 add_requires("zlib",           {configs={runtimes="MT",shared=false, pic=true}})
 
--- quill , luajit install manually on macos
-if not is_plat("macosx") then
-    add_requires("quill",          {configs={runtimes="MT", shared=false, pic=true}})
-    add_requires("luajit",         {configs={runtimes="MT", kind="static", pic=true}})
-end
-
 -- Règle globale
 add_rules("mode.release")
 
@@ -57,10 +51,6 @@ target("GrnGame")
         "zlib"
     )
     
-    if not is_plat("macosx") then
-        add_packages("quill", "luajit")
-    end
-
     if is_plat("macosx") then
         add_includedirs("/usr/local/opt/luajit/include", "/opt/homebrew/opt/luajit/include")
         add_linkdirs("/usr/local/opt/luajit/lib", "/opt/homebrew/opt/luajit/lib")

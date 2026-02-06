@@ -31,7 +31,7 @@ jobs:
       - name: Configure & Build
         run: |
           source ~/.xmake/profile
-          xmake f -p macos -a x86_64
+          xmake f -p macos -a arm64
           xmake -v
           xmake
 
