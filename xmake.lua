@@ -1,10 +1,12 @@
--- Dépendances globales
+--packages
 add_requires("libsdl2",        {configs={runtimes="MT", shared=false, pic=true}})
 add_requires("libsdl2_image",  {configs={runtimes="MT", shared=false, png=true, jpg=false, tiff=false, webp=false, pic=true}})
 add_requires("libsdl2_mixer",  {configs={runtimes="MT", shared=false, wav=true, mp3=false, flac=false, vorbis=false, pic=true}})
-add_requires("zlib",           {configs={runtimes="MT",shared=false, pic=true}})
+add_requires("zlib",           {configs={runtimes="MT", shared=false, pic=true}})
+add_requires("quill", {version="11.0.2", configs={runtimes="MT", shared=false, pic=true}})
+add_requires("luajit",         {configs={runtimes="MT", kind="static", pic=true, gc64=true}})
 
--- Règle globale
+
 add_rules("mode.release")
 
 -- Option malloc
@@ -19,97 +21,65 @@ option("debug_mode")
     set_description("Active les logs (Quill)")
     set_showmenu(true)
 
--- Dossier de sortie selon la config
+-- Dossier de sortie selon le flag
 local outdir = "bin/release"
+if has_config("debug_mode") then outdir = "bin/debug" end
+if has_config("malloc_mode") then outdir = "bin/debug_malloc" end
 
-if has_config("debug_mode") then 
-    outdir = "bin/debug"
-end
-
-if has_config("malloc_mode") then
-    outdir = "bin/debug_malloc"
-end
-
--- Cible moteur (DLL / SO)
+--lib
 target("GrnGame")
     set_kind("shared")
     add_rules("utils.symbols.export_all")
-
     set_languages("c17", "cxx17")
     set_targetdir(outdir)
 
-    -- Sources
     add_files("src/**.c")
     add_files("src/**.cpp")
-    add_headerfiles("src/**.h")
+    add_headerfiles("src/**.h") 
+    --packages
+    add_packages("libsdl2", "libsdl2_image", "libsdl2_mixer", "zlib", "quill", "luajit")
 
-    -- Packages
-    add_packages(
-        "libsdl2",
-        "libsdl2_image",
-        "libsdl2_mixer",
-        "zlib"
-    )
-    
-    if is_plat("macosx") then
-        add_includedirs("/usr/local/opt/luajit/include", "/opt/homebrew/opt/luajit/include")
-        add_linkdirs("/usr/local/opt/luajit/lib", "/opt/homebrew/opt/luajit/lib")
-        add_links("luajit-5.1")
-    end
+    --flags
+    if has_config("debug_mode") then add_defines("DEBUG_MODE") end
+    if has_config("malloc_mode") then add_defines("MALLOC_MODE", "DEBUG_MODE") end
 
-    -- Defines
-    if has_config("debug_mode") then
-        add_defines("DEBUG_MODE")
-    end
-
-    if has_config("malloc_mode") then
-        add_defines("MALLOC_MODE")
-        add_defines("DEBUG_MODE")
-    end
-
-    -- Plateforme
     if is_plat("windows") then
-        --runtime statique
-        set_runtimes("MT")
+        -- mt
+        set_runtimes("MT") 
         add_ldflags("/OPT:REF", "/OPT:ICF", {force=true})
-
+        
     elseif is_plat("linux") then
-        --set_prefixname("")
-        --phtread pour sdl 
+        
         add_syslinks("pthread", "dl", "m")
-        --c++ en statique
+        -- marche pas
         add_ldflags("-static-libgcc", "-static-libstdc++", {force=true})
 
     elseif is_plat("macosx") then
-        -- Frameworks macOS pour SDL
-        add_frameworks("Cocoa", "IOKit", "CoreVideo", "CoreAudio", "AudioToolbox", "Carbon", "ForceFeedback")
+        -- frameworks pour sdl
+        add_frameworks("Cocoa", "IOKit", "CoreVideo", "CoreAudio", "AudioToolbox", "Carbon", "ForceFeedback", "Metal")
         add_syslinks("iconv")
     end
 
--- App
+--game app
 target("App")
     set_kind("binary")
     set_targetdir(outdir)
-    if has_config("debug_mode") then
-        add_defines("DEBUG_MODE")
-    end
+
+    if has_config("debug_mode") then add_defines("DEBUG_MODE") end
+    
     add_files("src/moteur_lua/lancer_moteur.c")
-    -- Includes moteur
+    
+    -- Includes pour compilation
     add_includedirs("src/headers_sdl")
     add_includedirs("src/bindings_c")
 
-    -- Dépendance moteur
+    -- Lien avec le moteur
     add_deps("GrnGame")
 
     if is_plat("windows") then
-        --runtime statique
         set_runtimes("MT")
-
     elseif is_plat("linux") then
-        -- pour charger libGrnGame.so
         add_rpathdirs("$ORIGIN")
-
     elseif is_plat("macosx") then
-        -- pour charger libGrnGame.dylib
         add_rpathdirs("@executable_path")
     end
