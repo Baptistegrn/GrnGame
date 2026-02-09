@@ -5,31 +5,32 @@ add_requires("libsdl2_mixer",  {configs={runtimes="MT", shared=false, wav=true, 
 add_requires("zlib",           {configs={runtimes="MT", shared=false, pic=true}})
 add_requires("quill",          {configs={runtimes="MT", shared=false, pic=true}})
 add_requires("lua",            {configs={runtimes="MT", kind="static", pic=true}})
+add_requires("sol2",{configs={runtimes="MT", kind="static", pic=true}})
 
--- Règle globale
+-- mode release uniquement ( debug gere par des options )
 add_rules("mode.release")
 
--- Option malloc
-option("malloc_mode")
+-- Option debug d'allocation
+option("debug_allocation")
     set_default(false)
-    set_description("Active le mode malloc (logs d'allocation mémoire) + Quill")
+    set_description("Activate allocations logs in file log")
     set_showmenu(true)
 
--- Option debug / logs
-option("debug_mode")
+-- Option debug 
+option("debug")
     set_default(false)
-    set_description("Active les logs (Quill)")
+    set_description("Activate quill logs in file log")
     set_showmenu(true)
 
 -- Dossier de sortie selon la config
 local outdir = "bin/release"
 
-if has_config("debug_mode") then 
+if has_config("debug") then 
     outdir = "bin/debug"
 end
 
-if has_config("malloc_mode") then
-    outdir = "bin/debug_malloc"
+if has_config("debug_allocation") then
+    outdir = "bin/debug_allocation"
 end
 
 --lib
@@ -44,6 +45,7 @@ target("GrnGame")
     add_files("src/**.c")
     add_files("src/**.cpp")
     add_headerfiles("src/**.h")
+    add_headerfiles("src/**.h")
 
     --packages
     add_packages(
@@ -52,29 +54,30 @@ target("GrnGame")
         "libsdl2_mixer",
         "zlib",
         "quill",
-        "lua"
+        "lua",
+        "sol2"
     )
 
     --flags
-    if has_config("debug_mode") then
+    if has_config("debug") then
         add_defines("DEBUG_MODE")
     end
 
-    if has_config("malloc_mode") then
-        add_defines("MALLOC_MODE")
+    if has_config("debug_allocation") then
+        add_defines("DEBUG_ALLOCATION")
         add_defines("DEBUG_MODE")
     end
 
     -- Plateforme
     if is_plat("windows") then
-        --runtime statique
+        -- runtime statique
         set_runtimes("MT")
         add_ldflags("/OPT:REF", "/OPT:ICF", {force=true})
 
     elseif is_plat("linux") then
-        --phtread pour sdl 
+        -- phtread pour sdl 
         add_syslinks("pthread", "dl", "m")
-        --c++ en statique
+        -- c++ en statique (NON FONCTIONNEL)
         add_ldflags("-static-libgcc", "-static-libstdc++", {force=true})
 
     elseif is_plat("macosx") then
@@ -91,7 +94,7 @@ target("App")
         add_defines("DEBUG_MODE")
     end
     add_files("src/moteur_lua/lancer_moteur.c")
-    -- Includes moteur
+    -- inclusions moteur
     add_includedirs("src/headers_sdl")
     add_includedirs("src/bindings_c")
 

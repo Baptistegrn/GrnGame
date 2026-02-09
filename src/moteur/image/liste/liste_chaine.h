@@ -20,9 +20,16 @@ typedef struct Liste {
     struct Liste *suivant; /* element suivant */
 } Liste;
 
+/* Cree une liste avec une texture et un angle */
 Liste *creer_liste(SDL_Texture *valeur, int angle);
+
+/* Ajoute une texture en tete de liste */
 Liste *ajouter_en_tete(Liste *liste, SDL_Texture *valeur, int angle);
+
+/* Libere toute la liste et ses textures */
 Liste *liberer_liste(Liste *liste);
+
+/* Recupere une texture par son angle */
 SDL_Texture *recuperer_texture_angle_indice(Liste *liste, int angle);
 
 #ifdef __cplusplus

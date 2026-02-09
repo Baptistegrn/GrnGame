@@ -13,13 +13,17 @@ extern "C" {
 
 typedef struct Gestionnaire Gestionnaire;
 
+/* Alloue les structures principales du gestionnaire */
 Gestionnaire *allouer_structures(void);
 
+/* Initialise le moteur avec les parametres de fenetre et rendu */
 Gestionnaire *initialiser(int hauteur_univers, int largeur_univers, float fps, bool bande_noir,
                           const char *nom_fenetre);
 
+/* Initialise la fenetre et le renderer SDL */
 void initialiser_fenetre();
 
+/* Configure la redirection des erreurs vers un fichier log */
 void configurer_redirection_stderr(const char *chemin_log);
 
 #ifdef __cplusplus

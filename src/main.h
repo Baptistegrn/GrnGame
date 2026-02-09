@@ -18,6 +18,7 @@
 
 /* Bibliotheques C standard */
 #include <ctype.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -60,7 +61,7 @@ extern "C" {
 #include "moteur/image/bande_noir/bande_noir.h"
 #include "moteur/image/caractere/caractere.h"
 #include "moteur/image/chargement/chargement_image.h"
-#include "moteur/image/forme/dessin.h"
+#include "moteur/image/dessin_forme/dessin.h"
 #include "moteur/image/liste/liste_chaine.h"
 #include "moteur/image/rotation/rotation.h"
 #include "moteur/initialisation/initialisation.h"

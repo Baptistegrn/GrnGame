@@ -1,5 +1,7 @@
 local ffi = require("ffi")
 
+--ancien moteur pour luajit
+
 ffi.cdef [[
     /* typedefs sdl -> c */
     typedef uint8_t  Uint8;

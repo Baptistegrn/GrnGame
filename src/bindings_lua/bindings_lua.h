@@ -1,21 +1,56 @@
 /*
- * Module de bindings Lua.
- * Gere l'initialisation, le rechargement a chaud en debug et la liberation des scripts Lua.
+ * Module de bindings Lua .
+ * Gere l'initialisation, le rechargement a chaud (debug) et la liberation des scripts Lua.
  */
 
 #ifndef BINDINGS_LUA_H
 #define BINDINGS_LUA_H
 
-/* Initialise et execute un script Lua */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*
+ * Initialise la VM Lua et charge un script.
+ * Detecte automatiquement si le script est chiffre.
+ * En mode DEBUG_MODE, initialise le logging vers un fichier.
+ */
 void initialiser_lua(const char *fichier_chemin_lua);
 
-/* Recharge un module Lua a chaud (hot reload) */
+/*
+ * Enregistre tous les bindings GrnGame dans l'etat Lua.
+ * Expose les API C dans le namespace "Grn" pour les scripts Lua.
+ */
+void enregistrer_bindings(void *L);
+
+/*
+ * Recharge un module Lua a chaud (hot reload).
+ * Ne peut pas recharger main.lua (point d'entree).
+ * Invalide le cache dans package.loaded avant recharge.
+ */
 void recharger_lua(const char *chemin);
 
-/* Verifie et recharge les fichiers Lua modifies */
+/*
+ * Verifie periodiquement les fichiers Lua modifies.
+ * Appele a chaque frame, declenche le rechargement selon SECONDES_RELOAD_LUA.
+ * Fonction de mise a jour pour le hot reload en mode debug.
+ */
 void actualiser_rechargement(void);
 
-/* Libere les ressources liees aux fichiers Lua */
+/*
+ * Libere les ressources liees au hot reload des fichiers Lua.
+ * Appellee lors de la destruction du moteur.
+ */
 void liberer_fichiers_lua(void);
+
+/*
+ * Ferme l'etat Lua global.
+ * Appele a la fin du programme pour liberer les ressources Lua.
+ */
+void liberer_lua(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* BINDINGS_LUA_H */

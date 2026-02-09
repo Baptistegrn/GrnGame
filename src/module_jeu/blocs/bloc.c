@@ -1,8 +1,8 @@
-
 /*
  * Gestion des conteneurs de blocs de collision.
  */
 
+#include "bloc.h"
 #include "../../main.h"
 
 /* Cree un conteneur de blocs vide avec capacite initiale de 10 */
@@ -34,4 +34,15 @@ int taille_blocks(Blocks *blocks) {
         return blocks->size;
     }
     return 0;
+}
+
+/* creer un block */
+Block *creer_block(float x, float y, float w, float h, int type) {
+    Block *ptr = malloc_gestion_echec_compteur(sizeof(Block));
+    ptr->x = x;
+    ptr->y = y;
+    ptr->w = w;
+    ptr->h = h;
+    ptr->type = type;
+    return ptr;
 }

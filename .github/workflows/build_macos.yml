@@ -1,0 +1,36 @@
+name: Build macOS (ARM64)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+      - name: Cache xmake packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.xmake/packages
+            ~/.xmake/cache
+          key: ${{ runner.os }}-xmake-${{ hashFiles('**/xmake.lua') }}
+          restore-keys: |
+            ${{ runner.os }}-xmake-
+      - name: Configure xmake
+        run: xmake f -p macosx -a arm64 -m release -y -v
+      - name: Build
+        run: xmake -v
+      - name: Upload Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: GrnGame-macOS-Build
+          path: bin/release/

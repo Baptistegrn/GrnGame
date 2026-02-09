@@ -1,0 +1,32 @@
+23:33:36.760939698 [17060] logging.cpp:59               LOG_INFO      root         logging initialized
+23:33:36.839478618 [17060] logging.cpp:84               LOG_INFO      root         Initializing Lua
+23:33:36.873167051 [17060] logging.cpp:84               LOG_INFO      root         Lua state created
+23:33:36.905784972 [17060] logging.cpp:84               LOG_INFO      root         GrnGame bindings registered
+23:33:36.934801232 [17060] logging.cpp:84               LOG_INFO      root         Loading Lua file: ../src/main.lua
+23:33:36.967485889 [17060] logging.cpp:84               LOG_INFO      root         Executing Lua script...
+23:33:36.999227487 [17060] logging.cpp:81               LOG_DEBUG     root         structures allocated successfully
+23:33:37.112599395 [17060] logging.cpp:84               LOG_INFO      root         562 mappings controllers charging
+23:33:37.368375413 [17060] logging.cpp:81               LOG_DEBUG     root         Initialisation successful: Window and renderer initialized
+23:33:37.369799944 [17060] logging.cpp:81               LOG_DEBUG     root         file lua detected :../src/drawRectangle.lua
+23:33:37.371458457 [17060] logging.cpp:81               LOG_DEBUG     root         file lua detected :../src/grngame_api.lua
+23:33:37.375496369 [17060] logging.cpp:81               LOG_DEBUG     root         file lua detected :../src/main.lua
+23:33:37.377504775 [17060] logging.cpp:81               LOG_DEBUG     root         Initialization successful
+23:33:37.383723798 [17060] logging.cpp:81               LOG_DEBUG     root         Display updated: Fullscreen (1920x1080) | Coeff: 3 | Offset: 690,60
+23:33:37.386900283 [17060] logging.cpp:81               LOG_DEBUG     root         Display updated: Fullscreen (1920x1080) | Coeff: 3 | Offset: 690,60
+23:33:54.842259910 [17060] logging.cpp:81               LOG_DEBUG     root         New modifition detected : old time: 530247881, new time : 530248145
+23:33:54.843562946 [17060] logging.cpp:84               LOG_INFO      root         File ../src/drawRectangle.lua is modified, reloading it
+23:33:54.845057639 [17060] logging.cpp:81               LOG_DEBUG     root         Hot reloading module: drawRectangle
+23:33:54.858220434 [17060] logging.cpp:84               LOG_INFO      root         Module 'drawRectangle' reloaded successfully
+23:34:06.084739052 [17060] logging.cpp:81               LOG_DEBUG     root         New modifition detected : old time: 530248145, new time : 530248152
+23:34:06.086393761 [17060] logging.cpp:84               LOG_INFO      root         File ../src/drawRectangle.lua is modified, reloading it
+23:34:06.087706923 [17060] logging.cpp:81               LOG_DEBUG     root         Hot reloading module: drawRectangle
+23:34:06.105663211 [17060] logging.cpp:84               LOG_INFO      root         Module 'drawRectangle' reloaded successfully
+23:34:19.756377946 [17060] logging.cpp:81               LOG_DEBUG     root         New modifition detected : old time: 530248152, new time : 530248170
+23:34:19.757650633 [17060] logging.cpp:84               LOG_INFO      root         File ../src/drawRectangle.lua is modified, reloading it
+23:34:19.759143746 [17060] logging.cpp:81               LOG_DEBUG     root         Hot reloading module: drawRectangle
+23:34:19.772487569 [17060] logging.cpp:84               LOG_INFO      root         Module 'drawRectangle' reloaded successfully
+23:34:23.540783870 [17060] logging.cpp:84               LOG_INFO      root         Freeing manager...
+23:34:23.565905734 [17060] logging.cpp:84               LOG_INFO      root         Closing Lua state...
+23:34:23.569722469 [17060] logging.cpp:84               LOG_INFO      root         Lua state closed
+23:34:23.571936469 [17060] logging.cpp:84               LOG_INFO      root         manager freed successfully.
+23:34:23.606993805 [17060] logging.cpp:81               LOG_DEBUG     root         main loop ended normally

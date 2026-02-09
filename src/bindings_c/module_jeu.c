@@ -41,3 +41,35 @@ void addBlock(Blocks *blocks, Block *block) { ajouter_block(blocks, block); }
 
 /* Libere tous les blocs du conteneur */
 void freeBlocks(Blocks *blocks) { liberer_blocks(blocks); }
+
+/* creer une entite topdown */
+EntityTopdown *createEntityTopdown(float x, float y, float w, float h) {
+    return creer_entite_topdown(x, y, w, h);
+}
+/* creer une entite platformer */
+EntityPlatformer *createEntityPlatformer(float x, float y, float w, float h, float force_saut,
+                                         float gravite) {
+    return creer_entite_platforme(x, y, w, h, force_saut, gravite);
+}
+
+/* libere une entite topdown */
+void freeEntityTopdown(EntityTopdown *entite) { liberer_entite_topdown(entite); }
+
+/* libere une entite platformer */
+void freeEntityPlatformer(EntityPlatformer *entite) { liberer_entite_platforme(entite); }
+
+/* creer un bloc */
+Block *createBlock(float x, float y, float w, float h, int type) {
+    return creer_block(x, y, w, h, type);
+}
+
+/* libere un bloc */
+void freeBlock(Block *block) { liberer_block(block); }
+
+/* creer une camera */
+Camera *createCamera(float x, float y, float smooth_factor, int w, int h) {
+    return creer_camera(x, y, smooth_factor, w, h);
+}
+
+/* libere une camera */
+void freeCamera(Camera *cam) { liberer_camera(cam); }

@@ -12,16 +12,16 @@ int mouseX(void) { return souris_x(); }
 int mouseY(void) { return souris_y(); }
 
 /* Verifie si le bouton gauche vient d'etre presse */
-int mouseLeftJustPressed(void) { return souris_gauche_juste_presse(); }
+bool mouseLeftJustPressed(void) { return souris_gauche_juste_presse(); }
 
 /* Verifie si le bouton droit vient d'etre presse */
-int mouseRightJustPressed(void) { return souris_droite_juste_presse(); }
+bool mouseRightJustPressed(void) { return souris_droite_juste_presse(); }
 
 /* Verifie si le bouton gauche est maintenu */
-int mouseLeftPressed(void) { return souris_gauche_presse(); }
+bool mouseLeftPressed(void) { return souris_gauche_presse(); }
 
 /* Verifie si le bouton droit est maintenu */
-int mouseRightPressed(void) { return souris_droite_presse(); }
+bool mouseRightPressed(void) { return souris_droite_presse(); }
 
 /* Retourne le delta du scroll vertical (1 ou -1) */
 int mouseScrollVertical(void) { return souris_scroll_vertical(); }

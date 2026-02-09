@@ -86,6 +86,7 @@ void dessiner_particules(Particule *particules) {
     if (vcount > 0 && icount > 0) {
         SDL_RenderGeometry(gs->fenetre->rendu, NULL, verts, vcount, indices, icount);
     }
+    return;
 gsvide:
     log_message(NiveauLogErreur, "manager empty in draw particles function");
 }

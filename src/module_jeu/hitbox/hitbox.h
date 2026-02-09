@@ -48,6 +48,19 @@ EntityPlatformer *hitbox_platforme(EntityPlatformer *entite, Blocks *blocs, floa
 EntityTopdown *hitbox_topdown(EntityTopdown *entity, Blocks *blocks, int *types_ignorer,
                               int nb_ignorer);
 
+/* Cree une entite de plateforme */
+EntityPlatformer *creer_entite_platforme(float x, float y, float w, float h, float force_saut,
+                                         float gravite);
+
+/* Cree une entite vue de dessus */
+EntityTopdown *creer_entite_topdown(float x, float y, float w, float h);
+
+/* Libere une entite de plateforme */
+void liberer_entite_platforme(EntityPlatformer *entite);
+
+/* Libere une entite vue de dessus */
+void liberer_entite_topdown(EntityTopdown *entite);
+
 #ifdef __cplusplus
 }
 #endif

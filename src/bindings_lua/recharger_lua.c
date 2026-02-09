@@ -1,9 +1,11 @@
 /*
- * Rechargement a chaud des scripts Lua.
- * Permet de modifier les scripts sans redemarrer le jeu (mode debug).
+ * Rechargement a chaud des scripts Lua (hot reload).
+ * Permet de modifier et recharger les scripts sans redemarrer le jeu en mode debug.
+ * Le point d'entree (main.lua) ne peut pas etre recharge.
  */
 
 #include "../main.h"
+#include "SDL_stdinc.h"
 #include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
@@ -12,8 +14,8 @@ extern lua_State *G_LuaState;
 
 /*
  * Recharge un module Lua a partir de son chemin.
- * Ne peut pas recharger le point d'entree (main.lua).
  * Invalide le cache dans package.loaded avant de recharger.
+ * main.lua ne peut pas etre recharge (point d'entree).
  */
 void recharger_lua(const char *chemin) {
     if (!G_LuaState)
@@ -30,12 +32,12 @@ void recharger_lua(const char *chemin) {
 
     /* Le main.lua ne peut pas etre recharge a chaud */
     if (strcmp(nom_module, "main") == 0) {
-        log_message(NiveauLogInfo, "main.lua is modifing hot reload skiped...");
+        log_message(NiveauLogInfo, "main.lua modification: hot reload skipped");
         free_gestion_echec_compteur((char *)nom_module);
         return;
     }
 
-    log_fmt(NiveauLogDebug, "recharging of module : %s", nom_module);
+    log_fmt(NiveauLogDebug, "Hot reloading module: %s", nom_module);
 
     /* Invalidation du module dans package.loaded */
     lua_getglobal(G_LuaState, "package");
@@ -69,33 +71,31 @@ void recharger_lua(const char *chemin) {
     lua_setfield(G_LuaState, -2, nom_module);
     lua_pop(G_LuaState, 3);
 
-    log_fmt(NiveauLogInfo, "Module '%s' reloaded", nom_module);
+    log_fmt(NiveauLogInfo, "Module '%s' reloaded successfully", nom_module);
     free_gestion_echec_compteur((char *)nom_module);
 }
 
 /*
- * Verifie periodiquement les fichiers Lua modifies.
- * Appele a chaque frame, declenche le rechargement selon SECONDES_RELOAD_LUA.
+ * Verifie periodiquement les fichiers Lua modifies et les recharge.
+ * Appele a chaque frame, declenche le rechargement selon la frequence SECONDES_RELOAD_LUA.
+ * Fonction de mise a jour pour le systeme de hot reload.
  */
 void actualiser_rechargement(void) {
     Uint32 frame = gs->timing->compteur_frames;
     float fps = gs->timing->fps;
     Fichiers *a_modifier = NULL;
 
-    if (frame % (SECONDES_RELOAD_LUA * (int)fps) == 0 && frame != 0) {
-        /* Liberation de l'ancienne liste */
-        if (gs->frame->fichiers_lua) {
-            liberer_fichiers(gs->frame->fichiers_lua);
-            gs->frame->fichiers_lua = NULL;
+    if (frame % ((int)SDL_roundf(SECONDES_RELOAD_LUA * fps)) == 0 && frame != 0) {
+        /* Premiere initialisation */
+        if (!gs->frame->fichiers_lua) {
+            gs->frame->fichiers_lua = renvoie_fichier_dossier("../src", "lua", NULL);
+            return;
         }
-
-        /* Scan des fichiers Lua */
-        gs->frame->fichiers_lua = renvoie_fichier_dossier("../src", "lua", NULL);
 
         /* Rechargement des fichiers modifies */
         a_modifier = renvoie_fichier_modifie(gs->frame->fichiers_lua);
         for (int i = 0; i < a_modifier->taille; i++) {
-            log_fmt(NiveauLogInfo, "File  %s is modified ,reload it", a_modifier->noms[i]);
+            log_fmt(NiveauLogInfo, "File %s is modified, reloading it", a_modifier->noms[i]);
             recharger_lua(a_modifier->noms[i]);
         }
         liberer_fichiers(a_modifier);

@@ -51,14 +51,17 @@ void drawLine(float x1, float y1, float x2, float y2, Uint8 red, Uint8 green, Ui
 
 /* Dessine un sprite a la position indiquee */
 void drawSprite(Sprite *sprite, Sint16 index, float x, float y, Sint16 w, Sint16 h, bool flip,
-                Uint16 rotationP, Uint16 rotation, Uint8 alpha) {
-    ajouter_sprite_au_tableau(sprite, index, x, y, w, h, flip, rotationP, rotation, alpha);
+                Uint16 rotation, Uint8 alpha) {
+    ajouter_sprite_au_tableau(sprite, index, x, y, w, h, flip, rotation, alpha);
 }
 
 /* Cree un sprite a partir d'un identifiant d'image */
 Sprite *createSprite(const char *id, Sint16 width, Sint16 height) {
     return creer_sprite(id, width, height);
 }
+
+/* libere un sprite */
+void freeSprite(Sprite *sprite) { liberer_sprite(sprite); }
 
 /* Dessine un tableau de particules */
 void drawParticles(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r, Uint8 *g, Uint8 *b,

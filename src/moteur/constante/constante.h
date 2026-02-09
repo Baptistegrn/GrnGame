@@ -18,12 +18,12 @@ int souris_x(void);
 int souris_y(void);
 
 /* Clic souris - detection instant du clic */
-int souris_gauche_juste_presse(void);
-int souris_droite_juste_presse(void);
+bool souris_gauche_juste_presse(void);
+bool souris_droite_juste_presse(void);
 
 /* Clic souris - maintien enfonce */
-int souris_gauche_presse(void);
-int souris_droite_presse(void);
+bool souris_gauche_presse(void);
+bool souris_droite_presse(void);
 
 /* Molette souris */
 int souris_scroll_vertical(void);

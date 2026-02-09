@@ -2,7 +2,7 @@
 #include "quill/LogFunctions.h"
 #include "quill/core/LogLevel.h"
 #include <cstdarg>
-// #include <format>
+/* #include <format> */
 #include <quill/Backend.h>
 #include <quill/Frontend.h>
 #include <quill/LogMacros.h>

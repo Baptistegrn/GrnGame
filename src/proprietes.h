@@ -19,7 +19,7 @@
 #define TAILLE_LIGNE 16384
 
 /* Delai en secondes entre les verifications de modifications des fichiers Lua */
-#define SECONDES_RELOAD_LUA 1
+#define SECONDES_RELOAD_LUA 0.1f
 
 /* Nombre maximum de particules dessinees en une seule fois */
 #define MAX_PARTICULES 4096
@@ -32,5 +32,29 @@
 #ifndef GRNGAME_CRYPTED_KEY
 #define GRNGAME_CRYPTED_KEY 0x42
 #endif
+
+/* parametres par default des fonctions de bindings lua ( peut etre modifier ).*/
+
+/* image */
+#define DEFAULT_ROTATION 0
+#define DEFAULT_ROTATIONP 0
+#define DEFAULT_ALPHA 255
+#define DEFAULT_R 124
+#define DEFAULT_G 124
+#define DEFAULT_B 124
+#define DEFAULT_SPACING 1
+#define DEFAULT_FLIP false
+
+/* module jeu */
+#define DEFAULT_VMAX_CHUTE 300.0f
+#define DEFAULT_CORRECTION_MUR 150.0f
+#define DEFAULT_GRAVITE 300.0f
+#define DEFAULT_FORCE_SAUT -150.0f
+#define DEFAULT_CAMERA_SMOOTH 2.5f
+
+/* son */
+#define DEFAULT_LOOP 0
+#define DEFAULT_CHANNEL 1
+#define DEFAULT_VOLUME 124
 
 #endif /* PROPRIETES_H */

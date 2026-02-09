@@ -4,6 +4,7 @@
  */
 
 #include "../../main.h"
+#include "SDL_stdinc.h"
 
 /* Joue un son sur un canal specifique avec volume et boucles configurables */
 void jouer_son(const char *lien, int boucle, int canal, int volume) {
@@ -33,10 +34,7 @@ void jouer_son(const char *lien, int boucle, int canal, int volume) {
     int loops = (boucle > 0) ? boucle - 1 : boucle;
 
     /* Limitation du volume entre 0 et 128 */
-    if (volume > 128)
-        volume = 128;
-    if (volume < 0)
-        volume = 0;
+    volume = SDL_clamp(volume, 0, 128);
 
     Mix_VolumeChunk(son, volume);
 

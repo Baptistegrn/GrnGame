@@ -38,7 +38,7 @@ void initialiser_fenetre(void) {
     }
 
     /* configuration renderer */
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0"); // Pixel Art
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0"); /* Pixel Art */
     SDL_RenderSetIntegerScale(fen->rendu, SDL_TRUE);
 
     /* redimensionnement plein ecran pour steam deck */

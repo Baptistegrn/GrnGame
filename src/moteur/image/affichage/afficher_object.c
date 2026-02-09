@@ -31,7 +31,8 @@ void afficher_objet(ObjectImage *obj, SDL_Rect *dst, Sint16 x_ecran, Sint16 y_ec
             pSrc = &src;
         }
 
-        if (obj->image.rotation != 0) {
+        if (obj->image.rotation != 0 && !obj->image.sprite) {
+            /* bug sprite */
             ajuster_rect_texture_tournee(obj->image.texture, dst, x_ecran, y_ecran, w_ecran,
                                          h_ecran, coeff);
         }

@@ -22,7 +22,7 @@ static void update_trampoline(void) {
 }
 
 /* Initialise le moteur et demarre la boucle principale */
-void initialize(int height, int width, float fps_target, int black_bars, const char *window_title,
+void initialize(int height, int width, float fps_target, bool black_bars, const char *window_title,
                 UpdateCallback update_func) {
     g_update_callback = update_func;
     definir_rappel_mise_a_jour(update_trampoline);

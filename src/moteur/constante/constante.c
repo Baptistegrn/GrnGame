@@ -12,10 +12,10 @@ int souris_x() { return gs->entrees->souris_x; }
 int souris_y() { return gs->entrees->souris_y; }
 
 /* Renvoie 1 si le clic gauche vient juste d'etre presse */
-int souris_gauche_juste_presse() { return gs->entrees->souris_juste_presse; }
+bool souris_gauche_juste_presse() { return gs->entrees->souris_juste_presse; }
 
 /* Renvoie 1 si le clic droit vient juste d'etre presse */
-int souris_droite_juste_presse() { return gs->entrees->souris_droite_juste_presse; }
+bool souris_droite_juste_presse() { return gs->entrees->souris_droite_juste_presse; }
 
 /* Renvoie le scroll vertical de la molette */
 int souris_scroll_vertical() { return (int)gs->entrees->souris_scroll_y; }
@@ -24,10 +24,10 @@ int souris_scroll_vertical() { return (int)gs->entrees->souris_scroll_y; }
 int souris_scroll_horizontal() { return (int)gs->entrees->souris_scroll_x; }
 
 /* Renvoie 1 si le clic gauche est maintenu enfonce */
-int souris_gauche_presse() { return gs->entrees->souris_presse; }
+bool souris_gauche_presse() { return gs->entrees->souris_presse; }
 
 /* Renvoie 1 si le clic droit est maintenu enfonce */
-int souris_droite_presse() { return gs->entrees->souris_droite_presse; }
+bool souris_droite_presse() { return gs->entrees->souris_droite_presse; }
 
 /* Renvoie le delta time entre les frames */
 float dt() { return gs->timing->dt; }

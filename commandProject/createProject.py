@@ -23,7 +23,7 @@ parser.add_argument(
 parser.add_argument(
     "--level",
     default="debug",
-    choices=["debug", "release", "debug_malloc"],
+    choices=["debug", "release", "debug_malloc", "debug_allocation"],
     help="Build lvl"
 )
 
@@ -53,11 +53,16 @@ copy(os.path.join(SRC_LUA, "encrypt.py"),
 copy(os.path.join(SRC_LUA, "main.lua"),
      os.path.join(project_root, "src"))
 
-copy(os.path.join(SRC_LUA, "engine.lua"),
-     os.path.join(project_root, "windows"))
+# autocompletion pour editeurs (VS Code, IntelliJ, etc.)
+copy(os.path.join(SRC_LUA, "grngame_api.lua"),
+     os.path.join(project_root, "src"))
 
-copy(os.path.join(SRC_LUA, "engine.lua"),
-     os.path.join(project_root, "linux"))
+#luajit
+#copy(os.path.join(SRC_LUA, "engine.lua"),
+     #os.path.join(project_root, "windows"))
+#luajit
+#copy(os.path.join(SRC_LUA, "engine.lua"),
+     #os.path.join(project_root, "linux"))
 
 # Windows
 win_bin = os.path.join(BIN_DIR, args.level)

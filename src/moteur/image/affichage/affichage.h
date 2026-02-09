@@ -21,15 +21,21 @@ typedef struct TableauImage {
     int capacite_images; /* capacite du tableau */
 } TableauImage;
 
+/* Actualise l'affichage */
 void actualiser(void);
 
+/* Affiche toutes les images du tableau */
 void afficher_images(void);
 
+/* Affiche un objet image a l'ecran */
 void afficher_objet(ObjectImage *obj, SDL_Rect *dst, Sint16 x_ecran, Sint16 y_ecran, Sint16 w_ecran,
                     Sint16 h_ecran, unsigned char coeff);
 
+/* Verifie si un objet est hors de l'ecran */
 bool hors_ecran(float posx, float posy, Sint16 taillex, Sint16 tailley, int decalage_x_scaled,
                 int decalage_y_scaled);
+
+/* Dessine un groupe de particules */
 void dessiner_particules(Particule *particules);
 
 /* Fonctions de liberation */

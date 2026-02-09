@@ -70,3 +70,11 @@ void liberer_textures(void) {
     free_gestion_echec_compteur(gs->textures);
     gs->textures = NULL;
 }
+
+/* libere le sprite */
+void liberer_sprite(Sprite *sprite) {
+    if (sprite) {
+        free_gestion_echec_compteur((void *)sprite->id);
+        free_gestion_echec_compteur(sprite);
+    }
+}

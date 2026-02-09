@@ -13,3 +13,11 @@ void liberer_blocks(Blocks *ptr) {
     ptr->tab = NULL;
     free_gestion_echec_compteur(ptr);
 }
+
+/* Libere un bloc */
+void liberer_block(Block *ptr) {
+    if (!ptr)
+        return;
+
+    free_gestion_echec_compteur(ptr);
+}

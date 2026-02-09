@@ -1,6 +1,6 @@
 /*
  * GrnGame Engine C API
- * Provides all graphics, audio and input functionality for games.
+ * Provides all graphics, audio, games and input functionality for games.
  */
 
 #ifndef GRNGAME_H
@@ -85,7 +85,7 @@ typedef struct {
 typedef void (*UpdateCallback)(void);
 
 /* Initializes the engine with window size, FPS and starts the game loop */
-GRN_API void initialize(int heightU, int widthU, float fps_target, int black_bars,
+GRN_API void initialize(int heightU, int widthU, float fps_target, bool black_bars,
                         const char *window_title, UpdateCallback update_func);
 
 /* Stops the engine and closes the application */
@@ -119,6 +119,19 @@ GRN_API EntityTopdown *hitboxTopdown(EntityTopdown *entity, Blocks *blocks, int 
 GRN_API Blocks *getBlocksFromFile(const char *chemin, Uint8 pas_x, Uint8 pas_y, char separation,
                                   int excludeElement);
 
+/* Creates an entity for top-down physics */
+GRN_API EntityTopdown *createEntityTopdown(float x, float y, float w, float h);
+
+/* Creates an entity for platformer physics */
+GRN_API EntityPlatformer *createEntityPlatformer(float x, float y, float w, float h,
+                                                 float force_saut, float gravite);
+
+/* Frees an entity used for top-down physics */
+GRN_API void freeEntityTopdown(EntityTopdown *entite);
+
+/* Frees an entity used for platformer physics */
+GRN_API void freeEntityPlatformer(EntityPlatformer *entite);
+
 /* Creates an empty blocks container */
 GRN_API Blocks *createBlocks();
 
@@ -131,8 +144,20 @@ GRN_API void addBlock(Blocks *blocks, Block *block);
 /* Frees all blocks in the container */
 GRN_API void freeBlocks(Blocks *blocks);
 
+/* Creates a single block with position, size and type */
+GRN_API Block *createBlock(float x, float y, float w, float h, int type);
+
+/* Frees a single block */
+GRN_API void freeBlock(Block *block);
+
 /* Updates camera position with smooth interpolation */
 GRN_API void cameraUpdate(Camera *cam, float targetX, float targetY, float dt);
+
+/* Creates a smooth-follow camera */
+GRN_API Camera *createCamera(float x, float y, float smooth_factor, int w, int h);
+
+/* Frees a camera */
+GRN_API void freeCamera(Camera *cam);
 
 /* Logs a message with the specified severity level */
 GRN_API void logMessage(int level, const char *message);
@@ -145,14 +170,17 @@ GRN_API void draw(const char *path, float x, float y, Uint16 width, Uint16 heigh
                   Uint16 rotationP, Uint16 rotation, Uint8 alpha);
 
 /* Draws a sprite at the specified position */
-GRN_API void drawSprite(Sprite *sprite, float x, float y, Sint16 w, Sint16 u, bool flip,
-                        Uint16 rotationP, Uint16 rotation, Uint8 alpha);
+GRN_API void drawSprite(Sprite *sprite, Sint16 index, float x, float y, Sint16 w, Sint16 u,
+                        bool flip, Uint16 rotation, Uint8 alpha);
 /* Draws a particle array with individual transforms and colors */
 GRN_API void drawParticles(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r, Uint8 *g,
                            Uint8 *b, int size);
 
 /* Creates a sprite descriptor from an image ID */
 GRN_API Sprite *createSprite(const char *id, Sint16 width, Sint16 height);
+
+/* Frees a sprite */
+GRN_API void freeSprite(Sprite *sprite);
 
 /* Draws text using a custom bitmap font */
 GRN_API void drawText(const char *font_path, const char *text, float x, float y, Uint16 scale,
@@ -178,9 +206,6 @@ GRN_API void drawCircle(float x, float y, Sint16 radius, Uint8 red, Uint8 green,
 /* Draws a line between two points */
 GRN_API void drawLine(float x1, float y1, float x2, float y2, Uint8 red, Uint8 green, Uint8 blue,
                       Uint8 alpha);
-
-/* Shader test function */
-GRN_API void test_shaders(void);
 
 /* Plays a sound with loop, channel and volume options */
 GRN_API void playSound(const char *path, int loop, int channel, int volume);
@@ -210,19 +235,19 @@ GRN_API void loadSongFolder(const char *folder);
 GRN_API void freeSongFolder(void);
 
 /* Returns true if a key was just pressed this frame */
-GRN_API int keyJustPressed(const char *key_name);
+GRN_API bool keyJustPressed(const char *key_name);
 
 /* Returns true if a key is currently held down */
-GRN_API int keyPressed(const char *key_name);
+GRN_API bool keyPressed(const char *key_name);
 
 /* Shows or hides the mouse cursor */
 GRN_API void showCursor(bool visible);
 
 /* Returns true if a controller button is currently held down */
-GRN_API int buttonPressed(const char *button_name, unsigned char index);
+GRN_API bool buttonPressed(const char *button_name, unsigned char index);
 
 /* Returns true if a controller button was just pressed this frame */
-GRN_API int buttonJustPressed(const char *button_name, unsigned char index);
+GRN_API bool buttonJustPressed(const char *button_name, unsigned char index);
 
 /* Initializes a game controller at the specified index */
 GRN_API void initController(unsigned char index);
@@ -246,16 +271,16 @@ GRN_API int mouseX(void);
 GRN_API int mouseY(void);
 
 /* Returns true if the left mouse button was just pressed */
-GRN_API int mouseLeftJustPressed(void);
+GRN_API bool mouseLeftJustPressed(void);
 
 /* Returns true if the right mouse button was just pressed */
-GRN_API int mouseRightJustPressed(void);
+GRN_API bool mouseRightJustPressed(void);
 
 /* Returns true if the left mouse button is currently held down */
-GRN_API int mouseLeftPressed(void);
+GRN_API bool mouseLeftPressed(void);
 
 /* Returns true if the right mouse button is currently held down */
-GRN_API int mouseRightPressed(void);
+GRN_API bool mouseRightPressed(void);
 
 /* Returns vertical scroll delta (1 or -1) */
 GRN_API int mouseScrollVertical(void);

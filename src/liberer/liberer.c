@@ -25,6 +25,7 @@ void liberer_gs(void) {
     liberer_fond();
     liberer_timing();
     liberer_fichiers_lua();
+    liberer_lua();
 
     /* Liberation du frame */
     if (gs->frame) {
