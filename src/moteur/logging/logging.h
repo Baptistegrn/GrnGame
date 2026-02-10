@@ -12,6 +12,7 @@ extern "C" {
 #include <stddef.h>
 
 typedef enum NiveauLog {
+    NiveauLogAllocation,
     NiveauLogDebug,
     NiveauLogInfo,
     NiveauLogAvertissement,

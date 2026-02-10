@@ -9,13 +9,20 @@ on:
 jobs:
   build:
     runs-on: macos-latest
+
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
+
       - name: Cache xmake packages
         uses: actions/cache@v4
         with:
@@ -25,12 +32,20 @@ jobs:
           key: ${{ runner.os }}-xmake-${{ hashFiles('**/xmake.lua') }}
           restore-keys: |
             ${{ runner.os }}-xmake-
-      - name: Configure xmake
-        run: xmake f -p macosx -a arm64 -m release -y -v
+
+      - name: Show working directory (sanity check)
+        run: |
+          pwd
+          ls -la
+
+      - name: Configure xmake (release)
+        run: xmake f -p macosx -a arm64 -y -v
+
       - name: Build
         run: xmake -v
-      - name: Upload Binaries
+
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: GrnGame-macOS-Build
-          path: bin/release/
+          name: GrnGame-macOS
+          path: bin/release/**

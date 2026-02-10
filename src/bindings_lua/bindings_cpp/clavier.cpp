@@ -12,13 +12,13 @@ extern "C" {
 #include <lualib.h>
 }
 
-/* verfie si une touche viens detre presse */
+/* verifie si une touche vient d'etre pressee */
 bool lua_key_just_pressed(const std::string &key) { return keyJustPressed(key.c_str()); }
 
-/* verfie si une touche est maintenue enfonce */
+/* verifie si une touche est maintenue enfoncee */
 bool lua_key_pressed(const std::string &key) { return keyPressed(key.c_str()); }
 
-/* enregistrer les bindings de clavier */
+/* enregistrement des bindings clavier */
 void enregistrer_bindings_clavier(sol::table &input) {
     input.set_function("keyJustPressed", &lua_key_just_pressed);
     input.set_function("keyPressed", &lua_key_pressed);

@@ -12,17 +12,17 @@ extern "C" {
 #include <lualib.h>
 }
 
-/* verfie si un bouton de manette viens detre presse */
+/* verifie si un bouton de manette vient d'etre presse */
 bool lua_button_just_pressed(const std::string &button, unsigned char index) {
     return buttonJustPressed(button.c_str(), index);
 }
 
-/* verfie si un bouton de manette est maintenu enfonce */
+/* verifie si un bouton de manette est maintenu enfonce */
 bool lua_button_pressed(const std::string &button, unsigned char index) {
     return buttonPressed(button.c_str(), index);
 }
 
-/* initialiser un controller */
+/* initialise une manette a l'index specifie */
 void lua_init_controller(unsigned char index) { initController(index); }
 
 /* recuperer les joysticks et convertir en table lua */
@@ -45,16 +45,16 @@ sol::table lua_get_joysticks(sol::this_state s, float dead_zone, unsigned char i
     return result;
 }
 
-/* fermer un controller */
+/* ferme une manette a l'index specifie */
 void lua_close_controller(unsigned char index) { closeController(index); }
 
-/* fermer un joystick */
+/* ferme un joystick a l'index specifie */
 void lua_close_joystick(unsigned char index) { closeJoystick(index); }
 
-/* fermer le controller complet */
+/* ferme la manette et le joystick a l'index specifie */
 void lua_close_the_controller(unsigned char index) { closeTheController(index); }
 
-/* enregistrer les bindings de manette */
+/* enregistrement des bindings manette */
 void enregistrer_bindings_manette(sol::table &input) {
     input.set_function("buttonJustPressed", &lua_button_just_pressed);
     input.set_function("buttonPressed", &lua_button_pressed);

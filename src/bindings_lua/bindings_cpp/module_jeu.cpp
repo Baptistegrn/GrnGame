@@ -15,7 +15,7 @@ extern "C" {
 #include <lualib.h>
 }
 
-/* classe block */
+/* wrapper pour le type Block avec gestion memoire */
 struct LuaBlock {
     Block *ptr;
 
@@ -28,7 +28,7 @@ struct LuaBlock {
         }
     }
 
-    /* pour modifier/ recuperer les parametres */
+    /* recupere/modifie les parametres */
     float rec_x() const { return ptr->x; }
     void mettre_x(float v) { ptr->x = v; }
 
@@ -45,7 +45,7 @@ struct LuaBlock {
     void mettre_type(int t) { ptr->type = t; }
 };
 
-/* classe blocks */
+/* wrapper pour le conteneur de blocs */
 struct LuaBlocks {
     Blocks *ptr;
 
@@ -84,7 +84,7 @@ struct LuaBlocks {
     }
 };
 
-/*classe entite topdown */
+/* wrapper pour l'entite topdown avec gestion memoire */
 struct LuaEntityTopdown {
     EntityTopdown *ptr;
 
@@ -97,7 +97,7 @@ struct LuaEntityTopdown {
         }
     }
 
-    /* pour modifier / recuperer les parametres */
+    /* recupere/modifie les parametres */
     float rec_x() const { return ptr->x; }
     void mettre_x(float v) { ptr->x = v; }
 
@@ -111,7 +111,7 @@ struct LuaEntityTopdown {
     void mettre_h(float v) { ptr->height = v; }
 };
 
-/* classe entite platformer */
+/* wrapper pour l'entite platformer avec gestion memoire */
 struct LuaEntityPlatformer {
     EntityPlatformer *ptr;
 
@@ -129,7 +129,7 @@ struct LuaEntityPlatformer {
         }
     }
 
-    /* pour modifier / recuperer les parametres */
+    /* recupere/modifie les parametres */
     float rec_x() const { return ptr->x; }
     void mettre_x(float v) { ptr->x = v; }
 
@@ -148,23 +148,23 @@ struct LuaEntityPlatformer {
     float rec_gravite() const { return ptr->gravity; }
     void mettre_gravite(float v) { ptr->gravity = v; }
 
-    float rec_demande_saut() const { return ptr->requestJump; }
-    void mettre_demande_saut(float v) { ptr->requestJump = v; }
+    bool rec_demande_saut() const { return ptr->requestJump; }
+    void mettre_demande_saut(bool v) { ptr->requestJump = v; }
 
-    float rec_verrou_gauche() const { return ptr->leftLock; }
-    void mettre_verrou_gauche(float v) { ptr->leftLock = v; }
+    bool rec_verrou_gauche() const { return ptr->leftLock; }
+    void mettre_verrou_gauche(bool v) { ptr->leftLock = v; }
 
-    float rec_verrou_droit() const { return ptr->rightLock; }
-    void mettre_verrou_droit(float v) { ptr->rightLock = v; }
+    bool rec_verrou_droit() const { return ptr->rightLock; }
+    void mettre_verrou_droit(bool v) { ptr->rightLock = v; }
 
-    float rec_en_air() const { return ptr->inSky; }
-    void mettre_en_air(float v) { ptr->inSky = v; }
+    bool rec_en_air() const { return ptr->inSky; }
+    void mettre_en_air(bool v) { ptr->inSky = v; }
 
     float rec_vitesseY() const { return ptr->speedY; }
     void mettre_vitesseY(float v) { ptr->speedY = v; }
 };
 
-/* classe camera */
+/* wrapper pour la camera avec gestion memoire */
 struct LuaCamera {
     Camera *ptr;
 
@@ -179,7 +179,7 @@ struct LuaCamera {
         }
     }
 
-    /* pour recuerer/modifier les parametres */
+    /* recupere/modifie les parametres */
     float rec_x() const { return ptr->x; }
     void mettre_x(float v) { ptr->x = v; }
 
@@ -198,7 +198,7 @@ struct LuaCamera {
     void update(float tx, float ty, float dt) { cameraUpdate(ptr, tx, ty, dt); }
 };
 
-/* classe pour les blocs charges depuis fichier */
+/* wrapper pour les blocs charges depuis un fichier */
 struct LuaBlocksFromFile {
     Blocks *ptr;
     bool owns;
@@ -218,7 +218,7 @@ struct LuaBlocksFromFile {
     int size() const { return getBlocksSize(ptr); }
 };
 
-/* convertir un tableau lua de block en une structure blocks */
+/* convertit un tableau lua de blocs en structure Blocks */
 static Blocks *blocks_depuis_tableau(sol::table t) {
     Blocks *blocks = createBlocks();
 
@@ -228,7 +228,7 @@ static Blocks *blocks_depuis_tableau(sol::table t) {
     }
     return blocks;
 }
-/* hitblox platformer */
+/* calcule la physique de plateforme avec collisions */
 static EntityPlatformer *lua_hitbox_platformer(LuaEntityPlatformer &ent, LuaBlocks &blocks,
                                                float vmax, float correction,
                                                sol::optional<sol::table> ignore) {
@@ -241,7 +241,7 @@ static EntityPlatformer *lua_hitbox_platformer(LuaEntityPlatformer &ent, LuaBloc
 
     return hitboxPlatformer(ent.ptr, blocks.ptr, vmax, correction, ig.data(), ig.size());
 }
-/* hitbox platformer avec table lua */
+/* calcule la physique de plateforme avec table lua */
 static EntityPlatformer *lua_hitbox_platformer_table(LuaEntityPlatformer &ent, sol::table t,
                                                      sol::optional<float> vmax,
                                                      sol::optional<float> correction,
@@ -262,7 +262,7 @@ static EntityPlatformer *lua_hitbox_platformer_table(LuaEntityPlatformer &ent, s
     return r;
 }
 
-/* hitbox topdown avec blocks */
+/* calcule la physique topdown avec collisions */
 static EntityTopdown *lua_hitbox_topdown(LuaEntityTopdown &ent, LuaBlocks &blocks,
                                          sol::optional<sol::table> ignore) {
     std::vector<int> ig;
@@ -273,7 +273,7 @@ static EntityTopdown *lua_hitbox_topdown(LuaEntityTopdown &ent, LuaBlocks &block
     return hitboxTopdown(ent.ptr, blocks.ptr, ig.data(), ig.size());
 }
 
-/* hitbox topdown avec table lua */
+/* calcule la physique topdown avec table lua */
 static EntityTopdown *lua_hitbox_topdown_table(LuaEntityTopdown &ent, sol::table t,
                                                sol::optional<sol::table> ignore) {
     std::vector<int> ig;
@@ -288,7 +288,7 @@ static EntityTopdown *lua_hitbox_topdown_table(LuaEntityTopdown &ent, sol::table
     return r;
 }
 
-/* enregistrer les bindings module jeu */
+/* enregistrement des bindings module jeu */
 void enregistrer_bindings_module_jeu(sol::table &game) {
     game.new_usertype<Block>("BlockRaw", sol::no_constructor, "x", &Block::x, "y", &Block::y, "w",
                              &Block::w, "h", &Block::h, "type", &Block::type);

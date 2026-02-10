@@ -166,12 +166,12 @@ GRN_API void logMessage(int level, const char *message);
 GRN_API void setLogLvl(int level);
 
 /* Draws an image at the specified position */
-GRN_API void draw(const char *path, float x, float y, Uint16 width, Uint16 height, bool flip,
-                  Uint16 rotationP, Uint16 rotation, Uint8 alpha);
+GRN_API void draw(const char *path, float x, float y, Uint16 coeff, bool flip, Uint16 rotationP,
+                  Uint16 rotation, Uint8 alpha);
 
 /* Draws a sprite at the specified position */
-GRN_API void drawSprite(Sprite *sprite, Sint16 index, float x, float y, Sint16 w, Sint16 u,
-                        bool flip, Uint16 rotation, Uint8 alpha);
+GRN_API void drawSprite(Sprite *sprite, Sint16 index, float x, float y, Sint16 coeff, bool flip,
+                        Uint16 rotation, Uint8 alpha);
 /* Draws a particle array with individual transforms and colors */
 GRN_API void drawParticles(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r, Uint8 *g,
                            Uint8 *b, int size);

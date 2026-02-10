@@ -13,7 +13,7 @@ extern "C" {
 #include <lualib.h>
 }
 
-/* enregistrer les bindings de constantes */
+/* enregistrement des bindings constantes */
 void enregistrer_bindings_constantes(sol::table &var) {
     var["mouseX"] = sol::property(&mouseX);
     var["mouseY"] = sol::property(&mouseY);

@@ -11,20 +11,20 @@ SRC_LUA = os.path.join(ROOT, "src", "moteur_lua")
 BIN_DIR = os.path.join(ROOT, "bin")
 
 parser = argparse.ArgumentParser(
-    description="Creation of windows/linux grngame projects"
+    description="Creation of windows/linux/macos grngame projects"
 )
 parser.add_argument("name", help="Name of project")
 parser.add_argument(
     "path",
     nargs="?",
     default=".",
-    help="destination folder default : ."
+    help="destination folder ,default : ."
 )
 parser.add_argument(
     "--level",
     default="debug",
-    choices=["debug", "release", "debug_malloc", "debug_allocation"],
-    help="Build lvl"
+    choices=["debug", "release"],
+    help="Build lvl ,default : debug"
 )
 
 args = parser.parse_args()
@@ -45,6 +45,7 @@ mkdir(project_root)
 mkdir(os.path.join(project_root, "src"))
 mkdir(os.path.join(project_root, "windows"))
 mkdir(os.path.join(project_root, "linux"))
+mkdir(os.path.join(project_root, "macos"))
 
 # lua
 copy(os.path.join(SRC_LUA, "encrypt.py"),
@@ -67,7 +68,7 @@ copy(os.path.join(SRC_LUA, "grngame_api.lua"),
 # Windows
 win_bin = os.path.join(BIN_DIR, args.level)
 
-copy(os.path.join(win_bin, "App.exe"),
+copy(os.path.join(win_bin, "AppWindows.exe"),
      os.path.join(project_root, "windows"))
 
 copy(os.path.join(win_bin, "GrnGame.dll"),
@@ -77,10 +78,17 @@ copy(os.path.join(win_bin, "GrnGame.lib"),
      os.path.join(project_root, "windows"))
 
 # Linux
-copy(os.path.join(win_bin, "App"),
+copy(os.path.join(win_bin, "AppLinux"),
      os.path.join(project_root, "linux"))
 
 copy(os.path.join(win_bin, "libGrnGame.so"),
      os.path.join(project_root, "linux"))
+
+# macOS
+copy(os.path.join(win_bin, "AppMacOs"),
+     os.path.join(project_root, "macos"))
+
+copy(os.path.join(win_bin, "libGrnGame.dylib"),
+     os.path.join(project_root, "macos"))
 
 print("\n\nProject create :", project_root)

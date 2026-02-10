@@ -14,7 +14,7 @@ extern "C" {
 #include <lualib.h>
 }
 
-/* joueur un son par lien */
+/* joue un son avec options de boucle, canal et volume */
 void lua_play_sound(const std::string &path, sol::optional<int> loop, sol::optional<int> channel,
                     sol::optional<int> volume) {
     int l = loop.value_or(DEFAULT_LOOP);
@@ -23,23 +23,27 @@ void lua_play_sound(const std::string &path, sol::optional<int> loop, sol::optio
     playSound(path.c_str(), l, c, v);
 }
 
-/* coupe un son par lien */
+/* arrete un son par chemin */
 void lua_stop_sound(const std::string &path) { stopSound(path.c_str()); }
 
-/* reprendre un son par lien */
+/* met en pause un son par chemin */
+void lua_pause_sound(const std::string &path) { pauseSound(path.c_str()); }
+
+/* reprend un son par chemin */
 void lua_resume_sound(const std::string &path) { resumeSound(path.c_str()); }
 
-/* charger un dossier de son */
+/* charge tous les sons d'un dossier en memoire */
 void lua_load_song_folder(const std::string &path) { loadSongFolder(path.c_str()); }
 
 /* enregistrement des bindings son */
 void enregistrer_bindings_son(sol::table &song) {
     song.set_function("playSound", &lua_play_sound);
     song.set_function("stopSound", &lua_stop_sound);
+    song.set_function("pauseSound", &lua_pause_sound);
     song.set_function("resumeSound", &lua_resume_sound);
     song.set_function("loadSongFolder", &lua_load_song_folder);
     song.set_function("stopChannel", &stopChannel);
-    song.set_function("pauseChannel", pauseChannel);
+    song.set_function("pauseChannel", &pauseChannel);
     song.set_function("resumeChannel", &resumeChannel);
     song.set_function("freeSongFolder", &freeSongFolder);
 }

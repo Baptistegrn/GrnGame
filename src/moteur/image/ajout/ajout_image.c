@@ -5,8 +5,8 @@
 #include "../../../main.h"
 
 /* Ajoute une image au tableau de rendu avec gestion du cache de rotation */
-void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 taillex, Sint16 tailley,
-                              bool sens, Uint16 rotation_p, Uint16 rotation, Uint8 a) {
+void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 coeff, bool sens,
+                              Uint16 rotation_p, Uint16 rotation, Uint8 a) {
     if (!gs)
         goto gsvide;
     /* Correction rotation */
@@ -20,16 +20,17 @@ void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 taillex, 
     memset(&obj, 0, sizeof(ObjectImage));
 
     /* Limitation des valeurs Alpha entre 0 et 255 */
+
     a = SDL_clamp(a, 0, 255);
     obj.type = TYPE_IMAGE;
     obj.image.posx = x;
     obj.image.posy = y;
-    obj.image.taillex = taillex;
-    obj.image.tailley = tailley;
     obj.image.sens = sens;
     obj.image.rotation_p = rotation_p;
     obj.image.rotation = rotation;
     obj.image.a = a;
+    /* taille de la texture */
+    int taillex, tailley;
 
     /* Gestion du cache d'angle */
     if (rotation_p == 0) {
@@ -39,7 +40,8 @@ void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 taillex, 
 
         if (!obj.image.texture) {
             SDL_Texture *texture_base = recuperer_texture_par_lien(id);
-
+            /* recuperer la taille de la texture */
+            SDL_QueryTexture(texture_base, NULL, NULL, &taillex, &tailley);
             if (texture_base) {
                 obj.image.texture =
                     creer_texture_angle(texture_base, taillex, tailley, rotation_p, SDL_FLIP_NONE);
@@ -52,6 +54,9 @@ void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 taillex, 
             }
         }
     }
+    /* gestion du coeff de la texture */
+    obj.image.taillex = taillex * coeff;
+    obj.image.tailley = tailley * coeff;
 
     /* Verification texture finale */
     if (!obj.image.texture) {
@@ -68,8 +73,8 @@ gsvide:
 }
 
 /* Ajoute un sprite au tableau de rendu */
-void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, Sint16 taillex,
-                               Sint16 tailley, bool sens, Uint16 rotation, Uint8 a) {
+void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, Sint16 coeff,
+                               bool sens, Uint16 rotation, Uint8 a) {
     if (!gs)
         goto gsvide;
 
@@ -89,8 +94,8 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
     obj.type = TYPE_IMAGE;
     obj.image.posx = x;
     obj.image.posy = y;
-    obj.image.taillex = taillex;
-    obj.image.tailley = tailley;
+    obj.image.taillex = sprite->taillex * coeff;
+    obj.image.tailley = sprite->tailley * coeff;
     obj.image.sens = sens;
     /* Les sprites ne beneficient pas du cache de rotation pixel perfect */
     obj.image.rotation_p = 0;

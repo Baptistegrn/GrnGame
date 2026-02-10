@@ -30,10 +30,8 @@ static Sint16 ajouter_char_dans_tableau(const char *lien_image, char lettre, flo
     }
 
     Sint16 largeur_finale = (Sint16)(tex_w * coeff);
-    Sint16 hauteur_finale = (Sint16)(tex_h * coeff);
 
-    ajouter_image_au_tableau(lien_image_lettre, posx, posy, largeur_finale, hauteur_finale, sens,
-                             rotationP, rotation, a);
+    ajouter_image_au_tableau(lien_image_lettre, posx, posy, coeff, sens, rotationP, rotation, a);
 
     return largeur_finale;
 

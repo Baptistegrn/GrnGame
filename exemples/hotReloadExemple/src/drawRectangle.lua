@@ -2,7 +2,7 @@
 local M = {}
 
 function M.my_function()
-    image.drawRect(30.0, 20.0, 30.0, 30.0, 100, 30, 30, 255)
+    image.drawRect(30.0, 20.0, 30.0, 30.0, 100, 100.0, 30, 100)
 end
 
 return M

@@ -17,7 +17,7 @@ static sol::function g_update_func;
 
 /*
  * Fonction trampoline appelee par le moteur C a chaque frame.
- * Effectue l'appel de la fonction Lua stockee en cache.
+ * Appelle la fonction Lua de mise a jour stockee en cache.
  */
 static void update_trampoline(void) {
     if (g_update_func.valid()) {
@@ -33,7 +33,7 @@ static void update_trampoline(void) {
 #define DEFAULT_WINDOW_TITLE "My Game"
 #define DEFAULT_UPDATE_FUNC "update"
 
-/* initialisation */
+/* initialise le moteur et demarre la boucle principale */
 void luaInitialize(sol::optional<int> height, sol::optional<int> width, sol::optional<float> fps,
                    sol::optional<bool> black_bars, sol::optional<std::string> window_title,
                    sol::optional<sol::function> update_func, sol::this_state ts) {
@@ -54,10 +54,10 @@ void luaInitialize(sol::optional<int> height, sol::optional<int> width, sol::opt
     initialize(h, w, f, b, wt.c_str(), update_trampoline);
 }
 
-/* logs */
+/* enregistre un message de log */
 void luaLogMessage(int level, const std::string &message) { logMessage(level, message.c_str()); }
 
-/* enregistrer les binds de utils */
+/* enregistrement des bindings utilitaires */
 void enregistrer_bindings_utils(sol::table &utils) {
     utils.set_function("initialize", &luaInitialize);
     utils.set_function("logMessage", &luaLogMessage);
@@ -65,7 +65,7 @@ void enregistrer_bindings_utils(sol::table &utils) {
     utils.set_function("fullscreen", &fullscreen);
     utils.set_function("windowedFullscreen", &windowedFullscreen);
     utils.set_function("windowed", &windowed);
-    utils.set_function("windowedMinimised", &windowMinimised);
+    utils.set_function("windowedMinimised", &windowedMinimised);
     utils.set_function("cls", &clearScreen);
     utils.set_function("setLogLvl", &setLogLvl);
 }

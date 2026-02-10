@@ -1,7 +1,6 @@
 /*
  * Gestionnaire d'allocation memoire securise.
  * Termine le programme en cas d'echec d'allocation.
- * En mode DEBUG_ALLOCATION, affiche le compteur d'allocations.
  */
 
 #include "../main.h"
@@ -21,9 +20,7 @@ void *malloc_gestion_echec_compteur(size_t taille) {
     }
 
     compteur += 1;
-#ifdef DEBUG_ALLOCATION
-    log_fmt(NiveauLogDebug, "+malloc : %" PRIu32 "\n", compteur);
-#endif
+    log_fmt(NiveauLogAllocation, "+malloc : %" PRIu32 "\n", compteur);
     return ptr;
 }
 
@@ -51,7 +48,5 @@ void free_gestion_echec_compteur(void *ptr) {
     }
     free(ptr);
     compteur--;
-#ifdef DEBUG_ALLOCATION
-    log_fmt(NiveauLogDebug, "+free : %" PRIu32 "\n", compteur);
-#endif
+    log_fmt(NiveauLogAllocation, "+free : %" PRIu32 "\n", compteur);
 }

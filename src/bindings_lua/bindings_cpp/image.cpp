@@ -13,11 +13,11 @@ extern "C" {
 #include <lualib.h>
 }
 
-/* classe sprite */
+/* wrapper pour le type Sprite avec gestion memoire */
 struct LuaSprite {
     Sprite *ptr;
 
-    LuaSprite(const std::string &id, int width, int height) {
+    LuaSprite(const std::string &id, Sint16 width, Sint16 height) {
         ptr = createSprite(id.c_str(), width, height);
     }
 
@@ -28,102 +28,106 @@ struct LuaSprite {
         }
     }
 
-    /* pour modifier / recuperer les parametres */
-    int rec_width() const { return ptr->taillex; }
-    void mettre_width(int v) { ptr->taillex = v; }
+    /* recupere/modifie les parametres */
+    Sint16 rec_width() const { return ptr->taillex; }
+    void mettre_width(Sint16 v) { ptr->taillex = v; }
 
-    int rec_height() const { return ptr->tailley; }
-    void mettre_height(int v) { ptr->tailley = v; }
+    Sint16 rec_height() const { return ptr->tailley; }
+    void mettre_height(Sint16 v) { ptr->tailley = v; }
 };
 
-/* dessiner rect */
-void lua_draw_rect(float x, float y, float w, float h, sol::optional<int> r, sol::optional<int> g,
-                   sol::optional<int> b, sol::optional<int> a) {
-    int red = r.value_or(DEFAULT_R);
-    int green = g.value_or(DEFAULT_G);
-    int blue = b.value_or(DEFAULT_B);
-    int alpha = a.value_or(DEFAULT_ALPHA);
-    drawRect(x, y, w, h, red, green, blue, alpha, true);
-}
-
-/* dessiner rect plein */
-void lua_draw_rect_filled(float x, float y, float w, float h, sol::optional<int> r,
-                          sol::optional<int> g, sol::optional<int> b, sol::optional<int> a) {
-    int red = r.value_or(DEFAULT_R);
-    int green = g.value_or(DEFAULT_G);
-    int blue = b.value_or(DEFAULT_B);
-    int alpha = a.value_or(DEFAULT_ALPHA);
+/* dessine un rectangle vide */
+void lua_draw_rect(float x, float y, Sint16 w, Sint16 h, sol::optional<Uint8> r,
+                   sol::optional<Uint8> g, sol::optional<Uint8> b, sol::optional<Uint8> a) {
+    Uint8 red = r.value_or(DEFAULT_R);
+    Uint8 green = g.value_or(DEFAULT_G);
+    Uint8 blue = b.value_or(DEFAULT_B);
+    Uint8 alpha = a.value_or(DEFAULT_ALPHA);
     drawRect(x, y, w, h, red, green, blue, alpha, false);
 }
 
-/* dessiner une ligne */
-void lua_draw_line(float x1, float y1, float x2, float y2, sol::optional<int> r,
-                   sol::optional<int> g, sol::optional<int> b, sol::optional<int> a) {
-    int red = r.value_or(DEFAULT_R);
-    int green = g.value_or(DEFAULT_G);
-    int blue = b.value_or(DEFAULT_B);
-    int alpha = a.value_or(DEFAULT_ALPHA);
+/* dessine un rectangle plein */
+void lua_draw_rect_filled(float x, float y, Sint16 w, Sint16 h, sol::optional<Uint8> r,
+                          sol::optional<Uint8> g, sol::optional<Uint8> b, sol::optional<Uint8> a) {
+    Uint8 red = r.value_or(DEFAULT_R);
+    Uint8 green = g.value_or(DEFAULT_G);
+    Uint8 blue = b.value_or(DEFAULT_B);
+    Uint8 alpha = a.value_or(DEFAULT_ALPHA);
+    drawRect(x, y, w, h, red, green, blue, alpha, true);
+}
+
+/* dessine une ligne entre deux points */
+void lua_draw_line(float x1, float y1, float x2, float y2, sol::optional<Uint8> r,
+                   sol::optional<Uint8> g, sol::optional<Uint8> b, sol::optional<Uint8> a) {
+    Uint8 red = r.value_or(DEFAULT_R);
+    Uint8 green = g.value_or(DEFAULT_G);
+    Uint8 blue = b.value_or(DEFAULT_B);
+    Uint8 alpha = a.value_or(DEFAULT_ALPHA);
     drawLine(x1, y1, x2, y2, red, green, blue, alpha);
 }
 
 /* dessine un cercle vide */
-void lua_draw_circle(float x, float y, float radius, sol::optional<int> r, sol::optional<int> g,
-                     sol::optional<int> b, sol::optional<int> a) {
-    int red = r.value_or(DEFAULT_R);
-    int green = g.value_or(DEFAULT_G);
-    int blue = b.value_or(DEFAULT_B);
-    int alpha = a.value_or(DEFAULT_ALPHA);
+void lua_draw_circle(float x, float y, Sint16 radius, sol::optional<Uint8> r,
+                     sol::optional<Uint8> g, sol::optional<Uint8> b, sol::optional<Uint8> a) {
+    Uint8 red = r.value_or(DEFAULT_R);
+    Uint8 green = g.value_or(DEFAULT_G);
+    Uint8 blue = b.value_or(DEFAULT_B);
+    Uint8 alpha = a.value_or(DEFAULT_ALPHA);
     drawCircle(x, y, radius, red, green, blue, alpha, false);
 }
 
 /* dessine un cercle plein */
-void lua_draw_circle_filled(float x, float y, float radius, sol::optional<int> r,
-                            sol::optional<int> g, sol::optional<int> b, sol::optional<int> a) {
-    int red = r.value_or(DEFAULT_R);
-    int green = g.value_or(DEFAULT_G);
-    int blue = b.value_or(DEFAULT_B);
-    int alpha = a.value_or(DEFAULT_ALPHA);
+void lua_draw_circle_filled(float x, float y, Sint16 radius, sol::optional<Uint8> r,
+                            sol::optional<Uint8> g, sol::optional<Uint8> b,
+                            sol::optional<Uint8> a) {
+    Uint8 red = r.value_or(DEFAULT_R);
+    Uint8 green = g.value_or(DEFAULT_G);
+    Uint8 blue = b.value_or(DEFAULT_B);
+    Uint8 alpha = a.value_or(DEFAULT_ALPHA);
     drawCircle(x, y, radius, red, green, blue, alpha, true);
 }
 
-void lua_draw(const std::string &path, float x, float y, float w, float h, sol::optional<bool> flip,
-              sol::optional<float> rotationP, sol::optional<float> rotation, sol::optional<int> a) {
+/* dessine une image a la position indiquee */
+void lua_draw(const std::string &path, float x, float y, Uint16 coeff, sol::optional<bool> flip,
+              sol::optional<Uint16> rotationP, sol::optional<Uint16> rotation,
+              sol::optional<Uint8> a) {
     bool f = flip.value_or(DEFAULT_FLIP);
-    float rotP = rotationP.value_or(DEFAULT_ROTATIONP);
-    float rot = rotation.value_or(DEFAULT_ROTATION);
-    int alpha = a.value_or(DEFAULT_ALPHA);
-    draw(path.c_str(), x, y, w, h, f, rotP, rot, alpha);
+    Uint16 rotP = rotationP.value_or(DEFAULT_ROTATIONP);
+    Uint16 rot = rotation.value_or(DEFAULT_ROTATION);
+    Uint8 alpha = a.value_or(DEFAULT_ALPHA);
+    draw(path.c_str(), x, y, coeff, f, rotP, rot, alpha);
 }
 
-/* dessiner texte */
+/* dessine du texte avec police personnalisee */
 void lua_draw_text(const std::string &font_path, const std::string &text, float x, float y,
-                   float scale, sol::optional<bool> flip, sol::optional<float> spacing,
-                   sol::optional<int> rotationP, sol::optional<int> rotation,
-                   sol::optional<int> a) {
+                   Uint16 scale, sol::optional<bool> flip, sol::optional<float> spacing,
+                   sol::optional<Uint16> rotationP, sol::optional<Uint16> rotation,
+                   sol::optional<Uint8> a) {
     bool f = flip.value_or(DEFAULT_FLIP);
     float sp = spacing.value_or(DEFAULT_SPACING);
-    int rot = rotation.value_or(DEFAULT_ROTATION);
-    int rotP = rotationP.value_or(DEFAULT_ROTATIONP);
-    int alpha = a.value_or(DEFAULT_ALPHA);
+    Uint16 rot = rotation.value_or(DEFAULT_ROTATION);
+    Uint16 rotP = rotationP.value_or(DEFAULT_ROTATIONP);
+    Uint8 alpha = a.value_or(DEFAULT_ALPHA);
     drawText(font_path.c_str(), text.c_str(), x, y, scale, f, sp, rotP, rot, alpha);
 }
 
-/* definir l'icone de la fenetre */
+/* definit l'icone de la fenetre */
 void lua_set_icon(const std::string &path) { setIcon(path.c_str()); }
 
-/* dessiner un sprite */
-void lua_draw_sprite(const LuaSprite &sprite, int index, float x, float y, float w, float h,
-                     sol::optional<bool> flip, sol::optional<int> rotation, sol::optional<int> a) {
+/* dessine un sprite a la position indiquee */
+void lua_draw_sprite(const LuaSprite &sprite, Sint16 index, float x, float y, Sint16 coeff,
+                     sol::optional<bool> flip, sol::optional<Uint16> rotation,
+                     sol::optional<Uint8> a) {
     bool f = flip.value_or(DEFAULT_FLIP);
-    int rot = rotation.value_or(DEFAULT_ROTATION);
-    int alpha = a.value_or(DEFAULT_ALPHA);
-    drawSprite(sprite.ptr, index, x, y, w, h, f, rot, alpha);
+    Uint16 rot = rotation.value_or(DEFAULT_ROTATION);
+    Uint8 alpha = a.value_or(DEFAULT_ALPHA);
+    drawSprite(sprite.ptr, index, x, y, coeff, f, rot, alpha);
 }
 
-/* charger un dossier d'images */
+/* charge toutes les images d'un dossier en memoire */
 void lua_load_image_folder(const std::string &folder) { loadImageFolder(folder.c_str()); }
 
-/* dessine des particules */
+/* dessine un tableau de particules */
 void lua_draw_particles(sol::table x_table, sol::table y_table, sol::table rotation_table,
                         sol::table a_table, sol::table r_table, sol::table g_table,
                         sol::table b_table) {
@@ -156,12 +160,12 @@ void lua_draw_particles(sol::table x_table, sol::table y_table, sol::table rotat
                   taille);
 }
 
-/* enregistrer les bindings de image */
+/* enregistrement des bindings image */
 void enregistrer_bindings_image(sol::table &image) {
     /* Sprite */
     image.new_usertype<LuaSprite>(
         "Sprite", sol::call_constructor,
-        sol::constructors<LuaSprite(const std::string &, int, int)>(), "width",
+        sol::constructors<LuaSprite(const std::string &, Sint16, Sint16)>(), "width",
         sol::property(&LuaSprite::rec_width, &LuaSprite::mettre_width), "height",
         sol::property(&LuaSprite::rec_height, &LuaSprite::mettre_height));
 

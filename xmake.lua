@@ -10,11 +10,8 @@ add_requires("sol2",{configs={runtimes="MT", kind="static", pic=true}})
 -- mode release uniquement ( debug gere par des options )
 add_rules("mode.release")
 
--- Option debug d'allocation
-option("debug_allocation")
-    set_default(false)
-    set_description("Activate allocations logs in file log")
-    set_showmenu(true)
+--extension executable
+local os =""
 
 -- Option debug 
 option("debug")
@@ -27,10 +24,6 @@ local outdir = "bin/release"
 
 if has_config("debug") then 
     outdir = "bin/debug"
-end
-
-if has_config("debug_allocation") then
-    outdir = "bin/debug_allocation"
 end
 
 --lib
@@ -63,31 +56,29 @@ target("GrnGame")
         add_defines("DEBUG_MODE")
     end
 
-    if has_config("debug_allocation") then
-        add_defines("DEBUG_ALLOCATION")
-        add_defines("DEBUG_MODE")
-    end
-
     -- Plateforme
     if is_plat("windows") then
         -- runtime statique
         set_runtimes("MT")
         add_ldflags("/OPT:REF", "/OPT:ICF", {force=true})
+        os = "Windows"
 
     elseif is_plat("linux") then
         -- phtread pour sdl 
         add_syslinks("pthread", "dl", "m")
         -- c++ en statique (NON FONCTIONNEL)
         add_ldflags("-static-libgcc", "-static-libstdc++", {force=true})
+        os = "Linux"
 
     elseif is_plat("macosx") then
         -- Frameworks macOS pour SDL
         add_frameworks("Cocoa", "IOKit", "CoreVideo", "CoreAudio", "AudioToolbox", "Carbon", "ForceFeedback", "Metal")
         add_syslinks("iconv")
+        os = "MacOs"
     end
 
 --game app
-target("App")
+target("App".. os)
     set_kind("binary")
     set_targetdir(outdir)
     if has_config("debug_mode") then

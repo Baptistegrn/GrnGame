@@ -64,8 +64,8 @@ typedef struct {
 void ajouter_image_au_jeu(ObjectImage nouvelle);
 
 /* Ajoute une image au tableau par son chemin */
-void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 taillex, Sint16 tailley,
-                              bool sens, Uint16 rotation_p, Uint16 rotation, Uint8 a);
+void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 coeff, bool sens,
+                              Uint16 rotation_p, Uint16 rotation, Uint8 a);
 
 /* Ajoute une ligne au rendu */
 void ajouter_ligne(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
@@ -81,8 +81,8 @@ void ajouter_cercle(float x, float y, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, U
 Sprite *creer_sprite(const char *id, Sint16 taillex, Sint16 tailley);
 
 /* Ajoute un sprite au tableau par index de frame */
-void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, Sint16 taillex,
-                               Sint16 tailley, bool sens, Uint16 rotation, Uint8 a);
+void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, Sint16 coeff,
+                               bool sens, Uint16 rotation, Uint8 a);
 
 /* Ajoute un groupe de particules au tableau */
 void ajouter_particules_au_tableau(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r,
