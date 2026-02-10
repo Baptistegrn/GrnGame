@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ "main", "master" ]
 
+# Permissions pour permettre le push avec GITHUB_TOKEN
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: macos-latest
@@ -15,17 +19,17 @@ jobs:
         working-directory: ${{ github.workspace }}
 
     steps:
-      #Checkout du dépôt
+      # Checkout du dépôt
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      #Installer xmake
+      # Installer xmake
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
 
-      #Cache des packages xmake
+      # Cache des packages xmake
       - name: Cache xmake packages
         uses: actions/cache@v4
         with:
@@ -36,21 +40,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-xmake-
 
-      #Vérification du répertoire courant
+      # Vérification du répertoire courant
       - name: Vérifier répertoire courant
         run: |
           pwd
           ls -la
 
-      #Configurer xmake
+      # Configurer xmake
       - name: Configurer xmake
         run: xmake f -p macosx -a arm64 -y -v
 
-      #Build
+      # Build
       - name: Compiler
         run: xmake -v
 
-      #Commit automatique des binaires
+      # Commit automatique des binaires
       - name: Commit automatique des binaires
         run: |
           git config user.name "github-actions"
@@ -58,9 +62,9 @@ jobs:
           git add bin/release/**
           git commit -m "Ajout des binaires macOS depuis le workflow" || echo "Aucun changement à committer"
 
-      #Pousser le commit
+      # Pousser le commit
       - name: Pousser le commit
         uses: ad-m/github-push-action@v0.6.0
         with:
-          github_token: ${{ secrets.BOT_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref_name }}
