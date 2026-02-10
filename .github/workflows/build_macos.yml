@@ -55,8 +55,8 @@ jobs:
         run: xmake -v
 
       # Configurer xmake en debug
-      -name: Configurer xmake (debug)
-      run: xmake f -p macosx -a arm64 -y -v --debug=yes
+      - name: Configurer xmake (debug)
+        run: xmake f -p macosx -a arm64 -y -v --debug=yes
 
       # Build
       - name: Compiler (debug)
