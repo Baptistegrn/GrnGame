@@ -4,9 +4,8 @@ package.path = package.path .. ";../src/?.lua"
 init = false
 function update()
     if not init then
-        utils.windowed(300, 300)
-        init = true
-    end
+       utils.windowed(600,600)
+       init = true
     require("drawRectangle").my_function()
 end
 

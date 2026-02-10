@@ -43,13 +43,19 @@ void initialiser_logging(DestinationLog destination_log, const char *nom_fichier
     }
 
     if (destination_log == DestinationLogFichier) {
-        auto file_sink_config = quill::FileSinkConfig();
-        file_sink_config.set_open_mode('w');
-        file_sink_config.set_filename_append_option(
-            quill::FilenameAppendOption::StartCustomTimestampFormat, "%Y-%m-%d_%H-%M-%S");
-        auto file_sink =
-            quill::Frontend::create_or_get_sink<quill::FileSink>(nom_fichier, file_sink_config);
-        g_logger = quill::Frontend::create_or_get_logger("root", std::move(file_sink));
+        try {
+            auto file_sink_config = quill::FileSinkConfig();
+            file_sink_config.set_open_mode('w');
+            file_sink_config.set_filename_append_option(
+                quill::FilenameAppendOption::StartCustomTimestampFormat, "%Y-%m-%d_%H-%M-%S");
+            auto file_sink =
+                quill::Frontend::create_or_get_sink<quill::FileSink>(nom_fichier, file_sink_config);
+            g_logger = quill::Frontend::create_or_get_logger("root", std::move(file_sink));
+        } catch (...) {
+            /* Fallback vers la console si le fichier ne peut pas etre cree */
+            g_logger = quill::Frontend::create_or_get_logger(
+                "root", quill::Frontend::create_or_get_sink<quill::ConsoleSink>("console_sink"));
+        }
     } else {
         g_logger = quill::Frontend::create_or_get_logger(
             "mon_application",

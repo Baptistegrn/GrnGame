@@ -54,6 +54,9 @@ void passer_plein_ecran(void) {
 
     SDL_SetWindowFullscreen(fenetre_sdl, SDL_WINDOW_FULLSCREEN_DESKTOP);
     f->plein_ecran = true;
+
+    /* Calcul du coefficient apres passage en plein ecran */
+    appliquer_redimensionnement(mode_bureau.w, mode_bureau.h);
     return;
 
 gsvide:

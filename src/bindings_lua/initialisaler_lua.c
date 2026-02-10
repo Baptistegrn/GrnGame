@@ -94,5 +94,10 @@ void initialiser_lua(const char *fichier_chemin_lua) {
     }
 
     free(buffer);
+
+    /* Fermeture de l'etat Lua APRES que lua_pcall a retourne
+     * pour eviter un crash lors du retour de la pile d'appels */
+    liberer_lua();
+
     log_fmt(NiveauLogInfo, "Lua initialization finished");
 }
