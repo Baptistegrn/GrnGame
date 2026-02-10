@@ -1,0 +1,7 @@
+00:59:06.121288475 [18552] logging.cpp:67               LOG_INFO      root         logging initialized
+00:59:06.198462145 [18552] logging.cpp:95               LOG_INFO      root         Initializing Lua
+00:59:06.229929489 [18552] logging.cpp:95               LOG_INFO      root         Lua state created
+00:59:06.262722589 [18552] logging.cpp:95               LOG_INFO      root         GrnGame bindings registered
+00:59:06.292881982 [18552] logging.cpp:95               LOG_INFO      root         Loading Lua file: ../src/main.lua
+00:59:06.309093334 [18552] logging.cpp:95               LOG_INFO      root         Executing Lua script...
+00:59:06.433593596 [18552] logging.cpp:95               LOG_INFO      root         562 mappings controllers charging

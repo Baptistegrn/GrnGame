@@ -1,0 +1,9 @@
+00:58:30.237968242 [3100] logging.cpp:67               LOG_INFO      root         logging initialized
+00:58:30.302871238 [3100] logging.cpp:95               LOG_INFO      root         Initializing Lua
+00:58:30.315406611 [3100] logging.cpp:95               LOG_INFO      root         Lua state created
+00:58:30.327389088 [3100] logging.cpp:95               LOG_INFO      root         GrnGame bindings registered
+00:58:30.339372653 [3100] logging.cpp:95               LOG_INFO      root         Loading Lua file: ../src/main.lua
+00:58:30.351875854 [3100] logging.cpp:95               LOG_INFO      root         Executing Lua script...
+00:58:30.472635309 [3100] logging.cpp:95               LOG_INFO      root         562 mappings controllers charging
+00:58:40.598431109 [3100] logging.cpp:95               LOG_INFO      root         File ../src/drawRectangle.lua is modified, reloading it
+00:58:40.610705550 [3100] logging.cpp:95               LOG_INFO      root         Module 'drawRectangle' reloaded successfully
