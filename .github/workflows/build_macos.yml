@@ -54,6 +54,10 @@ jobs:
       - name: Compiler
         run: xmake -v
 
+      # Build en debug
+      -name: Configurer xmake (debug)
+      run: xmake f -p macosx -a arm64 -y -v --debug=yes
+
       # Commit automatique des binaires
       - name: Commit automatique des binaires
         run: |
