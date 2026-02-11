@@ -85,10 +85,9 @@ void boucle_principale(void) {
         frame_debut_avant_while = frame_actuelle;
         timing->dt = (dt_reel > dt_theorique) ? dt_reel : dt_theorique;
     }
-    liberer_lua();
-    liberer_gs();
 
-    // log_message(NiveauLogDebug, "main loop ended normally");
+    liberer_gs();
+    log_message(NiveauLogInfo, "main loop ended");
     return;
 
 gsvide:

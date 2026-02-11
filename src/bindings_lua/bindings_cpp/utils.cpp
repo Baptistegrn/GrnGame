@@ -25,6 +25,12 @@ static void update_trampoline(void) {
     }
 }
 
+/*
+ * Reinitialise la fonction de mise a jour avant de fermer l'etat Lua.
+ * Doit etre appele avant lua_close() pour eviter des acces invalides.
+ */
+extern "C" void reset_update_func(void) { g_update_func = sol::nil; }
+
 /* parametre par default */
 #define DEFAULT_HEIGHT 320
 #define DEFAULT_WIDTH 180
