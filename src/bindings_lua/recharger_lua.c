@@ -88,7 +88,7 @@ void actualiser_rechargement(void) {
     if (frame % ((int)SDL_roundf(SECONDES_RELOAD_LUA * fps)) == 0 && frame != 0) {
         /* Premiere initialisation */
         if (!gs->frame->fichiers_lua) {
-            gs->frame->fichiers_lua = renvoie_fichier_dossier("../src", "lua", NULL);
+            gs->frame->fichiers_lua = renvoie_fichier_dossier("./src", "lua", NULL);
             return;
         }
 

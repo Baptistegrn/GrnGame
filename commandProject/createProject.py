@@ -43,13 +43,8 @@ def copy(src, dst):
 
 mkdir(project_root)
 mkdir(os.path.join(project_root, "src"))
-mkdir(os.path.join(project_root, "windows"))
-mkdir(os.path.join(project_root, "linux"))
-mkdir(os.path.join(project_root, "macos"))
 
 # lua
-copy(os.path.join(SRC_LUA, "encrypt.py"),
-     os.path.join(project_root, "src"))
 
 copy(os.path.join(SRC_LUA, "main.lua"),
      os.path.join(project_root, "src"))
@@ -69,26 +64,26 @@ copy(os.path.join(SRC_LUA, "grngame_api.lua"),
 win_bin = os.path.join(BIN_DIR, args.level)
 
 copy(os.path.join(win_bin, "AppWindows.exe"),
-     os.path.join(project_root, "windows"))
+     project_root)
 
 copy(os.path.join(win_bin, "GrnGame.dll"),
-     os.path.join(project_root, "windows"))
+     project_root)
 
 copy(os.path.join(win_bin, "GrnGame.lib"),
-     os.path.join(project_root, "windows"))
+     project_root)
 
 # Linux
 copy(os.path.join(win_bin, "AppLinux"),
-     os.path.join(project_root, "linux"))
+     project_root)
 
 copy(os.path.join(win_bin, "libGrnGame.so"),
-     os.path.join(project_root, "linux"))
+     project_root)
 
 # macOS
 copy(os.path.join(win_bin, "AppMacOs"),
-     os.path.join(project_root, "macos"))
+     project_root)
 
 copy(os.path.join(win_bin, "libGrnGame.dylib"),
-     os.path.join(project_root, "macos"))
+     project_root)
 
 print("\n\nProject create :", project_root)

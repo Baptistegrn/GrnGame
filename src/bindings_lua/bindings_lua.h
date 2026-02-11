@@ -53,7 +53,7 @@ void liberer_lua(void);
  * Reinitialise la fonction de mise a jour Lua.
  * Doit etre appele avant lua_close() pour eviter des acces invalides.
  */
-void reset_update_func(void);
+void fermer_callback(void);
 
 #ifdef __cplusplus
 }

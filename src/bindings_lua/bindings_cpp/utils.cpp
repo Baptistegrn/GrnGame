@@ -13,15 +13,25 @@ extern "C" {
 }
 
 /* Cache global pour la fonction de mise a jour Lua */
-static sol::function g_update_func;
+static sol::protected_function g_update_func;
 
 /*
  * Fonction trampoline appelee par le moteur C a chaque frame.
  * Appelle la fonction Lua de mise a jour stockee en cache.
+ * Gere les erreurs Lua et affiche un traceback complet.
  */
 static void update_trampoline(void) {
-    if (g_update_func.valid()) {
-        g_update_func();
+    if (!g_update_func.valid())
+        return;
+
+    sol::protected_function_result resultat = g_update_func();
+    if (!resultat.valid()) {
+        sol::error err = resultat;
+        /* si erreur dans la callback on quitte */
+        logMessage(4, "Lua Runtime Error in update callback:");
+        logMessage(4, err.what());
+        /* stop le jeu*/
+        stop();
     }
 }
 
@@ -29,7 +39,7 @@ static void update_trampoline(void) {
  * Reinitialise la fonction de mise a jour avant de fermer l'etat Lua.
  * Doit etre appele avant lua_close() pour eviter des acces invalides.
  */
-extern "C" void reset_update_func(void) { g_update_func = sol::nil; }
+extern "C" void fermer_callback(void) { g_update_func = sol::nil; }
 
 /* parametre par default */
 #define DEFAULT_HEIGHT 320
@@ -40,9 +50,9 @@ extern "C" void reset_update_func(void) { g_update_func = sol::nil; }
 #define DEFAULT_UPDATE_FUNC "update"
 
 /* initialise le moteur et demarre la boucle principale */
-void luaInitialize(sol::optional<int> height, sol::optional<int> width, sol::optional<float> fps,
-                   sol::optional<bool> black_bars, sol::optional<std::string> window_title,
-                   sol::optional<sol::function> update_func, sol::this_state ts) {
+void lua_initialize(sol::optional<int> height, sol::optional<int> width, sol::optional<float> fps,
+                    sol::optional<bool> black_bars, sol::optional<std::string> window_title,
+                    sol::optional<sol::function> update_func, sol::this_state ts) {
     sol::state_view lua(ts);
 
     int h = height.value_or(DEFAULT_HEIGHT);
@@ -51,22 +61,24 @@ void luaInitialize(sol::optional<int> height, sol::optional<int> width, sol::opt
     bool b = black_bars.value_or(DEFAULT_BLACK_BARS);
     std::string wt = window_title.value_or(DEFAULT_WINDOW_TITLE);
 
+    /* Configuration de la fonction update avec traceback */
+    sol::function traceback = lua["debug"]["traceback"];
     if (update_func) {
-        g_update_func = *update_func;
+        g_update_func = sol::protected_function(*update_func, traceback);
     } else {
-        g_update_func = lua[DEFAULT_UPDATE_FUNC];
+        g_update_func = sol::protected_function(lua[DEFAULT_UPDATE_FUNC], traceback);
     }
 
     initialize(h, w, f, b, wt.c_str(), update_trampoline);
 }
 
 /* enregistre un message de log */
-void luaLogMessage(int level, const std::string &message) { logMessage(level, message.c_str()); }
+void lua_logMessage(int level, const std::string &message) { logMessage(level, message.c_str()); }
 
 /* enregistrement des bindings utilitaires */
 void enregistrer_bindings_utils(sol::table &utils) {
-    utils.set_function("initialize", &luaInitialize);
-    utils.set_function("logMessage", &luaLogMessage);
+    utils.set_function("initialize", &lua_initialize);
+    utils.set_function("logMessage", &lua_logMessage);
     utils.set_function("stop", &stop);
     utils.set_function("fullscreen", &fullscreen);
     utils.set_function("windowedFullscreen", &windowedFullscreen);

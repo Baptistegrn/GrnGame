@@ -318,9 +318,6 @@ GRN_API int universeHeight(void);
 /* Returns true if the window is minimised */
 GRN_API bool windowMinimised(void);
 
-/* Initializes and runs the Lua engine with the specified script */
-GRN_API void initializeLua(const char *filePath);
-
 #ifdef __cplusplus
 }
 #endif

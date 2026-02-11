@@ -30,7 +30,7 @@ void liberer_lua(void) {
     if (G_LuaState) {
         log_fmt(NiveauLogInfo, "Closing Lua state...");
         /* Reset des objets sol avant de fermer l'etat */
-        reset_update_func();
+        fermer_callback();
         lua_close(G_LuaState);
         G_LuaState = NULL;
         log_fmt(NiveauLogInfo, "Lua state closed");

@@ -44,6 +44,3 @@ void logMessage(int level, const char *message) { log_message((NiveauLog)level, 
 
 /* Change le niveau minimum de log affiche */
 void setLogLvl(int level) { changer_niveau_log((NiveauLog)level); }
-
-/* Initialise et execute le moteur Lua */
-void initializeLua(const char *fichier_chemin_lua) { initialiser_lua(fichier_chemin_lua); }

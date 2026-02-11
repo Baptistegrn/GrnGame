@@ -24,15 +24,6 @@
 /* Nombre maximum de particules dessinees en une seule fois */
 #define MAX_PARTICULES 4096
 
-/*
- * Cle de chiffrement XOR pour les scripts Lua.
- * Cette valeur doit etre modifiee pour chaque projet en production.
- * Voir encrypt.py dans moteur_lua pour le chiffrement des scripts.
- */
-#ifndef GRNGAME_CRYPTED_KEY
-#define GRNGAME_CRYPTED_KEY 0x42
-#endif
-
 /* parametres par default des fonctions de bindings lua ( peut etre modifier ).*/
 
 /* image */

@@ -112,7 +112,7 @@ Gestionnaire *initialiser(int hauteur_univers, int largeur_univers, float fps, b
 
     /* pour le hot reload en debug*/
 #ifdef DEBUG_MODE
-    gs->frame->fichiers_lua = renvoie_fichier_dossier("../src", "lua", NULL);
+    gs->frame->fichiers_lua = renvoie_fichier_dossier("./src", "lua", NULL);
     for (int i = 0; i < gs->frame->fichiers_lua->taille; i++) {
         log_fmt(NiveauLogDebug, "file lua detected :%s", gs->frame->fichiers_lua->noms[i]);
     }

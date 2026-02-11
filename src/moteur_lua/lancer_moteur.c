@@ -3,7 +3,6 @@
  * Initialise Lua et lance le script principal.
  */
 
-#include "../bindings_c/GrnGame.h"
 #include "../bindings_lua/bindings_lua.h"
 
 #if defined(_WIN32)
@@ -11,7 +10,11 @@
 
 /* Point d'entree Windows */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
-    initializeLua("../src/main.lua");
+    if (__argc > 1) {
+        initialiser_lua(__argv[1]);
+    } else {
+        initialiser_lua("./src/main.lua");
+    }
     liberer_lua();
     return 0;
 }
@@ -19,8 +22,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 #else
 
 /* Point d'entree Unix/Linux */
-int main(void) {
-    initializeLua("../src/main.lua");
+int main(int argc, char **argv) {
+    if (argc > 1) {
+        initialiser_lua(argv[1]);
+    } else {
+        initialiser_lua("./src/main.lua");
+    }
     liberer_lua();
     return 0;
 }
