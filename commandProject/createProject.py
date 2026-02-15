@@ -53,6 +53,9 @@ copy(os.path.join(SRC_LUA, "main.lua"),
 copy(os.path.join(SRC_LUA, "grngame_api.lua"),
      os.path.join(project_root, "src"))
 
+copy(os.path.join(SRC_LUA, "encryptFiles.py"),
+     os.path.join(project_root, "src"))
+
 #luajit
 #copy(os.path.join(SRC_LUA, "engine.lua"),
      #os.path.join(project_root, "windows"))

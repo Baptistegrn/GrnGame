@@ -16,8 +16,6 @@ static quill::Logger *g_logger = nullptr;
 quill::LogLevel niveau_log_vers_quill_log_level(NiveauLog niveau_log) {
 #ifdef DEBUG_MODE
     switch (niveau_log) {
-    case NiveauLogAllocation:
-        return quill::LogLevel::Debug;
     case NiveauLogDebug:
         return quill::LogLevel::Debug;
     case NiveauLogInfo:
@@ -85,9 +83,6 @@ void log_fmt(NiveauLog niveau_log, const char *fmt, ...) {
     const char *msg = buf.data();
 
     switch (niveau_log) {
-    case NiveauLogAllocation:
-        quill::debug(g_logger, msg);
-        return;
     case NiveauLogDebug:
         quill::debug(g_logger, msg);
         return;

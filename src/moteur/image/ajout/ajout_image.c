@@ -31,18 +31,19 @@ void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 coeff, bo
     obj.image.a = a;
     /* taille de la texture */
     int taillex, tailley;
-
     /* Gestion du cache d'angle */
     if (rotation_p == 0) {
         obj.image.texture = recuperer_texture_par_lien(id);
+        if (obj.image.texture) /* recuperer la taille de la texture */
+            SDL_QueryTexture(obj.image.texture, NULL, NULL, &taillex, &tailley);
     } else {
         obj.image.texture = recuperer_texture_variante(id, rotation_p);
 
         if (!obj.image.texture) {
             SDL_Texture *texture_base = recuperer_texture_par_lien(id);
-            /* recuperer la taille de la texture */
-            SDL_QueryTexture(texture_base, NULL, NULL, &taillex, &tailley);
             if (texture_base) {
+                /* recuperer la taille de la texture */
+                SDL_QueryTexture(texture_base, NULL, NULL, &taillex, &tailley);
                 obj.image.texture =
                     creer_texture_angle(texture_base, taillex, tailley, rotation_p, SDL_FLIP_NONE);
 

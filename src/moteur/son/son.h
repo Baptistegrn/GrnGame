@@ -22,6 +22,8 @@ typedef struct GestionnaireSon {
     SonEntry *entrees; /* tableau des sons */
     int taille;        /* nombre de sons charges */
     int capacite;      /* capacite du tableau */
+    uint8_t cle[16];   /* cle de chiffrement */
+    uint8_t iv[16];    /* iv de chiffrement */
 } GestionnaireSon;
 
 /* Joue un son avec boucle, canal et volume specifies */
@@ -52,11 +54,17 @@ Mix_Chunk *recuperer_son_par_lien(const char *lien);
 void init_gestionnaire_son();
 
 /* Charge tous les sons d'un dossier */
-void charger_tous_les_sons(const char *dossier);
+void charger_tout_les_sons(const char *dossier);
 
 /* Fonctions de liberation */
 void liberer_gestionnaire_son(void);
 void liberer_sons(void);
+
+/* mettre cle chiffrement */
+void mettre_son_cle(int index, int valeur);
+
+/* mettre iv chiffrement */
+void mettre_son_iv(int index, int valeur);
 
 #ifdef __cplusplus
 }

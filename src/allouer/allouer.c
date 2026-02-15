@@ -20,7 +20,8 @@ void *malloc_gestion_echec_compteur(size_t taille) {
     }
 
     compteur += 1;
-    log_fmt(NiveauLogAllocation, "+malloc : %" PRIu32 "\n", compteur);
+    if (compteur % 10 == 0)
+        log_fmt(NiveauLogDebug, "+malloc : %" PRIu32 "\n", compteur);
     return ptr;
 }
 
@@ -48,5 +49,6 @@ void free_gestion_echec_compteur(void *ptr) {
     }
     free(ptr);
     compteur--;
-    log_fmt(NiveauLogAllocation, "+free : %" PRIu32 "\n", compteur);
+    if (compteur % 10 == 0)
+        log_fmt(NiveauLogDebug, "+free : %" PRIu32 "\n", compteur);
 }

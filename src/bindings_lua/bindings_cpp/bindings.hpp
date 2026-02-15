@@ -37,6 +37,8 @@ void enregistrer_bindings_manette(sol::table &input);
 /* enregistre les bindings de constantes */
 void enregistrer_bindings_constantes(sol::table &var);
 
+/* enregistre les bindings de json */
+void enregistrer_bindings_json(sol::table &json);
 #endif /* __cplusplus */
 
 #endif /* BINDINGS_HPP */

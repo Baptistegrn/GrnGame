@@ -28,8 +28,8 @@ static void update_trampoline(void) {
     if (!resultat.valid()) {
         sol::error err = resultat;
         /* si erreur dans la callback on quitte */
-        logMessage(4, "Lua Runtime Error in update callback:");
-        logMessage(4, err.what());
+        logMessage(3, "Lua Runtime Error in update callback:");
+        logMessage(3, err.what());
         /* stop le jeu*/
         stop();
     }
@@ -86,4 +86,9 @@ void enregistrer_bindings_utils(sol::table &utils) {
     utils.set_function("windowedMinimised", &windowedMinimised);
     utils.set_function("cls", &clearScreen);
     utils.set_function("setLogLvl", &setLogLvl);
+    utils.set_function("setKeyImage",
+                       [](int index, uint8_t valeur) { setImageKey(index, valeur); });
+    utils.set_function("setIvImage", [](int index, uint8_t valeur) { setImageIv(index, valeur); });
+    utils.set_function("setKeySong", [](int index, uint8_t valeur) { setSongKey(index, valeur); });
+    utils.set_function("setIvSong", [](int index, uint8_t valeur) { setSongIv(index, valeur); });
 }

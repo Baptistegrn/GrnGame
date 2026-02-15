@@ -68,3 +68,9 @@ void drawParticles(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r, Uin
                    int size) {
     ajouter_particules_au_tableau(x, y, rotation, a, r, g, b, size);
 }
+
+/* mettre la cle pour limage */
+void setImageKey(int index, int value) { mettre_image_cle(index, value); }
+
+/* mettre liv pour limage */
+void setImageIv(int index, int value) { mettre_image_iv(index, value); }

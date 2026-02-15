@@ -31,7 +31,10 @@ Fichiers *renvoie_fichier_dossier(const char *chemin_dossier, const char *extens
         fichiers->temps =
             malloc_gestion_echec_compteur(fichiers->capacite * sizeof(*fichiers->temps));
     }
-
+    /* pour allocation initiale */
+    if (chemin_dossier == NULL) {
+        return fichiers;
+    }
     char chemin_recherche[TAILLE_LIEN];
     snprintf(chemin_recherche, TAILLE_LIEN, "%s/*", chemin_dossier);
 
@@ -117,6 +120,9 @@ Fichiers *renvoie_fichier_dossier(const char *chemin_dossier, const char *extens
             malloc_gestion_echec_compteur(fichiers->capacite * sizeof(*fichiers->noms));
         fichiers->temps =
             malloc_gestion_echec_compteur(fichiers->capacite * sizeof(*fichiers->temps));
+    }
+    if (chemin_dossier == NULL) {
+        return fichiers;
     }
 
     DIR *dir = opendir(chemin_dossier);

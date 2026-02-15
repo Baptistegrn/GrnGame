@@ -66,6 +66,8 @@ void boucle_principale(void) {
 #ifdef DEBUG_MODE
         actualiser_rechargement();
 #endif
+        /* renitialise les cles de chiffrement a chaques frames */
+        mettre_cle_vide();
         /* Limitation du framerate avec delai si necessaire */
         Uint32 frame_temps_ms = SDL_GetTicks() - frame_debut;
         float frame_temps_s = frame_temps_ms / 1000.0f;

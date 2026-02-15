@@ -5,6 +5,7 @@
 
 #include "../../main.h"
 
+#include "initialisation.h"
 #include "mapping_data.h"
 Gestionnaire *gs = NULL;
 
@@ -34,18 +35,21 @@ Gestionnaire *initialiser(int hauteur_univers, int largeur_univers, float fps, b
 
     /* Allocation structures (fatal si echec) */
     gs = allouer_structures();
-
+    creer_gestionnaire_fichiers();
     /* Configuration interne */
     gs->timing->run = true;
     gs->timing->fps = fps;
     gs->timing->en_pause = false;
     gs->timing->minimise = false;
-
+    gs->timing->dt = 0.0001;
     gs->fenetre->hauteur_univers = hauteur_univers;
     gs->fenetre->largeur_univers = largeur_univers;
     gs->fenetre->nom_fenetre = nom_fenetre;
 
     gs->frame->fond->bande_noir = bande_noir;
+
+    /* initialise les cles de chiffrement a 0 */
+    mettre_cle_vide();
 
     /* Initialisation SDL (fatal si echec) */
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK) != 0) {

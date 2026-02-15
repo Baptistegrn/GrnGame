@@ -37,13 +37,13 @@ void lua_load_song_folder(const std::string &path) { loadSongFolder(path.c_str()
 
 /* enregistrement des bindings son */
 void enregistrer_bindings_son(sol::table &song) {
-    song.set_function("playSound", &lua_play_sound);
-    song.set_function("stopSound", &lua_stop_sound);
-    song.set_function("pauseSound", &lua_pause_sound);
-    song.set_function("resumeSound", &lua_resume_sound);
-    song.set_function("loadSongFolder", &lua_load_song_folder);
+    song.set_function("play", &lua_play_sound);
+    song.set_function("stop", &lua_stop_sound);
+    song.set_function("pause", &lua_pause_sound);
+    song.set_function("resume", &lua_resume_sound);
+    song.set_function("loadFolder", &lua_load_song_folder);
     song.set_function("stopChannel", &stopChannel);
     song.set_function("pauseChannel", &pauseChannel);
     song.set_function("resumeChannel", &resumeChannel);
-    song.set_function("freeSongFolder", &freeSongFolder);
+    song.set_function("freeFolder", &freeSongFolder);
 }

@@ -65,8 +65,10 @@ extern "C" {
 #include "moteur/image/liste/liste_chaine.h"
 #include "moteur/image/rotation/rotation.h"
 #include "moteur/initialisation/initialisation.h"
+#include "moteur/json/json.h"
 #include "moteur/logging/logging.h"
 #include "moteur/son/son.h"
+
 
 /*
  * Structure principale du moteur.
@@ -79,6 +81,7 @@ typedef struct Gestionnaire {
     GestionnaireTextures *textures;   /* Cache des textures chargees */
     GestionnaireSon *sons;            /* Gestion des sons et musiques */
     GestionnaireFrameActuelle *frame; /* Donnees de la frame courante */
+    GestionnaireFichiers *fichiers;
 } Gestionnaire;
 
 /* Instance globale du gestionnaire */

@@ -4,3 +4,7 @@ src/headers_sdl/close_code.h linguist-generated
 src/headers_sdl/SDL_config.h linguist-generated
 src/headers_sdl/SDL_platform.h linguist-generated
 src/headers_sdl/SDL_stdinc.h linguist-generated
+src/chiffrement/aes.h linguist-generated
+src/chiffrement/aes.c linguist-generated
+src/moteur/json/cJSON.c linguist-generated
+src/moteur/json/cJSON.h linguist-generated

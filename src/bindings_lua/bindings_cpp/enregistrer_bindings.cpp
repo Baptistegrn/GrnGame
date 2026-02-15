@@ -23,6 +23,7 @@ extern "C" void enregistrer_bindings(void *L) {
     sol::table image = lua_view.create_named_table("image");
     sol::table input = lua_view.create_named_table("input");
     sol::table var = lua_view.create_named_table("var");
+    sol::table json = lua_view.create_named_table("json");
     enregistrer_bindings_utils(utils);
     enregistrer_bindings_son(song);
     enregistrer_bindings_image(image);
@@ -30,4 +31,5 @@ extern "C" void enregistrer_bindings(void *L) {
     enregistrer_bindings_clavier(input);
     enregistrer_bindings_manette(input);
     enregistrer_bindings_constantes(var);
+    enregistrer_bindings_json(json);
 }

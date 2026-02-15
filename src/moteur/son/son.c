@@ -4,7 +4,6 @@
  */
 
 #include "../../main.h"
-#include "SDL_stdinc.h"
 
 /* Joue un son sur un canal specifique avec volume et boucles configurables */
 void jouer_son(const char *lien, int boucle, int canal, int volume) {

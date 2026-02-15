@@ -175,9 +175,9 @@ void enregistrer_bindings_image(sol::table &image) {
     image.set_function("drawText", &lua_draw_text);
     image.set_function("setIcon", &lua_set_icon);
     image.set_function("drawSprite", &lua_draw_sprite);
-    image.set_function("loadImageFolder", &lua_load_image_folder);
+    image.set_function("loadFolder", &lua_load_image_folder);
     image.set_function("drawParticles", &lua_draw_particles);
-    image.set_function("freeImageFolder", &freeImageFolder);
+    image.set_function("freeFolder", &freeImageFolder);
     image.set_function("drawLine", &lua_draw_line);
     image.set_function("drawCircle", &lua_draw_circle);
     image.set_function("drawCircleFilled", &lua_draw_circle_filled);

@@ -26,6 +26,8 @@ void initialiser_fenetre();
 /* Configure la redirection des erreurs vers un fichier log */
 void configurer_redirection_stderr(const char *chemin_log);
 
+/* met les clefs de chiffrement a 0 */
+void mettre_cle_vide();
 #ifdef __cplusplus
 }
 #endif

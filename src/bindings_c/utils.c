@@ -3,9 +3,6 @@
  * Initialisation du moteur, logging et controle de la boucle.
  */
 
-#include "../bindings_lua/bindings_lua.h"
-#include "../chemin/chemin.h"
-#include "../module_jeu/carte/carte.h"
 #include "../moteur/boucle/boucle.h"
 #include "../moteur/fenetre/fenetre.h"
 #include "../moteur/initialisation/initialisation.h"

@@ -318,6 +318,60 @@ GRN_API int universeHeight(void);
 /* Returns true if the window is minimised */
 GRN_API bool windowMinimised(void);
 
+/* put key for image */
+GRN_API void setImageKey(int index, int value);
+
+/* put iv for image */
+GRN_API void setImageIv(int index, int value);
+
+/* put key for song */
+GRN_API void setSongKey(int index, int value);
+
+/* put iv for song */
+GRN_API void setSongIv(int index, int value);
+
+/* load a file on the disk */
+GRN_API void loadJsonFile(const char *filename);
+
+/* save a file on the disk */
+GRN_API void saveJsonFile(const char *filename);
+
+/* delete a file from the disk and memory */
+GRN_API void deleteJsonFile(const char *filename);
+
+/* write an int in a file */
+GRN_API void writeIntToJson(const char *filename, const char *varName, int value);
+
+/* write a double in a file */
+GRN_API void writeDoubleToJson(const char *filename, const char *varName, double value);
+
+/* write a string in a file */
+GRN_API void writeStringToJson(const char *filename, const char *varName, const char *value);
+
+/* read an int from a file */
+GRN_API int readIntFromJson(const char *filename, const char *varName);
+
+/* read a double from a file */
+GRN_API double readDoubleFromJson(const char *filename, const char *varName);
+
+/* read a string from a file */
+GRN_API char *readStringFromJson(const char *filename, const char *varName);
+
+/* delete a variable from a file */
+GRN_API void deleteVariableFromJson(const char *filename, const char *varName);
+
+/* put a value in the encryption key */
+GRN_API void setJsonEncryptionKey(int index, int value);
+
+/* put a value in the initialization vector */
+GRN_API void setJsonEncryptionIV(int index, int value);
+
+/* get the type of variable 0=UNKNOW, 1=NUMBER, 2=STRING */
+GRN_API int getJsonVariableType(const char *filename, const char *varName);
+
+/* try if a file exist or not */
+GRN_API bool FileExists(const char *filename);
+
 #ifdef __cplusplus
 }
 #endif

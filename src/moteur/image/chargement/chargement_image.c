@@ -2,6 +2,7 @@
  * Chargement et gestion du cache de textures.
  */
 
+#include "../../../chiffrement/aes.h"
 #include "../../../main.h"
 
 /* Initialise le sous-systeme de textures */
@@ -40,11 +41,8 @@ gsvide:
     log_message(NiveauLogDebug, "manager is empty in enlarge texture manager");
 }
 
-/* Charge une texture unique */
 SDL_Texture *charger_une_texture(const char *lien_complet) {
-    if (!gs)
-        goto gsvide;
-    if (!lien_complet)
+    if (!gs || !lien_complet)
         return NULL;
 
     GestionnaireTextures *gt = gs->textures;
@@ -52,55 +50,110 @@ SDL_Texture *charger_une_texture(const char *lien_complet) {
     char lien_norm[TAILLE_LIEN];
     normaliser_chemin_copies(lien_norm, lien_complet);
 
+    /* texture existante */
     SDL_Texture *existant = recuperer_texture_par_lien(lien_norm);
     if (existant)
         return existant;
 
-    SDL_Surface *surface = IMG_Load(lien_norm);
+    SDL_Surface *surface = NULL;
+
+    /* verification cle chiffre */
+    bool chiffre = false;
+    for (int i = 0; i < 16; i++) {
+        if (gt->cle[i] != 0) {
+            chiffre = true;
+            break;
+        }
+    }
+    /* si pas chiffre on charge direct */
+    if (!chiffre) {
+        surface = IMG_Load(lien_norm);
+    } else {
+        FILE *fs = fopen(lien_norm, "rb");
+        if (!fs)
+            return NULL;
+        /* taille */
+        fseek(fs, 0, SEEK_END);
+        long taille_fichier = ftell(fs);
+        fseek(fs, 0, SEEK_SET);
+
+        /* si le fichier a ete mal chiffre il nest pas modulo 16 */
+        if (taille_fichier % 16 != 0 || taille_fichier == 0) {
+            fclose(fs);
+            return NULL;
+        }
+        /* buffer */
+        uint8_t *buffer = malloc_gestion_echec_compteur(taille_fichier);
+        if (buffer) {
+            fread(buffer, 1, taille_fichier, fs);
+            fclose(fs);
+
+            /* decryptage */
+            struct AES_ctx ctx;
+            AES_init_ctx_iv(&ctx, gt->cle, gt->iv);
+            AES_CBC_decrypt_buffer(&ctx, buffer, (size_t)taille_fichier);
+
+            /* pas en plus a enlever */
+            uint8_t padding_valeur = buffer[taille_fichier - 1];
+            size_t taille_reelle = taille_fichier;
+
+            if (padding_valeur >= 1 && padding_valeur <= 16) {
+                taille_reelle = taille_fichier - padding_valeur;
+            }
+            /* chargement sdl */
+            SDL_RWops *rw = SDL_RWFromMem(buffer, (int)taille_reelle);
+            if (rw) {
+                surface = IMG_Load_RW(rw, 1);
+            }
+            free_gestion_echec_compteur(buffer);
+        } else {
+            fclose(fs);
+        }
+    }
+
     if (!surface) {
-        log_fmt(NiveauLogErreur, "Img not found '%s': %s", lien_norm, IMG_GetError());
+        log_fmt(NiveauLogErreur, "Echec chargement %s: %s", lien_norm, IMG_GetError());
         return NULL;
     }
 
     SDL_Texture *tex = SDL_CreateTextureFromSurface(gs->fenetre->rendu, surface);
     SDL_FreeSurface(surface);
 
-    if (!tex)
-        return NULL;
-
-    agrandir_si_plein();
-
-    if (gt->taille >= gt->capacite) {
-        SDL_DestroyTexture(tex);
-        return NULL;
+    if (tex) {
+        agrandir_si_plein();
+        int index = gt->taille++;
+        TextureEntry *entree = &gt->entrees[index];
+        strncpy(entree->id, lien_norm, TAILLE_LIEN - 1);
+        entree->textures = creer_liste(tex, 0);
     }
 
-    int index = gt->taille++;
-    TextureEntry *entree = &gt->entrees[index];
-
-    strncpy(entree->id, lien_norm, TAILLE_LIEN - 1);
-    entree->id[TAILLE_LIEN - 1] = '\0';
-
-    entree->textures = creer_liste(tex, 0);
-
     return tex;
-
-gsvide:
-    log_message(NiveauLogDebug, "manager is empty in loading a texture");
-    return NULL;
 }
 
 /* Scanne un dossier et charge toutes les textures */
 void charger_toutes_les_textures(const char *dossier) {
     if (!gs)
         goto gsvide;
+
     if (!dossier)
         return;
-
-    Fichiers *fichiers = renvoie_fichier_dossier(dossier, "png", NULL);
-    if (!fichiers)
-        return;
-
+    const uint8_t *cle_de_chiffrement = gs->textures->cle;
+    /* cle ou pas ?*/
+    bool cle_est_nulle = true;
+    for (int i = 0; i < 16; i++) {
+        if (cle_de_chiffrement[i] != 0) {
+            cle_est_nulle = false;
+            break;
+        }
+    }
+    /* pour charger la structure */
+    Fichiers *fichiers = renvoie_fichier_dossier(NULL, "", NULL);
+    /* on charge normalement en png, sinon en .data si chiffré */
+    if (cle_est_nulle) {
+        fichiers = renvoie_fichier_dossier(dossier, "png", fichiers);
+    } else {
+        fichiers = renvoie_fichier_dossier(dossier, "data", fichiers);
+    }
     int nb = fichiers->taille;
     if (nb == 0) {
         liberer_fichiers(fichiers);
@@ -109,9 +162,6 @@ void charger_toutes_les_textures(const char *dossier) {
 
     for (int i = 0; i < nb; i++) {
         SDL_Texture *tex = charger_une_texture(fichiers->noms[i]);
-        if (tex) {
-            log_fmt(NiveauLogDebug, "Texture loaded: %s", fichiers->noms[i]);
-        }
     }
 
     liberer_fichiers(fichiers);
@@ -197,4 +247,22 @@ SDL_Texture *recuperer_texture_variante(const char *lien, int angle) {
 gsvide:
     log_message(NiveauLogDebug, "manager is empty in retrieve rotated texture from cache");
     return NULL;
+}
+
+/* applique la cle d'image a l'index donne */
+void mettre_image_cle(int index, int valeur) {
+    if (gs && index >= 0 && index < 16) {
+        gs->textures->cle[index] = valeur;
+        /* ne pas dire la cle dans les logs */
+        log_message(NiveauLogInfo, "crypted key changed");
+    }
+}
+
+/* applique l'iv d'image a l'index donne */
+void mettre_image_iv(int index, int valeur) {
+    if (gs && index >= 0 && index < 16) {
+        gs->textures->iv[index] = valeur;
+        /* ne pas dire l'iv dans les logs */
+        log_message(NiveauLogInfo, "iv changed");
+    }
 }

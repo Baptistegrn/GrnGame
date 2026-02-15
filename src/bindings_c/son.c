@@ -28,7 +28,13 @@ void pauseChannel(int channel) { pause_canal(channel); }
 void resumeChannel(int channel) { reprendre_canal(channel); }
 
 /* Charge tous les sons d'un dossier en memoire */
-void loadSongFolder(const char *folder) { charger_tous_les_sons(folder); }
+void loadSongFolder(const char *folder) { charger_tout_les_sons(folder); }
 
 /* Libere tous les sons en memoire */
 void freeSongFolder(void) { liberer_gestionnaire_son(); }
+
+/* mettre la cle pour les sons */
+void setSongKey(int index, int value) { mettre_son_cle(index, value); }
+
+/* mettre liv pour les sons */
+void setSongIv(int index, int value) { mettre_son_iv(index, value); }

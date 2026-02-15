@@ -25,9 +25,7 @@ void liberer_gs(void) {
     liberer_fond();
     liberer_timing();
     liberer_fichiers_lua();
-    /* Note: liberer_lua() est appele separement apres lua_pcall dans initialiser_lua()
-     * pour eviter de fermer l'etat Lua pendant qu'on est encore dans un appel Lua */
-
+    liberer_gestionnaire_fichiers();
     /* Liberation du frame */
     if (gs->frame) {
         free_gestion_echec_compteur(gs->frame);

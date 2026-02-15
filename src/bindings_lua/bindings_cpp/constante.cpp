@@ -4,6 +4,7 @@
  */
 
 #include "sol/optional_implementation.hpp"
+#include "sol/property.hpp"
 #include <sol/sol.hpp>
 
 extern "C" {
@@ -13,24 +14,32 @@ extern "C" {
 #include <lualib.h>
 }
 
-/* enregistrement des bindings constantes */
+/* bindings_lua_constantes.cpp */
+#include <sol/sol.hpp>
+
+extern "C" {
+/* On inclut les prototypes des fonctions C (les wrappers Anglais -> Français) */
+#include "../../bindings_c/GrnGame.h"
+}
+
+/* enregistrement des bindings constantes avec set_function */
 void enregistrer_bindings_constantes(sol::table &var) {
-    var["mouseX"] = sol::property(&mouseX);
-    var["mouseY"] = sol::property(&mouseY);
-    var["mouseLeftJustPressed"] = sol::property(&mouseLeftJustPressed);
-    var["mouseRightJustPressed"] = sol::property(&mouseRightJustPressed);
-    var["mouseLeftPressed"] = sol::property(&mouseLeftPressed);
-    var["mouseRightPressed"] = sol::property(&mouseRightPressed);
-    var["mouseScrollVertical"] = sol::property(&mouseScrollVertical);
-    var["mouseScrollHorizontal"] = sol::property(&mouseScrollHorizontal);
-    var["delta"] = sol::property(&delta);
-    var["fps"] = sol::property(&fps);
-    var["frameCount"] = sol::property(&frameCount);
-    var["offsetX"] = sol::property(&offsetX);
-    var["offsetY"] = sol::property(&offsetY);
-    var["currentWidth"] = sol::property(&currentWidth);
-    var["currentHeight"] = sol::property(&currentHeight);
-    var["universeWidth"] = sol::property(&universeWidth);
-    var["universeHeight"] = sol::property(&universeHeight);
-    var["windowMinimised"] = sol::property(&windowMinimised);
+    var.set_function("mouseX", &mouseX);
+    var.set_function("mouseY", &mouseY);
+    var.set_function("mouseLeftJustPressed", &mouseLeftJustPressed);
+    var.set_function("mouseRightJustPressed", &mouseRightJustPressed);
+    var.set_function("mouseLeftPressed", &mouseLeftPressed);
+    var.set_function("mouseRightPressed", &mouseRightPressed);
+    var.set_function("mouseScrollVertical", &mouseScrollVertical);
+    var.set_function("mouseScrollHorizontal", &mouseScrollHorizontal);
+    var.set_function("delta", &delta);
+    var.set_function("fps", &fps);
+    var.set_function("frameCount", &frameCount);
+    var.set_function("offsetX", &offsetX);
+    var.set_function("offsetY", &offsetY);
+    var.set_function("currentWidth", &currentWidth);
+    var.set_function("currentHeight", &currentHeight);
+    var.set_function("universeWidth", &universeWidth);
+    var.set_function("universeHeight", &universeHeight);
+    var.set_function("windowMinimised", &windowMinimised);
 }
