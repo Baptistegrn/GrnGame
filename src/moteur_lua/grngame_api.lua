@@ -23,6 +23,10 @@ function utils.initialize(height, width, fps, black_bars, window_title, update_f
 ---@param message string message to display
 function utils.logMessage(level, message) end
 
+---show or not the cursor
+---@param show boolean true or false
+function utils.showCursor(show) end
+
 --- Stops the engine
 function utils.stop() end
 

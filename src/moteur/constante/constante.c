@@ -109,7 +109,7 @@ Uint32 compteur_frame() {
 /* Renvoie le decalage X pour les bandes noires */
 int decalage_x() {
     if (gs)
-        return gs->fenetre->decalage_x;
+        return lround((double)gs->fenetre->decalage_x / (double)gs->fenetre->coeff);
     else {
         return 0;
     }
@@ -118,7 +118,7 @@ int decalage_x() {
 /* Renvoie le decalage Y pour les bandes noires */
 int decalage_y() {
     if (gs)
-        return gs->fenetre->decalage_y;
+        return lround((double)gs->fenetre->decalage_y / (double)gs->fenetre->coeff);
     else {
         return 0;
     }

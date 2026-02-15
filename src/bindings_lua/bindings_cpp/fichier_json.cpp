@@ -86,11 +86,8 @@ void lua_metre_json_cle(int index, int value) { setJsonEncryptionKey(index, valu
 /* definit une partie du vecteur d'initialisation */
 void lua_mettre_json_iv(int index, int value) { setJsonEncryptionIV(index, value); }
 
-void lua_fichier_existe(const std::string &filename, sol::this_state s) {
-    sol::state_view lua(s);
-    bool exists = FileExists(filename.c_str());
-    lua_pushboolean(lua, exists);
-}
+/* verifie si un fichier existe ou pas */
+bool lua_fichier_existe(const std::string &filename) { return FileExists(filename.c_str()); }
 
 /* enregistrement des bindings json */
 void enregistrer_bindings_json(sol::table &json) {

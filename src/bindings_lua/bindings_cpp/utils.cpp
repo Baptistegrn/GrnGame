@@ -91,4 +91,5 @@ void enregistrer_bindings_utils(sol::table &utils) {
     utils.set_function("setIvImage", [](int index, uint8_t valeur) { setImageIv(index, valeur); });
     utils.set_function("setKeySong", [](int index, uint8_t valeur) { setSongKey(index, valeur); });
     utils.set_function("setIvSong", [](int index, uint8_t valeur) { setSongIv(index, valeur); });
+    utils.set_function("showCursor", &showCursor);
 }

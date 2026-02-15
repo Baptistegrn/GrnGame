@@ -40,7 +40,7 @@ void afficher_images(void) {
     int decalage_x = gs->fenetre->decalage_x;
     int decalage_y = gs->fenetre->decalage_y;
 
-    int decalage_x_scaled = lround((double)gs->fenetre->decalage_x / (double)coeff);
+    int decalage_x_scaled = (int)lround((double)gs->fenetre->decalage_x / (double)coeff);
     int decalage_y_scaled = (int)lround((double)gs->fenetre->decalage_y / (double)coeff);
 
     for (int i = 0; i < jeu->nb_images; i++) {
