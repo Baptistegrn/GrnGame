@@ -5,9 +5,8 @@
 
 #include <stdio.h>
 
-#define MAX_PEERS 32
-
-GestionnaireReseau *reseau_creer(int estServeur, const char *hote, uint16_t port) {
+GestionnaireReseau *reseau_creer(int estServeur, const char *hote, const uint16_t port,
+                                 const uint32_t maxPeers, const ENetAddressType addressType) {
     GestionnaireReseau *gestionnaire =
         (GestionnaireReseau *)malloc_gestion_echec_compteur(sizeof(GestionnaireReseau));
     gestionnaire->estServeur = estServeur;
@@ -24,12 +23,12 @@ GestionnaireReseau *reseau_creer(int estServeur, const char *hote, uint16_t port
 
     if (estServeur) {
         ENetAddress addresse;
-        enet_address_build_any(&addresse, ENET_ADDRESS_TYPE_IPV4);
+        enet_address_build_any(&addresse, addressType);
         addresse.port = port;
-        gestionnaire->hote = enet_host_create(ENET_ADDRESS_TYPE_IPV4, &addresse, MAX_PEERS, 2, 0, 0);
+        gestionnaire->hote = enet_host_create(addressType, &addresse, maxPeers, 2, 0, 0);
     } else {
-        gestionnaire->hote = enet_host_create(ENET_ADDRESS_TYPE_IPV4, NULL, 1, 2, 0, 0);
-        enet_address_set_host(&gestionnaire->serveurAddresse, ENET_ADDRESS_TYPE_IPV4, hote);
+        gestionnaire->hote = enet_host_create(addressType, NULL, 1, 2, 0, 0);
+        enet_address_set_host(&gestionnaire->serveurAddresse, addressType, hote);
         gestionnaire->serveurAddresse.port = port;
         gestionnaire->serveurPeer =
             enet_host_connect(gestionnaire->hote, &gestionnaire->serveurAddresse, 2, 0);
@@ -47,7 +46,7 @@ GestionnaireReseau *reseau_creer(int estServeur, const char *hote, uint16_t port
     }
 
     printf("creer\n");
-    log_fmt(NiveauLogInfo,"Module réseau initialisé");
+    log_fmt(NiveauLogInfo, "Module réseau initialisé");
     return gestionnaire;
 }
 
@@ -59,7 +58,7 @@ void reseau_detruire(GestionnaireReseau *gestionnaireReseau) {
     enet_deinitialize();
 }
 
-int reseau_update(GestionnaireReseau *gestionnaireReseau) {
+int reseau_update(GestionnaireReseau *gestionnaireReseau, void(*callback)(const ENetPacket*)) {
     gestionnaireReseau->estActif = 1;
     ENetEvent event;
     int processed = 0;
@@ -76,6 +75,7 @@ int reseau_update(GestionnaireReseau *gestionnaireReseau) {
             break;
 
         case ENET_EVENT_TYPE_RECEIVE:
+            callback(event.packet);
             if (gestionnaireReseau->estServeur) {
                 enet_host_broadcast(gestionnaireReseau->hote, 0,
                                     event.packet); // le serveur renvoie les packets
