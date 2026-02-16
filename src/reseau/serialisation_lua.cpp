@@ -1,12 +1,12 @@
 #include "serialisation_lua.hpp"
+#include "../moteur/logging/logging.h"
 #include "enet6/enet.h"
-#include "serialisation.h"
+#include "paquets.h"
 #include "sol/forward.hpp"
 #include "sol/table.hpp"
 #include <cstddef>
 #include <string>
 #include <yyjson.h>
-#include "../moteur/logging/logging.h"
 
 static std::string cle_vers_string(const sol::object& cle) {
     if (cle.is<int>()) {
@@ -41,6 +41,38 @@ static yyjson_mut_val* table_lua_vers_json(const sol::table& table, yyjson_mut_d
     return obj;
 }
 
+static sol::table json_vers_table_lua(sol::state& lua, yyjson_val* obj) {
+    sol::table table = lua.create_table();
+
+    yyjson_val* key;
+    yyjson_val* val;
+    yyjson_obj_iter iter;
+    yyjson_obj_iter_init(obj, &iter);
+
+    while ((key = yyjson_obj_iter_next(&iter))) {
+        val = yyjson_obj_iter_get_val(key);
+
+        const char* keyStr = yyjson_get_str(key);
+        if (!keyStr) continue;
+
+        if (yyjson_is_obj(val)) {
+            table[keyStr] = json_vers_table_lua(lua, val);
+        } else if (yyjson_is_str(val)) {
+            table[keyStr] = std::string(yyjson_get_str(val));
+        } else if (yyjson_is_real(val)) {
+            table[keyStr] = yyjson_get_real(val);
+        } else if (yyjson_is_int(val)) {
+            table[keyStr] = (int)yyjson_get_int(val);
+        } else if (yyjson_is_bool(val)) {
+            table[keyStr] = yyjson_get_bool(val);
+        } else {
+            log_fmt(NiveauLogErreur, "Unsupported JSON value type in json_vers_table_lua");
+        }
+    }
+
+    return table;
+}
+
 ENetPacket* reseau_creer_paquet_lua_fiable(const sol::table& table) {
     yyjson_mut_doc* doc = yyjson_mut_doc_new(NULL);
 
@@ -56,4 +88,26 @@ ENetPacket* reseau_creer_paquet_lua_fiable(const sol::table& table) {
     yyjson_mut_doc_free(doc);
 
     return packet;
+}
+
+sol::table reseau_lire_paquet_lua(sol::state &lua, const ENetPacket *paquet) {
+    if (!paquet || !paquet->data || paquet->dataLength == 0) {
+        log_fmt(NiveauLogErreur, "Invalid ENet packet");
+        return lua.create_table();
+    }
+
+    const char* jsonStr = reinterpret_cast<const char*>(paquet->data);
+    size_t len = paquet->dataLength;
+
+    yyjson_doc* doc = yyjson_read(jsonStr, len, 0);
+    if (!doc) {
+        log_fmt(NiveauLogErreur, "Failed to parse JSON from ENet packet");
+        return lua.create_table();
+    }
+
+    yyjson_val* root = yyjson_doc_get_root(doc);
+    sol::table table = json_vers_table_lua(lua, root);
+
+    yyjson_doc_free(doc);
+    return table;
 }
