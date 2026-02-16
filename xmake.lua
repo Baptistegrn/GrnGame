@@ -40,7 +40,7 @@ target("GrnGame")
     add_files("src/**.c")
     add_files("src/**.cpp")
     add_headerfiles("src/**.h")
-    add_headerfiles("src/**.h")
+    add_headerfiles("src/**.hpp")
 
     --packages
     add_packages(
