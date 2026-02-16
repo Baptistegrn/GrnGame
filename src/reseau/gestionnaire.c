@@ -2,6 +2,7 @@
 
 #include "../allouer/allouer.h"
 #include "../moteur/logging/logging.h"
+#include "envoi.h"
 
 #include <stdio.h>
 
@@ -77,8 +78,7 @@ int reseau_update(GestionnaireReseau *gestionnaireReseau, void(*callback)(const 
         case ENET_EVENT_TYPE_RECEIVE:
             callback(event.packet);
             if (gestionnaireReseau->estServeur) {
-                enet_host_broadcast(gestionnaireReseau->hote, 0,
-                                    event.packet); // le serveur renvoie les packets
+                reseau_broadcast_paquet(event.packet, gestionnaireReseau->hote); // le serveur renvoie les packets
             } else {
                 enet_packet_destroy(event.packet);
             }
