@@ -73,21 +73,28 @@ static sol::table json_vers_table_lua(sol::state& lua, yyjson_val* obj) {
     return table;
 }
 
-ENetPacket* reseau_creer_paquet_lua_fiable(const sol::table& table) {
+ENetPacket* reseau_creer_paquet_lua(const sol::table& table, int fiable) {
     yyjson_mut_doc* doc = yyjson_mut_doc_new(NULL);
-
     yyjson_mut_val* root = table_lua_vers_json(table, doc);
     yyjson_mut_doc_set_root(doc, root);
 
     size_t len;
     char* jsonString = yyjson_mut_write(doc, 0, &len);
 
-    ENetPacket* packet = reseau_creer_paquet(jsonString, len, ENET_PACKET_FLAG_RELIABLE);
+    ENetPacket* packet = reseau_creer_paquet(jsonString, len, fiable ? ENET_PACKET_FLAG_RELIABLE : (ENetPacketFlag)0);
 
     free(jsonString);
     yyjson_mut_doc_free(doc);
 
     return packet;
+}
+
+ENetPacket* reseau_creer_paquet_lua_non_fiable(const sol::table& table) {
+    return reseau_creer_paquet_lua(table, 0);
+}
+
+ENetPacket* reseau_creer_paquet_lua_fiable(const sol::table& table) {
+    return reseau_creer_paquet_lua(table, 1)
 }
 
 sol::table reseau_lire_paquet_lua(sol::state &lua, const ENetPacket *paquet) {
