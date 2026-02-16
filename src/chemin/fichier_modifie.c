@@ -3,7 +3,6 @@
  * Utilise pour le hot reload des scripts Lua en mode debug.
  */
 
-#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 

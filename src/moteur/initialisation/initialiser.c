@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 Gestionnaire *gs = NULL;
 
 /*
@@ -68,11 +67,7 @@ Gestionnaire *initialiser(int hauteur_univers, int largeur_univers, float fps, b
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK) != 0) {
         log_fmt(NiveauLogErreur, "SDL_Init failed: %s", SDL_GetError());
         /* Si echec on passe sans drivers */
-#ifdef _WIN32
-        _putenv("SDL_VIDEODRIVER=dummy");
-#else
-        setenv("SDL_VIDEODRIVER", "dummy", 1);
-#endif
+        SDL_setenv("SDL_VIDEODRIVER", "dummy", 1);
 
         /* On retente */
         if (SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK) != 0) {

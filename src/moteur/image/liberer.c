@@ -11,7 +11,6 @@
 #include "../image/chargement/chargement_image.h"
 #include "../logging/logging.h"
 
-
 /* Libere le tableau dynamique contenant les images de la frame actuelle */
 void free_tab_images(void) {
     if (!gs || !gs->frame->image)
@@ -81,7 +80,6 @@ void liberer_textures(void) {
 /* libere le sprite */
 void liberer_sprite(Sprite *sprite) {
     if (sprite) {
-        free_gestion_echec_compteur((void *)sprite->id);
         free_gestion_echec_compteur(sprite);
     }
 }

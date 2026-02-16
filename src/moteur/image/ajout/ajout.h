@@ -56,8 +56,8 @@ typedef struct {
 } ObjectImage;
 
 typedef struct {
-    const char *id;          /* lien */
-    Sint16 taillex, tailley; /* taille */
+    const char id[TAILLE_LIEN]; /* lien */
+    Sint16 taillex, tailley;    /* taille */
 } Sprite;
 
 /* Ajoute une image au rendu */

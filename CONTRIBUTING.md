@@ -1,42 +1,77 @@
-# Guide de Contribution - GrnGame Engine
+# Guide de contribution — GrnGame Engine
 
-## Conventions de Code
+Ce document décrit les conventions et la procédure pour contribuer au projet.
+Merci pour ton aide — respecte les conventions ci‑dessous pour faciliter les revues.
 
-### Code Interne du Moteur
-- **Langue** : Français
-- **Style de nommage** : snake_case (ex: `ma_fonction`, `ma_variable`)
-- **Commentaires** : Chaque fonction doit être commentée
-- **Structure** : Code bien divisé en plusieurs fichiers
-- **Propriétés modifiables** : À définir dans `proprietes.h` (exemple : CLE 42)
+---
 
-### Code Public/Exposé aux Utilisateurs
-- **Langue** : Anglais
-- **Style de nommage** : camelCase (ex: `myFunction`, `myVariable`)
-- **Commentaires** : Bien documentés en français sauf dans ce cas :
-- **Cas spécial** : `GrnGame.h` dans `bindings_c/` utilise des commentaires anglais
+## 1. Principes généraux
+- Ouvre une issue pour les grosses modifications.
+- Travaille sur une branche dédiée et nommée clairement (ex. `feature/ma-fonction`).
+- Fais des PR petites et ciblées.
+- Ajoute des tests et mets à jour le `README` correspondant.
 
-### Structure des Fichiers et Dossiers
-- **Dossiers** : snake_case
-- **Fichiers** : snake_case
+---
 
-## Priorités de Développement
+## 2. Conventions de code
+### Langue
+- Code interne du moteur : **français** (noms, commentaires internes).
+- Code public / API exposée : **anglais** (noms et documentation publique).
 
-### 1. Refactorisation des Dépendances
-- Chaque fichier `.c` doit dépendre uniquement de ses propres fichiers `.h`
-- Supprimer la dépendance globale à `main.h`
-- **Note** : Travail de longue haleine nécessitant une refactorisation complète
+### Style & nommage
+- Style interne : **snake_case** (ex. `ma_fonction`, `ma_variable`).
+- API publique : **camelCase** (ex. `myFunction`, `myVariable`).
+- Fichiers et dossiers : **snake_case**.
 
-### 2. Documentation
-- Recommenter l'ensemble du projet de manière propre et cohérente
-- Uniformiser le style des commentaires selon les conventions établies
+### Commentaires
+- Chaque fonction publique/privée doit être commentée.
+- Utilise commentaires clairs et concis ; préférence pour le français dans le moteur.
 
-### 3. Bindings C++
-- Développer les bindings C++ pour compléter l'API existante
+### Exposition API moteur
+- Si tu implémentes une fonctionnalité du moteur, expose‑la en C dans `GrnGame.h` (nommage et documentation en anglais) **et** fournis le binding Lua correspondant.
 
-### 4. Workflows CI/CD GitHub
-- Configurer les workflows automatisés pour les différentes plateformes :
-  - **Windows** : MSVC avec configurations debug/release/debug_allocation
-  - **Linux** : GCC/Clang avec configurations debug/release/debug_allocation
-  - **macOS** : Clang avec configurations debug/release/debug_allocation
-- Tests automatisés pour chaque plateforme
-- Publication automatique des releases
+### Propreté
+- Respecte les règles de formatage du projet (indentation, includes explicites).
+
+---
+
+## 3. Procédure Pull Request (PR)
+- Branche depuis `main` : `git checkout -b feature/ma-fonction`.
+- Commit fréquents, messages clairs (voir format ci‑dessous).
+- Push et ouvre une PR vers `main` en décrivant : but, changements, breaking changes, tests ajoutés.
+- Assigne reviewers et attends la revue ; corrige les retours avant merge.
+
+Format de message de commit recommandé :
+```
+type(scope): courte description
+
+Description détaillée (si nécessaire)
+
+Refs: #<issue-number>
+```
+Types usuels : `feat`, `fix`, `chore`, `docs`, `test`, `refactor`.
+
+---
+
+## 4. Tests et Qualité
+- Ajoute des tests unitaires pour tout comportement modifié ou ajouté.
+- Exécute les tests localement avant de créer la PR.
+- Les PR critiques doivent passer la CI (lint, builds, tests) avant merge.
+
+---
+
+## 5. Priorités de développement
+1. Corrections de bugs et stabilité
+2. Documentation (uniformisation et exemples)
+3. Bindings C++ (compléter l'API exposée)
+4. CI / CD : workflows windows 64 bits , linux (docker windows) 64 bits
+
+---
+
+## 6. Autres recommandations
+- Respecte la rétrocompatibilité pour l'API publique quand possible.
+- Documente tout changement d'API dans le README.
+- Pour les grosses modifications, ouvre d'abord une RFC (issue) pour discussion.
+
+Merci — bonne contribution ! 🙏
+

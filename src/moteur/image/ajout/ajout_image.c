@@ -154,10 +154,12 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
 gsvide:
     log_message(NiveauLogDebug, "manager is empty in add sprite to image table");
 }
+
 /* Cree une structure Sprite avec les dimensions specifiees */
 Sprite *creer_sprite(const char *id, Sint16 taillex, Sint16 tailley) {
-    Sprite *sprite = malloc_gestion_echec_compteur(sizeof(Sprite));
-    sprite->id = strdup(id);
+    Sprite *sprite = (Sprite *)malloc_gestion_echec_compteur(sizeof(Sprite));
+    strncpy((char *)sprite->id, id, TAILLE_LIEN);
+    ((char *)sprite->id)[TAILLE_LIEN - 1] = '\0';
     sprite->taillex = taillex;
     sprite->tailley = tailley;
     return sprite;

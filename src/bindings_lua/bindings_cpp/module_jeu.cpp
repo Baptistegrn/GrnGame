@@ -8,7 +8,10 @@
 #include <vector>
 
 extern "C" {
-#include "../../bindings_c/GrnGame.h"
+#include "../../module_jeu/blocs/bloc.h"
+#include "../../module_jeu/camera/camera.h"
+#include "../../module_jeu/carte/carte.h"
+#include "../../module_jeu/hitbox/hitbox.h"
 #include "../../proprietes.h"
 #include <lauxlib.h>
 #include <lua.h>
@@ -19,11 +22,11 @@ extern "C" {
 struct LuaBlock {
     Block *ptr;
 
-    LuaBlock(float x, float y, float w, float h, int type) { ptr = createBlock(x, y, w, h, type); }
+    LuaBlock(float x, float y, float w, float h, int type) { ptr = creer_block(x, y, w, h, type); }
 
     ~LuaBlock() {
         if (ptr) {
-            freeBlock(ptr);
+            liberer_block(ptr);
             ptr = nullptr;
         }
     }
@@ -49,18 +52,18 @@ struct LuaBlock {
 struct LuaBlocks {
     Blocks *ptr;
 
-    LuaBlocks() { ptr = createBlocks(); }
+    LuaBlocks() { ptr = creer_blocks(); }
 
     ~LuaBlocks() {
         if (ptr) {
-            freeBlocks(ptr);
+            liberer_blocks(ptr);
             ptr = nullptr;
         }
     }
 
-    void add(const LuaBlock &block) { addBlock(ptr, block.ptr); }
+    void add(const LuaBlock &block) { ajouter_block(ptr, block.ptr); }
 
-    int size() const { return getBlocksSize(ptr); }
+    int size() const { return taille_blocks(ptr); }
 
     /* boucle sur les blocs types */
     Block *get(int index) const { return &ptr->tab[index]; }
@@ -71,7 +74,7 @@ struct LuaBlocks {
     /* Iterator pour for...in */
     std::function<Block *()> pairs() {
         int index = -1;
-        int max_size = getBlocksSize(ptr);
+        int max_size = taille_blocks(ptr);
         Blocks *blocks_ptr = ptr;
 
         return [blocks_ptr, index, max_size]() mutable -> Block * {
@@ -88,11 +91,11 @@ struct LuaBlocks {
 struct LuaEntityTopdown {
     EntityTopdown *ptr;
 
-    LuaEntityTopdown(float x, float y, float w, float h) { ptr = createEntityTopdown(x, y, w, h); }
+    LuaEntityTopdown(float x, float y, float w, float h) { ptr = creer_entite_topdown(x, y, w, h); }
 
     ~LuaEntityTopdown() {
         if (ptr) {
-            freeEntityTopdown(ptr);
+            liberer_entite_topdown(ptr);
             ptr = nullptr;
         }
     }
@@ -119,12 +122,12 @@ struct LuaEntityPlatformer {
                         sol::optional<float> gravite) {
         float f = force_saut.value_or(DEFAULT_FORCE_SAUT);
         float g = gravite.value_or(DEFAULT_GRAVITE);
-        ptr = createEntityPlatformer(x, y, w, h, f, g);
+        ptr = creer_entite_platforme(x, y, w, h, f, g);
     }
 
     ~LuaEntityPlatformer() {
         if (ptr) {
-            freeEntityPlatformer(ptr);
+            liberer_entite_platforme(ptr);
             ptr = nullptr;
         }
     }
@@ -169,12 +172,12 @@ struct LuaCamera {
     Camera *ptr;
 
     LuaCamera(float x, float y, float smooth, int w, int h) {
-        ptr = createCamera(x, y, smooth, w, h);
+        ptr = creer_camera(x, y, smooth, w, h);
     }
 
     ~LuaCamera() {
         if (ptr) {
-            freeCamera(ptr);
+            liberer_camera(ptr);
             ptr = nullptr;
         }
     }
@@ -195,7 +198,7 @@ struct LuaCamera {
     int rec_h() const { return ptr->height; }
     void mettre_h(int v) { ptr->height = v; }
 
-    void update(float tx, float ty, float dt) { cameraUpdate(ptr, tx, ty, dt); }
+    void update(float tx, float ty, float dt) { camera_mise_a_jour(ptr, tx, ty, dt); }
 };
 
 /* wrapper pour les blocs charges depuis un fichier */
@@ -204,27 +207,27 @@ struct LuaBlocksFromFile {
     bool owns;
 
     LuaBlocksFromFile(const std::string &path, int pas_x, int pas_y, char sep, int exclude) {
-        ptr = getBlocksFromFile(path.c_str(), pas_x, pas_y, sep, exclude);
+        ptr = charger_carte(path.c_str(), pas_x, pas_y, sep, exclude);
         owns = true;
     }
 
     ~LuaBlocksFromFile() {
         if (ptr && owns) {
-            freeBlocks(ptr);
+            liberer_blocks(ptr);
             ptr = nullptr;
         }
     }
 
-    int size() const { return getBlocksSize(ptr); }
+    int size() const { return taille_blocks(ptr); }
 };
 
 /* convertit un tableau lua de blocs en structure Blocks */
 static Blocks *blocks_depuis_tableau(sol::table t) {
-    Blocks *blocks = createBlocks();
+    Blocks *blocks = creer_blocks();
 
     for (auto &kv : t) {
         LuaBlock &b = kv.second.as<LuaBlock &>();
-        addBlock(blocks, b.ptr);
+        ajouter_block(blocks, b.ptr);
     }
     return blocks;
 }
@@ -240,7 +243,7 @@ static void lua_hitbox_platformer(LuaEntityPlatformer &ent, LuaBlocks &blocks,
     }
     float c = correction.value_or(DEFAULT_CORRECTION_MUR);
     float v = vmax.value_or(DEFAULT_VMAX_CHUTE);
-    hitboxPlatformer(ent.ptr, blocks.ptr, v, c, ig.data(), ig.size());
+    hitbox_platforme(ent.ptr, blocks.ptr, v, c, ig.data(), ig.size());
 }
 /* calcule la physique de plateforme avec table lua */
 static EntityPlatformer *lua_hitbox_platformer_table(LuaEntityPlatformer &ent, sol::table t,
@@ -257,9 +260,9 @@ static EntityPlatformer *lua_hitbox_platformer_table(LuaEntityPlatformer &ent, s
     Blocks *blocks = blocks_depuis_tableau(t);
     float c = correction.value_or(DEFAULT_CORRECTION_MUR);
     float v = vmax.value_or(DEFAULT_VMAX_CHUTE);
-    EntityPlatformer *r = hitboxPlatformer(ent.ptr, blocks, v, c, ig.data(), ig.size());
+    EntityPlatformer *r = hitbox_platforme(ent.ptr, blocks, v, c, ig.data(), ig.size());
 
-    freeBlocks(blocks);
+    liberer_blocks(blocks);
     return r;
 }
 
@@ -271,7 +274,7 @@ static EntityTopdown *lua_hitbox_topdown(LuaEntityTopdown &ent, LuaBlocks &block
         for (auto &kv : *ignore)
             ig.push_back(kv.second.as<int>());
     }
-    return hitboxTopdown(ent.ptr, blocks.ptr, ig.data(), ig.size());
+    return hitbox_topdown(ent.ptr, blocks.ptr, ig.data(), ig.size());
 }
 
 /* calcule la physique topdown avec table lua */
@@ -284,8 +287,8 @@ static EntityTopdown *lua_hitbox_topdown_table(LuaEntityTopdown &ent, sol::table
     }
 
     Blocks *blocks = blocks_depuis_tableau(t);
-    EntityTopdown *r = hitboxTopdown(ent.ptr, blocks, ig.data(), ig.size());
-    freeBlocks(blocks);
+    EntityTopdown *r = hitbox_topdown(ent.ptr, blocks, ig.data(), ig.size());
+    liberer_blocks(blocks);
     return r;
 }
 

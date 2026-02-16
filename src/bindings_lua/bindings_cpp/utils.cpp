@@ -6,7 +6,10 @@
 #include <sol/sol.hpp>
 
 extern "C" {
-#include "../../bindings_c/GrnGame.h"
+#include "../../moteur/boucle/boucle.h"
+#include "../../moteur/fenetre/fenetre.h"
+#include "../../moteur/initialisation/initialisation.h"
+#include "../../moteur/logging/logging.h"
 #include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
@@ -28,10 +31,10 @@ static void update_trampoline(void) {
     if (!resultat.valid()) {
         sol::error err = resultat;
         /* si erreur dans la callback on quitte */
-        logMessage(3, "Lua Runtime Error in update callback:");
-        logMessage(3, err.what());
+        log_message(NiveauLogErreur, "Lua Runtime Error in update callback:");
+        log_message(NiveauLogErreur, err.what());
         /* stop le jeu*/
-        stop();
+        arreter_gestionnaire();
     }
 }
 
@@ -68,28 +71,29 @@ void lua_initialize(sol::optional<int> height, sol::optional<int> width, sol::op
     } else {
         g_update_func = sol::protected_function(lua[DEFAULT_UPDATE_FUNC], traceback);
     }
-
-    initialize(h, w, f, b, wt.c_str(), update_trampoline);
+    definir_rappel_mise_a_jour(update_trampoline);
+    initialiser(h, w, f, b, wt.c_str());
+    boucle_principale();
 }
 
 /* enregistre un message de log */
-void lua_logMessage(int level, const std::string &message) { logMessage(level, message.c_str()); }
+void lua_logMessage(int level, const std::string &message) {
+    log_message((NiveauLog)level, message.c_str());
+}
+
+/* changer le niveau de logs */
+void lua_changer_log_niveau(int lvl) { changer_niveau_log((NiveauLog)lvl); }
 
 /* enregistrement des bindings utilitaires */
 void enregistrer_bindings_utils(sol::table &utils) {
     utils.set_function("initialize", &lua_initialize);
     utils.set_function("logMessage", &lua_logMessage);
-    utils.set_function("stop", &stop);
-    utils.set_function("fullscreen", &fullscreen);
-    utils.set_function("windowedFullscreen", &windowedFullscreen);
-    utils.set_function("windowed", &windowed);
-    utils.set_function("windowedMinimised", &windowedMinimised);
-    utils.set_function("cls", &clearScreen);
-    utils.set_function("setLogLvl", &setLogLvl);
-    utils.set_function("setKeyImage",
-                       [](int index, uint8_t valeur) { setImageKey(index, valeur); });
-    utils.set_function("setIvImage", [](int index, uint8_t valeur) { setImageIv(index, valeur); });
-    utils.set_function("setKeySong", [](int index, uint8_t valeur) { setSongKey(index, valeur); });
-    utils.set_function("setIvSong", [](int index, uint8_t valeur) { setSongIv(index, valeur); });
-    utils.set_function("showCursor", &showCursor);
+    utils.set_function("stopEngine", &arreter_gestionnaire);
+    utils.set_function("fullscreen", &passer_plein_ecran);
+    utils.set_function("windowedFullscreen", &passer_fenetre_maximisee);
+    utils.set_function("windowed", &passer_fenetre_taille);
+    utils.set_function("windowedMinimised", &passer_fenetre_coeff);
+    utils.set_function("cls", &stocker_coloriage);
+    utils.set_function("setLogLvl", &lua_changer_log_niveau);
+    utils.set_function("showCursor", &afficher_curseur);
 }
