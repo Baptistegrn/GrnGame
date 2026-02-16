@@ -1,169 +1,86 @@
--- logs info
+-- Set log level: 0 for Debug/All
 utils.setLogLvl(0)
-
--- sprite.png animations frames
-local ANIM_IDLE = { 9, 12 }
-local ANIM_WALK = { 25, 31 }
-local ANIM_JUMP_UP = { 33, 35 }
+local ANIM_IDLE      = { 9, 12 }
+local ANIM_WALK      = { 25, 31 }
+local ANIM_JUMP_UP   = { 33, 35 }
 local ANIM_JUMP_DOWN = { 36, 37 }
-
--- create camera : x, y, smooth factor, size : w, h
-local camera =
-    game.Camera(320 / 2, 180 / 2, 2.0, 320, 180)
-
--- first init of the game
-local init = false
-
--- player entity
-local player = game.EntityPlatformer(50.0, 50.0, 24, 24, -200)
-
--- blocks map
-local blocks = game.Blocks()
+-- We create the objects here so they are ready before the first frame
+local camera         = game.Camera(160, 90, 2.0, 320, 180)
+local player         = game.EntityPlatformer(50.0, 50.0, 24, 24, -200)
+local blocks         = game.Blocks()
+-- Map Construction
 for i = 0, 16 do
-    -- add a block to blocks
-    -- to create a block you can do : block = game.Block(x, y, w, h, type)
     blocks:add(game.Block(i * 20.0, 148.0, 20, 20, 1))
 end
 blocks:add(game.Block(100.0, 100.0, 20, 20, 1))
-
--- this block is decoration
--- we set type = 3 and ignore it in hitbox update
-blocks:add(game.Block(180.0, 70.0, 20, 20, 3))
--- sprite to draw
-local sprite = nil
-
-local frame = 9
+blocks:add(game.Block(180.0, 70.0, 20, 20, 3)) -- Decorative block
+-- we load sprite in update loop
+local sprite    = nil
+local init      = false
+local frame     = 9
 local animTimer = 0
 local animSpeed = 0.15
-local flip = false
-local dt = 0
-
--- local function for animation
-local function animate(rangeStart, rangeEnd, loop)
+local flip      = false
+-- Helper function for animation
+local function animate(rangeStart, rangeEnd, dt, loop)
     animTimer = animTimer + dt
     if animTimer >= animSpeed then
         animTimer = 0
         frame = frame + 1
         if frame > rangeEnd then
-            if loop then
-                frame = rangeStart
-            else
-                frame = rangeEnd
-            end
+            frame = loop and rangeStart or rangeEnd
         end
     end
 end
-
+-- main loop
 function update()
-    -- delta time
-    dt = var.delta()
-
+    local dt = var.delta()
+    local moving = false
     if not init then
-        -- load all images in assets folder
         image.loadFolder("assets/")
-
-        -- you need to give the full path
         sprite = image.Sprite("assets/sprite.png", 32, 32)
-
-        -- create blocks container
-        -- you can also do blocks = {} and add blocks manually
-
-
-
-        -- create player : x, y, w, h, jump power (must be negative)
-
-        -- end of init
         init = true
     end
-
-    local moving = false
-
+    -- Input Handling
     if input.keyPressed("q") then
         player.x = player.x - 100 * dt
         flip = true
         moving = true
     end
-
     if input.keyPressed("d") then
         player.x = player.x + 100 * dt
         flip = false
         moving = true
     end
-
     if input.keyJustPressed("space") then
-        -- to activate jump you need to do this
         player.requestJump = true
     end
 
-    -- 300.0 = max fall speed
-    -- 150.0 = friction if you hit a wall during jump
-    -- we ignore block type 3
+    -- Physics & Camera
     game.hitboxPlatformer(player, blocks, 300.0, 150.0, { 3 })
-
-    -- camera update
     camera:update(player.x, player.y, dt)
 
-    -- inSky : is the player in the air ?
-    -- speedY < 0 = going up
-    -- speedY > 0 = going down
+    -- Animation State Machine
     if player.inSky then
-        if player.speedY < 0 then
-            if frame < ANIM_JUMP_UP[1] or frame > ANIM_JUMP_UP[2] then
-                frame = ANIM_JUMP_UP[1]
-            end
-            animate(ANIM_JUMP_UP[1], ANIM_JUMP_UP[2], false)
-        else
-            if frame < ANIM_JUMP_DOWN[1] or frame > ANIM_JUMP_DOWN[2] then
-                frame = ANIM_JUMP_DOWN[1]
-            end
-            animate(ANIM_JUMP_DOWN[1], ANIM_JUMP_DOWN[2], false)
-        end
+        local anim = player.speedY < 0 and ANIM_JUMP_UP or ANIM_JUMP_DOWN
+        if frame < anim[1] or frame > anim[2] then frame = anim[1] end
+        animate(anim[1], anim[2], dt, false)
     elseif moving then
-        if frame < ANIM_WALK[1] or frame > ANIM_WALK[2] then
-            frame = ANIM_WALK[1]
-        end
-        animate(ANIM_WALK[1], ANIM_WALK[2], true)
+        if frame < ANIM_WALK[1] or frame > ANIM_WALK[2] then frame = ANIM_WALK[1] end
+        animate(ANIM_WALK[1], ANIM_WALK[2], dt, true)
     else
-        if frame < ANIM_IDLE[1] or frame > ANIM_IDLE[2] then
-            frame = ANIM_IDLE[1]
-        end
-        animate(ANIM_IDLE[1], ANIM_IDLE[2], true)
+        if frame < ANIM_IDLE[1] or frame > ANIM_IDLE[2] then frame = ANIM_IDLE[1] end
+        animate(ANIM_IDLE[1], ANIM_IDLE[2], dt, true)
     end
-
-    -- draw screen background
+    -- Rendering
     utils.cls(170, 0, 170)
-
-    -- draw player
-    -- you need to subtract camera.x and camera.y to apply camera
-    image.drawSprite(
-        sprite,
-        frame,
-        player.x - 4.0 - camera.x,
-        player.y - 4.0 - camera.y,
-        1,
-        flip,
-        0,
-        255
-    )
-
-    -- draw blocks
+    -- Draw Player (Camera offset applied)
+    image.drawSprite(sprite, frame, player.x - 4.0 - camera.x, player.y - 4.0 - camera.y, 1, flip, 0, 255)
+    -- Draw Blocks (Camera offset applied)
     for block in blocks:pairs() do
-        image.drawRectFilled(
-            block.x - camera.x,
-            block.y - camera.y,
-            block.w,
-            block.h,
-            100, 100, 100, 255
-        )
-        image.drawRect(
-            block.x - camera.x,
-            block.y - camera.y,
-            block.w,
-            block.h,
-            50, 50, 50, 255
-        )
+        image.drawRectFilled(block.x - camera.x, block.y - camera.y, block.w, block.h, 100, 100, 100, 255)
+        image.drawRect(block.x - camera.x, block.y - camera.y, block.w, block.h, 50, 50, 50, 255)
     end
 end
 
--- initialize game
-utils.initialize(180, 320, 60.0, false, "Mega man Platformer")
+utils.initialize(180, 320, 60.0, false, "Mega Man Platformer")

@@ -19,12 +19,16 @@ utils = {}
 function utils.initialize(height, width, fps, black_bars, window_title, update_func) end
 
 --- Logs a message
----@param level integer log level (0=allocation,1=debug, 2=info, 3=warning, 4=error)
+---@param level integer log level (0=debug, 1=info, 2=warning, 3=error)
 ---@param message string message to display
 function utils.logMessage(level, message) end
 
+---show or not the cursor
+---@param show boolean true or false
+function utils.showCursor(show) end
+
 --- Stops the engine
-function utils.stop() end
+function utils.stopEngine() end
 
 --- Switches to fullscreen mode
 function utils.fullscreen() end
@@ -131,6 +135,56 @@ var.universeHeight = 0
 var.windowMinimised = false
 
 --
+-- json: simple encrypted JSON file handling
+--
+
+---@class json
+json = {}
+
+--- Loads a JSON file into memory
+---@param filename string file path
+function json.load(filename) end
+
+--- Saves a JSON file from memory to disk
+---@param filename string file path
+function json.save(filename) end
+
+--- Deletes a JSON file (memory + disk)
+---@param filename string file path
+function json.delete(filename) end
+
+--- Writes a variable to a JSON file (auto-detect type: number/string/bool)
+---@param filename string file path
+---@param varName string variable name
+---@param value any value to write (number|string|boolean)
+function json.writeVariable(filename, varName, value) end
+
+--- Reads a variable from a JSON file
+---@param filename string file path
+---@param varName string variable name
+---@return any|nil
+function json.readVariable(filename, varName) end
+
+--- Deletes a variable from a JSON file
+---@param filename string file path
+---@param varName string variable name
+function json.deleteVariable(filename, varName) end
+
+--- Set part of the JSON encryption key
+---@param index integer 0-15
+---@param value integer 0-255
+function json.setKey(index, value) end
+
+--- Set part of the JSON encryption IV
+---@param index integer 0-15
+---@param value integer 0-255
+function json.setIv(index, value) end
+
+--- return if a file exists or not
+---@param filename string file path
+function json.exists(filename) end
+
+--
 -- input: keyboard and controller handling
 --
 
@@ -184,6 +238,10 @@ function input.closeJoystick(index) end
 --- Closes the complete controller
 ---@param index integer controller index (0-3)
 function input.closeTheController(index) end
+
+---show or not the cursor
+---@param show boolean true or false
+function input.showCursor(show) end
 
 --
 -- image: graphics, drawing and sprites
@@ -275,10 +333,10 @@ function image.setIcon(path) end
 
 --- Loads all images from a folder
 ---@param folder string folder path
-function image.loadImageFolder(folder) end
+function image.loadFolder(folder) end
 
 --- Frees loaded images
-function image.freeImageFolder() end
+function image.freeFolder() end
 
 --- Draws particles
 ---@param x table X positions
@@ -313,6 +371,16 @@ function image.Sprite(id, width, height) end
 ---@field height integer frame height
 local Sprite = {}
 
+--- set image key
+---@param index integer 0-15
+---@param value integer 0-15
+function image.setKey(index, value) end
+
+--- set image iv
+---@param index integer 0-15
+---@param value integer 0-15
+function image.setIv(index, value) end
+
 --
 -- song: audio management
 --
@@ -325,26 +393,26 @@ song = {}
 ---@param loop? integer loop count (default: 0)
 ---@param channel? integer audio channel (default: 1)
 ---@param volume? integer volume 0-128 (default: 124)
-function song.playSound(path, loop, channel, volume) end
+function song.play(path, loop, channel, volume) end
 
 --- Stops a sound
 ---@param path string audio file path
-function song.stopSound(path) end
+function song.stop(path) end
 
 --- Pauses a sound
 ---@param path string audio file path
-function song.pauseSound(path) end
+function song.pause(path) end
 
 --- Resumes a paused sound
 ---@param path string audio file path
-function song.resumeSound(path) end
+function song.resume(path) end
 
 --- Loads all sounds from a folder
 ---@param path string folder path
-function song.loadSongFolder(path) end
+function song.loadFolder(path) end
 
 --- Frees loaded sounds
-function song.freeSongFolder() end
+function song.freeFolder() end
 
 --- Stops a channel
 ---@param channel integer channel number
@@ -357,6 +425,16 @@ function song.pauseChannel(channel) end
 --- Resumes a paused channel
 ---@param channel integer channel number
 function song.resumeChannel(channel) end
+
+--- set song key
+---@param index integer 0-15
+---@param value integer 0-15
+function song.setKey(index, value) end
+
+--- set song iv
+---@param index integer 0-15
+---@param value integer 0-15
+function song.setIv(index, value) end
 
 --
 -- game: physics, blocks, entities and camera

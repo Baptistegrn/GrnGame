@@ -28,7 +28,7 @@ function utils.logMessage(level, message) end
 function utils.showCursor(show) end
 
 --- Stops the engine
-function utils.stop() end
+function utils.stopEngine() end
 
 --- Switches to fullscreen mode
 function utils.fullscreen() end
@@ -54,26 +54,6 @@ function utils.cls(r, g, b) end
 --- Changes the log level
 ---@param level integer log level (0=debug, 1=info, 2=warning, 3=error)
 function utils.setLogLvl(level) end
-
---- set image key
----@param index integer 0-15
----@param value integer 0-15
-function utils.setKeyImage(index, value) end
-
---- set song key
----@param index integer 0-15
----@param value integer 0-15
-function utils.setKeySong(index, value) end
-
---- set image iv
----@param index integer 0-15
----@param value integer 0-15
-function utils.setIvImage(index, value) end
-
---- set song iv
----@param index integer 0-15
----@param value integer 0-15
-function utils.setIvSong(index, value) end
 
 --
 -- var: engine constants and states (read-only)
@@ -198,7 +178,7 @@ function json.setKey(index, value) end
 --- Set part of the JSON encryption IV
 ---@param index integer 0-15
 ---@param value integer 0-255
-function json.setIV(index, value) end
+function json.setIv(index, value) end
 
 --- return if a file exists or not
 ---@param filename string file path
@@ -258,6 +238,10 @@ function input.closeJoystick(index) end
 --- Closes the complete controller
 ---@param index integer controller index (0-3)
 function input.closeTheController(index) end
+
+---show or not the cursor
+---@param show boolean true or false
+function input.showCursor(show) end
 
 --
 -- image: graphics, drawing and sprites
@@ -354,13 +338,6 @@ function image.loadFolder(folder) end
 --- Frees loaded images
 function image.freeFolder() end
 
---- Creates a sprite (alternative C API)
----@param id string spritesheet path
----@param width integer frame width
----@param height integer frame height
----@return Sprite
-function image.createSprite(id, width, height) end
-
 --- Draws particles
 ---@param x table X positions
 ---@param y table Y positions
@@ -393,6 +370,16 @@ function image.Sprite(id, width, height) end
 ---@field width integer frame width
 ---@field height integer frame height
 local Sprite = {}
+
+--- set image key
+---@param index integer 0-15
+---@param value integer 0-15
+function image.setKey(index, value) end
+
+--- set image iv
+---@param index integer 0-15
+---@param value integer 0-15
+function image.setIv(index, value) end
 
 --
 -- song: audio management
@@ -438,6 +425,16 @@ function song.pauseChannel(channel) end
 --- Resumes a paused channel
 ---@param channel integer channel number
 function song.resumeChannel(channel) end
+
+--- set song key
+---@param index integer 0-15
+---@param value integer 0-15
+function song.setKey(index, value) end
+
+--- set song iv
+---@param index integer 0-15
+---@param value integer 0-15
+function song.setIv(index, value) end
 
 --
 -- game: physics, blocks, entities and camera

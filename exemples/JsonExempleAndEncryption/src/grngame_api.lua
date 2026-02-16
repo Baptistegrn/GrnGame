@@ -178,7 +178,7 @@ function json.setKey(index, value) end
 --- Set part of the JSON encryption IV
 ---@param index integer 0-15
 ---@param value integer 0-255
-function json.setIV(index, value) end
+function json.setIv(index, value) end
 
 --- return if a file exists or not
 ---@param filename string file path
