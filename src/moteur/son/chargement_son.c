@@ -3,8 +3,14 @@
  * Gere le chargement des fichiers WAV et la recuperation par lien.
  */
 
+#include "../../allouer/allouer.h"
+#include "../../chemin/chemin.h"
 #include "../../chiffrement/aes.h"
 #include "../../main.h"
+#include "../logging/logging.h"
+#include "son.h"
+#include <stdio.h>
+#include <string.h>
 
 /* Initialise le gestionnaire de sons */
 void init_gestionnaire_son(void) {
@@ -103,7 +109,7 @@ Mix_Chunk *charger_un_son(const char *lien_complet) {
 
             /* decryptage */
             struct AES_ctx ctx;
-            AES_init_ctx_iv(&ctx, cle, gs->textures->iv);
+            AES_init_ctx_iv(&ctx, cle, gs->sons->iv);
             AES_CBC_decrypt_buffer(&ctx, buffer, (size_t)taille_fichier);
 
             /* Suppression du padding */

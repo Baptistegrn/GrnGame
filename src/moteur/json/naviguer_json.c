@@ -1,9 +1,12 @@
 #include "../../chiffrement/aes.h"
-#include "../../main.h"
+#include "../../proprietes.h"
 #include "cJSON.h"
+#include <stdbool.h>
+#include <string.h>
 
-/* renvoie lobject cJSON correct selon le chemin */
-cJSON *naviguer_vers_cible(cJSON *root, const char *chemin) {
+/* renvoie lobject cJSON PARENT au bout du chemin retourne dans le ptr la chaine de caractere enfant
+ * et le booleen cree ou pas les parents */
+cJSON *naviguer_vers_cible(cJSON *root, const char *chemin, char **ptr, bool creer_parent) {
     if (!root || !chemin)
         return NULL;
 
@@ -13,11 +16,28 @@ cJSON *naviguer_vers_cible(cJSON *root, const char *chemin) {
 
     cJSON *curseur = root;
     char *token = strtok(buffer, ".");
-    while (token != NULL) {
-        curseur = cJSON_GetObjectItemCaseSensitive(curseur, token);
-        if (!curseur)
-            return NULL;
-        token = strtok(NULL, ".");
+    char *suivant = strtok(NULL, ".");
+    char *dernier = token;
+
+    while (suivant) {
+        cJSON *enfant = cJSON_GetObjectItemCaseSensitive(curseur, token);
+
+        if (!enfant) {
+            if (!creer_parent)
+                return NULL;
+
+            enfant = cJSON_CreateObject();
+            cJSON_AddItemToObject(curseur, token, enfant);
+        }
+
+        curseur = enfant;
+        token = suivant;
+        dernier = token;
+        suivant = strtok(NULL, ".");
     }
+
+    if (ptr)
+        *ptr = dernier;
+
     return curseur;
 }

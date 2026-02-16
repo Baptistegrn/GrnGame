@@ -1,6 +1,6 @@
 /* creer les entite platformer et topdown et les liberent*/
 
-#include "../../main.h"
+#include "../../allouer/allouer.h"
 #include "hitbox.h"
 
 EntityPlatformer *creer_entite_platforme(float x, float y, float w, float h, float force_saut,
@@ -30,6 +30,6 @@ EntityTopdown *creer_entite_topdown(float x, float y, float w, float h) {
     return res;
 }
 
-void liberer_entite_platforme(EntityPlatformer *entite) { free(entite); }
+void liberer_entite_platforme(EntityPlatformer *entite) { free_gestion_echec_compteur(entite); }
 
-void liberer_entite_topdown(EntityTopdown *entite) { free(entite); }
+void liberer_entite_topdown(EntityTopdown *entite) { free_gestion_echec_compteur(entite); }

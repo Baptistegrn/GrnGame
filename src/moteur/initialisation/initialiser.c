@@ -3,10 +3,23 @@
  * Configure SDL, les graphiques, le son, et charge les ressources.
  */
 
+#include "../../allouer/allouer.h"
+#include "../../chemin/chemin.h"
 #include "../../main.h"
-
+#include "../boucle/boucle.h"
+#include "../fenetre/fenetre.h"
+#include "../image/affichage/affichage.h"
+#include "../image/ajout/ajout.h"
+#include "../image/chargement/chargement_image.h"
+#include "../json/json.h"
+#include "../logging/logging.h"
+#include "../son/son.h"
 #include "initialisation.h"
 #include "mapping_data.h"
+#include <stdlib.h>
+#include <string.h>
+
+
 Gestionnaire *gs = NULL;
 
 /*

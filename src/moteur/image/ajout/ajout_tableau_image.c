@@ -2,7 +2,14 @@
  * Ajout d'images au tableau dynamique de rendu.
  */
 
+#include "../../../allouer/allouer.h"
 #include "../../../main.h"
+#include "../../boucle/boucle.h"
+#include "../../logging/logging.h"
+#include "../affichage/affichage.h"
+#include "ajout.h"
+#include <stdbool.h>
+
 
 /* Ajoute une image au tableau dynamique avec reallocation automatique */
 void ajouter_image_au_jeu(ObjectImage nouvelle) {

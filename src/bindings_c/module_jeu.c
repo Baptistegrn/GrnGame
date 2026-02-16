@@ -3,7 +3,6 @@
  * Expose les fonctions de physique, collision et camera.
  */
 
-#include "../liberer/liberer.h"
 #include "../module_jeu/camera/camera.h"
 #include "../module_jeu/carte/carte.h"
 #include "../module_jeu/hitbox/hitbox.h"

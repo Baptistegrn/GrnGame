@@ -3,6 +3,13 @@
  */
 
 #include "../../../main.h"
+#include "../../fenetre/fenetre.h"
+#include "../../logging/logging.h"
+#include "../dessin_forme/dessin.h"
+#include "../rotation/rotation.h"
+#include "SDL_stdinc.h"
+#include "affichage.h"
+
 
 /* Affiche un objet selon son type (image, forme ou particule) */
 void afficher_objet(ObjectImage *obj, SDL_Rect *dst, Sint16 x_ecran, Sint16 y_ecran, Sint16 w_ecran,

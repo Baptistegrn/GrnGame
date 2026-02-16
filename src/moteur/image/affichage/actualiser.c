@@ -3,6 +3,12 @@
  */
 
 #include "../../../main.h"
+#include "../../boucle/boucle.h"
+#include "../../fenetre/fenetre.h"
+#include "../../logging/logging.h"
+#include "../bande_noir/bande_noir.h"
+#include "affichage.h"
+
 
 /* Actualise le rendu graphique complet de la frame */
 void actualiser() {

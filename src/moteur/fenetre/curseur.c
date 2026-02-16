@@ -2,7 +2,8 @@
  * Gestion de l'affichage du curseur.
  */
 
-#include "../../main.h"
+#include "../logging/logging.h"
+#include "fenetre.h"
 
 /* Affiche ou masque le curseur de la souris selon le parametre */
 void afficher_curseur(bool afficher) {

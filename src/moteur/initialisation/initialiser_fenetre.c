@@ -3,6 +3,10 @@
  */
 
 #include "../../main.h"
+#include "../boucle/boucle.h"
+#include "../fenetre/fenetre.h"
+#include "../logging/logging.h"
+
 
 /* Initialise la fenetre et le renderer */
 void initialiser_fenetre(void) {

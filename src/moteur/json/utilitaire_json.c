@@ -1,7 +1,12 @@
+#include "../../allouer/allouer.h"
 #include "../../chiffrement/aes.h"
 #include "../../main.h"
+#include "../../moteur/logging/logging.h"
 #include "cJSON.h"
 #include "json.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* Verifie si la cle est nulle (pas de chiffrement) */
 static bool est_cle_nulle() {
@@ -267,7 +272,7 @@ void supprimer_fichier_json(const char *fichier_nom) {
         }
     }
 }
-
+/* Supprime une variable dans le JSON */
 void supprimer_variable_json(const char *fichier_nom, const char *nom_variable) {
     FichierJSON *fichier = trouver_fichier_dans_liste(fichier_nom);
     if (!fichier || !fichier->contenu) {
@@ -275,27 +280,17 @@ void supprimer_variable_json(const char *fichier_nom, const char *nom_variable) 
         return;
     }
 
-    cJSON *curseur = (cJSON *)fichier->contenu;
-    char buffer[TAILLE_LIEN];
-    strncpy(buffer, nom_variable, sizeof(buffer));
-    buffer[sizeof(buffer) - 1] = '\0';
-
-    char *token = strtok(buffer, ".");
-    char *suivant = strtok(NULL, ".");
-
-    while (suivant != NULL) {
-        curseur = cJSON_GetObjectItemCaseSensitive(curseur, token);
-        if (!curseur) {
-            log_fmt(NiveauLogErreur, "Path broken at '%s' in file: %s", token, fichier_nom);
-            return;
-        }
-
-        token = suivant; // On avance
-        suivant = strtok(NULL, ".");
+    char *token = NULL;
+    /* ne pas créer les parents pour la suppression */
+    cJSON *parent = naviguer_vers_cible((cJSON *)fichier->contenu, nom_variable, &token, false);
+    if (!parent || !token) {
+        log_fmt(NiveauLogErreur, "Path '%s' invalid in file: %s. Cannot delete variable.",
+                nom_variable, fichier_nom);
+        return;
     }
 
-    if (cJSON_HasObjectItem(curseur, token)) {
-        cJSON_DeleteItemFromObjectCaseSensitive(curseur, token);
+    if (cJSON_HasObjectItem(parent, token)) {
+        cJSON_DeleteItemFromObjectCaseSensitive(parent, token);
         log_fmt(NiveauLogInfo, "Variable '%s' deleted.", token);
     } else {
         log_fmt(NiveauLogErreur, "Variable '%s' does not exist in file: %s", token, fichier_nom);
@@ -308,8 +303,13 @@ int recuperer_type_json(const char *fichier_nom, const char *nom_variable) {
     if (!f || !f->contenu)
         return JSON_TYPE_INCONNU;
 
-    cJSON *cible = naviguer_vers_cible((cJSON *)f->contenu, nom_variable);
+    char *token = NULL;
+    /* ne creer pas les parents pour la lecture */
+    cJSON *parent = naviguer_vers_cible((cJSON *)f->contenu, nom_variable, &token, false);
+    if (!parent || !token)
+        return JSON_TYPE_INCONNU;
 
+    cJSON *cible = cJSON_GetObjectItemCaseSensitive(parent, token);
     if (!cible)
         return JSON_TYPE_INCONNU;
 
@@ -317,6 +317,7 @@ int recuperer_type_json(const char *fichier_nom, const char *nom_variable) {
         return JSON_TYPE_NOMBRE;
     if (cJSON_IsString(cible))
         return JSON_TYPE_STRING;
+
     return JSON_TYPE_INCONNU;
 }
 

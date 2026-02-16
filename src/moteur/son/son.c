@@ -3,7 +3,9 @@
  * Gere les canaux audio, la lecture, la pause et l'arret.
  */
 
+#include "son.h"
 #include "../../main.h"
+#include "../logging/logging.h"
 
 /* Joue un son sur un canal specifique avec volume et boucles configurables */
 void jouer_son(const char *lien, int boucle, int canal, int volume) {

@@ -3,6 +3,8 @@
  */
 
 #include "../../../main.h"
+#include "../../logging/logging.h"
+#include "../entrees.h"
 
 /* Verifie si une touche clavier vient d'etre pressee (front montant) */
 bool touche_juste_presse(const char *touche) {

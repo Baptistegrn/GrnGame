@@ -2,7 +2,9 @@
  * Dessin de cercles (vides et pleins).
  */
 
-#include "../../../main.h"
+#include "dessin.h"
+#include <math.h>
+
 
 /* Dessine un cercle vide avec épaisseur et lignes horizontales en haut/bas */
 void dessiner_cercle_vide(float xc, float yc, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {

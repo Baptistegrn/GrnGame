@@ -2,8 +2,17 @@
  * Allocation des structures principales du gestionnaire.
  * Initialise toutes les sous-structures avec une memoire a zero.
  */
-
+#include "../../allouer/allouer.h"
 #include "../../main.h"
+#include "../boucle/boucle.h"
+#include "../entrees/entrees.h"
+#include "../fenetre/fenetre.h"
+#include "../image/affichage/affichage.h"
+#include "../image/chargement/chargement_image.h"
+#include "../logging/logging.h"
+#include "../son/son.h"
+#include <string.h>
+
 
 /* Alloue les structures principales du gestionnaire */
 Gestionnaire *allouer_structures(void) {

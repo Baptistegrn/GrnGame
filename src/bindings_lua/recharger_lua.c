@@ -4,11 +4,17 @@
  * Le point d'entree (main.lua) ne peut pas etre recharge.
  */
 
+#include "../allouer/allouer.h"
+#include "../chemin/chemin.h"
 #include "../main.h"
+#include "../moteur/boucle/boucle.h"
+#include "../moteur/logging/logging.h"
 #include "SDL_stdinc.h"
 #include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
+#include <string.h>
+
 
 extern lua_State *G_LuaState;
 

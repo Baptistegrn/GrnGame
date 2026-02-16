@@ -28,7 +28,7 @@ typedef struct GestionnaireFichiers {
 FichierJSON *trouver_fichier_dans_liste(const char *nom);
 
 /* renvoie le bon object cJSON selon le chemin */
-cJSON *naviguer_vers_cible(cJSON *root, const char *chemin);
+cJSON *naviguer_vers_cible(cJSON *root, const char *chemin, char **ptr, bool creer_parent);
 
 /* Alloue et initialise le gestionnaire */
 void creer_gestionnaire_fichiers(void);

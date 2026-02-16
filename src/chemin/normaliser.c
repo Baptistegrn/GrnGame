@@ -2,7 +2,11 @@
  * Fonctions de normalisation des noms et chemins.
  */
 
-#include "../main.h"
+#include "../allouer/allouer.h"
+#include "../proprietes.h"
+#include <ctype.h>
+#include <string.h>
+
 
 /*
  * Convertit un nom en minuscules.

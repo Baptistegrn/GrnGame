@@ -4,6 +4,11 @@
  */
 
 #include "../../main.h"
+#include "../boucle/boucle.h"
+#include "../fenetre/fenetre.h"
+#include "../logging/logging.h"
+#include "entrees.h"
+#include <string.h>
 
 /* Trouve l'index local d'une manette a partir de son instance ID SDL */
 static int trouver_index_manette(SDL_JoystickID instance_id) {

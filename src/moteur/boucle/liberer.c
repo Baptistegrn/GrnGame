@@ -2,6 +2,7 @@
  * Liberation des ressources liees au timing.
  */
 
+#include "../../allouer/allouer.h"
 #include "../../main.h"
 
 /* Libere le GestionnaireTiming */

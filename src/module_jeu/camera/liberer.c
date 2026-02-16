@@ -2,7 +2,8 @@
  * Liberation de la camera.
  */
 
-#include "../../main.h"
+#include "../../allouer/allouer.h"
+#include "camera.h"
 
 /* libere une camera */
 void liberer_camera(Camera *ptr) {

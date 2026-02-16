@@ -4,6 +4,9 @@
  */
 
 #include "../../main.h"
+#include "../boucle/boucle.h"
+#include "../entrees/entrees.h"
+#include "../fenetre/fenetre.h"
 
 /* Renvoie la position X de la souris */
 int souris_x() {

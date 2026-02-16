@@ -3,7 +3,10 @@
  */
 
 #include "../../../main.h"
-#include "SDL_stdinc.h"
+#include "../../fenetre/fenetre.h"
+#include "../../logging/logging.h"
+#include <stdbool.h>
+
 
 /* Verifie si un objet est situe hors de la zone visible de l'ecran */
 bool hors_ecran(float posx, float posy, Sint16 taillex, Sint16 tailley, int decalage_x_scaled,

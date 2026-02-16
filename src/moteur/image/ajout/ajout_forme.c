@@ -3,7 +3,10 @@
  */
 
 #include "../../../main.h"
-
+#include "../../logging/logging.h"
+#include "ajout.h"
+#include <stdbool.h>
+#include <string.h>
 /* Ajoute une ligne a la liste de rendu */
 void ajouter_ligne(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
     if (!gs)

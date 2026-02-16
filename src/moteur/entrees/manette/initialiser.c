@@ -3,6 +3,8 @@
  */
 
 #include "../../../main.h"
+#include "../../logging/logging.h"
+#include "../entrees.h"
 
 /*
  * Initialise un controleur de jeu et son joystick associe via son index.

@@ -1,6 +1,8 @@
+#include "../../allouer/allouer.h"
 #include "../../main.h"
 #include "cJSON.h"
 #include "json.h"
+
 
 /* libere le gestionnaire de fichiers */
 void liberer_gestionnaire_fichiers(void) {

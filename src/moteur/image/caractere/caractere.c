@@ -2,7 +2,17 @@
  * Rendu de texte via les feuilles de caracteres.
  */
 
+#include "../../../allouer/allouer.h"
+#include "../../../chemin/chemin.h"
+
 #include "../../../main.h"
+#include "../../logging/logging.h"
+#include "../ajout/ajout.h"
+#include "../chargement/chargement_image.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+
 
 /* Ajoute un caractere individuel (texture) au tableau de rendu */
 static Sint16 ajouter_char_dans_tableau(const char *lien_image, char lettre, float posx, float posy,

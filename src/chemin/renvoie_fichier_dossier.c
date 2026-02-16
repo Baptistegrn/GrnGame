@@ -3,7 +3,28 @@
  * Implementation multi-plateforme (Windows et POSIX).
  */
 
-#include "../main.h"
+#include <errno.h>
+#include <limits.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <dirent.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
+#include "../allouer/allouer.h"
+#include "../moteur/logging/logging.h"
+#include "../proprietes.h"
+#include "chemin.h"
 
 #ifdef _WIN32
 

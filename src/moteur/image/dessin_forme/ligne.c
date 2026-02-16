@@ -2,7 +2,13 @@
  * Dessin de lignes et de points.
  */
 
+#include "../../../allouer/allouer.h"
 #include "../../../main.h"
+#include "../../fenetre/fenetre.h"
+#include "../../logging/logging.h"
+#include "dessin.h"
+#include <stdbool.h>
+
 
 /* Dessine une ligne entre deux points avec l'algorithme de Bresenham (pixel art) */
 void dessiner_ligne_pixel(float x0, float y0, float x1, float y1, Uint8 r, Uint8 g, Uint8 b,

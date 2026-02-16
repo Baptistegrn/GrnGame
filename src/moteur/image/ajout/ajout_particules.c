@@ -3,6 +3,10 @@
  */
 
 #include "../../../main.h"
+#include "../../logging/logging.h"
+#include "ajout.h"
+#include <stdbool.h>
+#include <string.h>
 
 /* Ajoute un tableau de particules au tableau d'images */
 void ajouter_particules_au_tableau(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r,

@@ -1,0 +1,8 @@
+21:28:42.327188194 [8652] logging.cpp:90               LOG_INFO      root         562 mappings controllers charging
+21:28:45.723670881 [8652] logging.cpp:90               LOG_INFO      root         Freeing manager...
+21:28:45.755881836 [8652] logging.cpp:90               LOG_INFO      root         manager freed successfully.
+21:28:45.892414310 [8652] logging.cpp:90               LOG_INFO      root         main loop ended
+21:28:45.898667776 [8652] logging.cpp:90               LOG_INFO      root         Lua script executed successfully
+21:28:45.903655911 [8652] logging.cpp:90               LOG_INFO      root         Lua initialization finished
+21:28:45.915669238 [8652] logging.cpp:90               LOG_INFO      root         Closing Lua state...
+21:28:45.934147274 [8652] logging.cpp:90               LOG_INFO      root         Lua state closed

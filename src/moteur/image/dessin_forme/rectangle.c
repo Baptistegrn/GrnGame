@@ -3,6 +3,11 @@
  */
 
 #include "../../../main.h"
+#include "../../fenetre/fenetre.h"
+#include "../../logging/logging.h"
+#include "dessin.h"
+#include <stdbool.h>
+
 
 /* Dessine un rectangle vide en tracant 4 lignes */
 void dessiner_rectangle_vide(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b,

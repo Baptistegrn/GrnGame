@@ -2,7 +2,9 @@
  * Liberation des conteneurs de blocs.
  */
 
-#include "../../main.h"
+#include "../../allouer/allouer.h"
+#include "bloc.h"
+
 
 /* Libere un conteneur de blocs et son tableau */
 void liberer_blocks(Blocks *ptr) {

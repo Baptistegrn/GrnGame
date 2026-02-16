@@ -229,17 +229,18 @@ static Blocks *blocks_depuis_tableau(sol::table t) {
     return blocks;
 }
 /* calcule la physique de plateforme avec collisions */
-static EntityPlatformer *lua_hitbox_platformer(LuaEntityPlatformer &ent, LuaBlocks &blocks,
-                                               float vmax, float correction,
-                                               sol::optional<sol::table> ignore) {
+static void lua_hitbox_platformer(LuaEntityPlatformer &ent, LuaBlocks &blocks,
+                                  sol::optional<float> vmax, sol::optional<float> correction,
+                                  sol::optional<sol::table> ignore) {
     std::vector<int> ig;
     /* type ignore */
     if (ignore) {
         for (auto &kv : *ignore)
             ig.push_back(kv.second.as<int>());
     }
-
-    return hitboxPlatformer(ent.ptr, blocks.ptr, vmax, correction, ig.data(), ig.size());
+    float c = correction.value_or(DEFAULT_CORRECTION_MUR);
+    float v = vmax.value_or(DEFAULT_VMAX_CHUTE);
+    hitboxPlatformer(ent.ptr, blocks.ptr, v, c, ig.data(), ig.size());
 }
 /* calcule la physique de plateforme avec table lua */
 static EntityPlatformer *lua_hitbox_platformer_table(LuaEntityPlatformer &ent, sol::table t,

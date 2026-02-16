@@ -1,4 +1,4 @@
-#include "../../main.h"
+#include <stdbool.h>
 #include <stdio.h>
 
 /* retourne si un fichier existe */

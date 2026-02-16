@@ -2,8 +2,9 @@
  * Liberation des ressources liees aux entrees (clavier, manette).
  */
 
+#include "../../allouer/allouer.h"
 #include "../../main.h"
-#include <stdlib.h>
+#include "entrees.h"
 
 /* Libere le GestionnaireEntrees */
 void liberer_entrees(void) {

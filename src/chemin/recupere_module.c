@@ -2,7 +2,9 @@
  * Extraction du nom de module Lua a partir dun chemin.
  */
 
-#include "../main.h"
+#include "../allouer/allouer.h"
+#include <string.h>
+
 
 /*
  * Extrait le nom du module a partir d'un chemin complet.

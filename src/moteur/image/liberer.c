@@ -2,8 +2,15 @@
  * Liberation des ressources liees aux images et textures.
  */
 
+#include "../../allouer/allouer.h"
 #include "../../main.h"
-#include <stdlib.h>
+#include "../boucle/boucle.h"
+#include "../fenetre/fenetre.h"
+#include "../image/affichage/affichage.h"
+#include "../image/ajout/ajout.h"
+#include "../image/chargement/chargement_image.h"
+#include "../logging/logging.h"
+
 
 /* Libere le tableau dynamique contenant les images de la frame actuelle */
 void free_tab_images(void) {

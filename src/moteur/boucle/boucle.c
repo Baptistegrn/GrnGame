@@ -5,7 +5,15 @@
 
 typedef void (*RappelMiseAJour)(void);
 
+#include "boucle.h"
+#include "../../bindings_lua/bindings_lua.h"
+#include "../../liberer/liberer.h"
 #include "../../main.h"
+#include "../entrees/entrees.h"
+#include "../image/affichage/affichage.h"
+#include "../initialisation/initialisation.h"
+#include "../logging/logging.h"
+
 
 static RappelMiseAJour g_rappel_mise_a_jour = NULL;
 

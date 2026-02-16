@@ -2,7 +2,10 @@
  * Rotation de textures avec cache et optimisation.
  */
 
+#include "rotation.h"
 #include "../../../main.h"
+#include "../../fenetre/fenetre.h"
+#include "../../logging/logging.h"
 
 /* Ajuste les dimensions et la position du rectangle de destination pour centrer la texture tournee
  */

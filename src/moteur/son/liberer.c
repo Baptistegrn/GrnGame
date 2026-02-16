@@ -2,8 +2,10 @@
  * Liberation des ressources liees au son.
  */
 
+#include "../../allouer/allouer.h"
 #include "../../main.h"
-#include <stdlib.h>
+#include "../logging/logging.h"
+#include "son.h"
 
 /* Libere les ressources audio (Chunks) et le tableau du gestionnaire de son */
 void liberer_gestionnaire_son(void) {

@@ -2,8 +2,11 @@
  * Liberation des ressources liees a la fenetre.
  */
 
+#include "../../allouer/allouer.h"
 #include "../../main.h"
-#include <stdlib.h>
+#include "../boucle/boucle.h"
+#include "fenetre.h"
+
 
 /* Libere le GestionnaireFenetre et ses ressources SDL */
 void liberer_fenetre(void) {

@@ -1,6 +1,12 @@
 /* remet a 0 les clefs de chiffrements */
 
 #include "../../main.h"
+#include "../image/chargement/chargement_image.h"
+#include "../json/json.h"
+#include "../logging/logging.h"
+#include "../son/son.h"
+#include <string.h>
+
 
 void mettre_cle_vide() {
     if (!gs)

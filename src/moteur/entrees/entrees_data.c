@@ -3,7 +3,7 @@
  * Permet la conversion dynamique d'une chaine (ex: "space") vers le scancode.
  */
 
-#include "../../main.h"
+#include "entrees.h"
 
 /* Touches alphabetiques, numeriques et symboles */
 const ToucheNom touches_1[] = {{"a", SDL_SCANCODE_A},           {"b", SDL_SCANCODE_B},

@@ -3,7 +3,11 @@
  * Le format attendu est une grille de nombres separes par un caractere.
  */
 
-#include "../../main.h"
+#include "../../allouer/allouer.h"
+#include "../../moteur/logging/logging.h"
+#include "../../proprietes.h"
+#include "carte.h"
+#include <stdio.h>
 
 /*
  * Charge une carte depuis un fichier texte.

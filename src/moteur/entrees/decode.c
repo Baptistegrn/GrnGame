@@ -3,7 +3,10 @@
  * Conversion de chaines en SDL_Scancode et SDL_GameControllerButton.
  */
 
-#include "../../main.h"
+#include "../../allouer/allouer.h"
+#include "../logging/logging.h"
+#include "entrees.h"
+#include <string.h>
 
 /*
  * Convertit un nom de touche (ex: "A", "SPACE", "ENTER") en SDL_Scancode.

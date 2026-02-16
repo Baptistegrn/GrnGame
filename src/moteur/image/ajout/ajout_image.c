@@ -2,7 +2,14 @@
  * Ajout d'images et de sprites a la liste de rendu.
  */
 
+#include "../../../allouer/allouer.h"
 #include "../../../main.h"
+#include "../../logging/logging.h"
+#include "../chargement/chargement_image.h"
+#include "../rotation/rotation.h"
+#include "ajout.h"
+#include <stdbool.h>
+#include <string.h>
 
 /* Ajoute une image au tableau de rendu avec gestion du cache de rotation */
 void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 coeff, bool sens,
@@ -79,12 +86,19 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
     if (!gs)
         goto gsvide;
 
-    /* Correction rotation */
     const char *id = sprite->id;
+
+    /* Correction rotation */
     if (rotation > 359) {
         rotation = 0;
-
         log_fmt(NiveauLogAvertissement, "Rotation invalid for sprite %s correction to 0", id);
+    }
+
+    /* Recuperer la texture de base AVANT l'init de l'objet */
+    SDL_Texture *texture_base = recuperer_texture_par_lien(id);
+    if (!texture_base) {
+        log_fmt(NiveauLogErreur, "Base texture not found for sprite '%s'", id);
+        return;
     }
 
     ObjectImage obj;
@@ -92,7 +106,10 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
 
     /* Limitation des valeurs Alpha */
     a = SDL_clamp(a, 0, 255);
+
     obj.type = TYPE_IMAGE;
+    /* Assignation de la texture recuperee plus haut */
+    obj.image.texture = texture_base;
     obj.image.posx = x;
     obj.image.posy = y;
     obj.image.taillex = sprite->taillex * coeff;
@@ -104,20 +121,9 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
     obj.image.a = a;
     obj.image.sprite = true;
 
-    if (!obj.image.texture) {
-        log_fmt(NiveauLogErreur, "Texture not found for '%s'", id);
-        return;
-    }
-
-    /* Recuperer la texture de base pour calculer les coordonnees de la spritesheet */
-    SDL_Texture *texture_base = recuperer_texture_par_lien(id);
-    if (!texture_base) {
-        log_fmt(NiveauLogErreur, "Base texture not found for sprite '%s'", id);
-        return;
-    }
-
     int tex_w, tex_h;
     SDL_QueryTexture(texture_base, NULL, NULL, &tex_w, &tex_h);
+
     /* index 0 */
     int idx = index - 1;
     if (idx < 0)
@@ -129,6 +135,7 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
         log_message(NiveauLogErreur, "Sprite width is larger than texture width");
         return;
     }
+
     /* x1, y1 = point haut-gauche | x2, y2 = largeur et hauteur de la decoupe */
     obj.image.x1 = (idx % nb_colonnes) * sprite->taillex;
     obj.image.y1 = (idx / nb_colonnes) * sprite->tailley;
@@ -143,10 +150,10 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
 
     ajouter_image_au_jeu(obj);
     return;
+
 gsvide:
     log_message(NiveauLogDebug, "manager is empty in add sprite to image table");
 }
-
 /* Cree une structure Sprite avec les dimensions specifiees */
 Sprite *creer_sprite(const char *id, Sint16 taillex, Sint16 tailley) {
     Sprite *sprite = malloc_gestion_echec_compteur(sizeof(Sprite));

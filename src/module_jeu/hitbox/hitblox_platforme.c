@@ -4,6 +4,9 @@
  */
 
 #include "../../main.h"
+#include "../../moteur/boucle/boucle.h"
+#include "hitbox.h"
+#include <stdbool.h>
 
 /* Verifie si un type de bloc doit etre ignore */
 bool est_type_ignorer(int type, int *types_a_ignorer, int nb_types) {
@@ -245,6 +248,6 @@ EntityPlatformer *hitbox_platforme(EntityPlatformer *entite, Blocks *blocs, floa
                                     entite->height, entite->gravity, entite->powerJump,
                                     vitesse_max_chute, correction_mur, types_ignorer, nb_ignorer,
                                     &entite->leftLock, &entite->rightLock);
-
+    entite->requestJump = false;
     return entite;
 }

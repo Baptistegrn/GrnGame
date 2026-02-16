@@ -3,7 +3,13 @@
  * Termine le programme en cas d'echec d'allocation.
  */
 
-#include "../main.h"
+#include "allouer.h"
+#include "../headers_sdl/SDL_stdinc.h"
+#include "../moteur/logging/logging.h"
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 
 /* Compteur d'allocations actives */
 static Uint32 compteur = 0;

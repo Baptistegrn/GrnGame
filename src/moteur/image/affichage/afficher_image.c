@@ -3,8 +3,12 @@
  */
 
 #include "../../../main.h"
+#include "../../boucle/boucle.h"
+#include "../../fenetre/fenetre.h"
+#include "../../logging/logging.h"
 #include "SDL_stdinc.h"
 #include "affichage.h"
+
 
 /* Calcule les coordonnees et dimensions d'un objet a l'ecran */
 void calculer_positions_ecran(ObjectImage *obj, unsigned char coeff, int decalage_x, int decalage_y,

@@ -2,7 +2,10 @@
  * Detection des touches et axes de la manette.
  */
 
+#include "../../../allouer/allouer.h"
 #include "../../../main.h"
+#include "../../logging/logging.h"
+#include "../entrees.h"
 
 /*
  * Recupere les axes normalises (sticks et gachettes) de la manette.

@@ -3,6 +3,8 @@
  */
 
 #include "../../main.h"
+#include "../logging/logging.h"
+#include "fenetre.h"
 
 /* Definit l'icone de la fenetre SDL en chargeant une image */
 void definir_icone(const char *chemin) {

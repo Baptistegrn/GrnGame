@@ -3,6 +3,8 @@
  */
 
 #include "../../main.h"
+#include "../boucle/boucle.h"
+#include "../logging/logging.h"
 #include "fenetre.h"
 
 /* Stocke les informations de coloriage pour la frame courante */

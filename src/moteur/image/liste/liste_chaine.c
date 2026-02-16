@@ -2,7 +2,8 @@
  * Liste chainee pour le cache des rotations de textures.
  */
 
-#include "../../../main.h"
+#include "liste_chaine.h"
+#include "../../../allouer/allouer.h"
 
 /* Cree un nouveau noeud de liste chainee pour stocker une texture et son angle */
 Liste *creer_liste(SDL_Texture *valeur, int angle) {

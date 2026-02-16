@@ -3,6 +3,8 @@
  */
 
 #include "../../../main.h"
+#include "../../logging/logging.h"
+#include "../entrees.h"
 
 /* Ferme le controleur de jeu (GameController) s'il est actif */
 void fermer_controller(unsigned char index) {

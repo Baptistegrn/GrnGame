@@ -4,6 +4,8 @@
  */
 
 #include "../../main.h"
+#include "../logging/logging.h"
+#include "fenetre.h"
 
 /* Fonction pour calculer le coefficient et appliquer le redimensionnement (appel dans le event sdl)
  */

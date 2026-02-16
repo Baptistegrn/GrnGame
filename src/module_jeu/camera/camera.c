@@ -2,7 +2,8 @@
  * Mise a jour de la camera avec interpolation.
  */
 
-#include "../../main.h"
+#include "camera.h"
+#include "../../allouer/allouer.h"
 
 /*
  * Deplace la camera vers une cible avec interpolation lineaire.

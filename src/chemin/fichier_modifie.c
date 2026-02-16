@@ -3,7 +3,15 @@
  * Utilise pour le hot reload des scripts Lua en mode debug.
  */
 
-#include "../main.h"
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+#include "../allouer/allouer.h"
+#include "../moteur/logging/logging.h"
 #include "chemin.h"
 
 /* Retourne la date de derniere modification d'un fichier */

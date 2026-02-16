@@ -2,7 +2,9 @@
  * Liberation de la structure Fichiers.
  */
 
-#include "../main.h"
+#include "../allouer/allouer.h"
+#include "chemin.h"
+
 
 /* Libere une structure Fichiers et ses tableaux */
 void liberer_fichiers(Fichiers *fichiers) {

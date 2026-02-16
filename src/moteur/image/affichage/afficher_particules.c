@@ -3,6 +3,10 @@
  */
 
 #include "../../../main.h"
+#include "../../fenetre/fenetre.h"
+#include "../../logging/logging.h"
+#include "affichage.h"
+
 
 #ifdef _WIN32
 #include <malloc.h> /* bug alloc windows */

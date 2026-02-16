@@ -3,6 +3,9 @@
  */
 
 #include "../../../main.h"
+#include "../../fenetre/fenetre.h"
+#include "../../logging/logging.h"
+#include <stdint.h>
 
 /* Dessine les bandes noires de padding sur les bordures de l'ecran */
 void dessiner_bandes_noires(int decalage_x, int decalage_y) {

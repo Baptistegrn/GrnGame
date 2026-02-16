@@ -3,7 +3,7 @@
  */
 
 #include "bloc.h"
-#include "../../main.h"
+#include "../../allouer/allouer.h"
 
 /* Cree un conteneur de blocs vide avec capacite initiale de 10 */
 Blocks *creer_blocks(void) {

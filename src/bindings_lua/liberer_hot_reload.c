@@ -3,8 +3,13 @@
  * Nettoie la liste des fichiers Lua charges et surveilles.
  */
 
+#include "../chemin/chemin.h"
 #include "../main.h"
+#include "../moteur/boucle/boucle.h"
+#include "../moteur/logging/logging.h"
+#include "bindings_lua.h"
 #include <lua.h>
+
 
 extern lua_State *G_LuaState;
 

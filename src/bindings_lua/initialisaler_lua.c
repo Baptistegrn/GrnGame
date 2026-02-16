@@ -3,11 +3,15 @@
  * Gere le chargement des scripts Lua (source ou bytecode) et leur execution.
  */
 
-#include "../main.h"
+#include "../allouer/allouer.h"
+#include "../moteur/logging/logging.h"
 #include "bindings_lua.h"
 #include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 
 /* Etat global Lua partage dans tout le moteur */
 lua_State *G_LuaState = NULL;
@@ -19,7 +23,7 @@ lua_State *G_LuaState = NULL;
  */
 void initialiser_lua(const char *fichier_chemin_lua) {
 #ifdef DEBUG_MODE
-    initialiser_logging(DestinationLogFichier, "./src/logs/game.logs", NiveauLogInfo);
+    initialiser_logging(DestinationLogFichier, "./src/logs/game.logs", NiveauLogErreur);
 #endif
 
     log_fmt(NiveauLogInfo, "Initializing Lua");
