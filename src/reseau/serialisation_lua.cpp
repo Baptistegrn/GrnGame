@@ -41,7 +41,7 @@ static yyjson_mut_val* table_lua_vers_json(const sol::table& table, yyjson_mut_d
     return obj;
 }
 
-ENetPacket* creer_paquet_lua_fiable(const sol::table& table) {
+ENetPacket* reseau_creer_paquet_lua_fiable(const sol::table& table) {
     yyjson_mut_doc* doc = yyjson_mut_doc_new(NULL);
 
     yyjson_mut_val* root = table_lua_vers_json(table, doc);
