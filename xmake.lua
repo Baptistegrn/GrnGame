@@ -6,6 +6,8 @@ add_requires("zlib",           {configs={runtimes="MT", shared=false, pic=true}}
 add_requires("quill",          {configs={runtimes="MT", shared=false, pic=true}})
 add_requires("lua",            {configs={runtimes="MT", kind="static", pic=true}})
 add_requires("sol2",{configs={runtimes="MT", kind="static", pic=true}})
+add_requires("enet6")
+add_requires("yyjson")
 
 -- mode release uniquement ( debug gere par des options )
 add_rules("mode.release")
@@ -13,7 +15,7 @@ add_rules("mode.release")
 --extension executable
 local os =""
 
--- Option debug 
+-- Option debug
 option("debug")
     set_default(false)
     set_description("Activate quill logs in file log")
@@ -22,7 +24,7 @@ option("debug")
 -- Dossier de sortie selon la config
 local outdir = "bin/release"
 
-if has_config("debug") then 
+if has_config("debug") then
     outdir = "bin/debug"
 end
 
@@ -38,7 +40,7 @@ target("GrnGame")
     add_files("src/**.c")
     add_files("src/**.cpp")
     add_headerfiles("src/**.h")
-    add_headerfiles("src/**.h")
+    add_headerfiles("src/**.hpp")
 
     --packages
     add_packages(
@@ -48,7 +50,10 @@ target("GrnGame")
         "zlib",
         "quill",
         "lua",
-        "sol2"
+        "sol2",
+        "enet6",
+        "yyjson",
+        { public = true }
     )
 
     --flags

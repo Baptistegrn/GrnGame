@@ -1,0 +1,98 @@
+#include "gestionnaire.h"
+
+#include "../allouer/allouer.h"
+#include "../moteur/logging/logging.h"
+#include "envoi.h"
+
+#include <stdio.h>
+
+GestionnaireReseau *reseau_creer(int estServeur, const char *hote, const uint16_t port,
+                                 const uint32_t maxPeers, const ENetAddressType addressType) {
+    GestionnaireReseau *gestionnaire =
+        (GestionnaireReseau *)malloc_gestion_echec_compteur(sizeof(GestionnaireReseau));
+    gestionnaire->estServeur = estServeur;
+    gestionnaire->estActif = 0;
+    gestionnaire->estConnecte = 0;
+    gestionnaire->hote = NULL;
+    gestionnaire->serveurPeer = NULL;
+
+    if (enet_initialize() != 0) {
+        log_fmt(NiveauLogErreur, "Failed to initialize ENet");
+        free_gestion_echec_compteur(gestionnaire);
+        return NULL;
+    }
+
+    if (estServeur) {
+        ENetAddress addresse;
+        enet_address_build_any(&addresse, addressType);
+        addresse.port = port;
+        gestionnaire->hote = enet_host_create(addressType, &addresse, maxPeers, 2, 0, 0);
+    } else {
+        gestionnaire->hote = enet_host_create(addressType, NULL, 1, 2, 0, 0);
+        enet_address_set_host(&gestionnaire->serveurAddresse, addressType, hote);
+        gestionnaire->serveurAddresse.port = port;
+        gestionnaire->serveurPeer =
+            enet_host_connect(gestionnaire->hote, &gestionnaire->serveurAddresse, 2, 0);
+        if (!gestionnaire->serveurPeer) {
+            log_fmt(NiveauLogErreur, "Failed to connect to ENet");
+            free_gestion_echec_compteur(gestionnaire);
+            return NULL;
+        }
+    }
+
+    if (!gestionnaire->hote) {
+        log_fmt(NiveauLogErreur, "Failed to connect to get an host");
+        free_gestion_echec_compteur(gestionnaire);
+        return NULL;
+    }
+
+    printf("creer\n");
+    log_fmt(NiveauLogInfo, "Module réseau initialisé");
+    return gestionnaire;
+}
+
+void reseau_detruire(GestionnaireReseau *gestionnaireReseau) {
+    gestionnaireReseau->estActif = 0;
+    if (gestionnaireReseau->hote) {
+        enet_host_destroy(gestionnaireReseau->hote);
+    }
+    enet_deinitialize();
+}
+
+int reseau_update(GestionnaireReseau *gestionnaireReseau, void(*callback)(const ENetPacket*)) {
+    gestionnaireReseau->estActif = 1;
+    ENetEvent event;
+    int processed = 0;
+
+    while (enet_host_service(gestionnaireReseau->hote, &event, 0) > 0) {
+        processed++;
+
+        switch (event.type) {
+        case ENET_EVENT_TYPE_CONNECT:
+            log_fmt(NiveauLogInfo, "New connection");
+            if (!gestionnaireReseau->estServeur) {
+                gestionnaireReseau->estConnecte = 1;
+            }
+            break;
+
+        case ENET_EVENT_TYPE_RECEIVE:
+            callback(event.packet);
+            if (gestionnaireReseau->estServeur) {
+                reseau_broadcast_paquet(event.packet, gestionnaireReseau->hote); // le serveur renvoie les packets
+            } else {
+                enet_packet_destroy(event.packet);
+            }
+            break;
+
+        case ENET_EVENT_TYPE_DISCONNECT:
+            printf("deconnection\n");
+            log_fmt(NiveauLogInfo, "Disconnected from server");
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    return processed;
+}
