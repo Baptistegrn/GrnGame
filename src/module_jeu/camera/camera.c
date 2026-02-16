@@ -4,7 +4,7 @@
 
 #include "camera.h"
 #include "../../allouer/allouer.h"
-
+#include <math.h>
 /*
  * Deplace la camera vers une cible avec interpolation lineaire.
  * Le facteur de lissage controle la vitesse de suivi.
@@ -13,11 +13,13 @@ void camera_mise_a_jour(Camera *cam, float cible_x, float cible_y, float dt) {
     if (!cam)
         return;
 
-    float cible_cam_x = cible_x - cam->width / cam->smooth_factor;
-    float cible_cam_y = cible_y - cam->height / cam->smooth_factor;
+    float cible_cam_x = cible_x - cam->width * 0.5f;
+    float cible_cam_y = cible_y - cam->height * 0.5f;
 
-    cam->x += (cible_cam_x - cam->x) * cam->smooth_factor * dt;
-    cam->y += (cible_cam_y - cam->y) * cam->smooth_factor * dt;
+    float dx = cible_cam_x - cam->x;
+    float dy = cible_cam_y - cam->y;
+    cam->x += dx * cam->smooth_factor * dt;
+    cam->y += dy * cam->smooth_factor * dt;
 }
 
 /* creer une camera */

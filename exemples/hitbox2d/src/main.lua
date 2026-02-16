@@ -1,5 +1,5 @@
 -- logs info
-utils.setLogLvl(1)
+utils.setLogLvl(0)
 
 -- sprite.png animations frames
 local ANIM_IDLE = { 9, 12 }
@@ -7,18 +7,28 @@ local ANIM_WALK = { 25, 31 }
 local ANIM_JUMP_UP = { 33, 35 }
 local ANIM_JUMP_DOWN = { 36, 37 }
 
--- camera
-local camera = nil
+-- create camera : x, y, smooth factor, size : w, h
+local camera =
+    game.Camera(320 / 2, 180 / 2, 2.0, 320, 180)
 
 -- first init of the game
 local init = false
 
 -- player entity
-local player = nil
+local player = game.EntityPlatformer(50.0, 50.0, 24, 24, -200)
 
 -- blocks map
-local blocks = nil
+local blocks = game.Blocks()
+for i = 0, 16 do
+    -- add a block to blocks
+    -- to create a block you can do : block = game.Block(x, y, w, h, type)
+    blocks:add(game.Block(i * 20.0, 148.0, 20, 20, 1))
+end
+blocks:add(game.Block(100.0, 100.0, 20, 20, 1))
 
+-- this block is decoration
+-- we set type = 3 and ignore it in hitbox update
+blocks:add(game.Block(180.0, 70.0, 20, 20, 3))
 -- sprite to draw
 local sprite = nil
 
@@ -57,25 +67,10 @@ function update()
 
         -- create blocks container
         -- you can also do blocks = {} and add blocks manually
-        blocks = game.Blocks()
 
-        for i = 0, 10 do
-            -- add a block to blocks
-            -- to create a block you can do : block = game.Block(x, y, w, h, type)
-            blocks:add(game.Block(i * 32.0, 148.0, 32, 32, 1))
-        end
 
-        blocks:add(game.Block(100.0, 100.0, 32, 32, 1))
-
-        -- this block is decoration
-        -- we set type = 3 and ignore it in hitbox update
-        blocks:add(game.Block(180.0, 70.0, 32, 32, 3))
 
         -- create player : x, y, w, h, jump power (must be negative)
-        player = game.EntityPlatformer(50.0, 50.0, 24, 24, -200)
-
-        -- create camera : x, y, smooth factor, size : w, h
-        camera = game.Camera(320 / 2, 180 / 2, 2.0, 320, 180)
 
         -- end of init
         init = true

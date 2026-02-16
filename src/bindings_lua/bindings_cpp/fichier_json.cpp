@@ -84,12 +84,6 @@ void lua_supprimer_variable_depuis_json(const std::string &filename, const std::
     supprimer_variable_json(filename.c_str(), varName.c_str());
 }
 
-/* definit une partie de la cle de chiffrement */
-void lua_metre_json_cle(int index, int value) { mettre_fichiers_cle(index, value); }
-
-/* definit une partie du vecteur d'initialisation */
-void lua_mettre_json_iv(int index, int value) { mettre_fichiers_cle(index, value); }
-
 /* verifie si un fichier existe ou pas */
 bool lua_fichier_existe(const std::string &filename) { return fichier_existant(filename.c_str()); }
 
@@ -101,7 +95,9 @@ void enregistrer_bindings_json(sol::table &json) {
     json.set_function("writeVariable", &lua_ecrire_variable);
     json.set_function("readVariable", &lua_lire_variable);
     json.set_function("deleteVariable", &lua_supprimer_variable_depuis_json);
-    json.set_function("setKey", &lua_metre_json_cle);
-    json.set_function("setIV", &lua_mettre_json_iv);
+    json.set_function("setKey",
+                      [](int index, uint8_t valeur) { mettre_fichiers_cle(index, valeur); });
+    json.set_function("setIv",
+                      [](int index, uint8_t valeur) { mettre_fichiers_iv(index, valeur); });
     json.set_function("exists", &lua_fichier_existe);
 }
