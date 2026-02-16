@@ -2,8 +2,17 @@
  * Chargement et gestion du cache de textures.
  */
 
+#include "chargement_image.h"
+#include "../../../allouer/allouer.h"
+#include "../../../chemin/chemin.h"
 #include "../../../chiffrement/aes.h"
 #include "../../../main.h"
+#include "../../fenetre/fenetre.h"
+#include "../../logging/logging.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+
 
 /* Initialise le sous-systeme de textures */
 void init_gestionnaire_textures() {
