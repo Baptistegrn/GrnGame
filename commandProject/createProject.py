@@ -59,34 +59,19 @@ copy(os.path.join(SRC_LUA, "encryptFiles.py"),
 #luajit
 #copy(os.path.join(SRC_LUA, "engine.lua"),
      #os.path.join(project_root, "windows"))
-#luajit
-#copy(os.path.join(SRC_LUA, "engine.lua"),
-     #os.path.join(project_root, "linux"))
 
 # Windows
 win_bin = os.path.join(BIN_DIR, args.level)
 
-copy(os.path.join(win_bin, "AppWindows.exe"),
-     project_root)
-
-copy(os.path.join(win_bin, "GrnGame.dll"),
-     project_root)
-
-copy(os.path.join(win_bin, "GrnGame.lib"),
+copy(os.path.join(win_bin, "GrnGameAppWindows.exe"),
      project_root)
 
 # Linux
-copy(os.path.join(win_bin, "AppLinux"),
-     project_root)
-
-copy(os.path.join(win_bin, "libGrnGame.so"),
+copy(os.path.join(win_bin, "GrnGameAppLinux"),
      project_root)
 
 # macOS
-copy(os.path.join(win_bin, "AppMacOs"),
-     project_root)
-
-copy(os.path.join(win_bin, "libGrnGame.dylib"),
+copy(os.path.join(win_bin, "GrnGameAppMacOs"),
      project_root)
 
 print("\n\nProject create :", project_root)

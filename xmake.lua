@@ -5,10 +5,16 @@ add_requires("libsdl2_mixer",  {configs={runtimes="MT", shared=false, wav=true, 
 add_requires("zlib",           {configs={runtimes="MT", shared=false, pic=true}})
 add_requires("quill",          {configs={runtimes="MT", shared=false, pic=true}})
 add_requires("lua",            {configs={runtimes="MT", kind="static", pic=true}})
-add_requires("sol2",{configs={runtimes="MT", kind="static", pic=true}})
+add_requires("sol2",           {configs={runtimes="MT", kind="static", pic=true}})
 
 -- mode release uniquement ( debug gere par des options )
 add_rules("mode.release")
+
+-- Optimisation poids (strip et lto)
+if is_mode("release") then
+    set_strip("all")
+    set_policy("build.optimization.lto", true)
+end
 
 --extension executable
 local os =""
@@ -28,8 +34,7 @@ end
 
 --lib
 target("GrnGame")
-    set_kind("shared")
-    add_rules("utils.symbols.export_all")
+    set_kind("static")
 
     set_languages("c17", "cxx17")
     set_targetdir(outdir)
@@ -38,7 +43,7 @@ target("GrnGame")
     add_files("src/**.c")
     add_files("src/**.cpp")
     add_headerfiles("src/**.h")
-    add_headerfiles("src/**.h")
+    add_headerfiles("src/**.hpp")
 
     --packages
     add_packages(
@@ -64,21 +69,17 @@ target("GrnGame")
         os = "Windows"
 
     elseif is_plat("linux") then
-        -- phtread pour sdl 
-        add_syslinks("pthread", "dl", "m")
-        -- c++ en statique (NON FONCTIONNEL)
-        add_ldflags("-static-libgcc", "-static-libstdc++", {force=true})
+        -- options de compilation pour statique
+        add_cxflags("-fPIC")
         os = "Linux"
 
     elseif is_plat("macosx") then
-        -- Frameworks macOS pour SDL
-        add_frameworks("Cocoa", "IOKit", "CoreVideo", "CoreAudio", "AudioToolbox", "Carbon", "ForceFeedback", "Metal")
-        add_syslinks("iconv")
         os = "MacOs"
     end
 
 --game app
-target("App".. os)
+target("GrnGameApp".. os)
+set_policy("build.rpath", false)
     set_kind("binary")
     set_targetdir(outdir)
     if has_config("debug_mode") then
@@ -90,17 +91,22 @@ target("App".. os)
     add_includedirs("src/bindings_c")
 
     -- Dépendance moteur
-    add_deps("GrnGame")
+    add_deps("GrnGame") 
 
     if is_plat("windows") then
         --runtime statique
         set_runtimes("MT")
 
     elseif is_plat("linux") then
-        -- pour charger libGrnGame.so
-        add_rpathdirs("$ORIGIN")
+        -- phtread pour sdl 
+        add_syslinks("pthread", "dl", "m")
+        -- c++ en statique (FONCTIONNEL ICI)
+        --add_ldflags("-static-libgcc", "-static-libstdc++", {force=true})
+        -- rpath inutile en statique
 
     elseif is_plat("macosx") then
-        -- pour charger libGrnGame.dylib
-        add_rpathdirs("@executable_path")
+        -- Frameworks macOS pour SDL
+        add_frameworks("Cocoa", "IOKit", "CoreVideo", "CoreAudio", "AudioToolbox", "Carbon", "ForceFeedback", "Metal")
+        add_syslinks("iconv")
+        -- rpath inutile en statique
     end
