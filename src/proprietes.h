@@ -9,6 +9,9 @@
 /* Taille maximale d'un chemin vers une ressource (image, son, etc.) */
 #define TAILLE_LIEN 255
 
+/* taille maximale du texte saisie */
+#define TAILLE_TEXTE_SAISIE 512
+
 /* Nombre de canaux audio alloues pour SDL_mixer */
 #define TAILLE_CANAL 32
 

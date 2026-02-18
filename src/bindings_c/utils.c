@@ -4,6 +4,7 @@
  */
 
 #include "../moteur/boucle/boucle.h"
+#include "../moteur/entrees/entrees.h"
 #include "../moteur/fenetre/fenetre.h"
 #include "../moteur/initialisation/initialisation.h"
 #include "../moteur/logging/logging.h"
@@ -41,3 +42,6 @@ void logMessage(int level, const char *message) { log_message((NiveauLog)level, 
 
 /* Change le niveau minimum de log affiche */
 void setLogLvl(int level) { changer_niveau_log((NiveauLog)level); }
+
+/* lit le texte saisie */
+const char *getInputText() { return lire_texte_saisie(); }

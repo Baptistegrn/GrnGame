@@ -58,3 +58,6 @@ int universeHeight(void) { return hauteur_univers(); }
 
 /* Retourne vrai si la fenetre est minimisee */
 bool windowMinimised(void) { return fenetre_est_minimise(); }
+
+/* retourne le texte drop */
+const char *getTextDrop() { recuperer_drop_file(); }

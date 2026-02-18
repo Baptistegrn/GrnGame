@@ -27,6 +27,10 @@ function utils.logMessage(level, message) end
 ---@param show boolean true or false
 function utils.showCursor(show) end
 
+--- return string input of user
+--- @return string
+function utils.getInputText() end
+
 --- Stops the engine
 function utils.stopEngine() end
 
@@ -133,6 +137,10 @@ var.universeHeight = 0
 --- Window minimized
 ---@type boolean
 var.windowMinimised = false
+
+--- return the file dropped
+--- @return string
+function getTextDrop() end
 
 --
 -- json: simple encrypted JSON file handling

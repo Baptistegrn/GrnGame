@@ -1,0 +1,103 @@
+/*
+ * Enregistrement des bindings GrnGame (JSON) dans la VM Lua.
+ */
+#include <sol/sol.hpp>
+
+extern "C" {
+#include "../../moteur/json/json.h"
+#include <lauxlib.h>
+#include <lua.h>
+#include <lualib.h>
+
+/* Codes de retour pour les types */
+#define JSON_TYPE_INCONNU 0
+#define JSON_TYPE_NOMBRE 1
+#define JSON_TYPE_STRING 2
+#define JSON_TYPE_BOOL 3
+}
+
+/* charge un fichier json en memoire */
+void lua_charger_json_fichier(const std::string &filename) {
+    charger_fichier_json(filename.c_str());
+}
+
+/* sauvegarde un fichier json sur le disque */
+void lua_sauvegarder_json_fichier(const std::string &filename) {
+    sauvegarder_fichier_json(filename.c_str());
+}
+
+/* supprime un fichier json du disque et de la memoire */
+void lua_supprimer_json_fichier(const std::string &filename) {
+    supprimer_fichier_json(filename.c_str());
+}
+
+/* ecrit une variable dans le json en detectant automatiquement le type */
+void lua_ecrire_variable(const std::string &filename, const std::string &varName,
+                         sol::object value) {
+    if (value.is<bool>()) {
+        ecrire_int_json(filename.c_str(), varName.c_str(), value.as<bool>() ? 1 : 0);
+    } else if (value.is<std::string>()) {
+        ecrire_string_json(filename.c_str(), varName.c_str(), value.as<std::string>().c_str());
+    } else if (value.is<double>()) {
+        double val = value.as<double>();
+        if (val == (int)val) {
+            ecrire_int_json(filename.c_str(), varName.c_str(), (int)val);
+        } else {
+            ecrire_double_json(filename.c_str(), varName.c_str(), val);
+        }
+    }
+}
+
+/* Recupere une variable depuis le json avec detection auto */
+sol::object lua_lire_variable(const std::string &filename, const std::string &varName,
+                              sol::this_state s) {
+    sol::state_view lua(s);
+
+    int type = recuperer_type_json(filename.c_str(), varName.c_str());
+
+    switch (type) {
+    case JSON_TYPE_NOMBRE: {
+        double val = recuperer_double_json(filename.c_str(), varName.c_str());
+        if (val == (int)val) {
+            return sol::make_object(lua, (int)val);
+        }
+        return sol::make_object(lua, val);
+    }
+    case JSON_TYPE_STRING: {
+        char *val = recuperer_string_json(filename.c_str(), varName.c_str());
+        if (val)
+            return sol::make_object(lua, std::string(val));
+        break;
+    }
+    default:
+        /* affiche lerreur si le chemin nest pas valide */
+        double val = recuperer_double_json(filename.c_str(), varName.c_str());
+        /* essaye de renvoyer la valeur quand meme */
+        return sol::make_object(lua, val);
+        break;
+    }
+    return sol::make_object(lua, sol::nil);
+}
+
+/* supprime une variable du json */
+void lua_supprimer_variable_depuis_json(const std::string &filename, const std::string &varName) {
+    supprimer_variable_json(filename.c_str(), varName.c_str());
+}
+
+/* verifie si un fichier existe ou pas */
+bool lua_fichier_existe(const std::string &filename) { return fichier_existant(filename.c_str()); }
+
+/* enregistrement des bindings json */
+void enregistrer_bindings_json(sol::table &json) {
+    json.set_function("load", &lua_charger_json_fichier);
+    json.set_function("save", &lua_sauvegarder_json_fichier);
+    json.set_function("delete", &lua_supprimer_json_fichier);
+    json.set_function("writeVariable", &lua_ecrire_variable);
+    json.set_function("readVariable", &lua_lire_variable);
+    json.set_function("deleteVariable", &lua_supprimer_variable_depuis_json);
+    json.set_function("setKey",
+                      [](int index, uint8_t valeur) { mettre_fichiers_cle(index, valeur); });
+    json.set_function("setIv",
+                      [](int index, uint8_t valeur) { mettre_fichiers_iv(index, valeur); });
+    json.set_function("exists", &lua_fichier_existe);
+}

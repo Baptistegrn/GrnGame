@@ -56,6 +56,14 @@ void mise_a_jour_input() {
     /* Traitement des evenements SDL */
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
+        case SDL_TEXTINPUT:
+            copie_texte_saisie(event.text.text);
+            break;
+        case SDL_DROPFILE:
+            strncpy(entrees->fichier_drop, event.drop.file, sizeof(entrees->fichier_drop) - 1);
+            entrees->fichier_drop[sizeof(entrees->fichier_drop) - 1] = '\0';
+            SDL_free(event.drop.file);
+            break;
         case SDL_WINDOWEVENT:
             switch (event.window.event) {
             case SDL_WINDOWEVENT_CLOSE:

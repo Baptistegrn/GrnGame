@@ -43,6 +43,8 @@ int largeur_univers(void);
 int hauteur_univers(void);
 int coeff(void);
 bool fenetre_est_minimise(void);
+const char *recuperer_drop_file(void);
+
 #ifdef __cplusplus
 }
 #endif

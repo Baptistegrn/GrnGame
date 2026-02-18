@@ -1,6 +1,6 @@
 /*
  * Gestion des entrees (clavier, souris, manette).
- * Contient les structures et fonctions de traitement des peripheriques.
+ * Structures et API pour la lecture/normalisation des events SDL.
  */
 
 #ifndef ENTREES_H
@@ -16,89 +16,125 @@ extern "C" {
 
 /* Position d'un stick analogique */
 typedef struct {
-    int x;
-    int y;
+    int x; /* axe horizontal */
+    int y; /* axe vertical */
 } StickPos;
 
-/* Etat des deux sticks de la manette */
+/* Etats des deux sticks d'une manette (g = gauche, d = droite) */
 typedef struct {
-    StickPos g;
-    StickPos d;
+    StickPos g; /* stick gauche */
+    StickPos d; /* stick droit */
 } ManetteEtatJoy;
 
-/* Valeurs des gachettes analogiques */
+/* Valeurs brutes des gachettes/trigger (axe) */
 typedef struct {
-    int trigger_g;
-    int trigger_d;
+    int trigger_g; /* trigger gauche */
+    int trigger_d; /* trigger droit */
 } Trigger;
 
-/* Pointeurs vers les peripheriques SDL */
+/* Pointeurs SDL pour controller et joystick (si presents) */
 typedef struct {
-    SDL_GameController *manette;
-    SDL_Joystick *joystick;
+    SDL_GameController *manette; /* interface haut niveau SDL */
+    SDL_Joystick *joystick;      /* interface brute SDL_Joystick */
 } Manette;
 
+/* Etat global des entrees (mise a jour chaque frame) */
 typedef struct GestionnaireEntrees {
-    int souris_x, souris_y;
-    bool souris_presse;
-    bool souris_juste_presse;
-    bool souris_droite_presse;
-    bool souris_droite_juste_presse;
-    char souris_scroll_y;
-    char souris_scroll_x;
+    /* Souris */
+    int souris_x, souris_y;          /* position en coord. monde (apres coeff/decalage) */
+    bool souris_presse;              /* maintien bouton gauche */
+    bool souris_juste_presse;        /* front montant bouton gauche */
+    bool souris_droite_presse;       /* maintien bouton droit */
+    bool souris_droite_juste_presse; /* front montant bouton droit */
+    char souris_scroll_y;            /* molette vertical (-1,0,1) */
+    char souris_scroll_x;            /* molette horizontal (-1,0,1) */
+    char fichier_drop[TAILLE_LIEN];  /* chemin du fichier drop (SDL_DROPFILE) */
 
-    bool entrees[SDL_NUM_SCANCODES];
-    bool entrees_presse[SDL_NUM_SCANCODES];
+    /* Texte saisi via SDL_TEXTINPUT */
+    char texte_ecrit[TAILLE_TEXTE_SAISIE];
+    int taille_texte_ecrit;       /* longueur courante de `texte_ecrit` */
+    char texte_drop[TAILLE_LIEN]; /* texte accompagne un drop (si utilise) */
 
-    bool manette[SDL_CONTROLLER_BUTTON_MAX][NB_MANETTES_MAX];
-    bool manette_presse[SDL_CONTROLLER_BUTTON_MAX][NB_MANETTES_MAX];
-    ManetteEtatJoy Joy[NB_MANETTES_MAX];
-    Trigger trigger[NB_MANETTES_MAX];
+    /* Clavier - tableaux indexes par SDL_Scancode */
+    bool entrees[SDL_NUM_SCANCODES];        /* etat maintien (true si enfoncee) */
+    bool entrees_presse[SDL_NUM_SCANCODES]; /* front montant (juste presse) */
 
+    /* Manette - [bouton][index_manette] */
+    bool manette[SDL_CONTROLLER_BUTTON_MAX][NB_MANETTES_MAX];        /* maintien */
+    bool manette_presse[SDL_CONTROLLER_BUTTON_MAX][NB_MANETTES_MAX]; /* front montant */
+    ManetteEtatJoy Joy[NB_MANETTES_MAX];                             /* sticks bruts */
+    Trigger trigger[NB_MANETTES_MAX];                                /* triggers bruts */
+
+    /* Instances SDL pour chaque manette connectee */
     Manette man[NB_MANETTES_MAX];
 } GestionnaireEntrees;
 
+/* Mapping nom lisible -> scancode */
 typedef struct {
-    const char *nom;
-    SDL_Scancode code;
+    const char *nom;   /* nom lisible (ex: "A", "left") */
+    SDL_Scancode code; /* scancode SDL correspondant */
 } ToucheNom;
 
+/* Mapping nom lisible -> bouton manette */
 typedef struct {
-    const char *nom;
-    SDL_GameControllerButton bouton;
+    const char *nom;                 /* nom lisible (ex: "A", "start") */
+    SDL_GameControllerButton bouton; /* bouton SDL correspondant */
 } ManetteBoutonNom;
 
-/* Constantes pour le clavier et la souris */
+/* Tables de correspondance (nom -> code/bouton) */
 extern const ToucheNom touches_1[];
 extern const ToucheNom touches_2[];
 extern const ToucheNom touches_3[];
 extern const ToucheNom touches_longues[];
 extern const ManetteBoutonNom boutons_manette[];
 
-/* Boucle de mise a jour des entrees */
+/* Mise a jour de tous les etats d'entree a chaque frame (SDL_PollEvent) */
 void mise_a_jour_input(void);
 
-/* Detection clavier */
+/*--- Clavier ---*/
+/* Retourne true si `touche` a ete presse durant la frame courante (front montant). */
 bool touche_juste_presse(const char *touche);
+/* Retourne true si `touche` est actuellement enfoncee (maintien). */
 bool touche_enfoncee(const char *touche);
 
-/* Gestion des manettes */
+/*--- Manette ---*/
+/* Initialise les structures et ouvre la manette a `index`. Renvoie true si OK. */
 bool init_controller_joysticks(unsigned char index);
+/* Ferme et libere la manette a `index` (controller SDL). */
 void fermer_controller(unsigned char index);
+/* Ferme et libere le joystick brut a `index` (SDL_Joystick). */
 void fermer_joystick(unsigned char index);
 
-/* Detection manette */
-bool touche_manette_juste_presse(const char *touche, unsigned char index);
-bool touche_manette_enfoncee(const char *touche, unsigned char index);
-float *renvoie_joysticks(float dead_zone, unsigned char index);
+/*--- Texte / clipboard ---*/
+/* Copie `source` (SDL_TEXTINPUT) dans le buffer interne `texte_ecrit`. */
+void copie_texte_saisie(char *source);
+/* Accesseur en lecture seule au texte saisi. */
+const char *lire_texte_saisie(void);
 
-/* Conversion des noms */
+/*--- Requete manette ---*/
+/*
+ * Retourne un tableau `float[6]` alloue dynamiquement (caller doit free()):
+ * [0]=left_x, [1]=left_y, [2]=right_x, [3]=right_y, [4]=trigger_left, [5]=trigger_right.
+ * Les valeurs sont normalisees entre -1.0 et 1.0 et la dead_zone est appliquee.
+ */
+float *renvoie_joysticks(float dead_zone, unsigned char index);
+/* Retourne true si le bouton `touche` de la manette `index` vient d'etre presse. */
+bool touche_manette_juste_presse(const char *touche, unsigned char index);
+/* Retourne true si le bouton `touche` de la manette `index` est maintenu. */
+bool touche_manette_enfoncee(const char *touche, unsigned char index);
+
+/*--- Conversion / utilitaires ---*/
+/* Normalise un nom (retourne chaine allouee, caller doit free()). */
 char *normaliser_nom(const char *src);
+/* Convertit un nom lisible en SDL_Scancode (SDL_SCANCODE_UNKNOWN si inconnu). */
 SDL_Scancode scancode_depuis_nom(const char *nom_non_normalise);
+/* Convertit un nom lisible en SDL_GameControllerButton (INVALID si inconnu). */
 SDL_GameControllerButton bouton_manette_depuis_nom(const char *nom_non_normalise);
 
-/* Fonctions de liberation */
+/*--- Liberation ---*/
+/* Libere les structures internes relatives aux entrees. */
 void liberer_entrees(void);
+/* Ferme/clean les objets manette (controllers/joysticks). */
 void liberer_manette(void);
 
 #ifdef __cplusplus

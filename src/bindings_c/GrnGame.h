@@ -318,6 +318,9 @@ GRN_API int universeHeight(void);
 /* Returns true if the window is minimised */
 GRN_API bool windowMinimised(void);
 
+/* return the file dropped */
+GRN_API const char *getTextDrop();
+
 /* put key for image */
 GRN_API void setImageKey(int index, int value);
 
@@ -371,6 +374,9 @@ GRN_API int getJsonVariableType(const char *filename, const char *varName);
 
 /* try if a file exist or not */
 GRN_API bool FileExists(const char *filename);
+
+/* return the text input of users */
+GRN_API const char *getInputText();
 
 #ifdef __cplusplus
 }
