@@ -31,7 +31,7 @@ FichierJSON *trouver_fichier_dans_liste(const char *nom);
 cJSON *naviguer_vers_cible(cJSON *root, const char *chemin, char **ptr, bool creer_parent);
 
 /* Alloue et initialise le gestionnaire */
-void creer_gestionnaire_fichiers(void);
+void initialiser_gestionnaire_fichiers(void);
 
 /* Libere tout (les fichiers, les contenus et le gestionnaire) */
 void liberer_gestionnaire_fichiers(void);

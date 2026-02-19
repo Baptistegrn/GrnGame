@@ -15,6 +15,7 @@
 
 #include "../bindings_lua/bindings_lua.h"
 #include "../main.h"
+#include "../module_jeu/camera/camera.h"
 #include "../moteur/image/chargement/chargement_image.h"
 #include "../moteur/image/dessin_forme/dessin.h"
 #include "../moteur/image/liste/liste_chaine.h"
@@ -45,6 +46,7 @@ void liberer_gs(void) {
     liberer_timing();
     liberer_fichiers_lua();
     liberer_gestionnaire_fichiers();
+    liberer_camera(gs->camera);
     /* Liberation du frame */
     if (gs->frame) {
         free_gestion_echec_compteur(gs->frame);

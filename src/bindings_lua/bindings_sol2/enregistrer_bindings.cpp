@@ -6,7 +6,6 @@
 #include <sol/sol.hpp>
 
 extern "C" {
-#include "../../bindings_c/GrnGame.h"
 #include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
@@ -24,6 +23,8 @@ extern "C" void enregistrer_bindings(void *L) {
     sol::table input = lua_view.create_named_table("input");
     sol::table var = lua_view.create_named_table("var");
     sol::table json = lua_view.create_named_table("json");
+    sol::table mouse = lua_view.create_named_table("mouse");
+    sol::table window = lua_view.create_named_table("window");
     enregistrer_bindings_utils(utils);
     enregistrer_bindings_son(song);
     enregistrer_bindings_image(image);
@@ -32,4 +33,6 @@ extern "C" void enregistrer_bindings(void *L) {
     enregistrer_bindings_manette(input);
     enregistrer_bindings_constantes(var);
     enregistrer_bindings_json(json);
+    enregistrer_bindings_fenetre(window);
+    enregistrer_bindings_souris(mouse);
 }

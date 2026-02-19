@@ -88,7 +88,6 @@ set_policy("build.rpath", false)
     add_files("src/moteur_lua/lancer_moteur.c")
     -- inclusions moteur
     add_includedirs("src/headers_sdl")
-    add_includedirs("src/bindings_c")
 
     -- Dépendance moteur
     add_deps("GrnGame") 

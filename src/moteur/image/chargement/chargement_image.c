@@ -13,24 +13,6 @@
 #include <stdio.h>
 #include <string.h>
 
-
-/* Initialise le sous-systeme de textures */
-void init_gestionnaire_textures() {
-    if (!gs)
-        goto gsvide;
-    GestionnaireTextures *gt = gs->textures;
-
-    gt->capacite = 50;
-    gt->taille = 0;
-
-    gt->entrees = malloc_gestion_echec_compteur(gt->capacite * sizeof(TextureEntry));
-    memset(gt->entrees, 0, gt->capacite * sizeof(TextureEntry));
-    return;
-
-gsvide:
-    log_fmt(NiveauLogDebug, "manager is empty in init texture");
-}
-
 /* Verifie si le tableau est plein et l'agrandit */
 void agrandir_si_plein() {
     if (!gs)

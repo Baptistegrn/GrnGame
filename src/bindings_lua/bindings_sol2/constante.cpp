@@ -11,7 +11,6 @@ extern "C" {
 #include <lualib.h>
 }
 
-/* bindings_lua_constantes.cpp */
 #include <sol/sol.hpp>
 
 extern "C" {
@@ -20,14 +19,7 @@ extern "C" {
 
 /* enregistrement des bindings constantes avec set_function */
 void enregistrer_bindings_constantes(sol::table &var) {
-    var.set_function("mouseX", &souris_x);
-    var.set_function("mouseY", &souris_y);
-    var.set_function("mouseLeftJustPressed", &souris_gauche_juste_presse);
-    var.set_function("mouseRightJustPressed", &souris_droite_juste_presse);
-    var.set_function("mouseLeftPressed", &souris_gauche_presse);
-    var.set_function("mouseRightPressed", &souris_droite_presse);
-    var.set_function("mouseScrollVertical", &souris_scroll_vertical);
-    var.set_function("mouseScrollHorizontal", &souris_scroll_horizontal);
+
     var.set_function("delta", &dt);
     var.set_function("fps", &nb_images);
     var.set_function("frameCount", &compteur_frame);

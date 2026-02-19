@@ -10,7 +10,6 @@
 #include <sol/sol.hpp>
 
 extern "C" {
-#include "../../bindings_c/GrnGame.h"
 #include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
@@ -39,6 +38,13 @@ void enregistrer_bindings_constantes(sol::table &var);
 
 /* enregistre les bindings de json */
 void enregistrer_bindings_json(sol::table &json);
+
+/*enregistre les bindings de fenetre */
+void enregistrer_bindings_fenetre(sol::table &window);
+
+/*enregistre les bindings de souris */
+void enregistrer_bindings_souris(sol::table &mouse);
+
 #endif /* __cplusplus */
 
 #endif /* BINDINGS_HPP */

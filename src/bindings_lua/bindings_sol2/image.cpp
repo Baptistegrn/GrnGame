@@ -189,6 +189,7 @@ void enregistrer_bindings_image(sol::table &image) {
     image.set_function("drawLine", &lua_dessiner_ligne);
     image.set_function("drawCircle", &lua_dessiner_cercle);
     image.set_function("drawCircleFilled", &lua_dessiner_cercle_plein);
+    image.set_function("cls", &stocker_coloriage);
     image.set_function("setKey",
                        [](int index, uint8_t valeur) { mettre_image_cle(index, valeur); });
     image.set_function("setIv", [](int index, uint8_t valeur) { mettre_image_iv(index, valeur); });

@@ -35,8 +35,14 @@ typedef struct GestionnaireFrameActuelle {
 } GestionnaireFrameActuelle;
 
 void definir_rappel_mise_a_jour(RappelMiseAJour cb);
-void boucle_principale();
-void arreter_gestionnaire();
+void boucle_principale(void);
+void arreter_gestionnaire(void);
+
+/* initialise le gestionnaire de frame */
+void initialiser_gestionnaire_frame(void);
+
+/* initialise le gestionnaire de timing */
+void initialiser_gestionnaire_timing(void);
 
 /* Fonctions de liberation */
 void liberer_timing(void);

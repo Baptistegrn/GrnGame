@@ -91,49 +91,58 @@ extern const ManetteBoutonNom boutons_manette[];
 /* Mise a jour de tous les etats d'entree a chaque frame (SDL_PollEvent) */
 void mise_a_jour_input(void);
 
-/*--- Clavier ---*/
 /* Retourne true si `touche` a ete presse durant la frame courante (front montant). */
 bool touche_juste_presse(const char *touche);
+
 /* Retourne true si `touche` est actuellement enfoncee (maintien). */
 bool touche_enfoncee(const char *touche);
 
-/*--- Manette ---*/
 /* Initialise les structures et ouvre la manette a `index`. Renvoie true si OK. */
 bool init_controller_joysticks(unsigned char index);
+
 /* Ferme et libere la manette a `index` (controller SDL). */
 void fermer_controller(unsigned char index);
+
 /* Ferme et libere le joystick brut a `index` (SDL_Joystick). */
 void fermer_joystick(unsigned char index);
 
-/*--- Texte / clipboard ---*/
 /* Copie `source` (SDL_TEXTINPUT) dans le buffer interne `texte_ecrit`. */
 void copie_texte_saisie(char *source);
+
 /* Accesseur en lecture seule au texte saisi. */
 const char *lire_texte_saisie(void);
 
-/*--- Requete manette ---*/
+/* vider le texte saisie */
+void vider_texte_saisie();
+
 /*
  * Retourne un tableau `float[6]` alloue dynamiquement (caller doit free()):
  * [0]=left_x, [1]=left_y, [2]=right_x, [3]=right_y, [4]=trigger_left, [5]=trigger_right.
  * Les valeurs sont normalisees entre -1.0 et 1.0 et la dead_zone est appliquee.
  */
 float *renvoie_joysticks(float dead_zone, unsigned char index);
+
 /* Retourne true si le bouton `touche` de la manette `index` vient d'etre presse. */
 bool touche_manette_juste_presse(const char *touche, unsigned char index);
+
 /* Retourne true si le bouton `touche` de la manette `index` est maintenu. */
 bool touche_manette_enfoncee(const char *touche, unsigned char index);
 
-/*--- Conversion / utilitaires ---*/
 /* Normalise un nom (retourne chaine allouee, caller doit free()). */
 char *normaliser_nom(const char *src);
+
 /* Convertit un nom lisible en SDL_Scancode (SDL_SCANCODE_UNKNOWN si inconnu). */
 SDL_Scancode scancode_depuis_nom(const char *nom_non_normalise);
+
 /* Convertit un nom lisible en SDL_GameControllerButton (INVALID si inconnu). */
 SDL_GameControllerButton bouton_manette_depuis_nom(const char *nom_non_normalise);
 
-/*--- Liberation ---*/
+/* initialise le gestionnaire dentrees */
+void initialiser_gestionnaire_entrees(void);
+
 /* Libere les structures internes relatives aux entrees. */
 void liberer_entrees(void);
+
 /* Ferme/clean les objets manette (controllers/joysticks). */
 void liberer_manette(void);
 

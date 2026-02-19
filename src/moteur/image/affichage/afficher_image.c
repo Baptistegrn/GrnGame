@@ -9,7 +9,6 @@
 #include "SDL_stdinc.h"
 #include "affichage.h"
 
-
 /* Calcule les coordonnees et dimensions d'un objet a l'ecran */
 void calculer_positions_ecran(ObjectImage *obj, unsigned char coeff, int decalage_x, int decalage_y,
                               Sint16 *x_ecran, Sint16 *y_ecran, Sint16 *w_ecran, Sint16 *h_ecran) {
@@ -44,9 +43,6 @@ void afficher_images(void) {
     int decalage_x = gs->fenetre->decalage_x;
     int decalage_y = gs->fenetre->decalage_y;
 
-    int decalage_x_scaled = (int)lround((double)gs->fenetre->decalage_x / (double)coeff);
-    int decalage_y_scaled = (int)lround((double)gs->fenetre->decalage_y / (double)coeff);
-
     for (int i = 0; i < jeu->nb_images; i++) {
         ObjectImage *obj = &jeu->tab[i];
 
@@ -56,9 +52,6 @@ void afficher_images(void) {
         Sint16 obj_h = (obj->type == TYPE_IMAGE) ? obj->image.tailley : obj->forme.tailley;
 
         bool est_ligne = (obj->type == TYPE_FORME && obj->forme.type_de_forme == 1);
-        if (hors_ecran(obj_x, obj_y, obj_w, obj_h, decalage_x_scaled, decalage_y_scaled) &&
-            !est_ligne)
-            continue;
 
         Sint16 x_ecran, y_ecran, w_ecran, h_ecran;
 

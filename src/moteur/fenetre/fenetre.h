@@ -55,6 +55,9 @@ void stocker_coloriage(int r, int g, int b);
 void liberer_fenetre(void);
 void liberer_fond(void);
 
+/* initialise le gestionnaire de fenetrage */
+void initialiser_gestionnaire_fenetre(void);
+
 #ifdef __cplusplus
 }
 #endif

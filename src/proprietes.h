@@ -29,6 +29,14 @@
 
 /* parametres par default des fonctions de bindings lua ( peut etre modifier ).*/
 
+/* fenetre */
+#define DEFAULT_HEIGHT 320
+#define DEFAULT_WIDTH 180
+#define DEFAULT_FPS 60.0f
+#define DEFAULT_BLACK_BARS false
+#define DEFAULT_WINDOW_TITLE "My Game"
+#define DEFAULT_UPDATE_FUNC "update"
+
 /* image */
 #define DEFAULT_ROTATION 0
 #define DEFAULT_ROTATIONP 0

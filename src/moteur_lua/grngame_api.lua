@@ -1,587 +1,618 @@
 ---@meta
 -- Definition file for GrnGame API autocompletion.
--- Do not execute, used only by editors (VS Code, IntelliJ, etc.).
+-- Generated based on C++ bindings registration.
 
 --
--- utils: engine utility functions
+-- utils: General engine utilities (logging, callbacks, shutdown)
 --
-
 ---@class utils
 utils = {}
 
---- Initializes the game engine
----@param height? integer universe height (default: 320)
----@param width? integer universe width (default: 180)
----@param fps? number frames per second (default: 60.0)
----@param black_bars? boolean black bars (default: false)
----@param window_title? string window title (default: "My Game")
----@param update_func? function update function called each frame
-function utils.initialize(height, width, fps, black_bars, window_title, update_func) end
+--- Sets the update function called every frame (trampoline).
+---@param update_func? function The function to call (optional).
+function utils.setUpdateCallback(update_func) end
 
---- Logs a message
----@param level integer log level (0=debug, 1=info, 2=warning, 3=error)
----@param message string message to display
+--- Logs a message to the engine console.
+---@param level integer Level (0=debug, 1=info, 2=warning, 3=error)
+---@param message string The message content
 function utils.logMessage(level, message) end
 
----show or not the cursor
----@param show boolean true or false
-function utils.showCursor(show) end
-
---- return string input of user
---- @return string
-function utils.getInputText() end
-
---- Stops the engine
+--- Stops the game engine.
 function utils.stopEngine() end
 
---- Switches to fullscreen mode
-function utils.fullscreen() end
-
---- Switches to windowed fullscreen mode
-function utils.windowedFullscreen() end
-
---- Switches to windowed mode with given size
----@param width integer width
----@param height integer height
-function utils.windowed(width, height) end
-
---- Switches to minimized windowed mode with coefficient
----@param coeff integer resize coefficient
-function utils.windowedMinimised(coeff) end
-
---- Clears the screen with a color
----@param r integer red (0-255)
----@param g integer green (0-255)
----@param b integer blue (0-255)
-function utils.cls(r, g, b) end
-
---- Changes the log level
----@param level integer log level (0=debug, 1=info, 2=warning, 3=error)
+--- Sets the minimum log level to display.
+---@param level integer Level (0=debug, 1=info, 2=warning, 3=error)
 function utils.setLogLvl(level) end
 
---
--- var: engine constants and states (read-only)
---
+--- Retrieves the text entered by the user (text input).
+---@return string
+function utils.getInputText() end
 
----@class var
-var = {}
+--- Deletes the user's text input (e.g., after sending a message).
+function utils.deleteInputText() end
 
---- Mouse X position
----@type integer
-var.mouseX = 0
-
---- Mouse Y position
----@type integer
-var.mouseY = 0
-
---- Left button just pressed
----@type boolean
-var.mouseLeftJustPressed = false
-
---- Right button just pressed
----@type boolean
-var.mouseRightJustPressed = false
-
---- Left button held
----@type boolean
-var.mouseLeftPressed = false
-
---- Right button held
----@type boolean
-var.mouseRightPressed = false
-
---- Vertical scroll delta
----@type integer
-var.mouseScrollVertical = 0
-
---- Horizontal scroll delta
----@type integer
-var.mouseScrollHorizontal = 0
-
---- Delta time in seconds
----@type number
-var.delta = 0
-
---- Current FPS
----@type number
-var.fps = 0
-
---- Elapsed frame count
----@type integer
-var.frameCount = 0
-
---- Viewport X offset
----@type integer
-var.offsetX = 0
-
---- Viewport Y offset
----@type integer
-var.offsetY = 0
-
---- Current window width
----@type integer
-var.currentWidth = 0
-
---- Current window height
----@type integer
-var.currentHeight = 0
-
---- Universe width
----@type integer
-var.universeWidth = 0
-
---- Universe height
----@type integer
-var.universeHeight = 0
-
---- Window minimized
----@type boolean
-var.windowMinimised = false
-
---- return the file dropped
---- @return string
-function getTextDrop() end
+--- Sets the internal size of the universe.
+---@param width integer Width
+---@param height integer Height
+function utils.setWindowSize(width, height) end
 
 --
--- json: simple encrypted JSON file handling
+-- window: Display window management
 --
+---@class window
+window = {}
 
----@class json
-json = {}
+--- Switches the window to exclusive fullscreen mode.
+function window.fullscreen() end
 
---- Loads a JSON file into memory
----@param filename string file path
-function json.load(filename) end
+--- Switches the window to borderless windowed fullscreen mode.
+function window.windowedFullscreen() end
 
---- Saves a JSON file from memory to disk
----@param filename string file path
-function json.save(filename) end
+--- Switches to windowed mode with a specific size.
+---@param width integer Width
+---@param height integer Height
+function window.windowed(width, height) end
 
---- Deletes a JSON file (memory + disk)
----@param filename string file path
-function json.delete(filename) end
+--- Switches to windowed mode with a zoom coefficient.
+---@param coeff integer Coefficient
+function window.windowedCoefficient(coeff) end
 
---- Writes a variable to a JSON file (auto-detect type: number/string/bool)
----@param filename string file path
----@param varName string variable name
----@param value any value to write (number|string|boolean)
-function json.writeVariable(filename, varName, value) end
+--- Sets the target Frames Per Second (FPS).
+---@param fps integer
+function window.setFps(fps) end
 
---- Reads a variable from a JSON file
----@param filename string file path
----@param varName string variable name
----@return any|nil
-function json.readVariable(filename, varName) end
+--- Sets the window title.
+---@param title string
+function window.setTitle(title) end
 
---- Deletes a variable from a JSON file
----@param filename string file path
----@param varName string variable name
-function json.deleteVariable(filename, varName) end
+--- Enables or disables black bars to maintain aspect ratio.
+---@param enabled boolean
+function window.setBlackBars(enabled) end
 
---- Set part of the JSON encryption key
----@param index integer 0-15
----@param value integer 0-255
-function json.setKey(index, value) end
-
---- Set part of the JSON encryption IV
----@param index integer 0-15
----@param value integer 0-255
-function json.setIv(index, value) end
-
---- return if a file exists or not
----@param filename string file path
-function json.exists(filename) end
+--- Sets the universe size (alias for utils.setWindowSize).
+---@param width integer
+---@param height integer
+function window.setUniversSize(width, height) end
 
 --
--- input: keyboard and controller handling
+-- mouse: Mouse management
 --
+---@class mouse
+mouse = {}
 
+--- Returns the mouse X position in the universe.
+---@return number
+function mouse.x() end
+
+--- Returns the mouse Y position in the universe.
+---@return number
+function mouse.y() end
+
+--- Checks if a button was just pressed in this frame.
+---@param button integer|string
+---@return boolean
+function mouse.justPressed(button) end
+
+--- Checks if a button is currently held down.
+---@param button integer|string
+---@return boolean
+function mouse.pressed(button) end
+
+--- Vertical scroll value.
+---@return integer
+function mouse.scrollVertical() end
+
+--- Horizontal scroll value.
+---@return integer
+function mouse.scrollHorizontal() end
+
+--
+-- input: Keyboard and Controller inputs
+--
 ---@class input
 input = {}
 
---- Checks if a key was just pressed
----@param key string key name (e.g., "a", "space", "escape")
+--- Checks if a keyboard key was just pressed.
+---@param key string Key name
 ---@return boolean
 function input.keyJustPressed(key) end
 
---- Checks if a key is held down
----@param key string key name
+--- Checks if a keyboard key is currently held down.
+---@param key string Key name
 ---@return boolean
 function input.keyPressed(key) end
 
---- Shows or hides the cursor
----@param visible boolean true to show, false to hide
+--- Shows or hides the system cursor.
+---@param visible boolean
 function input.showCursor(visible) end
 
---- Checks if a controller button was just pressed
----@param button string button name (e.g., "a", "b", "x", "y")
----@param index integer controller index (0-3)
+--- Checks if a controller button was just pressed.
+---@param button string
+---@param index integer Controller index
 ---@return boolean
 function input.buttonJustPressed(button, index) end
 
---- Checks if a controller button is held
----@param button string button name
----@param index integer controller index (0-3)
+--- Checks if a controller button is held down.
+---@param button string
+---@param index integer Controller index
 ---@return boolean
 function input.buttonPressed(button, index) end
 
---- Initializes a controller
----@param index integer controller index (0-3)
+--- Initializes a controller.
+---@param index integer
 function input.initController(index) end
 
---- Gets joystick values
----@param dead_zone number dead zone (0.0 - 1.0)
----@param index integer controller index (0-3)
----@return table {left_x, left_y, right_x, right_y, trigger_left, trigger_right}
+--- Gets Joysticks and triggers state {lx, ly, rx, ry, tl, tr}.
+---@param dead_zone number
+---@param index integer
+---@return table
 function input.getJoysticks(dead_zone, index) end
 
---- Closes a controller
----@param index integer controller index (0-3)
+--- Closes a specific controller.
+---@param index integer
 function input.closeController(index) end
 
---- Closes a joystick
----@param index integer controller index (0-3)
+--- Closes a specific joystick.
+---@param index integer
 function input.closeJoystick(index) end
 
---- Closes the complete controller
----@param index integer controller index (0-3)
+--- Closes the controller connection completely.
+---@param index integer
 function input.closeTheController(index) end
 
----show or not the cursor
----@param show boolean true or false
-function input.showCursor(show) end
+--
+-- var: Engine constants and states (Read Only)
+--
+---@class var
+var = {}
+
+--- Delta Time in seconds.
+---@return number
+function var.delta() end
+
+--- Current FPS.
+---@return number
+function var.fps() end
+
+--- Total frame count since start.
+---@return integer
+function var.frameCount() end
+
+--- Rendering X offset (due to black bars/camera).
+---@return number
+function var.offsetX() end
+
+--- Rendering Y offset (due to black bars/camera).
+---@return number
+function var.offsetY() end
+
+--- Current window width.
+---@return integer
+function var.currentWidth() end
+
+--- Current window height.
+---@return integer
+function var.currentHeight() end
+
+--- Universe width.
+---@return integer
+function var.universeWidth() end
+
+--- Universe height.
+---@return integer
+function var.universeHeight() end
+
+--- Is the window minimized?
+---@return boolean
+function var.windowMinimised() end
+
+--- Path of a dropped file (if any).
+---@return string
+function var.getTextDrop() end
 
 --
--- image: graphics, drawing and sprites
+-- json: Encrypted JSON file management
 --
+---@class json
+json = {}
 
+--- Loads a JSON file.
+---@param filename string
+function json.load(filename) end
+
+--- Saves a JSON file.
+---@param filename string
+function json.save(filename) end
+
+--- Deletes a JSON file.
+---@param filename string
+function json.delete(filename) end
+
+--- Writes a variable to a loaded JSON structure.
+---@param filename string
+---@param varName string
+---@param value any
+function json.writeVariable(filename, varName, value) end
+
+--- Reads a variable from a loaded JSON structure.
+---@param filename string
+---@param varName string
+---@return any
+function json.readVariable(filename, varName) end
+
+--- Deletes a variable from a loaded JSON structure.
+---@param filename string
+---@param varName string
+function json.deleteVariable(filename, varName) end
+
+--- Sets the encryption Key (index specific).
+---@param index integer
+---@param value integer
+function json.setKey(index, value) end
+
+--- Sets the encryption IV (index specific).
+---@param index integer
+---@param value integer
+function json.setIv(index, value) end
+
+--- Checks if a file exists.
+---@param filename string
+---@return boolean
+function json.exists(filename) end
+
+--
+-- image: Graphics and Sprites
+--
 ---@class image
 image = {}
 
---- Draws an image
----@param path string image path
----@param x number X position
----@param y number Y position
----@param coeff integer scale coefficient
----@param flip? boolean flip horizontally (default: false)
----@param rotationP? integer pixel perfect rotation in degrees (default: 0)
----@param rotation? integer rotation in degrees (default: 0)
----@param alpha? integer opacity 0-255 (default: 255)
-function image.draw(path, x, y, coeff, flip, rotationP, rotation, alpha) end
-
---- Draws an empty rectangle
----@param x number X position
----@param y number Y position
----@param w integer width
----@param h integer height
----@param r? integer red (default: 0)
----@param g? integer green (default: 0)
----@param b? integer blue (default: 0)
----@param a? integer opacity (default: 255)
-function image.drawRect(x, y, w, h, r, g, b, a) end
-
---- Draws a filled rectangle
----@param x number X position
----@param y number Y position
----@param w integer width
----@param h integer height
----@param r? integer red (default: 0)
----@param g? integer green (default: 0)
----@param b? integer blue (default: 0)
----@param a? integer opacity (default: 255)
-function image.drawRectFilled(x, y, w, h, r, g, b, a) end
-
---- Draws a line
----@param x1 number start X
----@param y1 number start Y
----@param x2 number end X
----@param y2 number end Y
----@param r? integer red (default: 0)
----@param g? integer green (default: 0)
----@param b? integer blue (default: 0)
----@param a? integer opacity (default: 255)
-function image.drawLine(x1, y1, x2, y2, r, g, b, a) end
-
---- Draws an empty circle
----@param x number center X
----@param y number center Y
----@param radius integer radius
----@param r? integer red (default: 0)
----@param g? integer green (default: 0)
----@param b? integer blue (default: 0)
----@param a? integer opacity (default: 255)
-function image.drawCircle(x, y, radius, r, g, b, a) end
-
---- Draws a filled circle
----@param x number center X
----@param y number center Y
----@param radius integer radius
----@param r? integer red (default: 0)
----@param g? integer green (default: 0)
----@param b? integer blue (default: 0)
----@param a? integer opacity (default: 255)
-function image.drawCircleFilled(x, y, radius, r, g, b, a) end
-
---- Draws text
----@param font_path string font path (spritesheet)
----@param text string text to display
----@param x number X position
----@param y number Y position
----@param scale integer scale
----@param flip? boolean flip (default: false)
----@param spacing? number spacing (default: 1)
----@param rotationP? integer pixel perfect rotation (default: 0)
----@param rotation? integer rotation (default: 0)
----@param alpha? integer opacity (default: 255)
-function image.drawText(font_path, text, x, y, scale, flip, spacing, rotationP, rotation, alpha) end
-
---- Sets the window icon
----@param path string image path
-function image.setIcon(path) end
-
---- Loads all images from a folder
----@param folder string folder path
-function image.loadFolder(folder) end
-
---- Frees loaded images
-function image.freeFolder() end
-
---- Draws particles
----@param x table X positions
----@param y table Y positions
----@param rotation table rotations
----@param a table opacities
----@param r table reds
----@param g table greens
----@param b table blues
-function image.drawParticles(x, y, rotation, a, r, g, b) end
-
---- Draws a sprite
----@param sprite Sprite the sprite
----@param index integer frame index
----@param x number X position
----@param y number Y position
----@param coeff integer scale coefficient
----@param flip? boolean flip (default: false)
----@param rotation? integer rotation (default: 0)
----@param alpha? integer opacity (default: 255)
-function image.drawSprite(sprite, index, x, y, coeff, flip, rotation, alpha) end
-
---- Creates a sprite from a spritesheet
----@param id string spritesheet path
----@param width integer frame width
----@param height integer frame height
+--- Creates a Sprite object.
+---@param id string Texture ID/Path
+---@param width integer
+---@param height integer
 ---@return Sprite
 function image.Sprite(id, width, height) end
 
----@class Sprite
----@field width integer frame width
----@field height integer frame height
-local Sprite = {}
+--- Draws a rectangle outline.
+---@param x number
+---@param y number
+---@param w integer
+---@param h integer
+---@param r? integer Red (0-255)
+---@param g? integer Green (0-255)
+---@param b? integer Blue (0-255)
+---@param a? integer Alpha (0-255)
+function image.drawRect(x, y, w, h, r, g, b, a) end
 
---- set image key
----@param index integer 0-15
----@param value integer 0-15
+--- Draws a filled rectangle.
+---@param x number
+---@param y number
+---@param w integer
+---@param h integer
+---@param r? integer Red (0-255)
+---@param g? integer Green (0-255)
+---@param b? integer Blue (0-255)
+---@param a? integer Alpha (0-255)
+function image.drawRectFilled(x, y, w, h, r, g, b, a) end
+
+--- Draws an image/texture.
+---@param path string
+---@param x number
+---@param y number
+---@param coeff integer Scale coefficient
+---@param flip? boolean Flip horizontally
+---@param rotationP? integer Pivot point for rotation
+---@param rotation? integer Rotation in degrees
+---@param alpha? integer Alpha transparency (0-255)
+function image.draw(path, x, y, coeff, flip, rotationP, rotation, alpha) end
+
+--- Draws text using a font.
+---@param font_path string
+---@param text string
+---@param x number
+---@param y number
+---@param scale integer
+---@param flip? boolean
+---@param spacing? number Letter spacing
+---@param rotationP? integer Pivot point
+---@param rotation? integer Rotation in degrees
+---@param alpha? integer Alpha (0-255)
+function image.drawText(font_path, text, x, y, scale, flip, spacing, rotationP, rotation, alpha) end
+
+--- Sets the window icon.
+---@param path string
+function image.setIcon(path) end
+
+--- Draws a specific sprite from a spritesheet/texture.
+---@param sprite Sprite
+---@param index integer Sprite index
+---@param x number
+---@param y number
+---@param coeff integer
+---@param flip? boolean
+---@param rotation? integer
+---@param alpha? integer
+function image.drawSprite(sprite, index, x, y, coeff, flip, rotation, alpha) end
+
+--- Loads all images in a folder into memory.
+---@param folder string
+function image.loadFolder(folder) end
+
+--- Draws particle effects.
+---@param x table Table of X positions
+---@param y table Table of Y positions
+---@param rotation table Table of rotations
+---@param a table Table of alpha values
+---@param r table Table of red values
+---@param g table Table of green values
+---@param b table Table of blue values
+function image.drawParticles(x, y, rotation, a, r, g, b) end
+
+--- Frees images loaded from a folder.
+function image.freeFolder() end
+
+--- Draws a line.
+---@param x1 number
+---@param y1 number
+---@param x2 number
+---@param y2 number
+---@param r? integer
+---@param g? integer
+---@param b? integer
+---@param a? integer
+function image.drawLine(x1, y1, x2, y2, r, g, b, a) end
+
+--- Draws a circle outline.
+---@param x number
+---@param y number
+---@param radius integer
+---@param r? integer
+---@param g? integer
+---@param b? integer
+---@param a? integer
+function image.drawCircle(x, y, radius, r, g, b, a) end
+
+--- Draws a filled circle.
+---@param x number
+---@param y number
+---@param radius integer
+---@param r? integer
+---@param g? integer
+---@param b? integer
+---@param a? integer
+function image.drawCircleFilled(x, y, radius, r, g, b, a) end
+
+--- Clears the screen with a specific color.
+---@param r integer
+---@param g integer
+---@param b integer
+function image.cls(r, g, b) end
+
+--- Sets encryption Key for image loading.
+---@param index integer
+---@param value integer
 function image.setKey(index, value) end
 
---- set image iv
----@param index integer 0-15
----@param value integer 0-15
+--- Sets encryption IV for image loading.
+---@param index integer
+---@param value integer
 function image.setIv(index, value) end
 
 --
--- song: audio management
+-- song: Audio management
 --
-
 ---@class song
 song = {}
 
---- Plays a sound
----@param path string audio file path
----@param loop? integer loop count (default: 0)
----@param channel? integer audio channel (default: 1)
----@param volume? integer volume 0-128 (default: 124)
+--- Plays a sound file.
+---@param path string
+---@param loop? integer (1=loop, 0=once)
+---@param channel? integer
+---@param volume? integer (0-128)
 function song.play(path, loop, channel, volume) end
 
---- Stops a sound
----@param path string audio file path
+--- Stops a sound file.
+---@param path string
 function song.stop(path) end
 
---- Pauses a sound
----@param path string audio file path
+--- Pauses a sound file.
+---@param path string
 function song.pause(path) end
 
---- Resumes a paused sound
----@param path string audio file path
+--- Resumes a sound file.
+---@param path string
 function song.resume(path) end
 
---- Loads all sounds from a folder
----@param path string folder path
+--- Loads audio files from a folder.
+---@param path string
 function song.loadFolder(path) end
 
---- Frees loaded sounds
-function song.freeFolder() end
-
---- Stops a channel
----@param channel integer channel number
+--- Stops a specific audio channel.
+---@param channel integer
 function song.stopChannel(channel) end
 
---- Pauses a channel
----@param channel integer channel number
+--- Pauses a specific audio channel.
+---@param channel integer
 function song.pauseChannel(channel) end
 
---- Resumes a paused channel
----@param channel integer channel number
+--- Resumes a specific audio channel.
+---@param channel integer
 function song.resumeChannel(channel) end
 
---- set song key
----@param index integer 0-15
----@param value integer 0-15
+--- Frees audio resources.
+function song.freeFolder() end
+
+--- Sets encryption Key for audio loading.
+---@param index integer
+---@param value integer
 function song.setKey(index, value) end
 
---- set song iv
----@param index integer 0-15
----@param value integer 0-15
+--- Sets encryption IV for audio loading.
+---@param index integer
+---@param value integer
 function song.setIv(index, value) end
 
 --
--- game: physics, blocks, entities and camera
+-- game: Physics, Blocks, Entities, and Global Camera
 --
-
 ---@class game
 game = {}
 
---- Creates a block
----@param x number X position
----@param y number Y position
----@param w number width
----@param h number height
----@param type integer block type
+--- Creates a Block object.
+---@param x number
+---@param y number
+---@param w number
+---@param h number
+---@param type integer
 ---@return Block
 function game.Block(x, y, w, h, type) end
 
---- Creates an empty blocks container
+--- Creates a Blocks container.
 ---@return Blocks
 function game.Blocks() end
 
---- Creates a topdown entity
----@param x number X position
----@param y number Y position
----@param w number width
----@param h number height
----@return EntityTopdown
-function game.EntityTopdown(x, y, w, h) end
-
---- Creates a platformer entity
----@param x number X position
----@param y number Y position
----@param w number width
----@param h number height
----@param jumpPower? number jump force (default: -150)
----@param gravity? number gravity (default: 300)
+--- Creates a Platformer Entity.
+---@param x number
+---@param y number
+---@param w number
+---@param h number
+---@param jumpPower? number (Optional)
+---@param gravity? number (Optional)
 ---@return EntityPlatformer
 function game.EntityPlatformer(x, y, w, h, jumpPower, gravity) end
 
---- Creates a camera
----@param x number X position
----@param y number Y position
----@param smooth number smoothing factor
----@param w integer view width
----@param h integer view height
----@return Camera
-function game.Camera(x, y, smooth, w, h) end
+--- Initializes the global camera.
+---@param x number
+---@param y number
+---@param smooth number Smoothing factor
+---@param w integer Width
+---@param h integer Height
+function game.createCamera(x, y, smooth, w, h) end
 
---- Loads blocks from a map file
----@param path string file path
----@param step_x integer X step (pixels)
----@param step_y integer Y step (pixels)
----@param separator string separator character
----@param exclude integer type to exclude
+--- Updates the camera position towards a target.
+---@param tx number Target X
+---@param ty number Target Y
+---@param dt number Delta time
+function game.updateCamera(tx, ty, dt) end
+
+--- Sets the Camera X position directly.
+---@param v number
+function game.setCameraX(v) end
+
+--- Gets the Camera X position.
+---@return number
+function game.getCameraX() end
+
+--- Sets the Camera Y position directly.
+---@param v number
+function game.setCameraY(v) end
+
+--- Gets the Camera Y position.
+---@return number
+function game.getCameraY() end
+
+--- Sets the Camera smoothing factor.
+---@param v number
+function game.setCameraSmooth(v) end
+
+--- Gets the Camera smoothing factor.
+---@return number
+function game.getCameraSmooth() end
+
+--- Loads a map from a text/data file.
+---@param path string
+---@param step_x integer Block width step
+---@param step_y integer Block height step
+---@param separator string Character separator
+---@param exclude integer Value to exclude
 ---@return BlocksFromFile
 function game.BlocksFromFile(path, step_x, step_y, separator, exclude) end
 
---- Computes collisions for a platformer game
----@param entity EntityPlatformer entity
----@param blocks Blocks|table collision blocks
----@param max_fall_speed? number max fall speed (default: 300)
----@param wall_correction? number wall correction (default: 150)
----@param ignore? table block types to ignore
----@return EntityPlatformer
-function game.hitboxPlatformer(entity, blocks, max_fall_speed, wall_correction, ignore) end
+--- Manages platformer collisions (Entity vs Blocks).
+---@param entity EntityPlatformer
+---@param blocks Blocks|table
+---@param max_fall? number Max falling speed
+---@param correction? number Wall correction speed
+---@param ignore? table List of block types to ignore
+function game.hitboxPlatformer(entity, blocks, max_fall, correction, ignore) end
 
---- Computes collisions for a top-down game
----@param entity EntityTopdown entity
----@param blocks Blocks|table collision blocks
----@param ignore? table block types to ignore
----@return EntityTopdown
+--- Manages top-down collisions (Entity vs Blocks).
+---@param entity EntityTopdown
+---@param blocks Blocks|table
+---@param ignore? table List of block types to ignore
 function game.hitboxTopdown(entity, blocks, ignore) end
 
+--- Calculates the next frame and timer for an animation.
+--- Useful for managing sprite sheets logic.
+---
+--- @param frame integer Current frame index
+--- @param timer number Current timer accumulator
+--- @param rangeStart integer First frame index of the animation
+--- @param rangeEnd integer Last frame index of the animation
+--- @param speed number Duration of a single frame in seconds
+--- @param dt number Delta time (elapsed time since last frame)
+--- @param loop boolean If true, animation restarts from rangeStart; otherwise it stays at rangeEnd
+--- @return integer newFrame The updated frame index
+--- @return number newTimer The updated timer value
+function game.animate(frame, timer, rangeStart, rangeEnd, speed, dt, loop) end
+
+-- Internal Classes
+
+---@class Sprite
+---@field width integer
+---@field height integer
+local Sprite = {}
+
 ---@class Block
----@field x number X position
----@field y number Y position
----@field w number width
----@field h number height
----@field type integer block type
+---@field x number
+---@field y number
+---@field w number
+---@field h number
+---@field type integer
 local Block = {}
 
 ---@class Blocks
 local Blocks = {}
-
---- Adds a block
----@param block Block block to add
+--- Adds a block to the container.
+---@param block Block
 function Blocks:add(block) end
 
---- Returns the number of blocks
+--- Returns the size of the container.
 ---@return integer
 function Blocks:size() end
 
---- Gets a block by index
+--- Gets a block at a specific index.
 ---@param index integer
 ---@return Block
 function Blocks:get(index) end
 
---- Iterator over blocks
----@return function
+--- Returns an iterator for the blocks.
 function Blocks:pairs() end
 
 ---@class EntityTopdown
----@field x number X position
----@field y number Y position
----@field w number width
----@field h number height
+---@field x number
+---@field y number
+---@field w number
+---@field h number
 local EntityTopdown = {}
 
 ---@class EntityPlatformer
----@field x number X position
----@field y number Y position
----@field w number width
----@field h number height
----@field gravity number gravity force
----@field jumpPower number jump force
----@field requestJump boolean jump request
----@field leftLock boolean blocked left
----@field rightLock boolean blocked right
----@field inSky boolean in the air
----@field speedY number vertical speed
+---@field x number
+---@field y number
+---@field w number
+---@field h number
+---@field speedY number
+---@field inSky boolean
+---@field gravity number
+---@field jumpPower number
+---@field requestJump boolean
+---@field leftLock boolean
+---@field rightLock boolean
 local EntityPlatformer = {}
-
----@class Camera
----@field x number X position
----@field y number Y position
----@field smoothFactor number smoothing factor
----@field w integer width
----@field h integer height
-local Camera = {}
-
---- Updates the camera towards a target
----@param target_x number target X
----@param target_y number target Y
----@param dt number delta time
-function Camera:update(target_x, target_y, dt) end
 
 ---@class BlocksFromFile
 local BlocksFromFile = {}
 
---- Returns the number of blocks
+--- Returns the number of blocks loaded.
 ---@return integer
 function BlocksFromFile:size() end

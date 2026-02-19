@@ -1,6 +1,3 @@
-utils.setLogLvl(2)
-function update()
-    --update your logic here
-end
+utils.setUpdateCallback(function()
 
-utils.initialize()
+end)

@@ -60,8 +60,8 @@ typedef struct {
     Sint16 taillex, tailley;    /* taille */
 } Sprite;
 
-/* Ajoute une image au rendu */
-void ajouter_image_au_jeu(ObjectImage nouvelle);
+/* reallocation automatique du tableau dimage */
+void reallouer_si_plein(void);
 
 /* Ajoute une image au tableau par son chemin */
 void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 coeff, bool sens,

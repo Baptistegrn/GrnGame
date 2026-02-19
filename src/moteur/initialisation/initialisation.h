@@ -2,8 +2,8 @@
  * Initialisation du moteur et gestion des ressources.
  */
 
-#ifndef INITIALISER_H
-#define INITIALISER_H
+#ifndef INITIALISATION_H
+#define INITIALISATION_H
 
 #include <stdbool.h>
 
@@ -13,12 +13,17 @@ extern "C" {
 
 typedef struct Gestionnaire Gestionnaire;
 
-/* Alloue les structures principales du gestionnaire */
-Gestionnaire *allouer_structures(void);
+/* initialise le gestionnaire */
+void initialiser_gestionnaire(void);
 
-/* Initialise le moteur avec les parametres de fenetre et rendu */
-Gestionnaire *initialiser(int hauteur_univers, int largeur_univers, float fps, bool bande_noir,
-                          const char *nom_fenetre);
+/* initialise toute les structures */
+void initialisation(void);
+
+/* mettre des parametres */
+void definir_taille(int largeur, int hauteur);
+void definir_fps(float fps);
+void definir_titre(const char *titre);
+void definir_bandes_noires(bool bande_noir);
 
 /* Initialise la fenetre et le renderer SDL */
 void initialiser_fenetre();

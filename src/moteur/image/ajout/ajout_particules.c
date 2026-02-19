@@ -3,10 +3,13 @@
  */
 
 #include "../../../main.h"
+#include "../../../module_jeu/camera/camera.h"
+#include "../../boucle/boucle.h"
+#include "../../fenetre/fenetre.h"
 #include "../../logging/logging.h"
+#include "../affichage/affichage.h"
 #include "ajout.h"
 #include <stdbool.h>
-#include <string.h>
 
 /* Ajoute un tableau de particules au tableau d'images */
 void ajouter_particules_au_tableau(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r,
@@ -14,22 +17,23 @@ void ajouter_particules_au_tableau(float *x, float *y, Uint16 *rotation, Uint8 *
     if (!gs)
         goto gsvide;
 
-    ObjectImage obj;
-    memset(&obj, 0, sizeof(ObjectImage));
+    TableauImage *tab = gs->frame->image;
+    reallouer_si_plein();
+    int i = tab->nb_images++;
 
-    obj.type = TYPE_PARTICULE;
-    obj.particule.posx = x;
-    obj.particule.posy = y;
-    obj.particule.rotation = rotation;
-    obj.particule.a = a;
-    obj.particule.r = r;
-    obj.particule.g = g;
-    obj.particule.b = b;
-    obj.particule.taille = taille;
-
-    ajouter_image_au_jeu(obj);
+    /* Affectation directe des pointeurs de tableaux */
+    tab->tab[i].type = TYPE_PARTICULE;
+    tab->tab[i].particule.posx = x;
+    tab->tab[i].particule.posy = y;
+    tab->tab[i].particule.rotation = rotation;
+    tab->tab[i].particule.a = a;
+    tab->tab[i].particule.r = r;
+    tab->tab[i].particule.g = g;
+    tab->tab[i].particule.b = b;
+    tab->tab[i].particule.taille = taille;
 
     return;
+
 gsvide:
     log_message(NiveauLogErreur, "manager empty in add particules to array");
 }

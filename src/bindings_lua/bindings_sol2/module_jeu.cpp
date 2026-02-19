@@ -8,6 +8,7 @@
 #include <vector>
 
 extern "C" {
+#include "../../main.h"
 #include "../../module_jeu/blocs/bloc.h"
 #include "../../module_jeu/camera/camera.h"
 #include "../../module_jeu/carte/carte.h"
@@ -61,17 +62,19 @@ struct LuaBlocks {
         }
     }
 
+    /* ajoute un bloc au tableau */
     void add(const LuaBlock &block) { ajouter_block(ptr, block.ptr); }
 
+    /* recupere la taille du tableau */
     int size() const { return taille_blocks(ptr); }
 
-    /* boucle sur les blocs types */
+    /* recupere un bloc par son index */
     Block *get(int index) const { return &ptr->tab[index]; }
 
-    /* Acces par indice [] */
+    /* acces par indice [] */
     Block &operator[](int index) { return ptr->tab[index]; }
 
-    /* Iterator pour for...in */
+    /* itrateur pour for...in */
     std::function<Block *()> pairs() {
         int index = -1;
         int max_size = taille_blocks(ptr);
@@ -167,39 +170,39 @@ struct LuaEntityPlatformer {
     void mettre_vitesseY(float v) { ptr->speedY = v; }
 };
 
-/* wrapper pour la camera avec gestion memoire */
-struct LuaCamera {
-    Camera *ptr;
-
-    LuaCamera(float x, float y, float smooth, int w, int h) {
-        ptr = creer_camera(x, y, smooth, w, h);
+/* met a jour la camera globale du moteur */
+void lua_update_camera(float tx, float ty, float dt) {
+    if (gs && gs->camera) {
+        camera_mise_a_jour(gs->camera, tx, ty, dt);
     }
+}
 
-    ~LuaCamera() {
-        if (ptr) {
-            liberer_camera(ptr);
-            ptr = nullptr;
-        }
-    }
+/* recupere la position X de la camera */
+float lua_get_cam_x() { return (gs && gs->camera) ? gs->camera->x : 0; }
 
-    /* recupere/modifie les parametres */
-    float rec_x() const { return ptr->x; }
-    void mettre_x(float v) { ptr->x = v; }
+/* definit la position X de la camera */
+void lua_set_cam_x(float v) {
+    if (gs && gs->camera)
+        gs->camera->x = v;
+}
 
-    float rec_y() const { return ptr->y; }
-    void mettre_y(float v) { ptr->y = v; }
+/* recupere la position Y de la camera */
+float lua_get_cam_y() { return (gs && gs->camera) ? gs->camera->y : 0; }
 
-    float rec_smooth() const { return ptr->smooth_factor; }
-    void mettre_smooth(float v) { ptr->smooth_factor = v; }
+/* definit la position Y de la camera */
+void lua_set_cam_y(float v) {
+    if (gs && gs->camera)
+        gs->camera->y = v;
+}
 
-    int rec_w() const { return ptr->width; }
-    void mettre_w(int v) { ptr->width = v; }
+/* recupere le lissage de la camera */
+float lua_get_cam_smooth() { return (gs && gs->camera) ? gs->camera->smooth_factor : 0; }
 
-    int rec_h() const { return ptr->height; }
-    void mettre_h(int v) { ptr->height = v; }
-
-    void update(float tx, float ty, float dt) { camera_mise_a_jour(ptr, tx, ty, dt); }
-};
+/* definit le lissage de la camera */
+void lua_set_cam_smooth(float v) {
+    if (gs && gs->camera)
+        gs->camera->smooth_factor = v;
+}
 
 /* wrapper pour les blocs charges depuis un fichier */
 struct LuaBlocksFromFile {
@@ -231,12 +234,12 @@ static Blocks *blocks_depuis_tableau(sol::table t) {
     }
     return blocks;
 }
+
 /* calcule la physique de plateforme avec collisions */
 static void lua_hitbox_platformer(LuaEntityPlatformer &ent, LuaBlocks &blocks,
                                   sol::optional<float> vmax, sol::optional<float> correction,
                                   sol::optional<sol::table> ignore) {
     std::vector<int> ig;
-    /* type ignore */
     if (ignore) {
         for (auto &kv : *ignore)
             ig.push_back(kv.second.as<int>());
@@ -245,13 +248,13 @@ static void lua_hitbox_platformer(LuaEntityPlatformer &ent, LuaBlocks &blocks,
     float v = vmax.value_or(DEFAULT_VMAX_CHUTE);
     hitbox_platforme(ent.ptr, blocks.ptr, v, c, ig.data(), ig.size());
 }
+
 /* calcule la physique de plateforme avec table lua */
 static EntityPlatformer *lua_hitbox_platformer_table(LuaEntityPlatformer &ent, sol::table t,
                                                      sol::optional<float> vmax,
                                                      sol::optional<float> correction,
                                                      sol::optional<sol::table> ignore) {
     std::vector<int> ig;
-
     if (ignore) {
         for (auto &kv : *ignore)
             ig.push_back(kv.second.as<int>());
@@ -290,6 +293,20 @@ static EntityTopdown *lua_hitbox_topdown_table(LuaEntityTopdown &ent, sol::table
     EntityTopdown *r = hitbox_topdown(ent.ptr, blocks, ig.data(), ig.size());
     liberer_blocks(blocks);
     return r;
+}
+
+/* fonction damination  */
+std::tuple<int, float> lua_animation(int frame, float timer, int rangeStart, int rangeEnd,
+                                     float speed, float dt, bool loop) {
+    timer += dt;
+    if (timer >= speed) {
+        timer = 0.0f;
+        frame++;
+        if (frame > rangeEnd) {
+            frame = loop ? rangeStart : rangeEnd;
+        }
+    }
+    return std::make_tuple(frame, timer);
 }
 
 /* enregistrement des bindings module jeu */
@@ -348,15 +365,15 @@ void enregistrer_bindings_module_jeu(sol::table &game) {
         "speedY",
         sol::property(&LuaEntityPlatformer::rec_vitesseY, &LuaEntityPlatformer::mettre_vitesseY));
 
-    /* Camera */
-    game.new_usertype<LuaCamera>(
-        "Camera", sol::call_constructor,
-        sol::constructors<LuaCamera(float, float, float, int, int)>(), "x",
-        sol::property(&LuaCamera::rec_x, &LuaCamera::mettre_x), "y",
-        sol::property(&LuaCamera::rec_y, &LuaCamera::mettre_y), "smoothFactor",
-        sol::property(&LuaCamera::rec_smooth, &LuaCamera::mettre_smooth), "w",
-        sol::property(&LuaCamera::rec_w, &LuaCamera::mettre_w), "h",
-        sol::property(&LuaCamera::rec_h, &LuaCamera::mettre_h), "update", &LuaCamera::update);
+    /* Camera globale */
+    game.set_function("createCamera", &creer_camera);
+    game.set_function("updateCamera", &lua_update_camera);
+    game.set_function("setCameraX", &lua_set_cam_x);
+    game.set_function("getCameraX", &lua_get_cam_x);
+    game.set_function("setCameraY", &lua_set_cam_y);
+    game.set_function("getCameraY", &lua_get_cam_y);
+    game.set_function("setCameraSmooth", &lua_set_cam_smooth);
+    game.set_function("getCameraSmooth", &lua_get_cam_smooth);
 
     /* BlocksFromFile */
     game.new_usertype<LuaBlocksFromFile>(
@@ -369,4 +386,5 @@ void enregistrer_bindings_module_jeu(sol::table &game) {
                       sol::overload(&lua_hitbox_platformer, &lua_hitbox_platformer_table));
     game.set_function("hitboxTopdown",
                       sol::overload(&lua_hitbox_topdown, &lua_hitbox_topdown_table));
+    game.set_function("animate", &lua_animation);
 }

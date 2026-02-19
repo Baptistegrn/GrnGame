@@ -17,6 +17,7 @@ typedef struct GestionnaireTextures GestionnaireTextures;
 typedef struct GestionnaireSon GestionnaireSon;
 typedef struct GestionnaireFrameActuelle GestionnaireFrameActuelle;
 typedef struct GestionnaireFichiers GestionnaireFichiers;
+typedef struct Camera Camera;
 
 /* Structure principale du moteur */
 typedef struct Gestionnaire {
@@ -27,6 +28,7 @@ typedef struct Gestionnaire {
     GestionnaireSon *sons;
     GestionnaireFrameActuelle *frame;
     GestionnaireFichiers *fichiers;
+    Camera *camera;
 } Gestionnaire;
 
 /* Instance globale du gestionnaire */

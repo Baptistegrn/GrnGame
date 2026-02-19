@@ -51,7 +51,7 @@ void reprendre_son(const char *lien);
 Mix_Chunk *recuperer_son_par_lien(const char *lien);
 
 /* Initialise le gestionnaire de sons */
-void init_gestionnaire_son();
+void initialiser_gestionnaire_son();
 
 /* Charge tous les sons d'un dossier */
 void charger_tout_les_sons(const char *dossier);

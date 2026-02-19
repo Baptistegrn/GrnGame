@@ -28,7 +28,7 @@ typedef struct GestionnaireTextures {
 } GestionnaireTextures;
 
 /* Initialise le gestionnaire de textures */
-void init_gestionnaire_textures(void);
+void initialiser_gestionnaire_textures(void);
 
 /* Libere le gestionnaire de textures */
 void liberer_gestionnaire_textures(void);

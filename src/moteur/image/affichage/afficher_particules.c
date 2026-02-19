@@ -3,10 +3,10 @@
  */
 
 #include "../../../main.h"
+#include "../../../module_jeu/camera/camera.h"
 #include "../../fenetre/fenetre.h"
 #include "../../logging/logging.h"
 #include "affichage.h"
-
 
 #ifdef _WIN32
 #include <malloc.h> /* bug alloc windows */
@@ -40,8 +40,9 @@ void dessiner_particules(Particule *particules) {
 
     for (int i = 0; i < max; i++) {
         /* positions ecran */
-        int x = lroundf(particules->posx[i] * coeff + decalage_x);
-        int y = lroundf(particules->posy[i] * coeff + decalage_y);
+        /* ajout ici de la camera */
+        int x = lroundf((particules->posx[i] - gs->camera->x) * coeff + decalage_x);
+        int y = lroundf((particules->posy[i] - gs->camera->y) * coeff + decalage_y);
 
         /* taille = 1 pixel (scale) */
         int w = coeff;

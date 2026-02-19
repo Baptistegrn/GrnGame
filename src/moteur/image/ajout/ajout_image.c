@@ -4,95 +4,25 @@
 
 #include "../../../allouer/allouer.h"
 #include "../../../main.h"
+#include "../../../module_jeu/camera/camera.h"
+#include "../../boucle/boucle.h"
+#include "../../fenetre/fenetre.h"
 #include "../../logging/logging.h"
+#include "../affichage/affichage.h"
 #include "../chargement/chargement_image.h"
 #include "../rotation/rotation.h"
+#include "SDL_render.h"
 #include "ajout.h"
 #include <stdbool.h>
 #include <string.h>
 
-/* Ajoute une image au tableau de rendu avec gestion du cache de rotation */
-void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 coeff, bool sens,
-                              Uint16 rotation_p, Uint16 rotation, Uint8 a) {
-    if (!gs)
-        goto gsvide;
-    /* Correction rotation */
-    if (rotation_p > 359) {
-        rotation_p = 0;
-
-        log_fmt(NiveauLogAvertissement, "Rotation invalid for image %s correction to 0", id);
-    }
-
-    ObjectImage obj;
-    memset(&obj, 0, sizeof(ObjectImage));
-
-    /* Limitation des valeurs Alpha entre 0 et 255 */
-
-    a = SDL_clamp(a, 0, 255);
-    obj.type = TYPE_IMAGE;
-    obj.image.posx = x;
-    obj.image.posy = y;
-    obj.image.sens = sens;
-    obj.image.rotation_p = rotation_p;
-    obj.image.rotation = rotation;
-    obj.image.a = a;
-    /* taille de la texture */
-    int taillex, tailley;
-    /* Gestion du cache d'angle */
-    if (rotation_p == 0) {
-        obj.image.texture = recuperer_texture_par_lien(id);
-        if (obj.image.texture) /* recuperer la taille de la texture */
-            SDL_QueryTexture(obj.image.texture, NULL, NULL, &taillex, &tailley);
-    } else {
-        obj.image.texture = recuperer_texture_variante(id, rotation_p);
-
-        if (!obj.image.texture) {
-            SDL_Texture *texture_base = recuperer_texture_par_lien(id);
-            if (texture_base) {
-                /* recuperer la taille de la texture */
-                SDL_QueryTexture(texture_base, NULL, NULL, &taillex, &tailley);
-                obj.image.texture =
-                    creer_texture_angle(texture_base, taillex, tailley, rotation_p, SDL_FLIP_NONE);
-
-                if (obj.image.texture) {
-                    ajouter_variante_cache(
-
-                        id, obj.image.texture, rotation_p);
-                }
-            }
-        }
-    }
-    /* gestion du coeff de la texture */
-    obj.image.taillex = taillex * coeff;
-    obj.image.tailley = tailley * coeff;
-
-    /* Verification texture finale */
-    if (!obj.image.texture) {
-        log_fmt(NiveauLogErreur, "Texture not found for '%s'", id);
-        return;
-    }
-
-    ajouter_image_au_jeu(obj);
-
-    return;
-
-gsvide:
-    log_message(NiveauLogDebug, "manager is empty in add image to image table");
-}
-
-/* Ajoute un sprite au tableau de rendu */
+/* Ajoute un sprite au tableau de rendu avec Culling et affectation directe */
 void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, Sint16 coeff,
                                bool sens, Uint16 rotation, Uint8 a) {
     if (!gs)
         goto gsvide;
 
     const char *id = sprite->id;
-
-    /* Correction rotation */
-    if (rotation > 359) {
-        rotation = 0;
-        log_fmt(NiveauLogAvertissement, "Rotation invalid for sprite %s correction to 0", id);
-    }
 
     /* Recuperer la texture de base AVANT l'init de l'objet */
     SDL_Texture *texture_base = recuperer_texture_par_lien(id);
@@ -101,30 +31,22 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
         return;
     }
 
-    ObjectImage obj;
-    memset(&obj, 0, sizeof(ObjectImage));
-
-    /* Limitation des valeurs Alpha */
-    a = SDL_clamp(a, 0, 255);
-
-    obj.type = TYPE_IMAGE;
-    /* Assignation de la texture recuperee plus haut */
-    obj.image.texture = texture_base;
-    obj.image.posx = x;
-    obj.image.posy = y;
-    obj.image.taillex = sprite->taillex * coeff;
-    obj.image.tailley = sprite->tailley * coeff;
-    obj.image.sens = sens;
-    /* Les sprites ne beneficient pas du cache de rotation pixel perfect */
-    obj.image.rotation_p = 0;
-    obj.image.rotation = rotation;
-    obj.image.a = a;
-    obj.image.sprite = true;
-
     int tex_w, tex_h;
     SDL_QueryTexture(texture_base, NULL, NULL, &tex_w, &tex_h);
 
-    /* index 0 */
+    /* Calcul des dimensions finales a l'ecran pour le Culling */
+    int taille_ecran_x = sprite->taillex * coeff;
+    int taille_ecran_y = sprite->tailley * coeff;
+
+    int decalage_x = (int)lround((double)gs->fenetre->decalage_x / (double)coeff);
+    int decalage_y = (int)lround((double)gs->fenetre->decalage_y / (double)coeff);
+
+    /* Si hors ecran, on n'ajoute pas (economie d'allocation et de calculs) */
+    if (hors_ecran(x, y, taille_ecran_x, taille_ecran_y, decalage_x, decalage_y)) {
+        return;
+    }
+
+    /* Verification index (index 0) */
     int idx = index - 1;
     if (idx < 0)
         idx = 0;
@@ -137,18 +59,50 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
     }
 
     /* x1, y1 = point haut-gauche | x2, y2 = largeur et hauteur de la decoupe */
-    obj.image.x1 = (idx % nb_colonnes) * sprite->taillex;
-    obj.image.y1 = (idx / nb_colonnes) * sprite->tailley;
-    obj.image.x2 = sprite->taillex;
-    obj.image.y2 = sprite->tailley;
+    int source_x1 = (idx % nb_colonnes) * sprite->taillex;
+    int source_y1 = (idx / nb_colonnes) * sprite->tailley;
 
-    /* Verification des limites */
-    if (obj.image.x1 + obj.image.x2 > tex_w || obj.image.y1 + obj.image.y2 > tex_h) {
+    /* Verification des limites dans la texture source */
+    if (source_x1 + sprite->taillex > tex_w || source_y1 + sprite->tailley > tex_h) {
         log_fmt(NiveauLogErreur, "Sprite index %d out of bounds for texture %s", index, id);
         return;
     }
 
-    ajouter_image_au_jeu(obj);
+    /* reallocation */
+    TableauImage *tab = gs->frame->image;
+    reallouer_si_plein(); /* Assurez-vous que cette fonction met a jour tab->tab et
+                             tab->capacite_images */
+
+    int i = tab->nb_images++;
+
+    /* Correction rotation */
+    if (rotation > 359) {
+        rotation = 0;
+        log_fmt(NiveauLogAvertissement, "Rotation invalid for sprite %s correction to 0", id);
+    }
+
+    /* Affectation directe dans le tableau (Zero copie, pas de memset) */
+    tab->tab[i].type = TYPE_IMAGE;
+    tab->tab[i].image.texture = texture_base;
+    tab->tab[i].image.posx = x - gs->camera->x;
+    tab->tab[i].image.posy = y - gs->camera->y;
+    tab->tab[i].image.taillex = taille_ecran_x;
+    tab->tab[i].image.tailley = taille_ecran_y;
+    tab->tab[i].image.sens = sens;
+
+    /* Les sprites ne beneficient pas du cache de rotation pixel perfect */
+    tab->tab[i].image.rotation_p = 0;
+    tab->tab[i].image.rotation = rotation;
+
+    /* Limitation des valeurs Alpha */
+    tab->tab[i].image.a = SDL_clamp(a, 0, 255);
+    tab->tab[i].image.sprite = true;
+
+    tab->tab[i].image.x1 = source_x1;
+    tab->tab[i].image.y1 = source_y1;
+    tab->tab[i].image.x2 = sprite->taillex;
+    tab->tab[i].image.y2 = sprite->tailley;
+
     return;
 
 gsvide:
@@ -163,4 +117,71 @@ Sprite *creer_sprite(const char *id, Sint16 taillex, Sint16 tailley) {
     sprite->taillex = taillex;
     sprite->tailley = tailley;
     return sprite;
+}
+
+/* Ajoute une image au tableau de rendu avec gestion du cache de rotation et Culling */
+void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 coeff, bool sens,
+                              Uint16 rotation_p, Uint16 rotation, Uint8 a) {
+    if (!gs)
+        goto gsvide;
+
+    /* Récupération de la texture de base et de sa taille */
+    SDL_Texture *tex = recuperer_texture_par_lien(id);
+    if (!tex) {
+        log_fmt(NiveauLogErreur, "Texture not found for '%s'", id);
+        return;
+    }
+
+    int taillex, tailley;
+    SDL_QueryTexture(tex, NULL, NULL, &taillex, &tailley);
+
+    int decalage_x = (int)lround((double)gs->fenetre->decalage_x / (double)coeff);
+    int decalage_y = (int)lround((double)gs->fenetre->decalage_y / (double)coeff);
+
+    /* si hors ecran on ajoute pas */
+    if (hors_ecran(x, y, taillex, tailley, decalage_x, decalage_y)) {
+        return;
+    }
+
+    /* reallocation */
+    TableauImage *tab = gs->frame->image;
+    reallouer_si_plein();
+
+    int i = tab->nb_images++;
+
+    tab->tab[i].type = TYPE_IMAGE;
+    tab->tab[i].image.posx = x - gs->camera->x;
+    tab->tab[i].image.posy = y - gs->camera->y;
+    tab->tab[i].image.taillex = taillex * coeff;
+    tab->tab[i].image.tailley = tailley * coeff;
+    tab->tab[i].image.sens = sens;
+    tab->tab[i].image.a = SDL_clamp(a, 0, 255);
+
+    /* rotation */
+    if (rotation_p > 359) {
+        rotation_p = 0;
+        log_fmt(NiveauLogAvertissement, "Rotation invalid for image %s correction to 0", id);
+    }
+
+    tab->tab[i].image.rotation_p = rotation_p;
+    tab->tab[i].image.rotation = rotation;
+
+    if (rotation_p == 0) {
+        tab->tab[i].image.texture = tex;
+    } else {
+        tab->tab[i].image.texture = recuperer_texture_variante(id, rotation_p);
+
+        if (!tab->tab[i].image.texture) {
+            tab->tab[i].image.texture =
+                creer_texture_angle(tex, taillex, tailley, rotation_p, SDL_FLIP_NONE);
+            if (tab->tab[i].image.texture) {
+                ajouter_variante_cache(id, tab->tab[i].image.texture, rotation_p);
+            } else {
+                tab->tab[i].image.texture = tex;
+            }
+        }
+    }
+    return;
+gsvide:
+    log_message(NiveauLogErreur, "manager empty in add image to table");
 }

@@ -115,7 +115,7 @@ static char *decrypter_aes_interne(uint8_t *buffer, size_t taille_buffer) {
 }
 
 /* Alloue et initialise le gestionnaire */
-void creer_gestionnaire_fichiers(void) {
+void initialiser_gestionnaire_fichiers(void) {
     if (!gs)
         goto gsvide;
 

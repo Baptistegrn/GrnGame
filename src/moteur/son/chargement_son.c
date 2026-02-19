@@ -12,23 +12,6 @@
 #include <stdio.h>
 #include <string.h>
 
-/* Initialise le gestionnaire de sons */
-void init_gestionnaire_son(void) {
-    if (!gs)
-        goto gsvide;
-    GestionnaireSon *sons = gs->sons;
-
-    sons->capacite = 50;
-    sons->taille = 0;
-
-    sons->entrees = malloc_gestion_echec_compteur(sizeof(SonEntry) * sons->capacite);
-    memset(sons->entrees, 0, sizeof(SonEntry) * sons->capacite);
-    return;
-
-gsvide:
-    log_message(NiveauLogErreur, "manager is empty during sound manager init function");
-}
-
 /* Verifie si le tableau de sons est plein et l'agrandit si necessaire */
 void agrandir_si_plein_son(void) {
     if (!gs)

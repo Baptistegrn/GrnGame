@@ -4,14 +4,11 @@ utils.setLogLvl(0)
 --path
 package.path = package.path .. ";./src/?.lua"
 
-function update()
+utils.setUpdateCallback(function()
     --resive
     if input.keyJustPressed("f3") then
-        utils.windowed(500, 500)
+        window.windowed(500, 500)
     end
     --add to path if you add requires from another folder
     require("test").draw()
-end
-
--- auto arguments
-utils.initialize()
+end)

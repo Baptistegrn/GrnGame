@@ -6,7 +6,7 @@
 #define CAMERA_H
 
 /* Structure de camera avec position et lissage */
-typedef struct {
+typedef struct Camera {
     float x, y;          /* Position de la camera */
     float smooth_factor; /* Facteur de lissage du mouvement */
     int width, height;   /* Dimensions de la vue */
@@ -16,9 +16,12 @@ typedef struct {
 void camera_mise_a_jour(Camera *cam, float cible_x, float cible_y, float dt);
 
 /* creer une camera */
-Camera *creer_camera(float x, float y, float smooth_facteur, int w, int h);
+void creer_camera(float x, float y, float smooth_facteur, int w, int h);
 
 /* libere une camera */
 void liberer_camera(Camera *ptr);
+
+/* initialise une camera dans le gs */
+void initialiser_camera(void);
 
 #endif /* CAMERA_H */
