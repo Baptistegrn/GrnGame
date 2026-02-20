@@ -28,7 +28,7 @@ void ecrire_double_json(const char *fichier_nom, const char *nom_variable, doubl
     }
 }
 
-/* Recupere un double dans le json (0.0 par defaut) */
+/* Recupere un double dans le json (0.0 par defaut) chemin complet */
 double recuperer_double_json(const char *fichier_nom, const char *nom_variable) {
     FichierJSON *f = trouver_fichier_dans_liste(fichier_nom);
     if (!f || !f->contenu) {

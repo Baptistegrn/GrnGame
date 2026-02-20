@@ -77,8 +77,12 @@ bool fichier_existant(const char *lien);
 #define JSON_TYPE_INCONNU 0
 #define JSON_TYPE_NOMBRE 1
 #define JSON_TYPE_STRING 2
+#define JSON_TYPE_OBJECT 3
 
 /* Recupere le type d'une variable */
 int recuperer_type_json(const char *fichier_nom, const char *nom_variable);
+
+/* liste tout les chemins a partir dun chemin de base et dun nom de fichier */
+cJSON *lister_tous_les_chemins(const char *fichier_nom, const char *chemin);
 
 #endif /* JSON_H */

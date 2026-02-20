@@ -2,7 +2,7 @@
 -- to your source code to further protect it from tampering.
 
 -- Log configuration: 0 = Debug, 1 = Info, etc.
-utils.setLogLvl(0)
+utils.setLogLvl(1)
 
 local init = false
 local r, g, b = 0, 0, 0
@@ -15,6 +15,26 @@ local function setupSecurity()
     json.setKey(15, 1)
     json.setIv(15, 1)
 end
+
+-- little table test
+if not json.exists("test.json") then
+    json.load("test.json")
+    json.writeVariable("test.json", {
+        name = "Alice",
+        hp = 30,
+        sword = { name = "sword", dmg = 30 }
+    })
+else
+    json.load("test.json")
+
+    local table = json.readVariable("test.json", "sword")
+    table.name = "sword in name sword"
+    -- if you want to put a table in value object already exist, you need to delete it ( you can add double or int in string object without delete it)
+    json.deleteVariable("test.json", "sword.name")
+    json.writeVariable("test.json", "sword.name", table)
+end
+
+json.save("test.json")
 
 if json.exists(FILE_NAME) then
     -- If the file exists, we must set the key BEFORE loading to DECRYPT it.

@@ -27,7 +27,7 @@ void ecrire_string_json(const char *fichier_nom, const char *nom_variable, const
     }
 }
 
-/* recupere une string sur le bon chemin json */
+/* recupere une string sur le bon chemin json (chemin complet) */
 char *recuperer_string_json(const char *fichier_nom, const char *nom_variable) {
     FichierJSON *f = trouver_fichier_dans_liste(fichier_nom);
     if (!f || !f->contenu) {

@@ -303,6 +303,13 @@ int recuperer_type_json(const char *fichier_nom, const char *nom_variable) {
     if (!f || !f->contenu)
         return JSON_TYPE_INCONNU;
 
+    /* si chemin vide */
+    if (nom_variable == NULL || nom_variable[0] == '\0') {
+        if (cJSON_IsObject((cJSON *)f->contenu))
+            return JSON_TYPE_OBJECT;
+        return JSON_TYPE_INCONNU;
+    }
+
     char *token = NULL;
     /* ne creer pas les parents pour la lecture */
     cJSON *parent = naviguer_vers_cible((cJSON *)f->contenu, nom_variable, &token, false);
@@ -317,7 +324,8 @@ int recuperer_type_json(const char *fichier_nom, const char *nom_variable) {
         return JSON_TYPE_NOMBRE;
     if (cJSON_IsString(cible))
         return JSON_TYPE_STRING;
-
+    if (cJSON_IsObject(cible))
+        return JSON_TYPE_OBJECT;
     return JSON_TYPE_INCONNU;
 }
 

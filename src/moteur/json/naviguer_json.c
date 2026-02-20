@@ -10,7 +10,7 @@ cJSON *naviguer_vers_cible(cJSON *root, const char *chemin, char **ptr, bool cre
     if (!root || !chemin)
         return NULL;
 
-    char buffer[TAILLE_LIEN];
+    char buffer[TAILLE_LIEN_JSON];
     strncpy(buffer, chemin, sizeof(buffer));
     buffer[sizeof(buffer) - 1] = '\0';
 

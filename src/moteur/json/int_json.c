@@ -31,6 +31,7 @@ void ecrire_int_json(const char *fichier_nom, const char *nom_variable, int vale
     }
 }
 
+/* recupere un int a partir dun chemin complet */
 int recuperer_int_json(const char *fichier_nom, const char *nom_variable) {
     FichierJSON *f = trouver_fichier_dans_liste(fichier_nom);
     if (!f || !f->contenu) {

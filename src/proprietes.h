@@ -6,6 +6,9 @@
 #ifndef PROPRIETES_H
 #define PROPRIETES_H
 
+/* Taille maxmale d'un chemin json */
+#define TAILLE_LIEN_JSON 1024
+
 /* Taille maximale d'un chemin vers une ressource (image, son, etc.) */
 #define TAILLE_LIEN 255
 
@@ -49,6 +52,9 @@
 
 /* module jeu */
 #define DEFAULT_VMAX_CHUTE 300.0f
+#define DEFAULT_VMAX_X 3.0f
+#define DEFAULT_ACCELERATION 8.0f
+#define DEFAULT_VITESSE_INITIALE 0.4f
 #define DEFAULT_CORRECTION_MUR 150.0f
 #define DEFAULT_GRAVITE 300.0f
 #define DEFAULT_FORCE_SAUT -150.0f

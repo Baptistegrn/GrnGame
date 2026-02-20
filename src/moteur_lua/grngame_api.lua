@@ -228,16 +228,22 @@ function json.save(filename) end
 ---@param filename string
 function json.delete(filename) end
 
---- Writes a variable to a loaded JSON structure.
----@param filename string
----@param varName string
----@param value any
+--- Writes a variable to a JSON file, automatically detecting its type.
+--- Supports writing via a specific path or writing a full data object directly.
+---
+--- @overload fun(filename: string, data: boolean|string|number|table|nil)
+--- @param filename string The name of the JSON file.
+--- @param varName string|boolean|number|table|nil The path of the variable (e.g., "player.health") OR the data itself.
+--- @param value? any The value to write (optional if varName is the data).
 function json.writeVariable(filename, varName, value) end
 
---- Reads a variable from a loaded JSON structure.
----@param filename string
----@param varName string
----@return any
+--- Reads a variable from a JSON file, automatically detecting its type.
+--- Returns a specific value (string, number, boolean) or a nested table.
+--- Use an empty string "" for `varName` to read the entire root object.
+---
+--- @param filename string The name of the JSON file.
+--- @param varName string The path of the variable (e.g., "player.health") or "" for the root.
+--- @return boolean|string|number|table|nil value The requested value, or nil if not found.
 function json.readVariable(filename, varName) end
 
 --- Deletes a variable from a loaded JSON structure.
@@ -478,8 +484,15 @@ function game.Blocks() end
 ---@param h number
 ---@param jumpPower? number (Optional)
 ---@param gravity? number (Optional)
+---@param speedMaxX? number (Optional) Maximum horizontal speed
+---@param speedMaxFall? number (Optional) Maximum falling speed
+---@param wallCorrection? number (Optional) Wall friction/correction
+---@param initialSpeed? number (Optional) initial speed of x
+---@param acceleration? number (Optional) acceleration speed
 ---@return EntityPlatformer
-function game.EntityPlatformer(x, y, w, h, jumpPower, gravity) end
+function game.EntityPlatformer(x, y, w, h, jumpPower, gravity, speedMaxX, speedMaxFall, wallCorrection, initialSpeed,
+                               acceleration)
+end
 
 --- Initializes the global camera.
 ---@param x number
@@ -531,16 +544,9 @@ function game.BlocksFromFile(path, step_x, step_y, separator, exclude) end
 --- Manages platformer collisions (Entity vs Blocks).
 ---@param entity EntityPlatformer
 ---@param blocks Blocks|table
----@param max_fall? number Max falling speed
----@param correction? number Wall correction speed
----@param ignore? table List of block types to ignore
-function game.hitboxPlatformer(entity, blocks, max_fall, correction, ignore) end
-
---- Manages top-down collisions (Entity vs Blocks).
----@param entity EntityTopdown
----@param blocks Blocks|table
----@param ignore? table List of block types to ignore
-function game.hitboxTopdown(entity, blocks, ignore) end
+---@param ignore_mask? integer Bitmask of block types to ignore (Optional, defaults to 0)
+---@param delta? number Delta time (Optional, defaults to engine dt)
+function game.hitboxPlatformer(entity, blocks, ignore_mask, delta) end
 
 --- Calculates the next frame and timer for an animation.
 --- Useful for managing sprite sheets logic.
@@ -589,25 +595,23 @@ function Blocks:get(index) end
 --- Returns an iterator for the blocks.
 function Blocks:pairs() end
 
----@class EntityTopdown
----@field x number
----@field y number
----@field w number
----@field h number
-local EntityTopdown = {}
-
 ---@class EntityPlatformer
 ---@field x number
 ---@field y number
 ---@field w number
 ---@field h number
+---@field speedX number
 ---@field speedY number
 ---@field inSky boolean
 ---@field gravity number
 ---@field jumpPower number
 ---@field requestJump boolean
+---@field requestLeft boolean
+---@field requestRight boolean
 ---@field leftLock boolean
 ---@field rightLock boolean
+---@field initialSpeed number
+---@field acceleration number
 local EntityPlatformer = {}
 
 ---@class BlocksFromFile

@@ -13,6 +13,7 @@
 #include "../rotation/rotation.h"
 #include "SDL_render.h"
 #include "ajout.h"
+#include <math.h>
 #include <stdbool.h>
 #include <string.h>
 
@@ -24,7 +25,7 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
 
     const char *id = sprite->id;
 
-    /* Recuperer la texture de base AVANT l'init de l'objet */
+    /* recuperation texture */
     SDL_Texture *texture_base = recuperer_texture_par_lien(id);
     if (!texture_base) {
         log_fmt(NiveauLogErreur, "Base texture not found for sprite '%s'", id);
@@ -34,19 +35,18 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
     int tex_w, tex_h;
     SDL_QueryTexture(texture_base, NULL, NULL, &tex_w, &tex_h);
 
-    /* Calcul des dimensions finales a l'ecran pour le Culling */
     int taille_ecran_x = sprite->taillex * coeff;
     int taille_ecran_y = sprite->tailley * coeff;
+    float ecran_x = x - gs->camera->x;
+    float ecran_y = y - gs->camera->y;
 
-    int decalage_x = (int)lround((double)gs->fenetre->decalage_x / (double)coeff);
-    int decalage_y = (int)lround((double)gs->fenetre->decalage_y / (double)coeff);
+    int decalage_x = (int)lround((double)gs->fenetre->decalage_x / (double)gs->fenetre->coeff);
+    int decalage_y = (int)lround((double)gs->fenetre->decalage_y / (double)gs->fenetre->coeff);
 
-    /* Si hors ecran, on n'ajoute pas (economie d'allocation et de calculs) */
-    if (hors_ecran(x, y, taille_ecran_x, taille_ecran_y, decalage_x, decalage_y)) {
+    if (hors_ecran(ecran_x, ecran_y, sprite->taillex, taille_ecran_y, decalage_x, decalage_y)) {
         return;
     }
 
-    /* Verification index (index 0) */
     int idx = index - 1;
     if (idx < 0)
         idx = 0;
@@ -70,9 +70,7 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
 
     /* reallocation */
     TableauImage *tab = gs->frame->image;
-    reallouer_si_plein(); /* Assurez-vous que cette fonction met a jour tab->tab et
-                             tab->capacite_images */
-
+    reallouer_si_plein();
     int i = tab->nb_images++;
 
     /* Correction rotation */
@@ -81,11 +79,10 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
         log_fmt(NiveauLogAvertissement, "Rotation invalid for sprite %s correction to 0", id);
     }
 
-    /* Affectation directe dans le tableau (Zero copie, pas de memset) */
     tab->tab[i].type = TYPE_IMAGE;
     tab->tab[i].image.texture = texture_base;
-    tab->tab[i].image.posx = x - gs->camera->x;
-    tab->tab[i].image.posy = y - gs->camera->y;
+    tab->tab[i].image.posx = ecran_x;
+    tab->tab[i].image.posy = ecran_y;
     tab->tab[i].image.taillex = taille_ecran_x;
     tab->tab[i].image.tailley = taille_ecran_y;
     tab->tab[i].image.sens = sens;
@@ -135,11 +132,13 @@ void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 coeff, bo
     int taillex, tailley;
     SDL_QueryTexture(tex, NULL, NULL, &taillex, &tailley);
 
-    int decalage_x = (int)lround((double)gs->fenetre->decalage_x / (double)coeff);
-    int decalage_y = (int)lround((double)gs->fenetre->decalage_y / (double)coeff);
+    int decalage_x = (int)lround((double)gs->fenetre->decalage_x / (double)gs->fenetre->coeff);
+    int decalage_y = (int)lround((double)gs->fenetre->decalage_y / (double)gs->fenetre->coeff);
+    float ecran_x = x - gs->camera->x;
+    float ecran_y = y - gs->camera->y;
 
     /* si hors ecran on ajoute pas */
-    if (hors_ecran(x, y, taillex, tailley, decalage_x, decalage_y)) {
+    if (hors_ecran(ecran_x, ecran_y, taillex, tailley, decalage_x, decalage_y)) {
         return;
     }
 
@@ -150,11 +149,12 @@ void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 coeff, bo
     int i = tab->nb_images++;
 
     tab->tab[i].type = TYPE_IMAGE;
-    tab->tab[i].image.posx = x - gs->camera->x;
-    tab->tab[i].image.posy = y - gs->camera->y;
+    tab->tab[i].image.posx = ecran_x;
+    tab->tab[i].image.posy = ecran_y;
     tab->tab[i].image.taillex = taillex * coeff;
     tab->tab[i].image.tailley = tailley * coeff;
     tab->tab[i].image.sens = sens;
+    /* limitation alpha */
     tab->tab[i].image.a = SDL_clamp(a, 0, 255);
 
     /* rotation */

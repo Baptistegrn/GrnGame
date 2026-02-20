@@ -67,8 +67,8 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add bin/release/**
-          git add bin/debug/**
+          git add bin/release/GrnGameAppMacOs
+          git add bin/debug/GrnGameAppMacOs
           git commit -m "Ajout des binaires macOS depuis le workflow" || echo "Aucun changement à committer"
 
       # Pousser le commit
