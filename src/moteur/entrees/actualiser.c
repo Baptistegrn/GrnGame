@@ -4,11 +4,13 @@
  */
 
 #include "../../main.h"
+#include "../../prediction_branche.h"
 #include "../boucle/boucle.h"
 #include "../fenetre/fenetre.h"
 #include "../logging/logging.h"
 #include "entrees.h"
 #include <string.h>
+
 
 /* Trouve l'index local d'une manette a partir de son instance ID SDL */
 static int trouver_index_manette(SDL_JoystickID instance_id) {
@@ -26,7 +28,7 @@ static int trouver_index_manette(SDL_JoystickID instance_id) {
 
 /* Met a jour les entrees pour la frame actuelle */
 void mise_a_jour_input() {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     GestionnaireEntrees *entrees = gs->entrees;

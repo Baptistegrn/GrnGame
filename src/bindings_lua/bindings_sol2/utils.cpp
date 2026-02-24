@@ -1,5 +1,5 @@
 /*
- * Enregistrement des bindings GrnGame dans la VM Lua.
+ * Enregistrement des bindings utils GrnGame dans la VM Lua.
  */
 
 #include "sol/optional_implementation.hpp"
@@ -20,20 +20,18 @@ extern "C" {
 static sol::protected_function g_update_func;
 
 /*
- * Fonction trampoline appelee par le moteur C a chaque frame.
- * Appelle la fonction Lua de mise a jour stockee en cache.
- * Gere les erreurs Lua et affiche un traceback complet.
+fonction qui detecte les erreurs lua dans la callback
  */
-static void update_trampoline(void) {
-    if (!g_update_func.valid())
+static void update_erreurs(void) {
+    if (!g_update_func.valid()) {
+        log_message(NiveauLogErreur, "unvalid callback update function");
         return;
-
+    }
     sol::protected_function_result resultat = g_update_func();
     if (!resultat.valid()) {
         sol::error err = resultat;
         /* si erreur dans la callback on quitte */
-        log_message(NiveauLogErreur, "Lua Runtime Error in update callback:");
-        log_message(NiveauLogErreur, err.what());
+        log_fmt(NiveauLogErreur, "Lua Runtime Error in update callback:%s", err.what());
         /* stop le jeu*/
         arreter_gestionnaire();
     }
@@ -46,11 +44,10 @@ static void update_trampoline(void) {
 extern "C" void fermer_callback(void) { g_update_func = sol::nil; }
 
 /*
-   Binding Lua : enregistre la callback `update` Lua
-   - NE réalise PAS l'initialisation du moteur (SDL/structures)
-   - stocke la fonction Lua protégée dans `g_update_func`
-   - enregistre le trampoline C via `definir_rappel_mise_a_jour` */
-void lua_set_update_callback(sol::optional<sol::function> update_func, sol::this_state ts) {
+enregistre la callback de mise a jour du jeu et lance la boucle de jeu,cette fonction n'itianalise
+pas le moteur  */
+static void lua_mettre_update_callback(sol::optional<sol::function> update_func,
+                                       sol::this_state ts) {
     sol::state_view lua(ts);
 
     /* récupère le traceback Lua pour protéger la fonction */
@@ -59,7 +56,7 @@ void lua_set_update_callback(sol::optional<sol::function> update_func, sol::this
     if (update_func && update_func->valid()) {
         g_update_func = sol::protected_function(*update_func, traceback);
     } else {
-        /* si aucune fonction passée, cherche une globale `update` dans l'état */
+        /* par default appelle update */
         sol::object cand = lua[DEFAULT_UPDATE_FUNC];
         if (cand.is<sol::function>()) {
             g_update_func = sol::protected_function(cand.as<sol::function>(), traceback);
@@ -67,8 +64,26 @@ void lua_set_update_callback(sol::optional<sol::function> update_func, sol::this
             g_update_func = sol::nil; /* pas de callback */
         }
     }
-    definir_rappel_mise_a_jour(update_trampoline);
+    definir_rappel_mise_a_jour(update_erreurs);
     boucle_principale();
+}
+
+/* change la callback de mise à jour dynamiquement,Similaire a set_update_callback mais ne relance
+   pas la boucle_principale(),Utile pour changer de scène sans interrompre le moteur */
+static void lua_change_update_callback(sol::optional<sol::function> update_func,
+                                       sol::this_state ts) {
+    sol::state_view lua(ts);
+
+    sol::function traceback = lua["debug"]["traceback"];
+
+    if (update_func && update_func->valid()) {
+        g_update_func = sol::protected_function(*update_func, traceback);
+    } else {
+        log_message(NiveauLogErreur,
+                    "trying to switch with unvalid function or undefined function");
+        return;
+    }
+    definir_rappel_mise_a_jour(update_erreurs);
 }
 
 /* enregistre un message de log */
@@ -79,9 +94,10 @@ void lua_logMessage(int level, const std::string &message) {
 /* changer le niveau de logs */
 void lua_changer_log_niveau(int lvl) { changer_niveau_log((NiveauLog)lvl); }
 
-/* enregistrement des bindings utilitaires */
+/* enregistrement des bindings utils */
 void enregistrer_bindings_utils(sol::table &utils) {
-    utils.set_function("setUpdateCallback", &lua_set_update_callback);
+    utils.set_function("setUpdateCallback", &lua_mettre_update_callback);
+    utils.set_function("switchUpdateCallback", &lua_change_update_callback);
     utils.set_function("logMessage", &lua_logMessage);
     utils.set_function("stopEngine", &arreter_gestionnaire);
     utils.set_function("setLogLvl", &lua_changer_log_niveau);

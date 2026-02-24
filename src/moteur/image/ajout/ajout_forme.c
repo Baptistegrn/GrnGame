@@ -3,7 +3,8 @@
  */
 
 #include "../../../main.h"
-#include "../../../module_jeu/camera/camera.h"
+#include "../../../module_jeu/module_jeu.h"
+#include "../../../prediction_branche.h"
 #include "../../boucle/boucle.h"
 #include "../../fenetre/fenetre.h"
 #include "../../logging/logging.h"
@@ -14,14 +15,14 @@
 
 /* Ajoute une ligne a la liste de rendu */
 void ajouter_ligne(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     /* positions camera */
-    float ecran_x1 = x1 - gs->camera->x;
-    float ecran_y1 = y1 - gs->camera->y;
-    float ecran_x2 = x2 - gs->camera->x;
-    float ecran_y2 = y2 - gs->camera->y;
+    float ecran_x1 = x1 - gs->module_jeu->camera->x;
+    float ecran_y1 = y1 - gs->module_jeu->camera->y;
+    float ecran_x2 = x2 - gs->module_jeu->camera->x;
+    float ecran_y2 = y2 - gs->module_jeu->camera->y;
 
     float min_x = (ecran_x1 < ecran_x2) ? ecran_x1 : ecran_x2;
     float min_y = (ecran_y1 < ecran_y2) ? ecran_y1 : ecran_y2;
@@ -62,15 +63,15 @@ gsvide:
 /* Ajoute un rectangle a la liste de rendu */
 void ajouter_rectangle(float x, float y, Sint16 taillex, Sint16 tailley, Uint8 r, Uint8 g, Uint8 b,
                        Uint8 a, bool plein) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     int decalage_x = (int)lround((double)gs->fenetre->decalage_x / (double)gs->fenetre->coeff);
     int decalage_y = (int)lround((double)gs->fenetre->decalage_y / (double)gs->fenetre->coeff);
 
     /* positions camera */
-    float ecran_x = x - gs->camera->x;
-    float ecran_y = y - gs->camera->y;
+    float ecran_x = x - gs->module_jeu->camera->x;
+    float ecran_y = y - gs->module_jeu->camera->y;
 
     if (hors_ecran(ecran_x, ecran_y, taillex, tailley, decalage_x, decalage_y)) {
         return;
@@ -101,12 +102,12 @@ gsvide:
 /* Ajoute un cercle a la liste de rendu */
 void ajouter_cercle(float x, float y, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, Uint8 a,
                     bool plein) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     /* positions camera */
-    float ecran_x = x - gs->camera->x;
-    float ecran_y = y - gs->camera->y;
+    float ecran_x = x - gs->module_jeu->camera->x;
+    float ecran_y = y - gs->module_jeu->camera->y;
 
     int decalage_x = (int)lround((double)gs->fenetre->decalage_x / (double)gs->fenetre->coeff);
     int decalage_y = (int)lround((double)gs->fenetre->decalage_y / (double)gs->fenetre->coeff);

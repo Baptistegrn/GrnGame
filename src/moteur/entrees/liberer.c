@@ -11,6 +11,11 @@ void liberer_entrees(void) {
     if (!gs || !gs->entrees)
         return;
 
+    if (gs->entrees->texte_ecrit) {
+        free_gestion_echec_compteur(gs->entrees->texte_ecrit);
+        gs->entrees->texte_ecrit = NULL;
+    }
+
     free_gestion_echec_compteur(gs->entrees);
     gs->entrees = NULL;
 }

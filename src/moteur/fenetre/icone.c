@@ -3,13 +3,16 @@
  */
 
 #include "../../main.h"
+#include "../../prediction_branche.h"
 #include "../logging/logging.h"
 #include "fenetre.h"
 
+
 /* Definit l'icone de la fenetre SDL en chargeant une image */
 void definir_icone(const char *chemin) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
+
     SDL_Window *window = gs->fenetre->fenetre;
     SDL_Surface *icon = IMG_Load(chemin);
 

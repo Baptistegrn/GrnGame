@@ -4,6 +4,7 @@
  */
 
 #include "../../allouer/allouer.h"
+#include "../../prediction_branche.h"
 #include "../logging/logging.h"
 #include "entrees.h"
 #include <string.h>
@@ -13,7 +14,7 @@
  * Utilise des tableaux de recherche separes par longueur pour optimiser.
  */
 SDL_Scancode scancode_depuis_nom(const char *nom_non_normalise) {
-    if (!nom_non_normalise)
+    if (UNLIKELY(!nom_non_normalise))
         return SDL_SCANCODE_UNKNOWN;
 
     /* Normalisation du nom (doit etre libere apres) */
@@ -52,7 +53,7 @@ SDL_Scancode scancode_depuis_nom(const char *nom_non_normalise) {
  * SDL_GameControllerButton.
  */
 SDL_GameControllerButton bouton_manette_depuis_nom(const char *nom_non_normalise) {
-    if (!nom_non_normalise)
+    if (UNLIKELY(!nom_non_normalise))
         return SDL_CONTROLLER_BUTTON_INVALID;
 
     /* Normalisation du nom */

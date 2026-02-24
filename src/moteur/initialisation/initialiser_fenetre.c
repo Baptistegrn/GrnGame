@@ -3,6 +3,7 @@
  */
 
 #include "../../main.h"
+#include "../../prediction_branche.h"
 #include "../boucle/boucle.h"
 #include "../fenetre/fenetre.h"
 #include "../logging/logging.h"
@@ -10,7 +11,7 @@
 
 /* Initialise la fenetre et le renderer */
 void initialiser_fenetre(void) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     GestionnaireFenetre *fen = gs->fenetre;

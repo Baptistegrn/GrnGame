@@ -7,6 +7,7 @@
 #include "../../chemin/chemin.h"
 #include "../../chiffrement/aes.h"
 #include "../../main.h"
+#include "../../prediction_branche.h"
 #include "../logging/logging.h"
 #include "son.h"
 #include <stdio.h>
@@ -14,7 +15,7 @@
 
 /* Verifie si le tableau de sons est plein et l'agrandit si necessaire */
 void agrandir_si_plein_son(void) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
     GestionnaireSon *sons = gs->sons;
 
@@ -36,9 +37,9 @@ gsvide:
 
 /* Charge un fichier son (WAV) en memoire (dechiffre au vol si une cle est presente) */
 Mix_Chunk *charger_un_son(const char *lien_complet) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
-    if (!lien_complet)
+    if (UNLIKELY(!lien_complet))
         return NULL;
 
     GestionnaireSon *sons = gs->sons;
@@ -114,7 +115,7 @@ Mix_Chunk *charger_un_son(const char *lien_complet) {
         }
     }
 
-    if (!son) {
+    if (UNLIKELY(!son)) {
         log_fmt(NiveauLogErreur, "Impossible to load '%s': %s", lien_norm, Mix_GetError());
         return NULL;
     }
@@ -143,9 +144,9 @@ gsvide:
 
 /* Recupere un pointeur vers un son deja charge */
 Mix_Chunk *recuperer_son_par_lien(const char *lien) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
-    if (!lien)
+    if (UNLIKELY(!lien))
         return NULL;
 
     /* Copie locale pour recherche normalisee */
@@ -170,9 +171,9 @@ gsvide:
 
 /* Scanne un dossier et charge tous les fichiers (WAV ou DATA si chiffre) */
 void charger_tout_les_sons(const char *dossier) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
-    if (!dossier) {
+    if (UNLIKELY(!dossier)) {
         log_message(NiveauLogErreur, "NULL directory parameter");
         return;
     }

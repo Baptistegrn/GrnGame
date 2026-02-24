@@ -50,9 +50,10 @@ typedef struct GestionnaireEntrees {
     char souris_scroll_x;            /* molette horizontal (-1,0,1) */
     char fichier_drop[TAILLE_LIEN];  /* chemin du fichier drop (SDL_DROPFILE) */
 
-    /* Texte saisi via SDL_TEXTINPUT */
-    char texte_ecrit[TAILLE_TEXTE_SAISIE];
-    int taille_texte_ecrit;       /* longueur courante de `texte_ecrit` */
+    /* Texte saisi (buffer dynamique). */
+    char *texte_ecrit;            /* buffer dynamique */
+    int taille_texte_ecrit;       /* longueur */
+    int capacite_texte_ecrit;     /* capacite allouee */
     char texte_drop[TAILLE_LIEN]; /* texte accompagne un drop (si utilise) */
 
     /* Clavier - tableaux indexes par SDL_Scancode */

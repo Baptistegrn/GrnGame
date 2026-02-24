@@ -7,7 +7,7 @@
 
 /* Libere le GestionnaireTiming */
 void liberer_timing(void) {
-    if (!gs || !gs->timing)
+    if (!gs)
         return;
 
     free_gestion_echec_compteur(gs->timing);

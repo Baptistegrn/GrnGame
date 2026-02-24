@@ -13,6 +13,7 @@ extern "C" {
 #include "../../module_jeu/camera/camera.h"
 #include "../../module_jeu/carte/carte.h"
 #include "../../module_jeu/hitbox/hitbox.h"
+#include "../../module_jeu/module_jeu.h"
 #include "../../moteur/constante/constante.h"
 #include "../../proprietes.h"
 #include <lauxlib.h>
@@ -20,7 +21,7 @@ extern "C" {
 #include <lualib.h>
 }
 
-/* TODO : move in his correct file */
+/* TODO: deplacer dans le bon fichier */
 static std::tuple<int, float> lua_animate(int frame, float timer, int rangeStart, int rangeEnd,
                                           float speed, float dt, bool loop) {
     timer += dt;
@@ -34,9 +35,9 @@ static std::tuple<int, float> lua_animate(int frame, float timer, int rangeStart
     return std::make_tuple(frame, timer);
 }
 
-/* wrapper pour le type Block avec gestion memoire */
+/* wrapper pour le type Bloc avec gestion memoire */
 struct LuaBlock {
-    Block *ptr;
+    Bloc *ptr;
 
     LuaBlock(float x, float y, float w, float h, int type) { ptr = creer_block(x, y, w, h, type); }
 
@@ -47,26 +48,26 @@ struct LuaBlock {
         }
     }
 
-    /* recupere/modifie les parametres */
-    float rec_x() const { return ptr->x; }
-    void mettre_x(float v) { ptr->x = v; }
+    /* accesseurs */
+    float get_x() const { return ptr->x; }
+    void set_x(float v) { ptr->x = v; }
 
-    float rec_y() const { return ptr->y; }
-    void mettre_y(float v) { ptr->y = v; }
+    float get_y() const { return ptr->y; }
+    void set_y(float v) { ptr->y = v; }
 
-    float rec_w() const { return ptr->w; }
-    void mettre_w(float v) { ptr->w = v; }
+    float get_w() const { return ptr->w; }
+    void set_w(float v) { ptr->w = v; }
 
-    float rec_h() const { return ptr->h; }
-    void mettre_h(float v) { ptr->h = v; }
+    float get_h() const { return ptr->h; }
+    void set_h(float v) { ptr->h = v; }
 
-    int rec_type() const { return ptr->type; }
-    void mettre_type(int t) { ptr->type = t; }
+    int get_type() const { return ptr->type; }
+    void set_type(int t) { ptr->type = t; }
 };
 
-/* wrapper pour le conteneur de blocs */
+/* wrapper pour le tableau de blocs */
 struct LuaBlocks {
-    Blocks *ptr;
+    Blocs *ptr;
 
     LuaBlocks() { ptr = creer_blocks(); }
 
@@ -77,25 +78,19 @@ struct LuaBlocks {
         }
     }
 
-    /* ajoute un bloc au tableau */
+    /* manipulation du tableau */
     void add(const LuaBlock &block) { ajouter_block(ptr, block.ptr); }
-
-    /* recupere la taille du tableau */
     int size() const { return taille_blocks(ptr); }
+    Bloc *get(int index) const { return &ptr->tab[index]; }
+    Bloc &operator[](int index) { return ptr->tab[index]; }
 
-    /* recupere un bloc par son index */
-    Block *get(int index) const { return &ptr->tab[index]; }
-
-    /* acces par indice [] */
-    Block &operator[](int index) { return ptr->tab[index]; }
-
-    /* iterateur pour for...in */
-    std::function<Block *()> pairs() {
+    /* iterateur pour boucle for...in en Lua */
+    std::function<Bloc *()> pairs() {
         int index = -1;
         int max_size = taille_blocks(ptr);
-        Blocks *blocks_ptr = ptr;
+        Blocs *blocks_ptr = ptr;
 
-        return [blocks_ptr, index, max_size]() mutable -> Block * {
+        return [blocks_ptr, index, max_size]() mutable -> Bloc * {
             index++;
             if (index < max_size) {
                 return &blocks_ptr->tab[index];
@@ -105,14 +100,16 @@ struct LuaBlocks {
     }
 };
 
-/* wrapper pour l'entite platformer avec gestion memoire */
+/* wrapper pour une entite de plateforme avec gestion memoire */
 struct LuaEntityPlatformer {
-    EntityPlatformer *ptr;
+    EntitePlatforme *ptr;
 
     LuaEntityPlatformer(float x, float y, float w, float h, sol::optional<float> force_saut,
                         sol::optional<float> gravite, sol::optional<float> vmax_x,
                         sol::optional<float> vmax_chute, sol::optional<float> correction_mur,
-                        sol::optional<float> vitesse_initiale, sol::optional<float> acceleration) {
+                        sol::optional<float> vitesse_initiale, sol::optional<float> acceleration,
+                        sol::optional<float> nb_sauts, sol::optional<bool> saut_sur_murs) {
+
         float f = force_saut.value_or(DEFAULT_FORCE_SAUT);
         float g = gravite.value_or(DEFAULT_GRAVITE);
         float vx = vmax_x.value_or(DEFAULT_VMAX_X);
@@ -120,8 +117,10 @@ struct LuaEntityPlatformer {
         float cm = correction_mur.value_or(DEFAULT_CORRECTION_MUR);
         float vi = vitesse_initiale.value_or(DEFAULT_VITESSE_INITIALE);
         float acc = acceleration.value_or(DEFAULT_ACCELERATION);
+        int nb = nb_sauts.value_or(DEFAULT_NB_SAUTS_MAX);
+        bool m = saut_sur_murs.value_or(DEFAULT_SAUT_SUR_MURS);
 
-        ptr = creer_entite_platforme(x, y, w, h, f, g, vx, vc, cm, vi, acc);
+        ptr = creer_entite_platforme(x, y, w, h, f, g, vx, vc, cm, vi, acc, nb, m);
     }
 
     ~LuaEntityPlatformer() {
@@ -131,93 +130,186 @@ struct LuaEntityPlatformer {
         }
     }
 
-    /* recupere/modifie les parametres */
-    float rec_x() const { return ptr->x; }
-    void mettre_x(float v) { ptr->x = v; }
+    /* accesseurs ou si demande alors on attend le resultat de la hitbox */
+    float get_x() const {
+        attendre_calcul_hitbox();
+        return ptr->x;
+    }
+    void set_x(float v) { ptr->x = v; }
 
-    float rec_y() const { return ptr->y; }
-    void mettre_y(float v) { ptr->y = v; }
+    float get_y() const {
+        attendre_calcul_hitbox();
+        return ptr->y;
+    }
+    void set_y(float v) { ptr->y = v; }
 
-    float rec_w() const { return ptr->width; }
-    void mettre_w(float v) { ptr->width = v; }
+    float get_w() const {
+        attendre_calcul_hitbox();
+        return ptr->width;
+    }
+    void set_w(float v) { ptr->width = v; }
 
-    float rec_h() const { return ptr->height; }
-    void mettre_h(float v) { ptr->height = v; }
+    float get_h() const {
+        attendre_calcul_hitbox();
+        return ptr->height;
+    }
+    void set_h(float v) { ptr->height = v; }
 
-    float rec_force_saut() const { return ptr->powerJump; }
-    void mettre_force_saut(float v) { ptr->powerJump = v; }
+    float get_powerJump() const {
+        attendre_calcul_hitbox();
+        return ptr->powerJump;
+    }
+    void set_powerJump(float v) { ptr->powerJump = v; }
 
-    float rec_gravite() const { return ptr->gravity; }
-    void mettre_gravite(float v) { ptr->gravity = v; }
+    float get_gravity() const {
+        attendre_calcul_hitbox();
+        return ptr->gravity;
+    }
+    void set_gravity(float v) { ptr->gravity = v; }
 
-    bool rec_demande_saut() const { return ptr->requestJump; }
-    void mettre_demande_saut(bool v) { ptr->requestJump = v; }
+    bool get_requestJump() const {
+        attendre_calcul_hitbox();
+        return ptr->requestJump;
+    }
+    void set_requestJump(bool v) { ptr->requestJump = v; }
 
-    bool rec_demande_gauche() const { return ptr->requestLeft; }
-    void mettre_demande_gauche(bool v) { ptr->requestLeft = v; }
+    bool get_requestLeft() const {
+        attendre_calcul_hitbox();
+        return ptr->requestLeft;
+    }
+    void set_requestLeft(bool v) { ptr->requestLeft = v; }
 
-    bool rec_demande_droite() const { return ptr->requestRight; }
-    void mettre_demande_droite(bool v) { ptr->requestRight = v; }
+    bool get_requestRight() const {
+        attendre_calcul_hitbox();
+        return ptr->requestRight;
+    }
+    void set_requestRight(bool v) { ptr->requestRight = v; }
 
-    bool rec_verrou_gauche() const { return ptr->leftLock; }
-    void mettre_verrou_gauche(bool v) { ptr->leftLock = v; }
+    bool get_leftLock() const {
+        attendre_calcul_hitbox();
+        return ptr->leftLock;
+    }
+    void set_leftLock(bool v) { ptr->leftLock = v; }
 
-    bool rec_verrou_droit() const { return ptr->rightLock; }
-    void mettre_verrou_droit(bool v) { ptr->rightLock = v; }
+    bool get_rightLock() const {
+        attendre_calcul_hitbox();
+        return ptr->rightLock;
+    }
+    void set_rightLock(bool v) { ptr->rightLock = v; }
 
-    bool rec_en_air() const { return ptr->inSky; }
-    void mettre_en_air(bool v) { ptr->inSky = v; }
+    bool get_inSky() const {
+        attendre_calcul_hitbox();
+        return ptr->inSky;
+    }
+    void set_inSky(bool v) { ptr->inSky = v; }
 
-    float rec_vitesseY() const { return ptr->speedY; }
-    void mettre_vitesseY(float v) { ptr->speedY = v; }
+    float get_speedY() const {
+        attendre_calcul_hitbox();
+        return ptr->speedY;
+    }
+    void set_speedY(float v) { ptr->speedY = v; }
 
-    float rec_vitesseX() const { return ptr->speedX; }
-    void mettre_vitesseX(float v) { ptr->speedX = v; }
+    float get_speedX() const {
+        attendre_calcul_hitbox();
+        return ptr->speedX;
+    }
+    void set_speedX(float v) { ptr->speedX = v; }
 
-    float rec_acceleration() const { return ptr->acceleration; }
-    void mettre_acceleration(float v) { ptr->acceleration = v; }
+    float get_acceleration() const {
+        attendre_calcul_hitbox();
+        return ptr->acceleration;
+    }
+    void set_acceleration(float v) { ptr->acceleration = v; }
 
-    float rec_vitesse_initiale() const { return ptr->initialSpeed; }
-    void mettre_vitesse_initiale(float v) { ptr->initialSpeed = v; }
+    float get_initialSpeed() const {
+        attendre_calcul_hitbox();
+        return ptr->initialSpeed;
+    }
+    void set_initialSpeed(float v) { ptr->initialSpeed = v; }
+
+    int get_numberOfJumps() const {
+        attendre_calcul_hitbox();
+        return ptr->numberOfJumps;
+    }
+    void set_numberOfJumps(int v) { ptr->numberOfJumps = v; }
+
+    int get_numberOfJumpsPossible() const {
+        attendre_calcul_hitbox();
+        return ptr->numberOfJumpsPossible;
+    }
+    void set_numberOfJumpsPossible(int v) { ptr->numberOfJumpsPossible = v; }
+
+    bool get_jumpOnWall() const {
+        attendre_calcul_hitbox();
+        return ptr->jumpOnWall;
+    }
+    void set_jumpOnWall(bool v) { ptr->jumpOnWall = v; }
 };
 
-/* met a jour la camera globale du moteur */
-void lua_update_camera(float tx, float ty, float dt) {
-    if (gs && gs->camera) {
-        camera_mise_a_jour(gs->camera, tx, ty, dt);
+/* wrapper pour le tableau d'entites */
+struct LuaEntitiesPlatformer {
+    EntitePlatformes *ptr;
+
+    LuaEntitiesPlatformer() { ptr = creer_tableau_entite(); }
+
+    ~LuaEntitiesPlatformer() {
+        if (ptr) {
+            liberer_entites_platforme(ptr);
+            ptr = nullptr;
+        }
     }
+
+    /* manipulation du tableau */
+    void add(const LuaEntityPlatformer &ent) { ajouter_entite_platforme(ptr, ent.ptr); }
+    int size() const { return ptr->taille; }
+
+    /* on ne met pas de securite ici car ca retourne juste un pointeur, c'est l'accesseur qui bloque
+     */
+    EntitePlatforme *get(int index) const { return &ptr->entites[index]; }
+    EntitePlatforme &operator[](int index) { return ptr->entites[index]; }
+
+    /* iterateur pour boucle for...in en Lua */
+    std::function<EntitePlatforme *()> pairs() {
+        int index = -1;
+        int max_size = ptr->taille;
+        EntitePlatformes *ents_ptr = ptr;
+
+        return [ents_ptr, index, max_size]() mutable -> EntitePlatforme * {
+            index++;
+            if (index < max_size) {
+                return &ents_ptr->entites[index];
+            }
+            return nullptr;
+        };
+    }
+};
+
+/* fonctions de la camera */
+void lua_update_camera(float tx, float ty, float dt) {
+    if (gs && gs->module_jeu->camera)
+        camera_mise_a_jour(gs->module_jeu->camera, tx, ty, dt);
 }
-
-/* recupere la position X de la camera */
-float lua_get_cam_x() { return (gs && gs->camera) ? gs->camera->x : 0; }
-
-/* definit la position X de la camera */
+float lua_get_cam_x() { return (gs && gs->module_jeu->camera) ? gs->module_jeu->camera->x : 0; }
 void lua_set_cam_x(float v) {
-    if (gs && gs->camera)
-        gs->camera->x = v;
+    if (gs && gs->module_jeu->camera)
+        gs->module_jeu->camera->x = v;
 }
-
-/* recupere la position Y de la camera */
-float lua_get_cam_y() { return (gs && gs->camera) ? gs->camera->y : 0; }
-
-/* definit la position Y de la camera */
+float lua_get_cam_y() { return (gs && gs->module_jeu->camera) ? gs->module_jeu->camera->y : 0; }
 void lua_set_cam_y(float v) {
-    if (gs && gs->camera)
-        gs->camera->y = v;
+    if (gs && gs->module_jeu->camera)
+        gs->module_jeu->camera->y = v;
 }
-
-/* recupere le lissage de la camera */
-float lua_get_cam_smooth() { return (gs && gs->camera) ? gs->camera->smooth_factor : 0; }
-
-/* definit le lissage de la camera */
+float lua_get_cam_smooth() {
+    return (gs && gs->module_jeu->camera) ? gs->module_jeu->camera->smooth_factor : 0;
+}
 void lua_set_cam_smooth(float v) {
-    if (gs && gs->camera)
-        gs->camera->smooth_factor = v;
+    if (gs && gs->module_jeu->camera)
+        gs->module_jeu->camera->smooth_factor = v;
 }
 
 /* wrapper pour les blocs charges depuis un fichier */
 struct LuaBlocksFromFile {
-    Blocks *ptr;
+    Blocs *ptr;
     bool owns;
 
     LuaBlocksFromFile(const std::string &path, int pas_x, int pas_y, char sep, int exclude) {
@@ -235,10 +327,9 @@ struct LuaBlocksFromFile {
     int size() const { return taille_blocks(ptr); }
 };
 
-/* convertit un tableau lua de blocs en structure Blocks */
-static Blocks *blocks_depuis_tableau(sol::table t) {
-    Blocks *blocks = creer_blocks();
-
+/* convertit une table lua en structure Blocs C */
+static Blocs *blocks_from_table(sol::table t) {
+    Blocs *blocks = creer_blocks();
     for (auto &kv : t) {
         LuaBlock &b = kv.second.as<LuaBlock &>();
         ajouter_block(blocks, b.ptr);
@@ -246,97 +337,129 @@ static Blocks *blocks_depuis_tableau(sol::table t) {
     return blocks;
 }
 
-/* calcule la physique de plateforme avec collisions */
-static void lua_hitbox_platformer(LuaEntityPlatformer &ent, LuaBlocks &blocks,
-                                  sol::optional<Uint32> ignore_mask, sol::optional<float> delta) {
-
-    float delta_moteur = dt();
-    float d = delta.value_or(delta_moteur);
-    Uint32 i_mask = ignore_mask.value_or(0);
-
-    hitbox_platforme(ent.ptr, blocks.ptr, i_mask, d);
+/* convertit une table lua en structure EntitePlatformes C */
+static EntitePlatformes *entities_from_table(sol::table t) {
+    EntitePlatformes *ents = creer_tableau_entite();
+    for (auto &kv : t) {
+        LuaEntityPlatformer &e = kv.second.as<LuaEntityPlatformer &>();
+        ajouter_entite_platforme(ents, e.ptr);
+    }
+    return ents;
 }
 
-/* calcule la physique de plateforme avec table lua */
-static void lua_hitbox_platformer_table(LuaEntityPlatformer &ent, sol::table t,
+/* gestion de la hitbox avec les wrappers de tableaux (lance le calcul asynchrone) */
+static void lua_hitbox_platformer(LuaEntitiesPlatformer &ents, LuaBlocks &blocks,
+                                  sol::optional<Uint32> ignore_mask, sol::optional<float> delta) {
+    float d = delta.value_or(dt());
+    Uint32 i_mask = ignore_mask.value_or(0);
+    lancer_calcul_hitbox(ents.ptr, blocks.ptr, i_mask, d);
+}
+
+/* gestion de la hitbox avec des tables Lua directes */
+static void lua_hitbox_platformer_table(sol::table ents_table, sol::table blocks_table,
                                         sol::optional<Uint32> ignore_mask,
                                         sol::optional<float> delta) {
-
-    float delta_moteur = dt();
-    float d = delta.value_or(delta_moteur);
+    float d = delta.value_or(dt());
     Uint32 i_mask = ignore_mask.value_or(0);
 
-    Blocks *blocks = blocks_depuis_tableau(t);
+    EntitePlatformes *ents = entities_from_table(ents_table);
+    Blocs *blocks = blocks_from_table(blocks_table);
 
-    hitbox_platforme(ent.ptr, blocks, i_mask, d);
+    lancer_calcul_hitbox(ents, blocks, i_mask, d);
 
+    /* pas de vrai multithread ici */
+    attendre_calcul_hitbox();
+
+    liberer_entites_platforme(ents);
     liberer_blocks(blocks);
 }
 
-/* enregistrement des bindings module jeu */
+/* enregistrement des liaisons (bindings) pour Lua */
 void enregistrer_bindings_module_jeu(sol::table &game) {
-    game.new_usertype<Block>("BlockRaw", sol::no_constructor, "x", &Block::x, "y", &Block::y, "w",
-                             &Block::w, "h", &Block::h, "type", &Block::type);
 
-    /* Block */
+    /* Bloc brut (renvoye par iterateur/get) */
+    game.new_usertype<Bloc>("BlockRaw", sol::no_constructor, "x", &Bloc::x, "y", &Bloc::y, "w",
+                            &Bloc::w, "h", &Bloc::h, "type", &Bloc::type);
+
+    /* Constructeur de Bloc */
     game.new_usertype<LuaBlock>("Block", sol::call_constructor,
                                 sol::constructors<LuaBlock(float, float, float, float, int)>(), "x",
-                                sol::property(&LuaBlock::rec_x, &LuaBlock::mettre_x), "y",
-                                sol::property(&LuaBlock::rec_y, &LuaBlock::mettre_y), "w",
-                                sol::property(&LuaBlock::rec_w, &LuaBlock::mettre_w), "h",
-                                sol::property(&LuaBlock::rec_h, &LuaBlock::mettre_h), "type",
-                                sol::property(&LuaBlock::rec_type, &LuaBlock::mettre_type));
+                                sol::property(&LuaBlock::get_x, &LuaBlock::set_x), "y",
+                                sol::property(&LuaBlock::get_y, &LuaBlock::set_y), "w",
+                                sol::property(&LuaBlock::get_w, &LuaBlock::set_w), "h",
+                                sol::property(&LuaBlock::get_h, &LuaBlock::set_h), "type",
+                                sol::property(&LuaBlock::get_type, &LuaBlock::set_type));
 
-    /* Blocks */
+    /* Tableau de Blocs */
     game.new_usertype<LuaBlocks>("Blocks", sol::call_constructor, sol::constructors<LuaBlocks()>(),
                                  "add", &LuaBlocks::add, "size", &LuaBlocks::size, "get",
                                  &LuaBlocks::get, sol::meta_function::index, &LuaBlocks::operator[],
                                  "pairs", &LuaBlocks::pairs);
 
-    /* EntityPlatformer */
+    /* Entite brute (renvoyee par iterateur/get) */
+    game.new_usertype<EntitePlatforme>(
+        "EntityPlatformerRaw", sol::no_constructor, "x", &EntitePlatforme::x, "y",
+        &EntitePlatforme::y, "speedY", &EntitePlatforme::speedY, "speedX", &EntitePlatforme::speedX,
+        "width", &EntitePlatforme::width, "height", &EntitePlatforme::height, "gravity",
+        &EntitePlatforme::gravity, "speedMaxX", &EntitePlatforme::speedMaxX, "powerJump",
+        &EntitePlatforme::powerJump, "inSky", &EntitePlatforme::inSky, "requestJump",
+        &EntitePlatforme::requestJump, "requestLeft", &EntitePlatforme::requestLeft, "requestRight",
+        &EntitePlatforme::requestRight, "leftLock", &EntitePlatforme::leftLock, "rightLock",
+        &EntitePlatforme::rightLock, "wallCorrection", &EntitePlatforme::wallCorrection,
+        "speedMaxFall", &EntitePlatforme::speedMaxFall, "acceleration",
+        &EntitePlatforme::acceleration, "initialSpeed", &EntitePlatforme::initialSpeed,
+        "numberOfJumps", &EntitePlatforme::numberOfJumps, "numberOfJumpsPossible",
+        &EntitePlatforme::numberOfJumpsPossible, "jumpOnWall", &EntitePlatforme::jumpOnWall);
+
+    /* Constructeur d'entite */
     game.new_usertype<LuaEntityPlatformer>(
         "EntityPlatformer", sol::call_constructor,
-        sol::constructors<LuaEntityPlatformer(float, float, float, float, sol::optional<float>,
-                                              sol::optional<float>, sol::optional<float>,
-                                              sol::optional<float>, sol::optional<float>,
-                                              sol::optional<float>, sol::optional<float>)>(),
-        "x", sol::property(&LuaEntityPlatformer::rec_x, &LuaEntityPlatformer::mettre_x), "y",
-        sol::property(&LuaEntityPlatformer::rec_y, &LuaEntityPlatformer::mettre_y), "w",
-        sol::property(&LuaEntityPlatformer::rec_w, &LuaEntityPlatformer::mettre_w), "h",
-        sol::property(&LuaEntityPlatformer::rec_h, &LuaEntityPlatformer::mettre_h), "gravity",
-        sol::property(&LuaEntityPlatformer::rec_gravite, &LuaEntityPlatformer::mettre_gravite),
+        sol::constructors<LuaEntityPlatformer(
+            float, float, float, float, sol::optional<float>, sol::optional<float>,
+            sol::optional<float>, sol::optional<float>, sol::optional<float>, sol::optional<float>,
+            sol::optional<float>, sol::optional<float>, sol::optional<bool>)>(),
+        "x", sol::property(&LuaEntityPlatformer::get_x, &LuaEntityPlatformer::set_x), "y",
+        sol::property(&LuaEntityPlatformer::get_y, &LuaEntityPlatformer::set_y), "w",
+        sol::property(&LuaEntityPlatformer::get_w, &LuaEntityPlatformer::set_w), "h",
+        sol::property(&LuaEntityPlatformer::get_h, &LuaEntityPlatformer::set_h), "gravity",
+        sol::property(&LuaEntityPlatformer::get_gravity, &LuaEntityPlatformer::set_gravity),
         "jumpPower",
-        sol::property(&LuaEntityPlatformer::rec_force_saut,
-                      &LuaEntityPlatformer::mettre_force_saut),
+        sol::property(&LuaEntityPlatformer::get_powerJump, &LuaEntityPlatformer::set_powerJump),
         "requestJump",
-        sol::property(&LuaEntityPlatformer::rec_demande_saut,
-                      &LuaEntityPlatformer::mettre_demande_saut),
+        sol::property(&LuaEntityPlatformer::get_requestJump, &LuaEntityPlatformer::set_requestJump),
         "requestLeft",
-        sol::property(&LuaEntityPlatformer::rec_demande_gauche,
-                      &LuaEntityPlatformer::mettre_demande_gauche),
+        sol::property(&LuaEntityPlatformer::get_requestLeft, &LuaEntityPlatformer::set_requestLeft),
         "requestRight",
-        sol::property(&LuaEntityPlatformer::rec_demande_droite,
-                      &LuaEntityPlatformer::mettre_demande_droite),
+        sol::property(&LuaEntityPlatformer::get_requestRight,
+                      &LuaEntityPlatformer::set_requestRight),
         "leftLock",
-        sol::property(&LuaEntityPlatformer::rec_verrou_gauche,
-                      &LuaEntityPlatformer::mettre_verrou_gauche),
+        sol::property(&LuaEntityPlatformer::get_leftLock, &LuaEntityPlatformer::set_leftLock),
         "rightLock",
-        sol::property(&LuaEntityPlatformer::rec_verrou_droit,
-                      &LuaEntityPlatformer::mettre_verrou_droit),
-        "inSky",
-        sol::property(&LuaEntityPlatformer::rec_en_air, &LuaEntityPlatformer::mettre_en_air),
-        "speedY",
-        sol::property(&LuaEntityPlatformer::rec_vitesseY, &LuaEntityPlatformer::mettre_vitesseY),
-        "speedX",
-        sol::property(&LuaEntityPlatformer::rec_vitesseX, &LuaEntityPlatformer::mettre_vitesseX),
+        sol::property(&LuaEntityPlatformer::get_rightLock, &LuaEntityPlatformer::set_rightLock),
+        "inSky", sol::property(&LuaEntityPlatformer::get_inSky, &LuaEntityPlatformer::set_inSky),
+        "speedY", sol::property(&LuaEntityPlatformer::get_speedY, &LuaEntityPlatformer::set_speedY),
+        "speedX", sol::property(&LuaEntityPlatformer::get_speedX, &LuaEntityPlatformer::set_speedX),
         "acceleration",
-        sol::property(&LuaEntityPlatformer::rec_acceleration,
-                      &LuaEntityPlatformer::mettre_acceleration),
+        sol::property(&LuaEntityPlatformer::get_acceleration,
+                      &LuaEntityPlatformer::set_acceleration),
         "initialSpeed",
-        sol::property(&LuaEntityPlatformer::rec_vitesse_initiale,
-                      &LuaEntityPlatformer::mettre_vitesse_initiale)
+        sol::property(&LuaEntityPlatformer::get_initialSpeed,
+                      &LuaEntityPlatformer::set_initialSpeed),
+        "numberOfJumps",
+        sol::property(&LuaEntityPlatformer::get_numberOfJumps,
+                      &LuaEntityPlatformer::set_numberOfJumps),
+        "numberOfJumpsPossible",
+        sol::property(&LuaEntityPlatformer::get_numberOfJumpsPossible,
+                      &LuaEntityPlatformer::set_numberOfJumpsPossible),
+        "jumpOnWall",
+        sol::property(&LuaEntityPlatformer::get_jumpOnWall, &LuaEntityPlatformer::set_jumpOnWall));
 
-    );
+    /* Tableau d'entites */
+    game.new_usertype<LuaEntitiesPlatformer>(
+        "EntitiesPlatformer", sol::call_constructor, sol::constructors<LuaEntitiesPlatformer()>(),
+        "add", &LuaEntitiesPlatformer::add, "size", &LuaEntitiesPlatformer::size, "get",
+        &LuaEntitiesPlatformer::get, sol::meta_function::index, &LuaEntitiesPlatformer::operator[],
+        "pairs", &LuaEntitiesPlatformer::pairs);
 
     /* Camera globale */
     game.set_function("createCamera", &creer_camera);
@@ -348,13 +471,14 @@ void enregistrer_bindings_module_jeu(sol::table &game) {
     game.set_function("setCameraSmooth", &lua_set_cam_smooth);
     game.set_function("getCameraSmooth", &lua_get_cam_smooth);
     game.set_function("animate", &lua_animate);
-    /* BlocksFromFile */
+
+    /* Blocs depuis fichier */
     game.new_usertype<LuaBlocksFromFile>(
         "BlocksFromFile", sol::call_constructor,
         sol::constructors<LuaBlocksFromFile(const std::string &, int, int, char, int)>(), "size",
         &LuaBlocksFromFile::size);
 
-    /* hitbox functions */
+    /* Fonctions hitbox surcharges */
     game.set_function("hitboxPlatformer",
                       sol::overload(&lua_hitbox_platformer, &lua_hitbox_platformer_table));
 }

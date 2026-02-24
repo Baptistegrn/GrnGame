@@ -4,6 +4,7 @@
 
 #include "../../../main.h"
 #include "../../../module_jeu/camera/camera.h"
+#include "../../../prediction_branche.h"
 #include "../../boucle/boucle.h"
 #include "../../fenetre/fenetre.h"
 #include "../../logging/logging.h"
@@ -14,7 +15,7 @@
 /* Ajoute un tableau de particules au tableau d'images */
 void ajouter_particules_au_tableau(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r,
                                    Uint8 *g, Uint8 *b, int taille) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     TableauImage *tab = gs->frame->image;

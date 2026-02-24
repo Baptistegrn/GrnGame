@@ -4,12 +4,16 @@
  */
 
 #include "../../main.h"
+#include "../../prediction_branche.h"
 #include "../logging/logging.h"
 #include "fenetre.h"
 
 /* Fonction pour calculer le coefficient et appliquer le redimensionnement (appel dans le event sdl)
  */
 void appliquer_redimensionnement(int largeur_cible, int hauteur_cible) {
+    if (UNLIKELY(!gs))
+        goto gsvide;
+
     GestionnaireFenetre *f = gs->fenetre;
 
     /* plus petit coefficient */
@@ -36,11 +40,17 @@ void appliquer_redimensionnement(int largeur_cible, int hauteur_cible) {
     log_fmt(NiveauLogDebug, "Display updated: %s (%dx%d) | Coeff: %d | Offset: %d,%d",
             f->plein_ecran ? "Fullscreen" : "Window", largeur_cible, hauteur_cible, n_coeff,
             decalage_x, decalage_y);
+
+    return;
+
+gsvide:
+    log_message(NiveauLogDebug, "manager is empty in changement of window size");
+    return;
 }
 
 /* Passe en mode plein ecran */
 void passer_plein_ecran(void) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     GestionnaireFenetre *f = gs->fenetre;
@@ -62,15 +72,13 @@ void passer_plein_ecran(void) {
     return;
 
 gsvide:
-    log_message(NiveauLogDebug, "manager is empty in passer_plein_ecran");
+    log_message(NiveauLogDebug, "manager is empty in changement of window size");
 }
 
 /* Passe en mode fenetre maximisee (avec barre des taches et titre) */
 void passer_fenetre_maximisee(void) {
-    if (!gs || !gs->fenetre) {
-        log_message(NiveauLogDebug, "manager is empty in passer_fenetre_maximisee");
-        return;
-    }
+    if (UNLIKELY(!gs))
+        goto gsvide;
 
     SDL_Window *fenetre_sdl = gs->fenetre->fenetre;
 
@@ -86,11 +94,17 @@ void passer_fenetre_maximisee(void) {
     /* maximiser la fenetre */
     SDL_MaximizeWindow(fenetre_sdl);
     gs->fenetre->plein_ecran = false;
+
+    return;
+
+gsvide:
+    log_message(NiveauLogDebug, "manager is empty in changement of window size");
+    return;
 }
 
 /* Passe en mode fenetre avec une taille specifique */
 void passer_fenetre_taille(int largeur, int hauteur) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     GestionnaireFenetre *f = gs->fenetre;
@@ -122,12 +136,12 @@ void passer_fenetre_taille(int largeur, int hauteur) {
     return;
 
 gsvide:
-    log_message(NiveauLogDebug, "manager is empty in passer_fenetre_taille");
+    log_message(NiveauLogDebug, "manager is empty in changement of window size");
 }
 
 /* Passe en mode fenetre avec un coefficient de l'univers */
 void passer_fenetre_coeff(int coeff) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     if (coeff < 1)
@@ -141,5 +155,5 @@ void passer_fenetre_coeff(int coeff) {
     return;
 
 gsvide:
-    log_message(NiveauLogDebug, "manager is empty in passer_fenetre_coeff");
+    log_message(NiveauLogDebug, "manager is empty in changement of window size");
 }

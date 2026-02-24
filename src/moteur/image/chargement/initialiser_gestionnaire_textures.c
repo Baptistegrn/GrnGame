@@ -6,6 +6,7 @@
 #include "chargement_image.h"
 #include <string.h>
 
+/* initialise les sous structures */
 void initialiser_gestionnaire_textures(void) {
     gs->textures = malloc_gestion_echec_compteur(sizeof(GestionnaireTextures));
     memset(gs->textures, 0, sizeof(GestionnaireTextures));

@@ -12,31 +12,31 @@ typedef struct {
     float w;
     float h;
     int type;
-} Block;
+} Bloc;
 
 /* Conteneur dynamique de blocs */
 typedef struct {
-    Block *tab;   /* Tableau de blocs */
+    Bloc *tab;    /* Tableau de blocs */
     int size;     /* Nombre de blocs */
     int capacity; /* Capacite du tableau */
-} Blocks;
+} Blocs;
 
 /* Cree un conteneur de blocs vide */
-Blocks *creer_blocks(void);
+Blocs *creer_blocks(void);
 
 /* Ajoute un bloc au conteneur */
-void ajouter_block(Blocks *blocks, Block *block);
+void ajouter_block(Blocs *blocks, Bloc *block);
 
 /* Retourne le nombre de blocs */
-int taille_blocks(Blocks *blocks);
+int taille_blocks(Blocs *blocks);
 
 /* Libere un conteneur de blocs */
-void liberer_blocks(Blocks *ptr);
+void liberer_blocks(Blocs *ptr);
 
 /* creer un block */
-Block *creer_block(float x, float y, float w, float h, int type);
+Bloc *creer_block(float x, float y, float w, float h, int type);
 
 /* Libere un bloc */
-void liberer_block(Block *ptr);
+void liberer_block(Bloc *ptr);
 
 #endif /* BLOC_H */

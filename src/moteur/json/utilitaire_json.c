@@ -2,6 +2,7 @@
 #include "../../chiffrement/aes.h"
 #include "../../main.h"
 #include "../../moteur/logging/logging.h"
+#include "../../prediction_branche.h"
 #include "cJSON.h"
 #include "json.h"
 #include <stdio.h>
@@ -10,7 +11,7 @@
 
 /* Verifie si la cle est nulle (pas de chiffrement) */
 static bool est_cle_nulle() {
-    if (!gs)
+    if (UNLIKELY(!gs))
         return true;
     for (int i = 0; i < 16; i++) {
         if (gs->fichiers->cle[i] != 0)
@@ -21,7 +22,7 @@ static bool est_cle_nulle() {
 
 /* Realloue la liste des fichiers si pleine */
 static void reallouer_liste_si_plein() {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     GestionnaireFichiers *gf = gs->fichiers;
@@ -40,7 +41,7 @@ gsvide:
 
 /* Trouve un fichier deja charge dans la liste */
 FichierJSON *trouver_fichier_dans_liste(const char *nom) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         return NULL;
     for (int i = 0; i < gs->fichiers->nb_fichiers; i++) {
         if (strncmp(gs->fichiers->liste[i].nom, nom, TAILLE_LIEN) == 0) {
@@ -81,7 +82,7 @@ static uint8_t *crypter_aes_interne(const char *texte, size_t *taille_sortie) {
 
 /* Decryptage (liberation obligatoire) */
 static char *decrypter_aes_interne(uint8_t *buffer, size_t taille_buffer) {
-    if (!buffer || taille_buffer == 0 || taille_buffer % 16 != 0)
+    if (UNLIKELY(!buffer || taille_buffer == 0 || taille_buffer % 16 != 0))
         return NULL;
 
     /* Decryptage en place */
@@ -116,7 +117,7 @@ static char *decrypter_aes_interne(uint8_t *buffer, size_t taille_buffer) {
 
 /* Alloue et initialise le gestionnaire */
 void initialiser_gestionnaire_fichiers(void) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     /* Allocation structure principale */
@@ -139,7 +140,7 @@ gsvide:
 
 /* charge un fichier json dans le gestionnaire */
 void charger_fichier_json(const char *fichier_nom) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         return;
 
     /* eviter doublons */
@@ -253,7 +254,7 @@ void supprimer_fichier_json(const char *fichier_nom) {
     remove(fichier_nom);
 
     /* Suppression dans la structure */
-    if (!gs)
+    if (UNLIKELY(!gs))
         return;
     GestionnaireFichiers *gf = gs->fichiers;
 

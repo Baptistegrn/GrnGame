@@ -85,7 +85,7 @@ set_policy("build.rpath", false)
     if has_config("debug_mode") then
         add_defines("DEBUG_MODE")
     end
-    add_files("src/moteur_lua/lancer_moteur.c")
+    add_files("src/interpreteur_lua/lancer_interpreteur.c")
     -- inclusions moteur
     add_includedirs("src/headers_sdl")
 

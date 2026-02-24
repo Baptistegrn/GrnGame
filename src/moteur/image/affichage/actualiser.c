@@ -3,17 +3,18 @@
  */
 
 #include "../../../main.h"
+#include "../../../prediction_branche.h"
 #include "../../boucle/boucle.h"
 #include "../../fenetre/fenetre.h"
 #include "../../logging/logging.h"
 #include "../bande_noir/bande_noir.h"
 #include "affichage.h"
 
-
 /* Actualise le rendu graphique complet de la frame */
 void actualiser() {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
+
     SDL_Renderer *rendu = gs->fenetre->rendu;
     bool bande_noir = gs->frame->fond->bande_noir;
 

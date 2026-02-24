@@ -4,13 +4,14 @@
  */
 
 #include "../../main.h"
+#include "../../prediction_branche.h"
 #include "../boucle/boucle.h"
 #include "../entrees/entrees.h"
 #include "../fenetre/fenetre.h"
 
 /* Renvoie la position X de la souris */
 int souris_x() {
-    if (gs)
+    if (LIKELY(gs))
         return gs->entrees->souris_x;
     else
         return 0;
@@ -18,7 +19,7 @@ int souris_x() {
 
 /* Renvoie la position Y de la souris */
 int souris_y() {
-    if (gs)
+    if (LIKELY(gs))
         return gs->entrees->souris_y;
     else
         return 0;
@@ -26,7 +27,7 @@ int souris_y() {
 
 /* Renvoie true si le clic gauche vient juste d'etre presse */
 bool souris_gauche_juste_presse() {
-    if (gs)
+    if (LIKELY(gs))
         return gs->entrees->souris_juste_presse;
     else
         return false;
@@ -34,7 +35,7 @@ bool souris_gauche_juste_presse() {
 
 /* Renvoie true si le clic droit vient juste d'etre presse */
 bool souris_droite_juste_presse() {
-    if (gs)
+    if (LIKELY(gs))
         return gs->entrees->souris_droite_juste_presse;
     else
         return false;
@@ -42,7 +43,7 @@ bool souris_droite_juste_presse() {
 
 /* Renvoie le scroll vertical de la molette */
 int souris_scroll_vertical() {
-    if (gs)
+    if (LIKELY(gs))
         return (int)gs->entrees->souris_scroll_y;
     else
         return 0;
@@ -50,7 +51,7 @@ int souris_scroll_vertical() {
 
 /* Renvoie le scroll horizontal de la molette */
 int souris_scroll_horizontal() {
-    if (gs)
+    if (LIKELY(gs))
         return (int)gs->entrees->souris_scroll_x;
     else
         return 0;
@@ -58,7 +59,7 @@ int souris_scroll_horizontal() {
 
 /* Renvoie true si le clic gauche est maintenu enfonce */
 bool souris_gauche_presse() {
-    if (gs)
+    if (LIKELY(gs))
         return gs->entrees->souris_presse;
     else
         return false;
@@ -66,7 +67,7 @@ bool souris_gauche_presse() {
 
 /* Renvoie true si le clic droit est maintenu enfonce */
 bool souris_droite_presse() {
-    if (gs)
+    if (LIKELY(gs))
         return gs->entrees->souris_droite_presse;
     else
         return false;
@@ -74,7 +75,7 @@ bool souris_droite_presse() {
 
 /* Renvoie le delta time entre les frames */
 float dt() {
-    if (gs)
+    if (LIKELY(gs))
         return gs->timing->dt;
     else
         /* eviter division par 0 */
@@ -83,7 +84,7 @@ float dt() {
 
 /* Renvoie le nombre d'images par seconde cible */
 float nb_images() {
-    if (gs)
+    if (LIKELY(gs))
         return gs->timing->fps;
     else
         /*eviter divison par 0 */
@@ -92,7 +93,7 @@ float nb_images() {
 
 /* Renvoie le compteur de frames depuis le debut */
 Uint32 compteur_frame() {
-    if (gs)
+    if (LIKELY(gs))
         return gs->timing->compteur_frames;
     else
         return 0;
@@ -100,7 +101,7 @@ Uint32 compteur_frame() {
 
 /* Renvoie le decalage X pour les bandes noires */
 int decalage_x() {
-    if (gs)
+    if (LIKELY(gs))
         return lround((double)gs->fenetre->decalage_x / (double)gs->fenetre->coeff);
     else
         return 0;
@@ -108,7 +109,7 @@ int decalage_x() {
 
 /* Renvoie le decalage Y pour les bandes noires */
 int decalage_y() {
-    if (gs)
+    if (LIKELY(gs))
         return lround((double)gs->fenetre->decalage_y / (double)gs->fenetre->coeff);
     else
         return 0;
@@ -116,7 +117,7 @@ int decalage_y() {
 
 /* Renvoie la largeur actuelle de la fenetre */
 int largeur_actuelle() {
-    if (gs)
+    if (LIKELY(gs))
         return gs->fenetre->largeur_actuelle;
     else
         return 0;
@@ -124,7 +125,7 @@ int largeur_actuelle() {
 
 /* Renvoie la hauteur actuelle de la fenetre */
 int hauteur_actuelle() {
-    if (gs)
+    if (LIKELY(gs))
         return gs->fenetre->hauteur_actuelle;
     else
         return 0;
@@ -132,7 +133,7 @@ int hauteur_actuelle() {
 
 /* Renvoie la largeur de l'univers de jeu */
 int largeur_univers() {
-    if (gs)
+    if (LIKELY(gs))
         return gs->fenetre->largeur_univers;
     else
         return 0;
@@ -140,7 +141,7 @@ int largeur_univers() {
 
 /* Renvoie la hauteur de l'univers de jeu */
 int hauteur_univers() {
-    if (gs)
+    if (LIKELY(gs))
         return gs->fenetre->hauteur_univers;
     else
         return 0;
@@ -148,7 +149,7 @@ int hauteur_univers() {
 
 /* Renvoie le coefficient de mise a l'echelle */
 int coeff() {
-    if (gs)
+    if (LIKELY(gs))
         return gs->fenetre->coeff;
     else
         return 0;
@@ -156,7 +157,7 @@ int coeff() {
 
 /* renvoie si la fenetre est minimise */
 bool fenetre_est_minimise() {
-    if (gs)
+    if (LIKELY(gs))
         return gs->timing->en_pause;
     else
         return false;
@@ -164,7 +165,7 @@ bool fenetre_est_minimise() {
 
 /* recupere le drop dun fichier */
 const char *recuperer_drop_file() {
-    if (gs)
+    if (LIKELY(gs))
         return gs->entrees->fichier_drop;
     return NULL;
 }

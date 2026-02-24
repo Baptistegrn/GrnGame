@@ -7,7 +7,7 @@ import argparse
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 
-SRC_LUA = os.path.join(ROOT, "src", "moteur_lua")
+SRC_LUA = os.path.join(ROOT, "fichiers_projets")
 BIN_DIR = os.path.join(ROOT, "bin")
 
 parser = argparse.ArgumentParser(

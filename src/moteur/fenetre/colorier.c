@@ -3,14 +3,16 @@
  */
 
 #include "../../main.h"
+#include "../../prediction_branche.h"
 #include "../boucle/boucle.h"
 #include "../logging/logging.h"
 #include "fenetre.h"
 
 /* Stocke les informations de coloriage pour la frame courante */
 void stocker_coloriage(int r, int g, int b) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
+
     fondActualiser *fond = gs->frame->fond;
 
     /* Limitation des valeurs RGB entre 0 et 255 */

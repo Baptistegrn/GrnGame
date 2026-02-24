@@ -16,18 +16,18 @@
  * pas_x et pas_y definissent la taille de chaque bloc en pixels.
  * Les blocs avec le type element_vide sont ignores et pas inscrit comme blocks.
  */
-Blocks *charger_carte(const char *chemin, Uint8 pas_x, Uint8 pas_y, char separation,
-                      int element_vide) {
+Blocs *charger_carte(const char *chemin, Uint8 pas_x, Uint8 pas_y, char separation,
+                     int element_vide) {
     FILE *fs = fopen(chemin, "r");
     if (!fs) {
         log_fmt(NiveauLogErreur, "error open file for load a map: %s\n", chemin);
 
         /* Retourne un bloc vide en cas d'erreur */
-        Blocks *vide = malloc_gestion_echec_compteur(sizeof(Blocks));
+        Blocs *vide = malloc_gestion_echec_compteur(sizeof(Blocs));
         vide->capacity = 1;
         vide->size = 1;
-        vide->tab = malloc_gestion_echec_compteur(sizeof(Block));
-        vide->tab[0] = (Block){0, 0, pas_x, pas_y, element_vide};
+        vide->tab = malloc_gestion_echec_compteur(sizeof(Bloc));
+        vide->tab[0] = (Bloc){0, 0, pas_x, pas_y, element_vide};
 
         return vide;
     }
@@ -37,10 +37,10 @@ Blocks *charger_carte(const char *chemin, Uint8 pas_x, Uint8 pas_y, char separat
     int x = 0;
     int y = 0;
 
-    Blocks *ptr = malloc_gestion_echec_compteur(sizeof(Blocks));
+    Blocs *ptr = malloc_gestion_echec_compteur(sizeof(Blocs));
     ptr->capacity = 50;
     ptr->size = 0;
-    ptr->tab = malloc_gestion_echec_compteur(sizeof(Block) * ptr->capacity);
+    ptr->tab = malloc_gestion_echec_compteur(sizeof(Bloc) * ptr->capacity);
 
     int c;
     while ((c = fgetc(fs)) != EOF) {
@@ -50,12 +50,12 @@ Blocks *charger_carte(const char *chemin, Uint8 pas_x, Uint8 pas_y, char separat
             int type = atoi(buffer);
 
             if (type != element_vide) {
-                Block actuel = (Block){x, y, pas_x, pas_y, type};
+                Bloc actuel = (Bloc){x, y, pas_x, pas_y, type};
 
                 if (ptr->size == ptr->capacity) {
                     ptr->capacity *= 2;
                     ptr->tab =
-                        realloc_gestion_echec_compteur(ptr->tab, sizeof(Block) * ptr->capacity);
+                        realloc_gestion_echec_compteur(ptr->tab, sizeof(Bloc) * ptr->capacity);
                 }
                 ptr->tab[ptr->size++] = actuel;
             }
@@ -69,12 +69,12 @@ Blocks *charger_carte(const char *chemin, Uint8 pas_x, Uint8 pas_y, char separat
             if (i > 0) {
                 int type = atoi(buffer);
                 if (type != element_vide) {
-                    Block actuel = (Block){x, y, pas_x, pas_y, type};
+                    Bloc actuel = (Bloc){x, y, pas_x, pas_y, type};
 
                     if (ptr->size == ptr->capacity) {
                         ptr->capacity *= 2;
                         ptr->tab =
-                            realloc_gestion_echec_compteur(ptr->tab, sizeof(Block) * ptr->capacity);
+                            realloc_gestion_echec_compteur(ptr->tab, sizeof(Bloc) * ptr->capacity);
                     }
                     ptr->tab[ptr->size++] = actuel;
                 }
@@ -96,11 +96,11 @@ Blocks *charger_carte(const char *chemin, Uint8 pas_x, Uint8 pas_y, char separat
         int type = atoi(buffer);
 
         if (type != element_vide) {
-            Block actuel = (Block){x, y, pas_x, pas_y, type};
+            Bloc actuel = (Bloc){x, y, pas_x, pas_y, type};
 
             if (ptr->size == ptr->capacity) {
                 ptr->capacity *= 2;
-                ptr->tab = realloc_gestion_echec_compteur(ptr->tab, sizeof(Block) * ptr->capacity);
+                ptr->tab = realloc_gestion_echec_compteur(ptr->tab, sizeof(Bloc) * ptr->capacity);
             }
             ptr->tab[ptr->size++] = actuel;
         }

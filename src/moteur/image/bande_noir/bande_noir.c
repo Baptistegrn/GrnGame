@@ -3,13 +3,15 @@
  */
 
 #include "../../../main.h"
+#include "../../../prediction_branche.h"
 #include "../../fenetre/fenetre.h"
 #include "../../logging/logging.h"
 #include <stdint.h>
 
+
 /* Dessine les bandes noires de padding sur les bordures de l'ecran */
 void dessiner_bandes_noires(int decalage_x, int decalage_y) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
     int largeur = 0;
     int hauteur = 0;

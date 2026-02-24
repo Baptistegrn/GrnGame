@@ -5,14 +5,15 @@
 
 #include "son.h"
 #include "../../main.h"
+#include "../../prediction_branche.h"
 #include "../logging/logging.h"
 
 /* Joue un son sur un canal specifique avec volume et boucles configurables */
 void jouer_son(const char *lien, int boucle, int canal, int volume) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
-    if (!lien) {
+    if (UNLIKELY(!lien)) {
         log_message(NiveauLogErreur, "sound path NULL");
         return;
     }
@@ -51,10 +52,10 @@ gsvide:
 
 /* Arrete la lecture d'un son specifique en parcourant tous les canaux */
 void arreter_son(const char *lien) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
-    if (!lien)
+    if (UNLIKELY(!lien))
         return;
 
     Mix_Chunk *son = recuperer_son_par_lien(lien);
@@ -123,10 +124,10 @@ void pause_canal(int canal) {
 
 /* Met en pause un son specifique en parcourant tous les canaux actifs */
 void pause_son(const char *lien) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
-    if (!lien)
+    if (UNLIKELY(!lien))
         return;
 
     Mix_Chunk *son = recuperer_son_par_lien(lien);
@@ -158,10 +159,10 @@ gsvide:
 
 /* Reprend la lecture d'un son specifique mis en pause */
 void reprendre_son(const char *lien) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
-    if (!lien)
+    if (UNLIKELY(!lien))
         return;
 
     Mix_Chunk *son = recuperer_son_par_lien(lien);

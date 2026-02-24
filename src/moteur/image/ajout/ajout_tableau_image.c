@@ -4,15 +4,17 @@
 
 #include "../../../allouer/allouer.h"
 #include "../../../main.h"
+#include "../../../prediction_branche.h"
 #include "../../boucle/boucle.h"
 #include "../../logging/logging.h"
 #include "../affichage/affichage.h"
 #include "ajout.h"
 #include <stdbool.h>
 
+
 /* reallocation automatique du tableau dimage */
 void reallouer_si_plein(void) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
     TableauImage *jeu = gs->frame->image;
     if (jeu->nb_images >= jeu->capacite_images) {

@@ -3,15 +3,15 @@
  */
 
 #include "../../../main.h"
+#include "../../../prediction_branche.h"
 #include "../../fenetre/fenetre.h"
 #include "../../logging/logging.h"
 #include <stdbool.h>
 
-
 /* Verifie si un objet est situe hors de la zone visible de l'ecran */
 bool hors_ecran(float posx, float posy, Sint16 taillex, Sint16 tailley, int decalage_x_scaled,
                 int decalage_y_scaled) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     Sint16 rounded_posx = SDL_lroundf(posx);

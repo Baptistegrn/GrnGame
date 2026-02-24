@@ -8,6 +8,7 @@
 #include "boucle.h"
 #include <string.h>
 
+/* initialise chaques sous structures */
 void initialiser_gestionnaire_timing() {
     gs->timing = malloc_gestion_echec_compteur(sizeof(GestionnaireTiming));
     memset(gs->timing, 0, sizeof(GestionnaireTiming));

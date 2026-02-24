@@ -1,3 +1,0 @@
-utils.setUpdateCallback(function()
-
-end)

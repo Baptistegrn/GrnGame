@@ -3,6 +3,7 @@
  */
 
 #include "../../../main.h"
+#include "../../../prediction_branche.h"
 #include "../../boucle/boucle.h"
 #include "../../fenetre/fenetre.h"
 #include "../../logging/logging.h"
@@ -35,16 +36,17 @@ void calculer_positions_ecran(ObjectImage *obj, unsigned char coeff, int decalag
 
 /* Affiche tous les objets (images et formes) de la liste d'affichage */
 void afficher_images(void) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
-    TableauImage *jeu = gs->frame->image;
+
+    TableauImage *tab = gs->frame->image;
 
     unsigned char coeff = gs->fenetre->coeff;
     int decalage_x = gs->fenetre->decalage_x;
     int decalage_y = gs->fenetre->decalage_y;
 
-    for (int i = 0; i < jeu->nb_images; i++) {
-        ObjectImage *obj = &jeu->tab[i];
+    for (int i = 0; i < tab->nb_images; i++) {
+        ObjectImage *obj = &tab->tab[i];
 
         float obj_x = (obj->type == TYPE_IMAGE) ? obj->image.posx : obj->forme.posx;
         float obj_y = (obj->type == TYPE_IMAGE) ? obj->image.posy : obj->forme.posy;
@@ -63,7 +65,7 @@ void afficher_images(void) {
         afficher_objet(obj, &dst, x_ecran, y_ecran, w_ecran, h_ecran, coeff);
     }
 
-    jeu->nb_images = 0;
+    tab->nb_images = 0;
 
     return;
 

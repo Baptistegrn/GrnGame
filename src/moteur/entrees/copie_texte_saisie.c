@@ -1,72 +1,76 @@
-/* copie le texte dans un buffer c qui se renitialise de maniere automatique */
+/*
+ * Gestion du texte saisi.
+ */
+
+#include "../../allouer/allouer.h"
 #include "../../main.h"
-#include "../../proprietes.h"
+#include "../../prediction_branche.h"
 #include "../logging/logging.h"
 #include "entrees.h"
 #include <string.h>
 
-#include "../../main.h"
-#include "../../proprietes.h"
-#include "../logging/logging.h"
-#include "entrees.h"
-#include <string.h>
-
-/* copie le texte vers le buffer de entrees */
-void copie_texte_saisie(char *source) {
-    if (!gs)
+/* Realloue automatiquement le buffer de texte si plein */
+static void reallouer_si_plein(int nouvelle_taille) {
+    if (UNLIKELY(!gs))
         goto gsvide;
 
-    char *dest = gs->entrees->texte_ecrit;
-    int taille_actuelle = gs->entrees->taille_texte_ecrit;
-    int taille_max = TAILLE_TEXTE_SAISIE;
-    int taille_source = strlen(source);
-
-    /* si la source est trop grande pour le buffer entier */
-    if (taille_source >= taille_max - 1) {
-        log_fmt(NiveauLogErreur, "Input text too long for buffer (%d vs %d), ignoring.",
-                taille_source, taille_max);
-        return;
+    GestionnaireEntrees *e = gs->entrees;
+    if (e->taille_texte_ecrit + nouvelle_taille >= e->capacite_texte_ecrit) {
+        while (e->taille_texte_ecrit + nouvelle_taille >= e->capacite_texte_ecrit) {
+            e->capacite_texte_ecrit *= 2;
+        }
+        e->texte_ecrit = realloc_gestion_echec_compteur(e->texte_ecrit, e->capacite_texte_ecrit);
     }
+    return;
 
-    /* si le texte depasse la taille max on vide tout et on recommence */
-    if (taille_actuelle + taille_source >= taille_max - 1) {
-        taille_actuelle = 0;
-        dest[0] = '\0';
-    }
+gsvide:
+    log_message(NiveauLogErreur, "manager empty in text input reallocation");
+    return;
+}
 
-    /* on copie le texte a la suite */
-    for (int i = 0; i < taille_source; i++) {
-        dest[i + taille_actuelle] = source[i];
-    }
-    taille_actuelle += taille_source;
+/* Copie le texte vers le buffer d'entrees */
+void copie_texte_saisie(char *source) {
+    if (UNLIKELY(!gs))
+        goto gsvide;
 
-    dest[taille_actuelle] = '\0';
-    gs->entrees->taille_texte_ecrit = taille_actuelle;
+    GestionnaireEntrees *e = gs->entrees;
+    int taille_source = (int)strlen(source);
+
+    // Reallouer si necessaire
+    reallouer_si_plein(taille_source + 1);
+
+    memcpy(e->texte_ecrit + e->taille_texte_ecrit, source, taille_source);
+    e->taille_texte_ecrit += taille_source;
+
+    e->texte_ecrit[e->taille_texte_ecrit] = '\0';
     return;
 
 gsvide:
     log_message(NiveauLogErreur, "manager empty in text input function");
+    return;
 }
 
-/* vide le buffer de saisie manuellement */
+/* vide le buffer de saisie (ne libere pas la memoire pour reutilisation) */
 void vider_texte_saisie() {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
-    gs->entrees->texte_ecrit[0] = '\0';
-    gs->entrees->taille_texte_ecrit = 0;
+    if (gs->entrees && gs->entrees->texte_ecrit)
+        gs->entrees->texte_ecrit[0] = '\0';
+    if (gs->entrees)
+        gs->entrees->taille_texte_ecrit = 0;
     return;
 
 gsvide:
     log_message(NiveauLogErreur, "manager empty in clear text function");
 }
 
-/* lit le texte saisie */
+/* lit le texte saisi (peut retourner NULL si le manager est vide) */
 const char *lire_texte_saisie() {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
-    return gs->entrees->texte_ecrit;
+    return gs->entrees ? gs->entrees->texte_ecrit : NULL;
 
 gsvide:
     log_message(NiveauLogErreur, "manager empty in read text function");

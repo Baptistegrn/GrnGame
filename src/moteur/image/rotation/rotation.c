@@ -4,8 +4,10 @@
 
 #include "rotation.h"
 #include "../../../main.h"
+#include "../../../prediction_branche.h"
 #include "../../fenetre/fenetre.h"
 #include "../../logging/logging.h"
+
 
 /* Ajuste les dimensions et la position du rectangle de destination pour centrer la texture tournee
  */
@@ -25,7 +27,7 @@ void ajuster_rect_texture_tournee(SDL_Texture *texture, SDL_Rect *dst, int x_ecr
 /* creer une texture selon langle donnee en pixel perfect */
 SDL_Texture *creer_texture_angle(SDL_Texture *src, Uint16 w, Uint16 h, Uint16 angle,
                                  SDL_RendererFlip flip) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     SDL_Renderer *rendu = gs->fenetre->rendu;

@@ -6,7 +6,7 @@
 #include "../../allouer/allouer.h"
 #include "../../chemin/chemin.h"
 #include "../../main.h"
-#include "../../module_jeu/camera/camera.h"
+#include "../../module_jeu/module_jeu.h"
 #include "../boucle/boucle.h"
 #include "../entrees/entrees.h"
 #include "../fenetre/fenetre.h"
@@ -31,7 +31,6 @@ void initialisation(void) {
     initialiser_gestionnaire_timing();
     initialiser_gestionnaire_textures();
     initialiser_gestionnaire_fenetre();
-    initialiser_camera();
     /* SDL / IMG / Mixer */
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK) != 0) {
         log_fmt(NiveauLogErreur, "SDL_Init failed: %s", SDL_GetError());
@@ -43,6 +42,8 @@ void initialisation(void) {
 #endif
         }
     }
+    /* sdl doit etre initialiser avant le thread de hitbox */
+    initialiser_gestionnaire_module_jeu();
 
     if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
         log_fmt(NiveauLogErreur, "IMG_Init PNG failed: %s", IMG_GetError());

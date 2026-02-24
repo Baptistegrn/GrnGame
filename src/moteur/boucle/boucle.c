@@ -1,19 +1,18 @@
 /*
  * Boucle principale du moteur de jeu.
- * Gere le cycle: Entrees -> Mise a jour -> Rendu -> Timing.
  */
 
 typedef void (*RappelMiseAJour)(void);
 
 #include "boucle.h"
-#include "../../bindings_lua/bindings_lua.h"
+#include "../../hot_reload/hot_reload.h"
 #include "../../liberer/liberer.h"
 #include "../../main.h"
+#include "../../prediction_branche.h"
 #include "../entrees/entrees.h"
 #include "../image/affichage/affichage.h"
 #include "../initialisation/initialisation.h"
 #include "../logging/logging.h"
-
 
 static RappelMiseAJour g_rappel_mise_a_jour = NULL;
 
@@ -38,8 +37,9 @@ void arreter_gestionnaire(void) {
  * Calcule le delta time reel entre chaque frame.
  */
 void boucle_principale(void) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
+
     /* si pause */
     if (gs->timing->en_pause) {
         log_message(NiveauLogInfo, "main loop ended due to pause");
@@ -71,11 +71,15 @@ void boucle_principale(void) {
 
         /* Rendu de la frame */
         actualiser();
+
+        /* hot reload en debug */
 #ifdef DEBUG_MODE
         actualiser_rechargement();
 #endif
+
         /* renitialise les cles de chiffrement a chaques frames */
         mettre_cle_vide();
+
         /* Limitation du framerate avec delai si necessaire */
         Uint32 frame_temps_ms = SDL_GetTicks() - frame_debut;
         float frame_temps_s = frame_temps_ms / 1000.0f;

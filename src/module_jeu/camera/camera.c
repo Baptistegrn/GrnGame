@@ -5,6 +5,7 @@
 #include "../../allouer/allouer.h"
 #include "../../main.h"
 #include "../../moteur/logging/logging.h"
+#include "../module_jeu.h"
 #include <math.h>
 #include <string.h>
 
@@ -29,11 +30,11 @@ void camera_mise_a_jour(Camera *cam, float cible_x, float cible_y, float dt) {
 void creer_camera(float x, float y, float smooth_facteur, int w, int h) {
     if (!gs)
         goto gsvide;
-    gs->camera->x = x;
-    gs->camera->y = y;
-    gs->camera->smooth_factor = smooth_facteur;
-    gs->camera->width = w;
-    gs->camera->height = h;
+    gs->module_jeu->camera->x = x;
+    gs->module_jeu->camera->y = y;
+    gs->module_jeu->camera->smooth_factor = smooth_facteur;
+    gs->module_jeu->camera->width = w;
+    gs->module_jeu->camera->height = h;
     return;
 gsvide:
     log_message(NiveauLogErreur, "manager empty in creation of camera");
@@ -41,6 +42,6 @@ gsvide:
 
 /* initialise une camera dans le gs */
 void initialiser_camera(void) {
-    gs->camera = malloc_gestion_echec_compteur(sizeof(Camera));
-    memset(gs->camera, 0, sizeof(Camera));
+    gs->module_jeu->camera = malloc_gestion_echec_compteur(sizeof(Camera));
+    memset(gs->module_jeu->camera, 0, sizeof(Camera));
 }

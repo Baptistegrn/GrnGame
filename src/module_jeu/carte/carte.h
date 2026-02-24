@@ -12,7 +12,7 @@
  * Charge une carte depuis un fichier.
  * Retourne un conteneur de blocs avec leurs positions et types.
  */
-Blocks *charger_carte(const char *chemin, Uint8 pas_x, Uint8 pas_y, char separation,
-                      int element_vide);
+Blocs *charger_carte(const char *chemin, Uint8 pas_x, Uint8 pas_y, char separation,
+                     int element_vide);
 
 #endif /* CARTE_H */

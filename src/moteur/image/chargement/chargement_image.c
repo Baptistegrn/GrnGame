@@ -7,15 +7,17 @@
 #include "../../../chemin/chemin.h"
 #include "../../../chiffrement/aes.h"
 #include "../../../main.h"
+#include "../../../prediction_branche.h"
 #include "../../fenetre/fenetre.h"
 #include "../../logging/logging.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
+
 /* Verifie si le tableau est plein et l'agrandit */
 void agrandir_si_plein() {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
     GestionnaireTextures *gt = gs->textures;
 
@@ -33,7 +35,7 @@ gsvide:
 }
 
 SDL_Texture *charger_une_texture(const char *lien_complet) {
-    if (!gs || !lien_complet)
+    if (UNLIKELY(!gs || !lien_complet))
         return NULL;
 
     GestionnaireTextures *gt = gs->textures;
@@ -123,10 +125,10 @@ SDL_Texture *charger_une_texture(const char *lien_complet) {
 
 /* Scanne un dossier et charge toutes les textures */
 void charger_toutes_les_textures(const char *dossier) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
-    if (!dossier)
+    if (UNLIKELY(!dossier))
         return;
     const uint8_t *cle_de_chiffrement = gs->textures->cle;
     /* cle ou pas ?*/
@@ -164,9 +166,9 @@ gsvide:
 
 /* Recupere la texture angle 0 */
 SDL_Texture *recuperer_texture_par_lien(const char *lien) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
-    if (!lien)
+    if (UNLIKELY(!lien))
         return NULL;
 
     char lien_recherche[TAILLE_LIEN];
@@ -189,7 +191,7 @@ gsvide:
 
 /* Ajoute une variante de texture au cache */
 void ajouter_variante_cache(const char *id, SDL_Texture *nouvelle_tex, int angle) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
     if (!id || !nouvelle_tex)
         return;
@@ -218,9 +220,9 @@ gsvide:
 
 /* Recupere une variante de texture selon l'angle */
 SDL_Texture *recuperer_texture_variante(const char *lien, int angle) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
-    if (!lien)
+    if (UNLIKELY(!lien))
         return NULL;
 
     char lien_recherche[TAILLE_LIEN];

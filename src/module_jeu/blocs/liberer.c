@@ -5,9 +5,8 @@
 #include "../../allouer/allouer.h"
 #include "bloc.h"
 
-
 /* Libere un conteneur de blocs et son tableau */
-void liberer_blocks(Blocks *ptr) {
+void liberer_blocks(Blocs *ptr) {
     if (!ptr)
         return;
 
@@ -17,7 +16,7 @@ void liberer_blocks(Blocks *ptr) {
 }
 
 /* Libere un bloc */
-void liberer_block(Block *ptr) {
+void liberer_block(Bloc *ptr) {
     if (!ptr)
         return;
 

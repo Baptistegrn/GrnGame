@@ -2,11 +2,13 @@
 
 #include "../../allouer/allouer.h"
 #include "../../main.h"
+#include "../../prediction_branche.h"
 #include "../../proprietes.h"
 #include "../logging/logging.h"
 #include "fenetre.h"
 #include <string.h>
 
+/* initialise ses sous structures */
 void initialiser_gestionnaire_fenetre(void) {
     gs->fenetre = malloc_gestion_echec_compteur(sizeof(GestionnaireFenetre));
     memset(gs->fenetre, 0, sizeof(GestionnaireFenetre));

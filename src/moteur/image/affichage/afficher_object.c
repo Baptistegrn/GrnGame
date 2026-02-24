@@ -3,6 +3,7 @@
  */
 
 #include "../../../main.h"
+#include "../../../prediction_branche.h"
 #include "../../fenetre/fenetre.h"
 #include "../../logging/logging.h"
 #include "../dessin_forme/dessin.h"
@@ -10,13 +11,12 @@
 #include "SDL_stdinc.h"
 #include "affichage.h"
 
-
 /* Affiche un objet selon son type (image, forme ou particule) */
 void afficher_objet(ObjectImage *obj, SDL_Rect *dst, Sint16 x_ecran, Sint16 y_ecran, Sint16 w_ecran,
                     Sint16 h_ecran, unsigned char coeff) {
-    if (!gs) {
+    if (UNLIKELY(!gs))
         goto gsvide;
-    }
+
     /* cas image/sprite */
     if (obj->type == TYPE_IMAGE) {
         if (!obj->image.texture)
@@ -105,7 +105,9 @@ void afficher_objet(ObjectImage *obj, SDL_Rect *dst, Sint16 x_ecran, Sint16 y_ec
     } else if (obj->type == TYPE_PARTICULE) {
         dessiner_particules(&obj->particule);
     }
+
     return;
+
 gsvide:
     log_message(NiveauLogDebug, "empty manager in the function that displays objects");
 }

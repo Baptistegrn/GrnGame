@@ -4,7 +4,8 @@
 
 #include "../../../allouer/allouer.h"
 #include "../../../main.h"
-#include "../../../module_jeu/camera/camera.h"
+#include "../../../module_jeu/module_jeu.h"
+#include "../../../prediction_branche.h"
 #include "../../boucle/boucle.h"
 #include "../../fenetre/fenetre.h"
 #include "../../logging/logging.h"
@@ -20,7 +21,7 @@
 /* Ajoute un sprite au tableau de rendu avec Culling et affectation directe */
 void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, Sint16 coeff,
                                bool sens, Uint16 rotation, Uint8 a) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     const char *id = sprite->id;
@@ -37,8 +38,8 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
 
     int taille_ecran_x = sprite->taillex * coeff;
     int taille_ecran_y = sprite->tailley * coeff;
-    float ecran_x = x - gs->camera->x;
-    float ecran_y = y - gs->camera->y;
+    float ecran_x = x - gs->module_jeu->camera->x;
+    float ecran_y = y - gs->module_jeu->camera->y;
 
     int decalage_x = (int)lround((double)gs->fenetre->decalage_x / (double)gs->fenetre->coeff);
     int decalage_y = (int)lround((double)gs->fenetre->decalage_y / (double)gs->fenetre->coeff);
@@ -63,7 +64,7 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
     int source_y1 = (idx / nb_colonnes) * sprite->tailley;
 
     /* Verification des limites dans la texture source */
-    if (source_x1 + sprite->taillex > tex_w || source_y1 + sprite->tailley > tex_h) {
+    if (UNLIKELY(source_x1 + sprite->taillex > tex_w || source_y1 + sprite->tailley > tex_h)) {
         log_fmt(NiveauLogErreur, "Sprite index %d out of bounds for texture %s", index, id);
         return;
     }
@@ -119,12 +120,12 @@ Sprite *creer_sprite(const char *id, Sint16 taillex, Sint16 tailley) {
 /* Ajoute une image au tableau de rendu avec gestion du cache de rotation et Culling */
 void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 coeff, bool sens,
                               Uint16 rotation_p, Uint16 rotation, Uint8 a) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     /* Récupération de la texture de base et de sa taille */
     SDL_Texture *tex = recuperer_texture_par_lien(id);
-    if (!tex) {
+    if (UNLIKELY(!tex)) {
         log_fmt(NiveauLogErreur, "Texture not found for '%s'", id);
         return;
     }
@@ -134,8 +135,8 @@ void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 coeff, bo
 
     int decalage_x = (int)lround((double)gs->fenetre->decalage_x / (double)gs->fenetre->coeff);
     int decalage_y = (int)lround((double)gs->fenetre->decalage_y / (double)gs->fenetre->coeff);
-    float ecran_x = x - gs->camera->x;
-    float ecran_y = y - gs->camera->y;
+    float ecran_x = x - gs->module_jeu->camera->x;
+    float ecran_y = y - gs->module_jeu->camera->y;
 
     /* si hors ecran on ajoute pas */
     if (hors_ecran(ecran_x, ecran_y, taillex, tailley, decalage_x, decalage_y)) {
@@ -182,6 +183,7 @@ void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 coeff, bo
         }
     }
     return;
+
 gsvide:
     log_message(NiveauLogErreur, "manager empty in add image to table");
 }

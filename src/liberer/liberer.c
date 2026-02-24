@@ -5,21 +5,13 @@
 
 #include "liberer.h"
 #include "../allouer/allouer.h"
-#include "../chemin/chemin.h"
-
+#include "../hot_reload/hot_reload.h"
+#include "../main.h"
+#include "../module_jeu/module_jeu.h"
 #include "../moteur/boucle/boucle.h"
-
 #include "../moteur/entrees/entrees.h"
 #include "../moteur/fenetre/fenetre.h"
 #include "../moteur/image/affichage/affichage.h"
-
-#include "../bindings_lua/bindings_lua.h"
-#include "../main.h"
-#include "../module_jeu/camera/camera.h"
-#include "../moteur/image/chargement/chargement_image.h"
-#include "../moteur/image/dessin_forme/dessin.h"
-#include "../moteur/image/liste/liste_chaine.h"
-#include "../moteur/image/rotation/rotation.h"
 #include "../moteur/initialisation/initialisation.h"
 #include "../moteur/json/json.h"
 #include "../moteur/logging/logging.h"
@@ -33,7 +25,7 @@ void liberer_gs(void) {
     if (!gs)
         goto gsvide;
 
-    log_message(NiveauLogInfo, "Freeing manager...");
+    log_message(NiveauLogInfo, "freeing manager...");
 
     /* Liberation des sous-structures */
     liberer_tableau_image();
@@ -46,7 +38,8 @@ void liberer_gs(void) {
     liberer_timing();
     liberer_fichiers_lua();
     liberer_gestionnaire_fichiers();
-    liberer_camera(gs->camera);
+    liberer_gestionnaire_module_jeu();
+
     /* Liberation du frame */
     if (gs->frame) {
         free_gestion_echec_compteur(gs->frame);

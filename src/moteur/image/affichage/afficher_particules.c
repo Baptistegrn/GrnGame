@@ -3,7 +3,8 @@
  */
 
 #include "../../../main.h"
-#include "../../../module_jeu/camera/camera.h"
+#include "../../../module_jeu/module_jeu.h"
+#include "../../../prediction_branche.h"
 #include "../../fenetre/fenetre.h"
 #include "../../logging/logging.h"
 #include "affichage.h"
@@ -19,12 +20,14 @@ static int indices[MAX_PARTICULES * 6];
 
 /* Dessine les particules de maniere optimisee avec du rendu gpu */
 void dessiner_particules(Particule *particules) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
-    if (!particules || particules->taille <= 0) {
+
+    if (UNLIKELY(!particules || particules->taille <= 0)) {
         log_message(NiveauLogErreur, "Size of particles equals 0 or null pointer");
         return;
     }
+
     float coeff = (float)gs->fenetre->coeff;
     float decalage_x = (float)gs->fenetre->decalage_x;
     float decalage_y = (float)gs->fenetre->decalage_y;
@@ -41,8 +44,8 @@ void dessiner_particules(Particule *particules) {
     for (int i = 0; i < max; i++) {
         /* positions ecran */
         /* ajout ici de la camera */
-        int x = lroundf((particules->posx[i] - gs->camera->x) * coeff + decalage_x);
-        int y = lroundf((particules->posy[i] - gs->camera->y) * coeff + decalage_y);
+        int x = lroundf((particules->posx[i] - gs->module_jeu->camera->x) * coeff + decalage_x);
+        int y = lroundf((particules->posy[i] - gs->module_jeu->camera->y) * coeff + decalage_y);
 
         /* taille = 1 pixel (scale) */
         int w = coeff;
@@ -88,10 +91,11 @@ void dessiner_particules(Particule *particules) {
     }
 
     /* rendu batch */
-    if (vcount > 0 && icount > 0) {
+    if (LIKELY(vcount > 0 && icount > 0)) {
         SDL_RenderGeometry(gs->fenetre->rendu, NULL, verts, vcount, indices, icount);
     }
     return;
+
 gsvide:
     log_message(NiveauLogErreur, "manager empty in draw particles function");
 }

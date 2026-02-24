@@ -4,16 +4,16 @@
 
 #include "../../../allouer/allouer.h"
 #include "../../../main.h"
+#include "../../../prediction_branche.h"
 #include "../../fenetre/fenetre.h"
 #include "../../logging/logging.h"
 #include "dessin.h"
 #include <stdbool.h>
 
-
 /* Dessine une ligne entre deux points avec l'algorithme de Bresenham (pixel art) */
 void dessiner_ligne_pixel(float x0, float y0, float x1, float y1, Uint8 r, Uint8 g, Uint8 b,
                           Uint8 a) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
     unsigned char coeff = gs->fenetre->coeff;
     int decalage_x = gs->fenetre->decalage_x;
@@ -70,7 +70,7 @@ gsvide:
 /* dessine une ligne horizontale en float */
 void tracer_ligne_horizontale_float(float x, float y, float longueur, Uint8 r, Uint8 g, Uint8 b,
                                     Uint8 a) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     unsigned char coeff = gs->fenetre->coeff;
@@ -92,7 +92,7 @@ gsvide:
 /* dessine une ligne verticale en float */
 void tracer_ligne_verticale_float(float x, float y, float longueur, Uint8 r, Uint8 g, Uint8 b,
                                   Uint8 a) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
 
     unsigned char coeff = gs->fenetre->coeff;
@@ -113,7 +113,7 @@ gsvide:
 /* Dessine deux points aux positions (x1,y1) et (x2,y2) de longueur n (float) */
 void dessiner_points_n(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a,
                        float n) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
     unsigned char coeff = gs->fenetre->coeff;
     SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
@@ -143,7 +143,7 @@ gsvide:
 
 /* Dessine deux points uniques aux positions (x1,y1) et (x2,y2) */
 void dessiner_points(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
     unsigned char coeff = gs->fenetre->coeff;
     SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);

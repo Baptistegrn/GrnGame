@@ -4,8 +4,8 @@
 
 #include "../../../allouer/allouer.h"
 #include "../../../chemin/chemin.h"
-
 #include "../../../main.h"
+#include "../../../prediction_branche.h"
 #include "../../logging/logging.h"
 #include "../ajout/ajout.h"
 #include "../chargement/chargement_image.h"
@@ -13,12 +13,11 @@
 #include <stdio.h>
 #include <string.h>
 
-
 /* Ajoute un caractere individuel (texture) au tableau de rendu */
 static Sint16 ajouter_char_dans_tableau(const char *lien_image, char lettre, float posx, float posy,
                                         unsigned char coeff, bool sens, Uint16 rotationP,
                                         Uint16 rotation, Uint8 a) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
     char lien_image_lettre[TAILLE_LIEN];
 
@@ -54,7 +53,7 @@ gsvide:
 void ajouter_mot_dans_tableau(const char *chemin, const char *mot, float posx, float posy,
                               unsigned char coeff, bool sens, Sint16 ecart, Uint16 rotationP,
                               Uint16 rotation, Uint8 a) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
     int taille_chaine = strlen(mot);
     Sint16 position_courante = 0;

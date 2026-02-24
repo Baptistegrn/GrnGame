@@ -3,33 +3,48 @@ local idle     = { 9, 12 }
 local walk     = { 25, 31 }
 local jumpUp   = { 33, 35 }
 local jumpDown = { 36, 37 }
+
 -- arg0,arg1 are the center of the screen, arg2 is the smooth factor and arg3,arg4 are the size of the screen view
 game.createCamera(90, 90, 2.0, 180, 180)
--- x,y,w,h,jumpforce,grativy,max speedx,maxfallspeed,wall correction,initial speed x,acceleration factor
-local player = game.EntityPlatformer(50.0, 50.0, 24, 24, -250, 500, 2, 500, 150, 0.3, 10.0)
+
+-- x,y,w,h,jumpforce,gravity,max speedx,maxfallspeed,wall correction,initial speed x,acceleration factor,numbers of jumps,can jump on wall?
+local player = game.EntityPlatformer(50.0, 50.0, 24, 24, -250, 500, 2, 500, 150, 0.3, 10.0, 2, true)
+
+-- you need to create a array of entities for hitbox or array likes : {player....} (but for array multithreading isnt supported)
+local entities = game.EntitiesPlatformer()
+entities:add(player)
+
 -- create a list of blocks you can also do : {game.block(...),game.block(...)....}
 local blocks = game.Blocks()
---add somes blocks
+
+-- add some blocks
 for i = -30, 30 do
     blocks:add(game.Block(i * 20.0, 148.0, 20, 20, 1))
 end
 blocks:add(game.Block(100.0, 100.0, 20, 20, 1)) -- Platform
 blocks:add(game.Block(120.0, 100.0, 20, 20, 1)) -- Platform
 blocks:add(game.Block(180.0, 70.0, 20, 20, 3))  -- Decorative block (Type 3)
+for i = -2, 10 do blocks:add(game.Block(i * 20.0, 148.0, 20, 20, 1)) end
+for i = 0, 20 do blocks:add(game.Block(140.0, 88.0 - i * 20.0, 20, 20, 1)) end
+for i = 0, 20 do blocks:add(game.Block(40.0, 88.0 - i * 20.0, 20, 20, 1)) end
+
 local frame     = 9
 local animTimer = 0.0
 local animSpeed = 0.15
 local flip      = false
+
 -- Load Assets
 image.loadFolder("assets/")
 local sprite = image.Sprite("assets/sprite.png", 32, 32)
+
 -- Set Universe Size
 window.setUniversSize(180, 180)
+
 -- Main Game Loop
 utils.setUpdateCallback(function()
     local dt = var.delta()
+    local player = entities[0]
     local moving = false
-    --leftLock is for prevent bugs
     if input.keyPressed("q") then
         player.requestLeft = true
         flip = true
@@ -43,15 +58,20 @@ utils.setUpdateCallback(function()
     if input.keyJustPressed("space") then
         player.requestJump = true
     end
-    -- block type 3 is ignored
-    game.hitboxPlatformer(player, blocks, 1 << 3, dt)
-    -- updateCamera is important
+    -- we ignore block 3
+    game.hitboxPlatformer(entities, blocks, 1 << 3, dt)
+    -- the hitbox function is multithread so you can do somes things during the calculs and after get the result ...
+    -- (if you get the result during the calcul the script going to just wait result)
+    image.cls(170, 0, 170)
+
     game.updateCamera(player.x, player.y, dt)
+
     local currentAnim = idle
     local loopAnim = true
+
     -- player in sky ?
     if player.inSky then
-        -- speedY <0 player is going up , speed >0 player is going down
+        -- speedY < 0 player is going up, speedY > 0 player is going down
         currentAnim = player.speedY < 0 and jumpUp or jumpDown
         loopAnim = false
     elseif moving then
@@ -59,9 +79,11 @@ utils.setUpdateCallback(function()
     else
         currentAnim = idle
     end
+
     if frame < currentAnim[1] or frame > currentAnim[2] then
         frame = currentAnim[1]
     end
+
     frame, animTimer = game.animate(frame, animTimer,
         currentAnim[1], -- Start
         currentAnim[2], -- End
@@ -69,8 +91,7 @@ utils.setUpdateCallback(function()
         dt,
         loopAnim
     )
-    --draw
-    image.cls(170, 0, 170)
+
     image.drawSprite(sprite, frame, player.x - 4.0, player.y - 4.0, 1, flip, 0, 255)
     for block in blocks:pairs() do
         image.drawRectFilled(block.x, block.y, block.w, block.h, 100, 100, 100, 255)

@@ -3,6 +3,7 @@
  */
 
 #include "../../../main.h"
+#include "../../../prediction_branche.h"
 #include "../../fenetre/fenetre.h"
 #include "../../logging/logging.h"
 #include "dessin.h"
@@ -33,8 +34,9 @@ void dessiner_rectangle_vide(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uint
 /* Dessine un rectangle rempli avec la couleur specifiee */
 void dessiner_rectangle_plein(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b,
                               Uint8 a) {
-    if (!gs)
+    if (UNLIKELY(!gs))
         goto gsvide;
+
     unsigned char coeff = gs->fenetre->coeff;
     SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
 
