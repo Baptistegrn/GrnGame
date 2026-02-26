@@ -6,6 +6,7 @@ add_requires("zlib",           {configs={runtimes="MT", shared=false, pic=true}}
 add_requires("quill",          {configs={runtimes="MT", shared=false, pic=true}})
 add_requires("lua",            {configs={runtimes="MT", kind="static", pic=true}})
 add_requires("sol2",           {configs={runtimes="MT", kind="static", pic=true}})
+add_requires("luajit",            {configs={runtimes="MT", kind="static", pic=true}})
 
 -- mode release uniquement ( debug gere par des options )
 add_rules("mode.release")
