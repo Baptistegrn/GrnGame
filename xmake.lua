@@ -54,6 +54,7 @@ target("GrnGame")
         "zlib",
         "quill",
         "lua",
+    "luajit",
         "sol2"
     )
 
