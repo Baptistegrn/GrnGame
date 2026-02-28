@@ -51,6 +51,8 @@ Clone the repo, move into `commandProject` and run:
 ```
 python create_project.py <name> [path] [--level debug|release]
 ```
+debug = with logs
+release = no logs ⚠️​
 
 ---
 
