@@ -17,6 +17,7 @@
 void hitbox_platforme(EntitePlatformes *entites, Blocs *blocs, Uint32 masque_ignorer, float dt) {
     if (UNLIKELY(!gs))
         goto gsvide;
+    
 
     for (int j = 0; j < entites->taille; j++) {
         EntitePlatforme *entite = &(entites->entites[j]);

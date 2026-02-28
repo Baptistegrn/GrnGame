@@ -32,7 +32,7 @@ void jouer_son(const char *lien, int boucle, int canal, int volume) {
         return;
     }
 
-    /* SDL_Mixer: 0 = une fois, -1 = infini, n = n fois */
+    /*  0 = une fois, -1 = infini, n = n fois */
     int loops = (boucle > 0) ? boucle - 1 : boucle;
 
     /* Limitation du volume entre 0 et 128 */

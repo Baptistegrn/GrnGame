@@ -23,7 +23,7 @@ lua_State *G_LuaState = NULL;
  */
 void initialiser_lua(const char *fichier_chemin_lua) {
 #ifdef DEBUG_MODE
-    initialiser_logging(DestinationLogFichier, "./src/logs/game.logs", NiveauLogDebug);
+    initialiser_logging(DestinationLogFichier, "./src/logs/game.logs", NiveauLogErreur);
 #endif
     /* charge les structures */
     log_fmt(NiveauLogDebug, "lua version : %s", LUA_VERSION);

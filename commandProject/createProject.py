@@ -53,6 +53,13 @@ copy(os.path.join(SRC_LUA, "main.lua"),
 copy(os.path.join(SRC_LUA, "grngame_api.lua"),
      os.path.join(project_root, "src"))
 
+#module jit
+copy(os.path.join(SRC_LUA, "physic.lua"),
+     os.path.join(project_root))
+
+copy(os.path.join(SRC_LUA, "animation.lua"),
+     os.path.join(project_root))
+
 copy(os.path.join(SRC_LUA, "encryptFiles.py"),
      os.path.join(project_root, "src"))
 

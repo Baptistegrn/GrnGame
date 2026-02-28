@@ -17,6 +17,6 @@ void initialiser_gestionnaire_textures(void) {
         malloc_gestion_echec_compteur(gs->textures->capacite * sizeof(TextureEntry));
 
     memset(gs->textures->entrees, 0, gs->textures->capacite * sizeof(TextureEntry));
-    log_message(NiveauLogDebug, "Allocated `textures`");
+    log_message(NiveauLogDebug, "Allocated texture");
     return;
 }

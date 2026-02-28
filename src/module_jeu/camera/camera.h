@@ -5,6 +5,10 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Structure de camera avec position et lissage */
 typedef struct Camera {
     float x, y;            /* Position de la camera */
@@ -33,5 +37,11 @@ void liberer_camera(Camera *ptr);
 
 /* initialise une camera dans le gs */
 void initialiser_camera(void);
+
+Camera *retourner_camera();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* CAMERA_H */

@@ -16,6 +16,10 @@ void appliquer_redimensionnement(int largeur_cible, int hauteur_cible) {
 
     GestionnaireFenetre *f = gs->fenetre;
 
+    /* securite */
+    SDL_RenderSetScale(gs->fenetre->rendu, 1.0f, 1.0f);
+    SDL_RenderSetIntegerScale(gs->fenetre->rendu, SDL_FALSE);
+
     /* plus petit coefficient */
     int coeff_w = largeur_cible / f->largeur_univers;
     int coeff_h = hauteur_cible / f->hauteur_univers;

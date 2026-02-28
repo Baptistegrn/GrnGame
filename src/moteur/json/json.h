@@ -6,7 +6,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* Structure representant un fichier chargé en memoire */
 typedef struct FichierJSON {
     char nom[TAILLE_LIEN];
@@ -84,5 +86,7 @@ int recuperer_type_json(const char *fichier_nom, const char *nom_variable);
 
 /* liste tout les chemins a partir dun chemin de base et dun nom de fichier */
 cJSON *lister_tous_les_chemins(const char *fichier_nom, const char *chemin);
-
+#ifdef __cplusplus
+}
+#endif
 #endif /* JSON_H */

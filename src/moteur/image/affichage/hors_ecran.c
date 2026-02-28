@@ -23,7 +23,6 @@ bool hors_ecran(float posx, float posy, Sint16 taillex, Sint16 tailley, int deca
         rounded_posy + tailley + (Sint16)decalage_y_scaled < 0) {
         return true;
     }
-
     return false;
 
 gsvide:

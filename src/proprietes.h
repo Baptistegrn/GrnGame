@@ -6,6 +6,10 @@
 #ifndef PROPRIETES_H
 #define PROPRIETES_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* intervalle sur lequel on affiche le compteur dallocations en debug */
 #define AFFICHAGE_COMPTEUR 20
 
@@ -71,5 +75,9 @@
 #define DEFAULT_LOOP 0
 #define DEFAULT_CHANNEL 1
 #define DEFAULT_VOLUME 64
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* PROPRIETES_H */

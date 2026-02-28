@@ -67,7 +67,10 @@ const ToucheNom touches_3[] = {{"f10", SDL_SCANCODE_F10},         {"f11", SDL_SC
                                {NULL, SDL_SCANCODE_UNKNOWN}};
 
 /* Touches longues et alias */
-const ToucheNom touches_longues[] = {{"space", SDL_SCANCODE_SPACE},
+const ToucheNom touches_longues[] = {{"left", SDL_SCANCODE_LEFT},
+                                     {"down", SDL_SCANCODE_DOWN},
+                                     {"right", SDL_SCANCODE_RIGHT},
+                                     {"space", SDL_SCANCODE_SPACE},
                                      {"enter", SDL_SCANCODE_RETURN},
                                      {"return", SDL_SCANCODE_RETURN},
                                      {"escape", SDL_SCANCODE_ESCAPE},

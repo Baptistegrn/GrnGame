@@ -25,15 +25,11 @@ extern "C" void enregistrer_bindings(void *L) {
     sol::table json = lua_view.create_named_table("json");
     sol::table mouse = lua_view.create_named_table("mouse");
     sol::table window = lua_view.create_named_table("window");
-    sol::table entite = lua_view.create_named_table("entite");
     sol::table camera = lua_view.create_named_table("camera");
-    sol::table bloc = lua_view.create_named_table("block");
     enregistrer_bindings_utils(utils);
     enregistrer_bindings_son(song);
     enregistrer_bindings_image(image);
     enregistrer_bindings_camera(camera);
-    enregistrer_bindings_entite(entite);
-    enregistrer_bindings_blocs(bloc);
     enregistrer_bindings_clavier(input);
     enregistrer_bindings_manette(input);
     enregistrer_bindings_constantes(var);

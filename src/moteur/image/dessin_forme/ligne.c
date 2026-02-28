@@ -11,55 +11,47 @@
 #include <stdbool.h>
 
 /* Dessine une ligne entre deux points avec l'algorithme de Bresenham (pixel art) */
-void dessiner_ligne_pixel(float x0, float y0, float x1, float y1, Uint8 r, Uint8 g, Uint8 b,
+void dessiner_ligne_pixel(float fx0, float fy0, float fx1, float fy1, Uint8 r, Uint8 g, Uint8 b,
                           Uint8 a) {
     if (UNLIKELY(!gs))
         goto gsvide;
+
+    float dx = fabsf(fx1 - fx0);
+    float dy = fabsf(fy1 - fy0);
+    int nb_pixels = (int)((dx > dy ? dx : dy) + 1);
+
     unsigned char coeff = gs->fenetre->coeff;
-    int decalage_x = gs->fenetre->decalage_x;
-    int decalage_y = gs->fenetre->decalage_y;
+    int dec_x = gs->fenetre->decalage_x;
+    int dec_y = gs->fenetre->decalage_y;
 
+    SDL_SetRenderDrawBlendMode(gs->fenetre->rendu, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
+    SDL_Rect *pixels = malloc_gestion_echec_compteur(sizeof(SDL_Rect) * nb_pixels);
+    if (!pixels)
+        return;
 
-    /* Bresenham */
-    float dx = fabsf(x1 - x0);
-    float dy = fabsf(y1 - y0);
-    float sx = x0 < x1 ? 1.0f : -1.0f;
-    float sy = y0 < y1 ? 1.0f : -1.0f;
+    float x = fx0;
+    float y = fy0;
+    float sx = (fx0 < fx1) ? 1.0f : -1.0f;
+    float sy = (fy0 < fy1) ? 1.0f : -1.0f;
     float err = (dx > dy ? dx : -dy) / 2.0f;
     float e2;
 
-    int capacite = 50;
-    SDL_Rect *pixels = malloc_gestion_echec_compteur(sizeof(SDL_Rect) * capacite);
-    int taille = 0;
-
-    while (true) {
-        if (taille >= capacite) {
-            capacite = capacite * 2;
-            pixels = realloc_gestion_echec_compteur(pixels, sizeof(SDL_Rect) * capacite);
-        }
-
-        /* Redimensionner */
-        int ecran_x = (int)SDL_roundf(x0 * (float)coeff) + decalage_x;
-        int ecran_y = (int)SDL_roundf(y0 * (float)coeff) + decalage_y;
-        pixels[taille] = (SDL_Rect){ecran_x, ecran_y, (int)coeff, (int)coeff};
-        taille++;
-
-        if (x0 == x1 && y0 == y1)
-            break;
-
+    for (int i = 0; i < nb_pixels; i++) {
+        int ecran_x = ((int)SDL_roundf(x * (float)coeff)) + dec_x;
+        int ecran_y = ((int)SDL_roundf(y * (float)coeff)) + dec_y;
+        pixels[i] = (SDL_Rect){ecran_x, ecran_y, (int)coeff, (int)coeff};
         e2 = err;
         if (e2 > -dx) {
             err -= dy;
-            x0 += sx;
+            x += sx;
         }
         if (e2 < dy) {
             err += dx;
-            y0 += sy;
+            y += sy;
         }
     }
-
-    SDL_RenderFillRects(gs->fenetre->rendu, pixels, taille);
+    SDL_RenderFillRects(gs->fenetre->rendu, pixels, nb_pixels);
     free_gestion_echec_compteur(pixels);
     return;
 
@@ -75,8 +67,8 @@ void tracer_ligne_horizontale_float(float x, float y, float longueur, Uint8 r, U
 
     unsigned char coeff = gs->fenetre->coeff;
 
+    SDL_SetRenderDrawBlendMode(gs->fenetre->rendu, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
-
     float x_ecran = x * (float)coeff + (float)gs->fenetre->decalage_x;
     float y_ecran = y * (float)coeff + (float)gs->fenetre->decalage_y;
 
@@ -96,8 +88,9 @@ void tracer_ligne_verticale_float(float x, float y, float longueur, Uint8 r, Uin
         goto gsvide;
 
     unsigned char coeff = gs->fenetre->coeff;
-    SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
+    SDL_SetRenderDrawBlendMode(gs->fenetre->rendu, SDL_BLENDMODE_BLEND);
 
+    SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
     float ecran_x = x * (float)coeff + (float)gs->fenetre->decalage_x;
     float ecran_y = y * (float)coeff + (float)gs->fenetre->decalage_y;
 
@@ -116,6 +109,8 @@ void dessiner_points_n(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g,
     if (UNLIKELY(!gs))
         goto gsvide;
     unsigned char coeff = gs->fenetre->coeff;
+
+    SDL_SetRenderDrawBlendMode(gs->fenetre->rendu, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
     SDL_Rect pixels[2];
 
@@ -146,6 +141,7 @@ void dessiner_points(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, U
     if (UNLIKELY(!gs))
         goto gsvide;
     unsigned char coeff = gs->fenetre->coeff;
+    SDL_SetRenderDrawBlendMode(gs->fenetre->rendu, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
     SDL_Rect pixels[2];
 

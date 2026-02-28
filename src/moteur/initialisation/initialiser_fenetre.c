@@ -8,18 +8,18 @@
 #include "../fenetre/fenetre.h"
 #include "../logging/logging.h"
 
-
 /* Initialise la fenetre et le renderer */
 void initialiser_fenetre(void) {
     if (UNLIKELY(!gs))
         goto gsvide;
 
     GestionnaireFenetre *fen = gs->fenetre;
+    Uint32 flags_fenetre = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
 
     /* Creation fenetre */
     fen->fenetre =
         SDL_CreateWindow(fen->nom_fenetre, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                         fen->largeur_univers, fen->hauteur_univers, SDL_WINDOW_SHOWN);
+                         fen->largeur_univers, fen->hauteur_univers, flags_fenetre);
 
     if (!fen->fenetre) {
         log_fmt(NiveauLogErreur, "SDL_CreateWindow failed: %s", SDL_GetError());
@@ -44,8 +44,8 @@ void initialiser_fenetre(void) {
 
     /* configuration renderer */
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0"); /* Pixel Art */
-    SDL_RenderSetIntegerScale(fen->rendu, SDL_TRUE);
-
+    SDL_RenderSetScale(fen->rendu, 1.0f, 1.0f);
+    SDL_RenderSetIntegerScale(fen->rendu, SDL_FALSE);
     /* redimensionnement plein ecran pour steam deck */
     passer_plein_ecran();
 

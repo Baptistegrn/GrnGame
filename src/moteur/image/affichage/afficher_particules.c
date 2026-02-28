@@ -97,7 +97,9 @@ void dessiner_particules(Particules *particules) {
 
     /* rendu batch */
     if (LIKELY(vcount > 0 && icount > 0)) {
+        SDL_SetRenderDrawBlendMode(gs->fenetre->rendu, SDL_BLENDMODE_BLEND);
         SDL_RenderGeometry(gs->fenetre->rendu, NULL, verts, vcount, indices, icount);
+        SDL_SetRenderDrawBlendMode(gs->fenetre->rendu, SDL_BLENDMODE_NONE);
     }
     return;
 

@@ -48,11 +48,10 @@ void afficher_objet(ObjectImage *obj, SDL_Rect *dst, Sint16 x_ecran, Sint16 y_ec
         SDL_RendererFlip flip = (obj->image.sens == 1) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
         SDL_RenderCopyEx(gs->fenetre->rendu, obj->image.texture, pSrc, dst, obj->image.rotation,
                          NULL, flip);
-
+        SDL_SetRenderDrawBlendMode(gs->fenetre->rendu, SDL_BLENDMODE_NONE);
     }
     /* forme */
     else if (obj->type == TYPE_FORME) {
-        SDL_SetRenderDrawBlendMode(gs->fenetre->rendu, SDL_BLENDMODE_BLEND);
 
         switch (obj->forme.type_de_forme) {
         case 1: /* Ligne */

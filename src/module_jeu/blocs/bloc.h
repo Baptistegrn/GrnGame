@@ -4,7 +4,12 @@
 
 #ifndef BLOC_H
 #define BLOC_H
+
 #include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Un bloc avec position, taille et type */
 typedef struct {
@@ -39,5 +44,9 @@ Bloc *creer_block(float x, float y, float w, float h, int type);
 
 /* Libere un bloc */
 void liberer_block(Bloc *ptr);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* BLOC_H */

@@ -11,7 +11,6 @@
 #include "entrees.h"
 #include <string.h>
 
-
 /* Trouve l'index local d'une manette a partir de son instance ID SDL */
 static int trouver_index_manette(SDL_JoystickID instance_id) {
     SDL_GameController *ctrl = SDL_GameControllerFromInstanceID(instance_id);
@@ -214,6 +213,22 @@ void mise_a_jour_input() {
             break;
 
         case SDL_KEYDOWN:
+            /* gestion supression dun caractere */
+            if (!event.key.repeat) {
+
+                if (event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE) {
+                    if (entrees->taille_texte_ecrit > 0) {
+                        entrees->taille_texte_ecrit--;
+                        entrees->texte_ecrit[entrees->taille_texte_ecrit] = '\0';
+                    }
+                }
+
+                if (event.key.keysym.scancode < SDL_NUM_SCANCODES) {
+                    entrees->entrees[event.key.keysym.scancode] = true;
+                    entrees->entrees_presse[event.key.keysym.scancode] = true;
+                }
+            }
+            break;
             if (event.key.keysym.scancode < SDL_NUM_SCANCODES) {
                 entrees->entrees[event.key.keysym.scancode] = true;
                 if (!event.key.repeat)

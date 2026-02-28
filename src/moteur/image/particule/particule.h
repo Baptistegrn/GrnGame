@@ -4,7 +4,9 @@
 #define PARTICULE_H
 
 #include <SDL.h>
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 typedef struct {
     float x;
     float y;          /* positions */
@@ -33,4 +35,7 @@ void liberer_particule(Particule *ptr);
 /* libere un tableau de particules */
 void liberer_particules(Particules *ptr);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* PARTICULE_H */

@@ -89,3 +89,11 @@ void initialiser_camera(void) {
     gs->module_jeu->camera = malloc_gestion_echec_compteur(sizeof(Camera));
     memset(gs->module_jeu->camera, 0, sizeof(Camera));
 }
+
+/* retourne la camera */
+Camera *retourner_camera() {
+    if (gs)
+        return gs->module_jeu->camera;
+
+    return NULL;
+}

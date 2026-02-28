@@ -132,7 +132,6 @@ void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 coeff, bo
 
     int taillex, tailley;
     SDL_QueryTexture(tex, NULL, NULL, &taillex, &tailley);
-
     int decalage_x = (int)lround((double)gs->fenetre->decalage_x / (double)gs->fenetre->coeff);
     int decalage_y = (int)lround((double)gs->fenetre->decalage_y / (double)gs->fenetre->coeff);
     float ecran_x = x - gs->module_jeu->camera->x;

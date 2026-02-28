@@ -170,16 +170,17 @@ void lua_dessiner_image(const std::string &path, float x, float y, Uint16 coeff,
     ajouter_image_au_tableau(path.c_str(), x, y, coeff, f, rotP, rot, alpha);
 }
 
-void lua_dessiner_texte(const std::string &font_path, const std::string &text, float x, float y,
-                        Uint16 scale, sol::optional<bool> flip, sol::optional<float> spacing,
-                        sol::optional<Uint16> rotationP, sol::optional<Uint16> rotation,
-                        sol::optional<Uint8> a) {
+float lua_dessiner_texte(const std::string &font_path, const std::string &text, float x, float y,
+                         Uint16 scale, sol::optional<bool> flip, sol::optional<float> spacing,
+                         sol::optional<Uint16> rotationP, sol::optional<Uint16> rotation,
+                         sol::optional<Uint8> a) {
     bool f = flip.value_or(DEFAULT_FLIP);
     float sp = spacing.value_or(DEFAULT_SPACING);
     Uint16 rot = rotation.value_or(DEFAULT_ROTATION);
     Uint16 rotP = rotationP.value_or(DEFAULT_ROTATIONP);
     Uint8 alpha = a.value_or(DEFAULT_ALPHA);
-    ajouter_mot_dans_tableau(font_path.c_str(), text.c_str(), x, y, scale, f, sp, rotP, rot, alpha);
+    return ajouter_mot_dans_tableau(font_path.c_str(), text.c_str(), x, y, scale, f, sp, rotP, rot,
+                                    alpha);
 }
 
 void lua_definir_icone(const std::string &path) { definir_icone(path.c_str()); }

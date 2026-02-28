@@ -9,6 +9,10 @@
 #include <SDL_thread.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct TableauImage TableauImage;
 
 /* Structure pour transmettre les donnees de calcul au thread */
@@ -44,5 +48,9 @@ void attendre_calcul_hitbox(void);
 
 /* libere le gestionnaire de module de jeu */
 void liberer_gestionnaire_module_jeu(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MODULE_JEU_H */

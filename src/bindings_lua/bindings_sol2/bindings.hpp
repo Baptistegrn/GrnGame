@@ -45,12 +45,6 @@ void enregistrer_bindings_souris(sol::table &mouse);
 /* enregistre les bindings de camera */
 void enregistrer_bindings_camera(sol::table &camera);
 
-/* enregistre les bindings de entite */
-void enregistrer_bindings_entite(sol::table &entite);
-
-/* enregistrement des bindings blocs */
-void enregistrer_bindings_blocs(sol::table &blocks);
-
 #endif /* __cplusplus */
 
 #endif /* BINDINGS_HPP */

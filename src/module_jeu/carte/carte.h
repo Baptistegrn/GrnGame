@@ -8,11 +8,19 @@
 #include "../hitbox/hitbox.h"
 #include <SDL.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Charge une carte depuis un fichier.
  * Retourne un conteneur de blocs avec leurs positions et types.
  */
 Blocs *charger_carte(const char *chemin, Uint8 pas_x, Uint8 pas_y, char separation,
                      int element_vide);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* CARTE_H */

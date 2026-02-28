@@ -9,7 +9,6 @@
 #include "dessin.h"
 #include <stdbool.h>
 
-
 /* Dessine un rectangle vide en tracant 4 lignes */
 void dessiner_rectangle_vide(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b,
                              Uint8 a) {
@@ -38,8 +37,9 @@ void dessiner_rectangle_plein(float x, float y, Sint16 w, Sint16 h, Uint8 r, Uin
         goto gsvide;
 
     unsigned char coeff = gs->fenetre->coeff;
-    SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
+    SDL_SetRenderDrawBlendMode(gs->fenetre->rendu, SDL_BLENDMODE_BLEND);
 
+    SDL_SetRenderDrawColor(gs->fenetre->rendu, r, g, b, a);
     SDL_Rect rect = {lroundf((x * (float)coeff) + (float)gs->fenetre->decalage_x),
                      lroundf((y * (float)coeff) + (float)gs->fenetre->decalage_y), (int)(w * coeff),
                      (int)(h * coeff)};
