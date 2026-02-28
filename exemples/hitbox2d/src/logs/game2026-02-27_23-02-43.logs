@@ -1,0 +1,20 @@
+23:02:43.905329667 [16952] logging.cpp:65               LOG_INFO      root         logging initialized
+23:02:43.963396285 [16952] logging.cpp:87               LOG_DEBUG     root         lua version : Lua 5.1
+23:02:43.979143136 [16952] logging.cpp:87               LOG_DEBUG     root         Allocated manager
+23:02:43.994912239 [16952] logging.cpp:87               LOG_DEBUG     root         Allocated inputs
+23:02:44.026059023 [16952] logging.cpp:87               LOG_DEBUG     root         Allocated frame
+23:02:44.056940074 [16952] logging.cpp:87               LOG_DEBUG     root         Allocated song
+23:02:44.105496548 [16952] logging.cpp:87               LOG_DEBUG     root         Allocated timing
+23:02:44.122610407 [16952] logging.cpp:87               LOG_DEBUG     root         Allocated `textures`
+23:02:44.132437551 [16952] logging.cpp:87               LOG_DEBUG     root         Allocated window
+23:02:44.245331854 [16952] logging.cpp:90               LOG_INFO      root         562 mappings controllers charging
+23:02:44.500882295 [16952] logging.cpp:87               LOG_DEBUG     root         Display updated: Fullscreen (1920x1080) | Coeff: 3 | Offset: 690,60
+23:02:44.505346039 [16952] logging.cpp:87               LOG_DEBUG     root         Initialisation successful: Window and renderer initialized
+23:02:44.509326135 [16952] logging.cpp:87               LOG_DEBUG     root         + allocation : 20
+23:02:44.511670841 [16952] logging.cpp:87               LOG_DEBUG     root         file lua detected: ./src/main.lua
+23:02:44.515822669 [16952] logging.cpp:96               LOG_ERROR     root         initialization of structures sucesfull
+23:02:44.517340081 [16952] logging.cpp:90               LOG_INFO      root         Initializing Lua
+23:02:44.519506531 [16952] logging.cpp:90               LOG_INFO      root         Lua state created
+23:02:44.522290744 [16952] logging.cpp:90               LOG_INFO      root         GrnGame bindings registered
+23:02:44.525382956 [16952] logging.cpp:90               LOG_INFO      root         Loading Lua file: ./src/main.lua
+23:02:44.528987077 [16952] logging.cpp:90               LOG_INFO      root         Executing Lua script...

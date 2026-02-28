@@ -19,11 +19,11 @@ static SDL_Vertex verts[MAX_PARTICULES * 4];
 static int indices[MAX_PARTICULES * 6];
 
 /* Dessine les particules de maniere optimisee avec du rendu gpu */
-void dessiner_particules(Particule *particules) {
+void dessiner_particules(Particules *particules) {
     if (UNLIKELY(!gs))
         goto gsvide;
 
-    if (UNLIKELY(!particules || particules->taille <= 0)) {
+    if (UNLIKELY(!particules || !particules->tab || particules->taille <= 0)) {
         log_message(NiveauLogErreur, "Size of particles equals 0 or null pointer");
         return;
     }
@@ -31,6 +31,7 @@ void dessiner_particules(Particule *particules) {
     float coeff = (float)gs->fenetre->coeff;
     float decalage_x = (float)gs->fenetre->decalage_x;
     float decalage_y = (float)gs->fenetre->decalage_y;
+
     /* limite */
     int max = (particules->taille > MAX_PARTICULES) ? MAX_PARTICULES : particules->taille;
 
@@ -42,16 +43,20 @@ void dessiner_particules(Particule *particules) {
     int base_indices[6] = {0, 1, 2, 2, 3, 0};
 
     for (int i = 0; i < max; i++) {
+        /* Acces via la structure Particule dans le tableau tab */
+        Particule *p = &particules->tab[i];
+
         /* positions ecran */
         /* ajout ici de la camera */
-        int x = lroundf((particules->posx[i] - gs->module_jeu->camera->x) * coeff + decalage_x);
-        int y = lroundf((particules->posy[i] - gs->module_jeu->camera->y) * coeff + decalage_y);
+        float x = (p->x - gs->module_jeu->camera->x) * coeff + decalage_x;
+        float y = (p->y - gs->module_jeu->camera->y) * coeff + decalage_y;
 
         /* taille = 1 pixel (scale) */
-        int w = coeff;
-        int h = coeff;
+        float w = coeff;
+        float h = coeff;
 
-        float angle = (float)particules->rotation[i];
+        /* conversion degres en radians pour les fonctions math.h */
+        float angle = (float)p->rotation * (3.14159265f / 180.0f);
 
         /* centre du rectangle */
         float cx = x + w * 0.5f;
@@ -63,7 +68,7 @@ void dessiner_particules(Particule *particules) {
         float c = cosf(angle);
         float s = sinf(angle);
 
-        SDL_Color color = {particules->r[i], particules->g[i], particules->b[i], particules->a[i]};
+        SDL_Color color = {p->r, p->g, p->b, p->a};
 
         /* index de depart pour cette particule */
         int base = vcount;

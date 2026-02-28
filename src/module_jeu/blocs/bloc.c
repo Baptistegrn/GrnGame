@@ -4,6 +4,7 @@
 
 #include "bloc.h"
 #include "../../allouer/allouer.h"
+#include "../../moteur/logging/logging.h"
 
 /* Cree un conteneur de blocs vide avec capacite initiale de 10 */
 Blocs *creer_blocks(void) {

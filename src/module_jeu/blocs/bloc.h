@@ -4,6 +4,7 @@
 
 #ifndef BLOC_H
 #define BLOC_H
+#include <stdbool.h>
 
 /* Un bloc avec position, taille et type */
 typedef struct {

@@ -71,7 +71,7 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
 
     /* reallocation */
     TableauImage *tab = gs->frame->image;
-    reallouer_si_plein();
+    reallouer_si_plein(tab);
     int i = tab->nb_images++;
 
     /* Correction rotation */
@@ -93,7 +93,7 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
     tab->tab[i].image.rotation = rotation;
 
     /* Limitation des valeurs Alpha */
-    tab->tab[i].image.a = SDL_clamp(a, 0, 255);
+    tab->tab[i].image.a = a;
     tab->tab[i].image.sprite = true;
 
     tab->tab[i].image.x1 = source_x1;
@@ -145,7 +145,7 @@ void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 coeff, bo
 
     /* reallocation */
     TableauImage *tab = gs->frame->image;
-    reallouer_si_plein();
+    reallouer_si_plein(tab);
 
     int i = tab->nb_images++;
 
@@ -156,7 +156,7 @@ void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 coeff, bo
     tab->tab[i].image.tailley = tailley * coeff;
     tab->tab[i].image.sens = sens;
     /* limitation alpha */
-    tab->tab[i].image.a = SDL_clamp(a, 0, 255);
+    tab->tab[i].image.a = a;
 
     /* rotation */
     if (rotation_p > 359) {

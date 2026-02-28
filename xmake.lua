@@ -4,7 +4,7 @@ add_requires("libsdl2_image",  {configs={runtimes="MT", shared=false, png=true, 
 add_requires("libsdl2_mixer",  {configs={runtimes="MT", shared=false, wav=true, mp3=false, flac=false, vorbis=false, pic=true}})
 add_requires("zlib",           {configs={runtimes="MT", shared=false, pic=true}})
 add_requires("quill",          {configs={runtimes="MT", shared=false, pic=true}})
-add_requires("lua",            {configs={runtimes="MT", kind="static", pic=true}})
+add_requires("luajit",            {configs={runtimes="MT", kind="static", pic=true}})
 add_requires("sol2",           {configs={runtimes="MT", kind="static", pic=true}})
 
 -- mode release uniquement ( debug gere par des options )
@@ -52,7 +52,7 @@ target("GrnGame")
         "libsdl2_mixer",
         "zlib",
         "quill",
-        "lua",
+        "luajit",
         "sol2"
     )
 

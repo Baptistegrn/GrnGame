@@ -37,7 +37,7 @@ void ajouter_ligne(float x1, float y1, float x2, float y2, Uint8 r, Uint8 g, Uin
     }
 
     TableauImage *tab = gs->frame->image;
-    reallouer_si_plein();
+    reallouer_si_plein(tab);
     int i = tab->nb_images++;
 
     tab->tab[i].type = TYPE_FORME;
@@ -76,9 +76,8 @@ void ajouter_rectangle(float x, float y, Sint16 taillex, Sint16 tailley, Uint8 r
     if (hors_ecran(ecran_x, ecran_y, taillex, tailley, decalage_x, decalage_y)) {
         return;
     }
-
     TableauImage *tab = gs->frame->image;
-    reallouer_si_plein();
+    reallouer_si_plein(tab);
     int i = tab->nb_images++;
 
     tab->tab[i].type = TYPE_FORME;
@@ -87,10 +86,10 @@ void ajouter_rectangle(float x, float y, Sint16 taillex, Sint16 tailley, Uint8 r
     tab->tab[i].forme.posy = ecran_y;
     tab->tab[i].forme.taillex = taillex;
     tab->tab[i].forme.tailley = tailley;
-    tab->tab[i].forme.r = SDL_clamp(r, 0, 255);
-    tab->tab[i].forme.g = SDL_clamp(g, 0, 255);
-    tab->tab[i].forme.b = SDL_clamp(b, 0, 255);
-    tab->tab[i].forme.a = SDL_clamp(a, 0, 255);
+    tab->tab[i].forme.r = r;
+    tab->tab[i].forme.g = g;
+    tab->tab[i].forme.b = b;
+    tab->tab[i].forme.a = a;
     tab->tab[i].forme.plein = plein;
 
     return;
@@ -118,7 +117,7 @@ void ajouter_cercle(float x, float y, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, U
     }
 
     TableauImage *tab = gs->frame->image;
-    reallouer_si_plein();
+    reallouer_si_plein(tab);
     int i = tab->nb_images++;
 
     tab->tab[i].type = TYPE_FORME;
@@ -129,10 +128,10 @@ void ajouter_cercle(float x, float y, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, U
     tab->tab[i].forme.taillex = rayon * 2;
     tab->tab[i].forme.tailley = rayon * 2;
 
-    tab->tab[i].forme.r = SDL_clamp(r, 0, 255);
-    tab->tab[i].forme.g = SDL_clamp(g, 0, 255);
-    tab->tab[i].forme.b = SDL_clamp(b, 0, 255);
-    tab->tab[i].forme.a = SDL_clamp(a, 0, 255);
+    tab->tab[i].forme.r = r;
+    tab->tab[i].forme.g = g;
+    tab->tab[i].forme.b = b;
+    tab->tab[i].forme.a = a;
     tab->tab[i].forme.plein = plein;
 
     return;

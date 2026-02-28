@@ -13,7 +13,7 @@
 
 /* Libere le tableau dynamique contenant les images de la frame actuelle */
 void free_tab_images(void) {
-    if (!gs || !gs->frame->image)
+    if (!gs)
         goto gsvide;
 
     if (gs->frame->image->tab) {

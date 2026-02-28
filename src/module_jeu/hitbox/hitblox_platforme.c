@@ -15,9 +15,11 @@
 
 /* gere la hitblox selon une liste de blocs et dentites */
 void hitbox_platforme(EntitePlatformes *entites, Blocs *blocs, Uint32 masque_ignorer, float dt) {
+    if (UNLIKELY(!gs))
+        goto gsvide;
 
-    for (int i = 0; i < entites->taille; i++) {
-        EntitePlatforme *entite = &(entites->entites[i]);
+    for (int j = 0; j < entites->taille; j++) {
+        EntitePlatforme *entite = &(entites->entites[j]);
         float x = entite->x;
         float y = entite->y;
         float vy = entite->speedY;
@@ -135,6 +137,7 @@ void hitbox_platforme(EntitePlatformes *entites, Blocs *blocs, Uint32 masque_ign
         }
 
         float sol_y = 1e9f;
+        float plafond_y = -1e9f; /* meilleur candidat plafond (le plus bas au-dessus) */
         float x2 = x + w;
         float y2 = y + h;
 
@@ -152,10 +155,23 @@ void hitbox_platforme(EntitePlatformes *entites, Blocs *blocs, Uint32 masque_ign
             float bx2 = bx1 + tab_blocs[i].w;
             float by2 = by1 + tab_blocs[i].h;
 
-            /* detections du sol */
+            float margin_x = fabsf(vx) * dt + 2.0f;
+            float margin_y = fabsf(vy) * dt + 2.0f;
+
+            if (bx2 < x - margin_x || bx1 > x2 + margin_x || by2 < y - margin_y ||
+                by1 > y2 + margin_y) {
+                continue;
+            }
+
+            /* detections du sol et du plafond (meme axe X) */
             if (bx2 > x && bx1 < x2) {
+                /* sol : face superieure du bloc sous l'entite */
                 if (by1 >= y2 && by1 < sol_y) {
                     sol_y = by1;
+                }
+                /* plafond : face inferieure du bloc au-dessus de l'entite */
+                if (by2 <= y && by2 > plafond_y) {
+                    plafond_y = by2;
                 }
             }
 
@@ -220,25 +236,12 @@ void hitbox_platforme(EntitePlatformes *entites, Blocs *blocs, Uint32 masque_ign
         }
 
         float fin_y = nouv_y;
-        /* verification plafond */
-        if (vy < 0) {
-            float nouv_x2 = nouv_x + w;
 
-            for (int i = 0; i < nb_blocs; i++) {
-                if ((1U << tab_blocs[i].type) & masque_ignorer)
-                    continue;
-
-                float bx1 = tab_blocs[i].x;
-                float by1 = tab_blocs[i].y;
-                float bx2 = bx1 + tab_blocs[i].w;
-                float by2 = by1 + tab_blocs[i].h;
-
-                if (bx2 > nouv_x && bx1 < nouv_x2) {
-                    if (fin_y < by2 && fin_y > by1) {
-                        vy = 0.0f;
-                        fin_y = by2;
-                    }
-                }
+        /* verification plafond (O(1) grace au candidat collecte dans la boucle) */
+        if (vy < 0 && plafond_y > -1e9f) {
+            if (fin_y < plafond_y) {
+                vy = 0.0f;
+                fin_y = plafond_y;
             }
         }
 
@@ -258,6 +261,10 @@ void hitbox_platforme(EntitePlatformes *entites, Blocs *blocs, Uint32 masque_ign
         entite->groundTimer = timer_sol;
         entite->wallJumpLockTimer = timer_blocage;
     }
+    return;
+
+gsvide:
+    log_message(NiveauLogErreur, "manager empty in hitbox function");
 }
 
 /* Fonction qui appelle le thread */

@@ -1,0 +1,123 @@
+22:46:53.332751454 [3284] logging.cpp:65               LOG_INFO      root         logging initialized
+22:46:53.411498581 [3284] logging.cpp:87               LOG_DEBUG     root         lua version : Lua 5.1
+22:46:53.443520980 [3284] logging.cpp:87               LOG_DEBUG     root         Allocated manager
+22:46:53.474558844 [3284] logging.cpp:87               LOG_DEBUG     root         Allocated inputs
+22:46:53.505553982 [3284] logging.cpp:87               LOG_DEBUG     root         Allocated frame
+22:46:53.521581851 [3284] logging.cpp:87               LOG_DEBUG     root         Allocated song
+22:46:53.553196050 [3284] logging.cpp:87               LOG_DEBUG     root         Allocated timing
+22:46:53.585486596 [3284] logging.cpp:87               LOG_DEBUG     root         Allocated `textures`
+22:46:53.617572303 [3284] logging.cpp:87               LOG_DEBUG     root         Allocated window
+22:46:53.738787725 [3284] logging.cpp:90               LOG_INFO      root         562 mappings controllers charging
+22:46:54.007554759 [3284] logging.cpp:87               LOG_DEBUG     root         Display updated: Fullscreen (1920x1080) | Coeff: 3 | Offset: 690,60
+22:46:54.009365996 [3284] logging.cpp:87               LOG_DEBUG     root         Initialisation successful: Window and renderer initialized
+22:46:54.012716717 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 20
+22:46:54.017013425 [3284] logging.cpp:87               LOG_DEBUG     root         file lua detected: ./src/main.lua
+22:46:54.018705336 [3284] logging.cpp:96               LOG_ERROR     root         initialization of structures sucesfull
+22:46:54.020721999 [3284] logging.cpp:90               LOG_INFO      root         Initializing Lua
+22:46:54.024971787 [3284] logging.cpp:90               LOG_INFO      root         Lua state created
+22:46:54.027586473 [3284] logging.cpp:90               LOG_INFO      root         GrnGame bindings registered
+22:46:54.030795267 [3284] logging.cpp:90               LOG_INFO      root         Loading Lua file: ./src/main.lua
+22:46:54.033470668 [3284] logging.cpp:90               LOG_INFO      root         Executing Lua script...
+22:46:54.035118311 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 40
+22:46:54.037172034 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 60
+22:46:54.039147636 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 80
+22:46:54.043143763 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 100
+22:46:54.047160131 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 120
+22:46:54.049077196 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 140
+22:46:54.053068626 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 160
+22:46:54.055092036 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 180
+22:46:54.057615406 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 200
+22:46:54.060840735 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 220
+22:46:54.062932056 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 240
+22:46:54.064962059 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 260
+22:46:54.069475615 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.074976537 [3284] logging.cpp:87               LOG_DEBUG     root         + free : 280
+22:46:54.079207298 [3284] logging.cpp:87               LOG_DEBUG     root         Display updated: Fullscreen (1920x1080) | Coeff: 6 | Offset: 420,0
+22:46:54.080601155 [3284] logging.cpp:87               LOG_DEBUG     root         Display updated: Fullscreen (1920x1080) | Coeff: 6 | Offset: 420,0
+22:46:54.082922116 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.084904197 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.086901793 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.088899415 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.102817625 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.103936956 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.106701251 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.110689875 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.115914678 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.117702653 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.119210154 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.121205765 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.131900144 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.133919192 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.135939733 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.138912755 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.148755693 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.150662464 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.152717539 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.155401501 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.165452060 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.168863590 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.170846907 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.172782619 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.181741778 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.183674261 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.186791752 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.188823850 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.198145112 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.200102332 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.202180313 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.206207159 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.215610140 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.218004311 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.219860913 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.221845186 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.232354925 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.235370291 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.237364001 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.240428186 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.248006385 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.249960607 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.251423907 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.254149373 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.264851618 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.266848472 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.268838555 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.270979131 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.274182680 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.275403610 [3284] logging.cpp:87               LOG_DEBUG     root         + free : 280
+22:46:54.282497310 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.284388197 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.287012313 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.290309629 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.299282393 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.301312884 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.303312501 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.305374695 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.316344408 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.318309570 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.320309843 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.322352205 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 280
+22:46:54.325855219 [3284] logging.cpp:87               LOG_DEBUG     root         + free : 260
+22:46:54.328766675 [3284] logging.cpp:87               LOG_DEBUG     root         + free : 240
+22:46:54.330652188 [3284] logging.cpp:87               LOG_DEBUG     root         + free : 220
+22:46:54.332665372 [3284] logging.cpp:87               LOG_DEBUG     root         + free : 200
+22:46:54.334650133 [3284] logging.cpp:87               LOG_DEBUG     root         + free : 180
+22:46:54.336087868 [3284] logging.cpp:87               LOG_DEBUG     root         + free : 160
+22:46:54.338780528 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 160
+22:46:54.342106506 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 160
+22:46:54.344217255 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 160
+22:46:54.346193482 [3284] logging.cpp:87               LOG_DEBUG     root         + allocation : 160
+22:46:54.349056540 [3284] logging.cpp:87               LOG_DEBUG     root         + free : 140
+22:46:54.352117229 [3284] logging.cpp:87               LOG_DEBUG     root         + free : 120
+22:46:54.356146501 [3284] logging.cpp:87               LOG_DEBUG     root         + free : 100
+22:46:54.357641991 [3284] logging.cpp:87               LOG_DEBUG     root         + free : 80
+22:46:54.359644832 [3284] logging.cpp:87               LOG_DEBUG     root         + free : 60
+22:46:54.361157998 [3284] logging.cpp:87               LOG_DEBUG     root         + free : 40
+22:47:13.384265221 [3284] logging.cpp:90               LOG_INFO      root         freeing manager...
+22:47:13.409387713 [3284] logging.cpp:87               LOG_DEBUG     root         + free : 20
+22:47:13.411211411 [3284] logging.cpp:90               LOG_INFO      root         manager freed successfully.
+22:47:13.471373738 [3284] logging.cpp:90               LOG_INFO      root         main loop ended
+22:47:13.502207700 [3284] logging.cpp:90               LOG_INFO      root         Lua script executed successfully
+22:47:13.533828675 [3284] logging.cpp:90               LOG_INFO      root         Lua initialization finished
+22:47:13.549636661 [3284] logging.cpp:90               LOG_INFO      root         closing Lua state...
+22:47:13.565532779 [3284] logging.cpp:87               LOG_DEBUG     root         + free : 0
+22:47:13.598587191 [3284] logging.cpp:90               LOG_INFO      root         lua state closed

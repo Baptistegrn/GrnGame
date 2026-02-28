@@ -4,6 +4,7 @@
 #include "../main.h"
 #include "../moteur/boucle/boucle.h"
 #include "../moteur/fenetre/fenetre.h"
+#include "../moteur/image/affichage/affichage.h"
 #include "../prediction_branche.h"
 #include "camera/camera.h"
 #include "module_jeu.h"

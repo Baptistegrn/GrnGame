@@ -11,12 +11,10 @@
 #include "ajout.h"
 #include <stdbool.h>
 
-
 /* reallocation automatique du tableau dimage */
-void reallouer_si_plein(void) {
+void reallouer_si_plein(TableauImage *jeu) {
     if (UNLIKELY(!gs))
         goto gsvide;
-    TableauImage *jeu = gs->frame->image;
     if (jeu->nb_images >= jeu->capacite_images) {
         int nouvelle_capacite = (jeu->capacite_images == 0) ? 200 : jeu->capacite_images * 2;
         jeu->tab =

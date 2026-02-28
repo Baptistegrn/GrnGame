@@ -35,11 +35,9 @@ void calculer_positions_ecran(ObjectImage *obj, unsigned char coeff, int decalag
 }
 
 /* Affiche tous les objets (images et formes) de la liste d'affichage */
-void afficher_images(void) {
+void afficher_images(TableauImage *tab) {
     if (UNLIKELY(!gs))
         goto gsvide;
-
-    TableauImage *tab = gs->frame->image;
 
     unsigned char coeff = gs->fenetre->coeff;
     int decalage_x = gs->fenetre->decalage_x;

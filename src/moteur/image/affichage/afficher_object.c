@@ -103,7 +103,7 @@ void afficher_objet(ObjectImage *obj, SDL_Rect *dst, Sint16 x_ecran, Sint16 y_ec
         } break;
         }
     } else if (obj->type == TYPE_PARTICULE) {
-        dessiner_particules(&obj->particule);
+        dessiner_particules(obj->particules);
     }
 
     return;

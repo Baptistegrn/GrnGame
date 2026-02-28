@@ -1,0 +1,46 @@
+22:37:03.430869224 [16048] logging.cpp:65               LOG_INFO      root         logging initialized
+22:37:03.498031894 [16048] logging.cpp:87               LOG_DEBUG     root         lua version : Lua 5.1
+22:37:03.513673205 [16048] logging.cpp:87               LOG_DEBUG     root         Allocated manager
+22:37:03.530135011 [16048] logging.cpp:87               LOG_DEBUG     root         Allocated inputs
+22:37:03.576943078 [16048] logging.cpp:87               LOG_DEBUG     root         Allocated frame
+22:37:03.592062482 [16048] logging.cpp:87               LOG_DEBUG     root         Allocated song
+22:37:03.623344880 [16048] logging.cpp:87               LOG_DEBUG     root         Allocated timing
+22:37:03.636949227 [16048] logging.cpp:87               LOG_DEBUG     root         Allocated `textures`
+22:37:03.639276276 [16048] logging.cpp:87               LOG_DEBUG     root         Allocated window
+22:37:03.738440223 [16048] logging.cpp:90               LOG_INFO      root         562 mappings controllers charging
+22:37:03.986410155 [16048] logging.cpp:87               LOG_DEBUG     root         Display updated: Fullscreen (1920x1080) | Coeff: 3 | Offset: 690,60
+22:37:03.987584903 [16048] logging.cpp:87               LOG_DEBUG     root         Initialisation successful: Window and renderer initialized
+22:37:03.991671139 [16048] logging.cpp:87               LOG_DEBUG     root         + allocation : 20
+22:37:03.995805913 [16048] logging.cpp:87               LOG_DEBUG     root         file lua detected: ./src/main.lua
+22:37:03.997574883 [16048] logging.cpp:96               LOG_ERROR     root         initialization of structures sucesfull
+22:37:04.000615236 [16048] logging.cpp:90               LOG_INFO      root         Initializing Lua
+22:37:04.002869998 [16048] logging.cpp:90               LOG_INFO      root         Lua state created
+22:37:04.005371455 [16048] logging.cpp:90               LOG_INFO      root         GrnGame bindings registered
+22:37:04.006625120 [16048] logging.cpp:90               LOG_INFO      root         Loading Lua file: ./src/main.lua
+22:37:04.009593843 [16048] logging.cpp:90               LOG_INFO      root         Executing Lua script...
+22:37:04.011776251 [16048] logging.cpp:87               LOG_DEBUG     root         + allocation : 40
+22:37:04.015783603 [16048] logging.cpp:87               LOG_DEBUG     root         + allocation : 60
+22:37:04.017754645 [16048] logging.cpp:87               LOG_DEBUG     root         + allocation : 80
+22:37:04.021902077 [16048] logging.cpp:87               LOG_DEBUG     root         + allocation : 100
+22:37:04.023790708 [16048] logging.cpp:87               LOG_DEBUG     root         + free : 100
+22:37:04.025814889 [16048] logging.cpp:87               LOG_DEBUG     root         + allocation : 100
+22:37:04.032492974 [16048] logging.cpp:87               LOG_DEBUG     root         + allocation : 120
+22:37:04.038379639 [16048] logging.cpp:87               LOG_DEBUG     root         Display updated: Fullscreen (1920x1080) | Coeff: 6 | Offset: 420,0
+22:37:04.039864808 [16048] logging.cpp:87               LOG_DEBUG     root         Display updated: Fullscreen (1920x1080) | Coeff: 6 | Offset: 420,0
+22:37:04.218318725 [16048] logging.cpp:87               LOG_DEBUG     root         + allocation : 120
+22:37:04.222348811 [16048] logging.cpp:87               LOG_DEBUG     root         + free : 120
+22:37:04.422364639 [16048] logging.cpp:87               LOG_DEBUG     root         + allocation : 120
+22:37:04.425880970 [16048] logging.cpp:87               LOG_DEBUG     root         + free : 120
+22:37:04.502817958 [16048] logging.cpp:87               LOG_DEBUG     root         + free : 100
+22:37:04.504384260 [16048] logging.cpp:87               LOG_DEBUG     root         + free : 80
+22:37:04.506542428 [16048] logging.cpp:87               LOG_DEBUG     root         + free : 60
+22:37:04.510520887 [16048] logging.cpp:87               LOG_DEBUG     root         + free : 40
+22:37:08.312878769 [16048] logging.cpp:90               LOG_INFO      root         freeing manager...
+22:37:08.316667296 [16048] logging.cpp:87               LOG_DEBUG     root         + free : 20
+22:37:08.332515297 [16048] logging.cpp:90               LOG_INFO      root         manager freed successfully.
+22:37:08.419943623 [16048] logging.cpp:90               LOG_INFO      root         main loop ended
+22:37:08.450863166 [16048] logging.cpp:90               LOG_INFO      root         Lua script executed successfully
+22:37:08.483002160 [16048] logging.cpp:90               LOG_INFO      root         Lua initialization finished
+22:37:08.514167418 [16048] logging.cpp:90               LOG_INFO      root         closing Lua state...
+22:37:08.545815331 [16048] logging.cpp:87               LOG_DEBUG     root         + free : 0
+22:37:08.578222026 [16048] logging.cpp:90               LOG_INFO      root         lua state closed

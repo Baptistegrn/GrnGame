@@ -15,9 +15,6 @@ extern "C" {
 #include <lualib.h>
 }
 
-/* enregistre les bindings de module jeu  */
-void enregistrer_bindings_module_jeu(sol::table &game);
-
 /* enregistre les bindings de image */
 void enregistrer_bindings_image(sol::table &image);
 
@@ -44,6 +41,15 @@ void enregistrer_bindings_fenetre(sol::table &window);
 
 /*enregistre les bindings de souris */
 void enregistrer_bindings_souris(sol::table &mouse);
+
+/* enregistre les bindings de camera */
+void enregistrer_bindings_camera(sol::table &camera);
+
+/* enregistre les bindings de entite */
+void enregistrer_bindings_entite(sol::table &entite);
+
+/* enregistrement des bindings blocs */
+void enregistrer_bindings_blocs(sol::table &blocks);
 
 #endif /* __cplusplus */
 

@@ -9,6 +9,8 @@
 #include <SDL_thread.h>
 #include <stdbool.h>
 
+typedef struct TableauImage TableauImage;
+
 /* Structure pour transmettre les donnees de calcul au thread */
 typedef struct {
     EntitePlatformes *entites;
@@ -36,7 +38,6 @@ typedef struct GestionnaireModuleJeu {
 
 /* initialise le module de jeu du gestionnaire */
 void initialiser_gestionnaire_module_jeu(void);
-
 
 /* met le thread principal en pause jusqu'a ce que la hitbox soit calculee */
 void attendre_calcul_hitbox(void);

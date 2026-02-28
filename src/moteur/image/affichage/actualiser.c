@@ -3,6 +3,7 @@
  */
 
 #include "../../../main.h"
+#include "../../../module_jeu/module_jeu.h"
 #include "../../../prediction_branche.h"
 #include "../../boucle/boucle.h"
 #include "../../fenetre/fenetre.h"
@@ -27,7 +28,7 @@ void actualiser() {
     }
     SDL_RenderClear(rendu);
 
-    afficher_images();
+    afficher_images(gs->frame->image);
 
     if (bande_noir && gs->fenetre->fenetre) {
 

@@ -51,11 +51,9 @@ void initialiser_gestionnaire_module_jeu(void) {
     memset(gs->module_jeu, 0, sizeof(GestionnaireModuleJeu));
 
     initialiser_camera();
-
     gs->module_jeu->mutex = SDL_CreateMutex();
     gs->module_jeu->reveil = SDL_CreateCond();
     gs->module_jeu->termine = SDL_CreateCond();
-
     gs->module_jeu->thread_actif = true;
     gs->module_jeu->travail_demande = false;
     gs->module_jeu->travail_termine = true;
@@ -81,26 +79,4 @@ void attendre_calcul_hitbox(void) {
     }
 
     SDL_UnlockMutex(gs->module_jeu->mutex);
-}
-
-/* libere le gestionnaire de module de jeu */
-void liberer_gestionnaire_module_jeu(void) {
-    if (UNLIKELY(!gs->module_jeu))
-        return;
-    if (gs->module_jeu->thread_present) {
-        SDL_LockMutex(gs->module_jeu->mutex);
-        gs->module_jeu->thread_actif = false;
-        SDL_CondSignal(gs->module_jeu->reveil);
-        SDL_UnlockMutex(gs->module_jeu->mutex);
-
-        SDL_WaitThread(gs->module_jeu->hitbox_t, NULL);
-    }
-    if (gs->module_jeu->mutex)
-        SDL_DestroyMutex(gs->module_jeu->mutex);
-    if (gs->module_jeu->reveil)
-        SDL_DestroyCond(gs->module_jeu->reveil);
-    if (gs->module_jeu->termine)
-        SDL_DestroyCond(gs->module_jeu->termine);
-    liberer_camera(gs->module_jeu->camera);
-    free_gestion_echec_compteur(gs->module_jeu);
 }

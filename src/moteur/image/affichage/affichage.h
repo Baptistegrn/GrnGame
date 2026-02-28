@@ -25,7 +25,7 @@ typedef struct TableauImage {
 void actualiser(void);
 
 /* Affiche toutes les images du tableau */
-void afficher_images(void);
+void afficher_images(TableauImage *tab);
 
 /* Affiche un objet image a l'ecran */
 void afficher_objet(ObjectImage *obj, SDL_Rect *dst, Sint16 x_ecran, Sint16 y_ecran, Sint16 w_ecran,
@@ -36,7 +36,7 @@ bool hors_ecran(float posx, float posy, Sint16 taillex, Sint16 tailley, int deca
                 int decalage_y_scaled);
 
 /* Dessine un groupe de particules */
-void dessiner_particules(Particule *particules);
+void dessiner_particules(Particules *particules);
 
 /* Fonctions de liberation */
 void free_tab_images(void);

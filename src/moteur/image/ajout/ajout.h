@@ -6,25 +6,25 @@
 #define AJOUT_H
 
 #include "../../../proprietes.h"
-#include "SDL_stdinc.h"
+#include "../particule/particule.h"
 #include <SDL.h>
 #include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct Liste Liste;
-
+typedef struct TableauImage TableauImage;
 typedef enum { TYPE_IMAGE = 0, TYPE_FORME = 1, TYPE_PARTICULE = 2 } TypeObjet;
 
 typedef struct {
-    Uint8 r, g, b, a;        /* couleur */
     float posx, posy;        /* position */
     float posx2, posy2;      /* position 2 (pour ligne) */
+    int type_de_forme;       /* 1=ligne,2=rectangle,3=cercle */
     Sint16 taillex, tailley; /* taille */
     bool plein;              /* plein ou vide */
-    int type_de_forme;       /* 1=ligne,2=rectangle,3=cercle */
-
+    Uint8 r, g, b, a;        /* couleur */
 } Forme;
 
 typedef struct {
@@ -42,17 +42,10 @@ typedef struct {
 } Image;
 
 typedef struct {
-    float *posx, *posy;   /* positions */
-    Uint16 *rotation;     /* rotations */
-    Uint8 *a, *r, *g, *b; /* couleurs */
-    int taille;           /* nombre de particules */
-} Particule;
-
-typedef struct {
     TypeObjet type;
-    Image image;         /* images */
-    Forme forme;         /* formes geometriques */
-    Particule particule; /* particules */
+    Image image;            /* images */
+    Forme forme;            /* formes geometriques */
+    Particules *particules; /* particules */
 } ObjectImage;
 
 typedef struct {
@@ -61,7 +54,7 @@ typedef struct {
 } Sprite;
 
 /* reallocation automatique du tableau dimage */
-void reallouer_si_plein(void);
+void reallouer_si_plein(TableauImage *tab);
 
 /* Ajoute une image au tableau par son chemin */
 void ajouter_image_au_tableau(const char *id, float x, float y, Sint16 coeff, bool sens,
@@ -85,8 +78,7 @@ void ajouter_sprite_au_tableau(Sprite *sprite, Sint16 index, float x, float y, S
                                bool sens, Uint16 rotation, Uint8 a);
 
 /* Ajoute un groupe de particules au tableau */
-void ajouter_particules_au_tableau(float *x, float *y, Uint16 *rotation, Uint8 *a, Uint8 *r,
-                                   Uint8 *g, Uint8 *b, int taille);
+void ajouter_particules_au_tableau(Particules *P);
 
 /* Libere un sprite */
 void liberer_sprite(Sprite *sprite);
