@@ -19,7 +19,7 @@ GrnGame is a 2D game engine scripted in **LuaJIT**.
 ## Platforms
 
 - Windows 7+ 64bit
-- Ubuntu Linux 64bit
+- Ubuntu 18.04+ (and equivalent)  64bit
 - macOS 64bit M1+
 
 Everything is pre-compiled.
@@ -381,4 +381,5 @@ camera.updateCamera(player.x, player.y, dt)
 ```lua
 -- animation.update(frame, timer, startFrame, endFrame, speed, dt, loop)
 frame, animTimer = animation.update(frame, animTimer, 9, 12, 0.15, dt, true)
+
 ```
