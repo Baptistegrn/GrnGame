@@ -1,5 +1,7 @@
 # GrnGame
-
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-blue)
+![Language](https://img.shields.io/badge/language-C%20%2F%20LuaJIT-orange)
+![Build](https://img.shields.io/badge/build-xmake-brightgreen)
 <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
   <img src="gif/3.gif" width="49%">
   <div style="display:flex;gap:8px;width:100%">
@@ -383,3 +385,4 @@ camera.updateCamera(player.x, player.y, dt)
 frame, animTimer = animation.update(frame, animTimer, 9, 12, 0.15, dt, true)
 
 ```
+
