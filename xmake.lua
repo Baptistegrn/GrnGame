@@ -99,9 +99,6 @@ set_policy("build.rpath", false)
     elseif is_plat("linux") then
         -- phtread pour sdl 
         add_syslinks("pthread", "dl", "m")
-        -- c++ en statique (FONCTIONNEL ICI)
-        --add_ldflags("-static-libgcc", "-static-libstdc++", {force=true})
-        -- rpath inutile en statique
 
     elseif is_plat("macosx") then
         -- Frameworks macOS pour SDL
