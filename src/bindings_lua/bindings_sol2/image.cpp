@@ -13,6 +13,7 @@ extern "C" {
 #include "../../moteur/image/ajout/ajout.h"
 #include "../../moteur/image/caractere/caractere.h"
 #include "../../moteur/image/chargement/chargement_image.h"
+#include "../../engine/ttf.h"
 #include "../../proprietes.h"
 #include <lauxlib.h>
 #include <lua.h>
@@ -235,6 +236,9 @@ void enregistrer_bindings_image(sol::table &image) {
     image.set_function("drawRectFilled", &lua_dessiner_rectangle_plein);
     image.set_function("draw", &lua_dessiner_image);
     image.set_function("drawText", &lua_dessiner_texte);
+    image.set_function("drawTextTtf", [](const char* font, const char* text, int size, int x, int y, int r, int g, int b, int a){
+        draw_ttf(font, text, size, x, y, r, g, b, a);
+    });
     image.set_function("setIcon", &lua_definir_icone);
     image.set_function("drawSprite", &lua_dessiner_sprite);
     image.set_function("loadFolder", &lua_charger_dossier_image);

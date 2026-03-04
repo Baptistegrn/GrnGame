@@ -10,6 +10,7 @@
 #include "../../logging/logging.h"
 #include "../bande_noir/bande_noir.h"
 #include "affichage.h"
+#include "../../../engine/ttf.h"
 
 /* Actualise le rendu graphique complet de la frame */
 void actualiser() {
@@ -29,6 +30,7 @@ void actualiser() {
     SDL_RenderClear(rendu);
 
     afficher_images(gs->frame->image);
+    update_ttf();
 
     if (bande_noir && gs->fenetre->fenetre) {
 
