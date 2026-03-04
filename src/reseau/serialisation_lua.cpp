@@ -94,7 +94,7 @@ ENetPacket* reseau_creer_paquet_lua_non_fiable(const sol::table& table) {
 }
 
 ENetPacket* reseau_creer_paquet_lua_fiable(const sol::table& table) {
-    return reseau_creer_paquet_lua(table, 1)
+    return reseau_creer_paquet_lua(table, 1);
 }
 
 sol::table reseau_lire_paquet_lua(sol::state &lua, const ENetPacket *paquet) {
