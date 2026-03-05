@@ -13,8 +13,10 @@
 /* Calcule les coordonnees et dimensions d'un objet a l'ecran */
 void calculer_positions_ecran(ObjectImage *obj, unsigned char coeff, int decalage_x, int decalage_y,
                               Sint16 *x_ecran, Sint16 *y_ecran, Sint16 *w_ecran, Sint16 *h_ecran) {
-    float px, py;
-    Sint16 tx, ty;
+    float px = 0;
+    float py = 0;
+    Sint16 tx = 0;
+    Sint16 ty = 0;
 
     if (obj->type == TYPE_IMAGE) {
         px = obj->image.posx;
@@ -45,13 +47,6 @@ void afficher_images(TableauImage *tab) {
 
     for (int i = 0; i < tab->nb_images; i++) {
         ObjectImage *obj = &tab->tab[i];
-
-        float obj_x = (obj->type == TYPE_IMAGE) ? obj->image.posx : obj->forme.posx;
-        float obj_y = (obj->type == TYPE_IMAGE) ? obj->image.posy : obj->forme.posy;
-        Sint16 obj_w = (obj->type == TYPE_IMAGE) ? obj->image.taillex : obj->forme.taillex;
-        Sint16 obj_h = (obj->type == TYPE_IMAGE) ? obj->image.tailley : obj->forme.tailley;
-
-        bool est_ligne = (obj->type == TYPE_FORME && obj->forme.type_de_forme == 1);
 
         Sint16 x_ecran, y_ecran, w_ecran, h_ecran;
 

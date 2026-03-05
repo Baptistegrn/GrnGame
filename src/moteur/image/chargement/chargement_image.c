@@ -154,7 +154,7 @@ void charger_toutes_les_textures(const char *dossier) {
     }
 
     for (int i = 0; i < nb; i++) {
-        SDL_Texture *tex = charger_une_texture(fichiers->noms[i]);
+        charger_une_texture(fichiers->noms[i]);
     }
 
     liberer_fichiers(fichiers);

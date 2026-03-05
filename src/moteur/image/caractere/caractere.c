@@ -9,6 +9,7 @@
 #include "../../logging/logging.h"
 #include "../ajout/ajout.h"
 #include "../chargement/chargement_image.h"
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -68,4 +69,5 @@ float ajouter_mot_dans_tableau(const char *chemin, const char *mot, float posx, 
 
 gsvide:
     log_message(NiveauLogDebug, "manager is empty in add word to table function");
+    return NAN; // renvoie float invalide
 }
