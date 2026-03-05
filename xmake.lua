@@ -16,6 +16,9 @@ if is_mode("release") then
     set_policy("build.optimization.lto", true)
 end
 
+-- Tout les warnings et warning en erreur
+set_warnings("all", "extra", "error")
+
 --extension executable
 local os =""
 

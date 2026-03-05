@@ -8,7 +8,6 @@
 
 /* Dessine un cercle vide avec épaisseur et lignes horizontales en haut/bas */
 void dessiner_cercle_vide(float xc, float yc, Sint16 rayon, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-    char decalage = 0;
     for (Sint16 dy = 0; dy <= rayon; dy++) {
         Sint16 demi_largeur = (Sint16)sqrt((double)(rayon * rayon - dy * dy));
         Sint16 demi_largeur_suiv =

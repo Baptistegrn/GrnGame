@@ -28,9 +28,6 @@ static void reallouer_liste_si_plein() {
     GestionnaireFichiers *gf = gs->fichiers;
 
     if (gf->nb_fichiers >= gf->capacite) {
-
-        FichierJSON *nouvelle_liste =
-            realloc_gestion_echec_compteur(gf->liste, sizeof(FichierJSON) * gf->capacite * 2);
         gf->capacite *= 2;
     }
     return;

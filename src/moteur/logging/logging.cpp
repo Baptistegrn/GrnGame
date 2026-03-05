@@ -11,7 +11,9 @@
 #include <quill/sinks/FileSink.h>
 #include <utility>
 
+#ifdef DEBUG_MODE
 static quill::Logger *g_logger = nullptr;
+#endif
 
 quill::LogLevel niveau_log_vers_quill_log_level(NiveauLog niveau_log) {
 #ifdef DEBUG_MODE
@@ -63,6 +65,10 @@ void initialiser_logging(DestinationLog destination_log, const char *nom_fichier
     g_logger->set_log_level(niveau_log_vers_quill_log_level(niveau_log));
     g_logger->set_immediate_flush(1u);
     quill::info(g_logger, "logging initialized");
+#else
+    (void)destination_log;
+    (void)nom_fichier;
+    (void)niveau_log;
 #endif
 }
 
@@ -96,17 +102,25 @@ void log_fmt(NiveauLog niveau_log, const char *fmt, ...) {
         quill::error(g_logger, msg);
         return;
     }
+#else
+    (void)niveau_log;
+    (void)fmt;
 #endif
 }
 
 void log_message(NiveauLog niveau_log, const char *message) {
 #ifdef DEBUG_MODE
     log_fmt(niveau_log, message);
+#else
+    (void)niveau_log;
+    (void)message;
 #endif
 }
 
 void changer_niveau_log(enum NiveauLog nouveau_niveau_log) {
 #ifdef DEBUG_MODE
     g_logger->set_log_level(niveau_log_vers_quill_log_level(nouveau_niveau_log));
+#else
+    (void)nouveau_niveau_log;
 #endif
 }
