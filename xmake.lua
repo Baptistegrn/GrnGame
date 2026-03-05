@@ -1,111 +1,43 @@
--- Dépendances globales
-add_requires("libsdl2",        {configs={runtimes="MT", shared=false, pic=true}})
-add_requires("libsdl2_image",  {configs={runtimes="MT", shared=false, png=true, jpg=false, tiff=false, webp=false, pic=true}})
-add_requires("libsdl2_mixer",  {configs={runtimes="MT", shared=false, wav=true, mp3=false, flac=false, vorbis=false, pic=true}})
-add_requires("zlib",           {configs={runtimes="MT", shared=false, pic=true}})
-add_requires("quill",          {configs={runtimes="MT", shared=false, pic=true}})
-add_requires("luajit",            {configs={runtimes="MT", kind="static", pic=true}})
-add_requires("sol2",           {configs={runtimes="MT", kind="static", pic=true}})
+add_rules("mode.debug", "mode.release")
 
--- mode release uniquement ( debug gere par des options )
-add_rules("mode.release")
+add_requires("libsdl3", {version = "3.4.0"})
+add_requires("libsdl3_image", {version = "3.2.0"})
+add_requires("libsdl3_ttf", {version = "3.2.2"})
+add_requires("quill", {version = "v11.0.2"})
+add_requires("klib", {version = "2024.06.03"})
+add_requires("cglm", {version = "v0.9.6"})
 
--- Optimisation poids (strip et lto)
-if is_mode("release") then
-    set_strip("all")
-    set_policy("build.optimization.lto", true)
-end
-
--- Tout les warnings et warning en erreur
-set_warnings("all", "extra", "error")
-
---extension executable
-local os =""
-
--- Option debug 
-option("debug")
-    set_default(false)
-    set_description("Activate quill logs in file log")
-    set_showmenu(true)
-
--- Dossier de sortie selon la config
-local outdir = "bin/release"
-
-if has_config("debug") then 
-    outdir = "bin/debug"
-end
-
---lib
 target("GrnGame")
-    set_kind("static")
-
     set_languages("c17", "cxx17")
-    set_targetdir(outdir)
+    set_kind("shared")
 
-    -- Sources
-    add_files("src/**.c")
-    add_files("src/**.cpp")
-    add_headerfiles("src/**.h")
-    add_headerfiles("src/**.hpp")
+    add_files("grngame/**.c")
+    add_files("grngame/**.cpp")
+    add_headerfiles("grngame/**.h")
+    add_headerfiles("grngame/**.hpp")
 
-    --packages
+    add_includedirs("." , { public = true }) -- pour pouvoir #include <grngame/*.h> et pas "../../*.h"
+
     add_packages(
-        "libsdl2",
-        "libsdl2_image",
-        "libsdl2_mixer",
-        "zlib",
+        "libsdl3",
+        "libsdl3_image",
+        "libsdl3_ttf",
         "quill",
-        "luajit",
-        "sol2"
+        "klib",
+        "cglm",
+        { public = true }
     )
 
-    --flags
-    if has_config("debug") then
-        add_defines("DEBUG_MODE")
-    end
-
-    -- Plateforme
-    if is_plat("windows") then
-        -- runtime statique
-        set_runtimes("MT")
-        add_ldflags("/OPT:REF", "/OPT:ICF", {force=true})
-        os = "Windows"
-
-    elseif is_plat("linux") then
-        -- options de compilation pour statique
-        add_cxflags("-fPIC")
-        os = "Linux"
-
-    elseif is_plat("macosx") then
-        os = "MacOs"
-    end
-
---game app
-target("GrnGameApp".. os)
-set_policy("build.rpath", false)
+target("App")    
+    set_languages("c17", "cxx17")
     set_kind("binary")
-    set_targetdir(outdir)
-    if has_config("debug_mode") then
-        add_defines("DEBUG_MODE")
-    end
-    add_files("src/interpreteur_lua/lancer_interpreteur.c")
-    -- inclusions moteur
-    add_includedirs("src/headers_sdl")
 
-    -- Dépendance moteur
-    add_deps("GrnGame") 
+    add_files("app/main.cpp")
+    add_deps("GrnGame")
 
-    if is_plat("windows") then
-        --runtime statique
-        set_runtimes("MT")
+target("Tests")    
+    set_languages("c17", "cxx17")
+    set_kind("binary")
 
-    elseif is_plat("linux") then
-        -- phtread pour sdl 
-        add_syslinks("pthread", "dl", "m")
-
-    elseif is_plat("macosx") then
-        -- Frameworks macOS pour SDL
-        add_frameworks("Cocoa", "IOKit", "CoreVideo", "CoreAudio", "AudioToolbox", "Carbon", "ForceFeedback", "Metal")
-        add_syslinks("iconv")
-        -- rpath inutile en statique
-    end
+    add_files("tests/main.cpp")
+    add_deps("GrnGame")
