@@ -1,6 +1,9 @@
 #pragma once
 
 #include "SDL3/SDL_render.h"
+#include "grngame/audio/sound_manager.h"
+#include "grngame/renderer/renderer.h"
+
 typedef struct
 {
     const char *name;
@@ -13,10 +16,12 @@ typedef struct
 
 typedef struct {
     SDL_Window* window;
-    SDL_Renderer* renderer;
+    Renderer renderer;
+    SoundManager sound_manager;
     AppInfo info;
 } App;
 
-void StartEngine(AppInfo app);
+void EngineStart(AppInfo app);
+void EngineStop();
 
 extern App g_app;

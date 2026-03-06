@@ -6,6 +6,7 @@ add_requires("libsdl3_ttf", {version = "3.2.2"})
 add_requires("quill", {version = "v11.0.2"})
 add_requires("klib", {version = "2024.06.03"})
 add_requires("cglm", {version = "v0.9.6"})
+add_requires("soloud")
 
 target("GrnGame")
     set_languages("c17", "cxx17")
@@ -18,6 +19,10 @@ target("GrnGame")
 
     add_includedirs("." , { public = true }) -- pour pouvoir #include <grngame/*.h> et pas "../../*.h"
 
+    if is_plat("linux") then
+        add_defines("GRNGAME_LINUX", { public = true })
+    end
+
     add_packages(
         "libsdl3",
         "libsdl3_image",
@@ -25,6 +30,7 @@ target("GrnGame")
         "quill",
         "klib",
         "cglm",
+        "soloud",
         { public = true }
     )
 
@@ -32,12 +38,12 @@ target("App")
     set_languages("c17", "cxx17")
     set_kind("binary")
 
-    add_files("app/main.cpp")
+    add_files("app/main.c")
     add_deps("GrnGame")
 
 target("Tests")    
     set_languages("c17", "cxx17")
     set_kind("binary")
 
-    add_files("tests/main.cpp")
+    add_files("tests/main.c")
     add_deps("GrnGame")

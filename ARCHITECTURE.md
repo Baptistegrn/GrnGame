@@ -45,6 +45,9 @@ Functions that operate a struct or are part of a "module" are "noun first", exam
 - `PhysicsTick`
 - `AudioLoad`
 
+# Error handling
+Always handle errors or at least have a `// TODO: handle`. 
+
 # Misc
 - Ideally a function should not be longer than 15 lines
 - If something can be extracted to a utility function, do it, and if the contents of the functions could be reused somewhere, place it somewhere appropriate and make it public
