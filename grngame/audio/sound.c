@@ -8,10 +8,23 @@
 
 typedef struct
 {
+    void *ptr;
+    void (*destroy)(void *);
+} FilterHandle;
+
+typedef struct
+{
+    WavStream *stream;
+    FilterHandle active_filters[MAX_FILTERS];
+} SoundEntry;
+
+typedef struct
+{
     kvec_t(FilterHandle) active_filters;
     unsigned int handle;
     bool playing;
 } SoundState;
+
 
 KHASH_MAP_INIT_STR(SoundStateMap, SoundState)
 
@@ -22,7 +35,7 @@ static SoundState *GetOrCreateState(const char *name);
 static void ClearFilters(SoundState *state, WavStream *stream);
 static void ApplyFilters(SoundState *state, WavStream *stream, const SoundInfo *info);
 
-void SoundSystemInit()
+void SoundInit()
 {
     s_sound_states = kh_init(SoundStateMap);
 }

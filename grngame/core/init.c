@@ -23,7 +23,7 @@ InitResult InitAll(const AppInfo *app_info)
         return INIT_SDL_FAILED;
     }
 
-    SoundSystemInit();
+    SoundInit();
 
     initialized = true;
     return INIT_OK;

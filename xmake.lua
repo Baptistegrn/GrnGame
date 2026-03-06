@@ -22,6 +22,10 @@ target("GrnGame")
 
     if is_plat("linux") then
         add_defines("GRNGAME_LINUX", { public = true })
+    elseif is_plat("windows") then
+        add_defines("GRNGAME_WINDOWS", { public = true })
+    elseif is_plat("macos") then
+        add_defines("GRNGAME_MACOS", { public = true })
     end
 
     add_packages(

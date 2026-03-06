@@ -2,6 +2,7 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_video.h"
 #include "grngame/audio/sound.h"
+#include "grngame/audio/sound_info.h"
 #include "grngame/audio/sound_manager.h"
 #include "grngame/audio/speech.h"
 #include "grngame/core/init.h"
@@ -36,6 +37,7 @@ void EngineStart(AppInfo app_info)
 
     AssetManagerLoadFolder(app_info.asset_folder);
 
+    // jouer son a un endroit specifique avec plusieurs filtres
     FilterDef fx[] = {
         { .type = FILTER_REVERB, .reverb = { .room = 0.8f, .wet = 0.5f }},
         { .type = FILTER_ECHO,   .echo   = { .delay = 0.3f, .decay = 0.5f, .wet = 0.4f }},
@@ -45,6 +47,10 @@ void EngineStart(AppInfo app_info)
     SoundInfo sound_info = SoundInfoAt(-10000, -10000);
     sound_info.filters = fx;
     sound_info.filter_count = 3;
+    SoundPlay("floyd", &sound_info);
+
+    // jouer son sans effet specifique pas a un endroit specifique
+    SoundInfo sound_info = SoundInfoDefault();
     SoundPlay("floyd", &sound_info);
 
     MainLoop();
