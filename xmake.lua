@@ -11,7 +11,7 @@ add_requires("tinydir")
 
 target("GrnGame")
     set_languages("c17", "cxx17")
-    set_kind("shared")
+    set_kind("static")
 
     add_files("grngame/**.c")
     add_files("grngame/**.cpp")

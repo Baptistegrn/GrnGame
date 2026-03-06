@@ -49,10 +49,6 @@ void EngineStart(AppInfo app_info)
     sound_info.filter_count = 3;
     SoundPlay("floyd", &sound_info);
 
-    // jouer son sans effet specifique pas a un endroit specifique
-    SoundInfo sound_info = SoundInfoDefault();
-    SoundPlay("floyd", &sound_info);
-
     MainLoop();
 }
 
