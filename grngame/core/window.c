@@ -4,18 +4,22 @@
 #include "cglm/types-struct.h"
 #include <wchar.h>
 
-SDL_Window* WindowCreate(const AppInfo* app_info)
+SDL_Window *WindowCreate(const AppInfo *app_info)
 {
     SDL_WindowFlags flags = SDL_WINDOW_HIDDEN;
-    if (app_info->window_fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
-    if (app_info->window_resizable) flags |= SDL_WINDOW_RESIZABLE;
+    if (app_info->window_fullscreen)
+        flags |= SDL_WINDOW_FULLSCREEN;
+    if (app_info->window_resizable)
+        flags |= SDL_WINDOW_RESIZABLE;
 
     return SDL_CreateWindow(app_info->name, app_info->window_width, app_info->window_height, flags);
 }
 
-ivec2s WindowDimensions(SDL_Window *window) {
+ivec2s WindowDimensions(SDL_Window *window)
+{
     ivec2s result;
-    if (!SDL_GetWindowSize(window, &result.x, &result.y)) {
+    if (!SDL_GetWindowSize(window, &result.x, &result.y))
+    {
         // todo log error
     }
     return result;

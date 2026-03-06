@@ -1,0 +1,7 @@
+00:57:18.679430994 [1832] logging.cpp:96               LOG_ERROR     root         initialization of structures sucesfull
+00:57:18.742244634 [1832] logging.cpp:96               LOG_ERROR     root         Lua Runtime Error in update callback:.\physic.lua:32: attempt to perform arithmetic on local 'dt' (a nil value)
+00:57:18.742244634 [1832] logging.cpp:96               LOG_ERROR     root         stack traceback:
+00:57:18.742244634 [1832] logging.cpp:96               LOG_ERROR     root         	.\physic.lua:32: in function 'update'
+00:57:18.742244634 [1832] logging.cpp:96               LOG_ERROR     root         	[string "./src/main.lua"]:31: in function <[string "./src/main.lua"]:24>
+00:57:18.742244634 [1832] logging.cpp:96               LOG_ERROR     root         	[C]: in function 'setUpdateCallback'
+00:57:18.742244634 [1832] logging.cpp:96               LOG_ERROR     root         	[string "./src/main.lua"]:35: in main chunk
