@@ -27,14 +27,12 @@ bool VirtualMemoryRelease(void* ptr, size_t size)
 }
 
 
-#elif defined(__APPLE__) || defined(__linux__)
-
+#elif defined(GRNGAME_LINUX) || defined(GRNGAME_MACOS)
 #include <sys/mman.h>
 
 void* VirtualMemoryReserve(size_t size)
 {
     void* ptr = mmap(NULL, size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-    assert(ptr != MAP_FAILED); // TODO: handle failure
     return ptr;
 }
 

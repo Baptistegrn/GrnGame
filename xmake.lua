@@ -21,11 +21,21 @@ target("GrnGame")
     add_includedirs("." , { public = true }) -- pour pouvoir #include <grngame/*.h> et pas "../../*.h"
 
     if is_plat("linux") then
-        add_defines("GRNGAME_LINUX", { public = true })
+        add_defines(
+            "GRNGAME_LINUX",
+            "_GNU_SOURCE", -- So we get access to GNU/Posix extensions
+            { public = true })
     elseif is_plat("windows") then
         add_defines("GRNGAME_WINDOWS", { public = true })
     elseif is_plat("macos") then
         add_defines("GRNGAME_MACOS", { public = true })
+    end
+
+    if is_mode("debug") then
+        add_defines("GRNGAME_DEBUG", { public = true })
+    elseif is_mode("release") then 
+        add_defines("GRNGAME_RELEASE" , { public = true })
+        set_policy("build.optimization.lto", true)
     end
 
     add_packages(
