@@ -1,4 +1,7 @@
 #include "init.h"
+
+#include "grngame/audio/sound.h"
+
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
 
@@ -10,10 +13,6 @@ InitResult InitAll(const AppInfo *app_info)
         return INIT_ALREADY;
     }
 
-#if GRNGAME_LINUX
-    SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "x11"); // x11 better
-#endif
-
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS))
     {
         return INIT_SDL_FAILED;
@@ -23,6 +22,8 @@ InitResult InitAll(const AppInfo *app_info)
     {
         return INIT_SDL_FAILED;
     }
+
+    SoundSystemInit();
 
     initialized = true;
     return INIT_OK;

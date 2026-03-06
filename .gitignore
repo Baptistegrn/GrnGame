@@ -5,6 +5,7 @@ build/
 CMakeLists.txt
 compile_commands.json
 vsxmake*/
+.idea/
 .DS_Store
 
 

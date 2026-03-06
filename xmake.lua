@@ -7,6 +7,7 @@ add_requires("quill", {version = "v11.0.2"})
 add_requires("klib", {version = "2024.06.03"})
 add_requires("cglm", {version = "v0.9.6"})
 add_requires("soloud")
+add_requires("tinydir")
 
 target("GrnGame")
     set_languages("c17", "cxx17")
@@ -31,6 +32,7 @@ target("GrnGame")
         "klib",
         "cglm",
         "soloud",
+        "tinydir",
         { public = true }
     )
 
