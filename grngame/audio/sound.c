@@ -2,11 +2,13 @@
 #include "grngame/core/app.h"
 #include "grngame/utils/string.h"
 #include <khash.h>
+#include <kvec.h>
 #include <math.h>
 #include <stdio.h>
+
 typedef struct
 {
-    FilterHandle active_filters[MAX_FILTERS];
+    kvec_t(FilterHandle) active_filters;
     unsigned int handle;
     bool playing;
 } SoundState;
@@ -35,6 +37,7 @@ static SoundState *GetOrCreateState(const char *name)
         return &kh_value(s_sound_states, k);
 
     SoundState state = {0};
+    kv_init(state.active_filters);
     int ret;
     k = kh_put(SoundStateMap, s_sound_states, Strdup(name), &ret);
     kh_value(s_sound_states, k) = state;
@@ -102,16 +105,16 @@ void SoundStop(const char *name)
 
 static void ClearFilters(SoundState *state, WavStream *stream)
 {
-    for (int i = 0; i < MAX_FILTERS; i++)
+    for (int i = 0; i < (int)kv_size(state->active_filters); i++)
     {
-        if (state->active_filters[i].ptr)
+        FilterHandle *fh = &kv_A(state->active_filters, i);
+        if (fh->ptr)
         {
             WavStream_setFilter(stream, i, NULL);
-            state->active_filters[i].destroy(state->active_filters[i].ptr);
-            state->active_filters[i].ptr = NULL;
-            state->active_filters[i].destroy = NULL;
+            fh->destroy(fh->ptr);
         }
     }
+    kv_size(state->active_filters) = 0;
 }
 
 static void ApplyFilters(SoundState *state, WavStream *stream, const SoundInfo *info)
@@ -152,8 +155,7 @@ static void ApplyFilters(SoundState *state, WavStream *stream, const SoundInfo *
         if (filter)
         {
             WavStream_setFilter(stream, i, filter);
-            state->active_filters[i].ptr = filter;
-            state->active_filters[i].destroy = destroy;
+            kv_push(FilterHandle, state->active_filters, ((FilterHandle){filter, destroy}));
         }
     }
 }
