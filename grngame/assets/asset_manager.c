@@ -1,10 +1,7 @@
 #include "asset_manager.h"
 
 #include "SDL3/SDL_error.h"
-#include "SDL3/SDL_render.h"
-#include "SDL3_image/SDL_image.h"
 #include "grngame/assets/load.h"
-#include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
 #include "grngame/platform/traverse.h"
@@ -26,26 +23,20 @@ void AssetManagerLoadFolder(const char *folder)
 static void LoadFile(const char *file, void *user_data)
 {
     (void)user_data;
-    
-    const char *extension = FileExtension(file);
-    if (!extension)
-        return;
 
     bool load_result = false;
 
-    // if is audio
-    if (strcmp(extension, ".wav") == 0 || strcmp(extension, ".ogg") == 0)
+    if (FileIsLoadableAudio(file))
     {
         load_result = LoadSoundFile(file);
     }
-    // if is a image
-    else if (strcmp(extension, ".png") == 0 || strcmp(extension, ".jpg") == 0)
+    else if (FileIsLoadableImage(file))
     {
         load_result = LoadTextureFile(file);
     }
     else
     {
-        LOG_WARNING("Unknown file extension in asset folder: %s", extension);
+        LOG_WARNING("Unknown file type in asset folder: '%s'", FileExtension(file));
     }
 
     if (!load_result)
