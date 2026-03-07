@@ -3,6 +3,7 @@
 #include "SDL3/SDL_render.h"
 #include "grngame/assets/asset_manager.h"
 #include "grngame/audio/sound_manager.h"
+#include "grngame/dev/logging.h"
 #include "grngame/renderer/renderer.h"
 
 typedef struct
@@ -14,6 +15,8 @@ typedef struct
     int window_height;
     bool window_resizable;
     bool window_fullscreen;
+    bool enable_logs;
+    LogDestination log_destination;
 } AppInfo;
 
 typedef struct {

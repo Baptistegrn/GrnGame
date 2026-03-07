@@ -15,12 +15,10 @@ SDL_Window *WindowCreate(const AppInfo *app_info)
     return SDL_CreateWindow(app_info->name, app_info->window_width, app_info->window_height, flags);
 }
 
-ivec2s WindowDimensions(SDL_Window *window)
-{
+ivec2s WindowDimensions(SDL_Window *window) {
     ivec2s result;
-    if (!SDL_GetWindowSize(window, &result.x, &result.y))
-    {
-        // todo log error
+    if (!SDL_GetWindowSize(window, &result.x, &result.y)) {
+        LOG_ERROR("Failed to get window dimensions: %s", SDL_GetError());
     }
     return result;
 }
