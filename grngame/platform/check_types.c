@@ -1,5 +1,4 @@
-#include "types.h"
-#include "attributes.h"
+#include "../utils/attributes.h"
 #include <float.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -22,4 +21,9 @@ bool CheckDouble()
         return false;
     }
     return true;
+}
+
+bool CheckInt()
+{
+    return sizeof(int) >= 4;
 }

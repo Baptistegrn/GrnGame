@@ -18,7 +18,7 @@ target("GrnGame")
     add_headerfiles("grngame/**.h")
     add_headerfiles("grngame/**.hpp")
 
-    add_includedirs("." , { public = true }) -- pour pouvoir #include <grngame/*.h> et pas "../../*.h"
+    add_includedirs("." , { public = true }) 
 
     if is_plat("linux") then
         add_defines(
@@ -51,7 +51,7 @@ target("GrnGame")
     )
 
 target("App")    
-    set_languages("c23", "cxx17")
+    set_languages("c17", "cxx17")
     set_kind("binary")
 
     add_files("app/main.c")

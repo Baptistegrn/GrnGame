@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdbool.h>
 #include <stdint.h>
 
 typedef uint8_t uint8;
@@ -14,7 +13,4 @@ typedef int32_t int32;
 typedef int64_t int64;
 
 typedef float float32;
-typedef double double64;
-
-bool CheckFloat();
-bool CheckDouble();
+typedef double float64;

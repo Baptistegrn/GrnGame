@@ -3,52 +3,50 @@
 #ifdef GRNGAME_WINDOWS
 #include <Windows.h>
 
-
-void* VirtualMemoryReserve(size_t size)
+void *VirtualMemoryReserve(size_t size)
 {
-    void* ptr = VirtualAlloc(NULL, size, MEM_RESERVE, PAGE_NOACCESS);
+    void *ptr = VirtualAlloc(NULL, size, MEM_RESERVE, PAGE_NOACCESS);
     return ptr;
 }
 
-bool VirtualMemoryCommit(void* ptr, size_t size)
+bool VirtualMemoryCommit(void *ptr, size_t size)
 {
-    void* result = VirtualAlloc(ptr, size, MEM_COMMIT, PAGE_READWRITE);
+    void *result = VirtualAlloc(ptr, size, MEM_COMMIT, PAGE_READWRITE);
     return result != NULL;
 }
 
-bool VirtualMemoryDecommit(void* ptr, size_t size)
+bool VirtualMemoryDecommit(void *ptr, size_t size)
 {
     return VirtualFree(ptr, size, MEM_DECOMMIT);
 }
 
-bool VirtualMemoryRelease(void* ptr, size_t size)
+bool VirtualMemoryRelease(void *ptr, size_t size)
 {
     return VirtualFree(ptr, 0, MEM_RELEASE);
 }
 
-
 #elif defined(GRNGAME_LINUX) || defined(GRNGAME_MACOS)
 #include <sys/mman.h>
 
-void* VirtualMemoryReserve(size_t size)
+void *VirtualMemoryReserve(size_t size)
 {
-    void* ptr = mmap(NULL, size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    void *ptr = mmap(NULL, size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     return ptr;
 }
 
-bool VirtualMemoryCommit(void* ptr, size_t size)
+bool VirtualMemoryCommit(void *ptr, size_t size)
 {
     return mprotect(ptr, size, PROT_READ | PROT_WRITE) == 0;
 }
 
-bool VirtualMemoryDecommit(void* ptr, size_t size)
+bool VirtualMemoryDecommit(void *ptr, size_t size)
 {
     mprotect(ptr, size, PROT_NONE);
-    madvise(ptr, size, MADV_FREE); // we tell chouffelinux it can reclaim the RAM
+    madvise(ptr, size, MADV_FREE);
     return true;
 }
 
-bool VirtualMemoryRelease(void* ptr, size_t size)
+bool VirtualMemoryRelease(void *ptr, size_t size)
 {
     return munmap(ptr, size) == 0;
 }
