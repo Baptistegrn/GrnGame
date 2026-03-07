@@ -51,7 +51,7 @@ target("GrnGame")
     )
 
 target("App")    
-    set_languages("c17", "cxx17")
+    set_languages("c23", "cxx17")
     set_kind("binary")
 
     add_files("app/main.c")
