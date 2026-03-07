@@ -2,10 +2,12 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_timer.h"
 #include "SDL3/SDL_video.h"
+#include "cglm/types-struct.h"
 #include "grngame/audio/sound.h"
 #include "grngame/audio/sound_info.h"
 #include "grngame/audio/sound_manager.h"
 #include "grngame/audio/speech.h"
+#include "grngame/core/app.h"
 #include "grngame/core/init.h"
 #include "grngame/core/window.h"
 #include "soloud_c.h"
@@ -52,7 +54,6 @@ void EngineStart(AppInfo app_info)
 
     AssetManagerLoadFolder(app_info.asset_folder);
 
-    // jouer son a un endroit specifique avec plusieurs filtres
     FilterDef fx[] = {
         {.type = FILTER_REVERB, .reverb = {.room = 0.8f, .wet = 0.5f}},
         {.type = FILTER_ECHO, .echo = {.delay = 0.3f, .decay = 0.5f, .wet = 0.4f}},
@@ -96,8 +97,14 @@ static void PollEvents()
         switch (event.type)
         {
         case SDL_EVENT_QUIT:
+        case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
             s_is_running = false;
             break;
+
+        case SDL_EVENT_WINDOW_RESIZED:
+            ApplyResizing(&g_app.info, event.window.data1, event.window.data2);
+            break;
+
         default:
             break;
         }

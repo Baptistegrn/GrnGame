@@ -43,12 +43,18 @@ void ApplyResizing(AppInfo *app_info, uint16 width, uint16 height)
     uint16 real_w = app_info->window_universe_width * coeff;
     uint16 real_h = app_info->window_universe_height * coeff;
 
-    uint16 offset_x = (width - real_w) / 2;
-    uint16 offset_y = (height - real_h) / 2;
+    int16 offset_x = (width - real_w) / 2;
+    int16 offset_y = (height - real_h) / 2;
+
+    if (offset_x < 0)
+        offset_x = 0;
+    if (offset_y < 0)
+        offset_y = 0;
 
     app_info->window_height = real_h;
     app_info->window_width = real_w;
-    printf("coeff : %d,offset:%d,%d", coeff, offset_x, offset_y);
+
+    printf("coeff : %d,offset:%d,%d\n", coeff, offset_x, offset_y);
 
     SDL_SetRenderViewport(g_app.renderer.renderer, &(SDL_Rect){offset_x, offset_y, real_w, real_h});
     WindowConfigureScale(coeff, coeff);
