@@ -50,3 +50,29 @@ bool LoadTextureFile(const char *file)
     kh_value(texture_map, k) = tex;
     return true;
 }
+
+bool UnloadSoundFile(const char *file)
+{
+    khash_t(SoundMap) *sound_map = g_app.asset_manager.sound_map;
+    char *key = FileStem(file);
+    khiter_t k = kh_get(SoundMap, sound_map, key);
+    if (k == kh_end(sound_map))
+        return false;
+
+    WavStream_destroy(kh_value(sound_map, k));
+    kh_del(SoundMap, sound_map, k);
+    return true;
+}
+
+bool UnloadTextureFile(const char *file)
+{
+    khash_t(TextureMap) *texture_map = g_app.asset_manager.texture_map;
+    char *key = FileStem(file);
+    khiter_t k = kh_get(TextureMap, texture_map, key);
+    if (k == kh_end(texture_map))
+        return false;
+
+    SDL_DestroyTexture(kh_value(texture_map, k).texture);
+    kh_del(TextureMap, texture_map, k);
+    return true;
+}
