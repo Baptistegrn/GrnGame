@@ -6,7 +6,9 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
 
-#include "mapping_data.h"
+// move to when you will eventually move controller mapping
+extern const uint8 _binary_gamecontrollerdb_txt_start[];
+extern const uint8 _binary_gamecontrollerdb_txt_end[];
 
 InitResult InitAll(const AppInfo *app_info)
 {
@@ -26,7 +28,7 @@ InitResult InitAll(const AppInfo *app_info)
         return INIT_SDL_FAILED;
     }
 
-    SDL_IOStream *rw = SDL_IOFromMem(gamecontrollerdb_txt, gamecontrollerdb_txt_len);
+    SDL_IOStream *rw = SDL_IOFromMem(_binary_gamecontrollerdb_txt_start, _binary_gamecontrollerdb_txt_end - _binary_gamecontrollerdb_txt_start);
     int map = SDL_AddGamepadMappingsFromIO(rw, true);
     if (map < 0)
     {

@@ -13,6 +13,9 @@ target("GrnGame")
     set_languages("c17", "cxx17")
     set_kind("static")
 
+    add_rules("utils.bin2obj", {extensions = ".txt"})
+    add_files("grngame/input/gamecontrollerdb.txt")
+
     add_files("grngame/**.c")
     add_files("grngame/**.cpp")
     add_headerfiles("grngame/**.h")
