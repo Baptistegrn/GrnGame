@@ -25,8 +25,21 @@ bool VirtualMemoryRelease(void *ptr, size_t size)
     return VirtualFree(ptr, 0, MEM_RELEASE);
 }
 
+size_t VirtualMemoryPageSize()
+{
+    static size_t page_size = 0;
+    if (page_size == 0)
+    {
+        SYSTEM_INFO si;
+        GetSystemInfo(&si);
+        page_size = si.dwPageSize;
+    }
+    return page_size;
+}
+
 #elif defined(GRNGAME_LINUX) || defined(GRNGAME_MACOS)
 #include <sys/mman.h>
+#include <unistd.h>
 
 void *VirtualMemoryReserve(size_t size)
 {
@@ -49,6 +62,14 @@ bool VirtualMemoryDecommit(void *ptr, size_t size)
 bool VirtualMemoryRelease(void *ptr, size_t size)
 {
     return munmap(ptr, size) == 0;
+}
+
+size_t VirtualMemoryPageSize(void)
+{
+    static size_t page_size = 0;
+    if (page_size == 0)
+        page_size = sysconf(_SC_PAGESIZE);
+    return page_size;
 }
 
 #endif

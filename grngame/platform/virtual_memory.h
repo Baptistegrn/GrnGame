@@ -13,3 +13,6 @@ bool VirtualMemoryDecommit(void* ptr, size_t size);
 
 /// releases the entire reserved range, ptr must be the original reserve base
 bool VirtualMemoryRelease(void* ptr, size_t size);
+
+/// Page size
+size_t VirtualMemoryPageSize();
