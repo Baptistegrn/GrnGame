@@ -9,6 +9,8 @@ int main() {
     app.window_fullscreen = false;
     app.asset_folder = "assets";
     app.window_resizable = true;
+    app.enable_logs = true;
+    app.log_destination = LOG_TO_CONSOLE;
 
     EngineStart(app);
 }

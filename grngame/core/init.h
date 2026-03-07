@@ -10,6 +10,7 @@ typedef enum
 {
     INIT_OK,
     INIT_SDL_FAILED,
+    INIT_LOG_FAILED,
     INIT_ALREADY, // already initialized
 } InitResult;
 
