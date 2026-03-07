@@ -28,7 +28,7 @@ InitResult InitAll(const AppInfo *app_info)
         return INIT_SDL_FAILED;
     }
 
-    SDL_IOStream *rw = SDL_IOFromMem(_binary_gamecontrollerdb_txt_start, _binary_gamecontrollerdb_txt_end - _binary_gamecontrollerdb_txt_start);
+    SDL_IOStream *rw = SDL_IOFromConstMem(_binary_gamecontrollerdb_txt_start, _binary_gamecontrollerdb_txt_end - _binary_gamecontrollerdb_txt_start);
     int map = SDL_AddGamepadMappingsFromIO(rw, true);
     if (map < 0)
     {
