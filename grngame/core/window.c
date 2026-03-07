@@ -16,7 +16,7 @@ SDL_Window* WindowCreate(const AppInfo* app_info)
 ivec2s WindowDimensions(SDL_Window *window) {
     ivec2s result;
     if (!SDL_GetWindowSize(window, &result.x, &result.y)) {
-        // todo log error
+        LOG_ERROR("Failed to get window dimensions: %s", SDL_GetError());
     }
     return result;
 }
