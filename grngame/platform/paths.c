@@ -38,6 +38,7 @@ bool FileIsLoadableImage(const char *file)
     static const char *exts[] = {"bmp", "gif", "jpg", "jpeg", "lbm",  "pcx",  "png", "pnm", "pbm", "pgm", "ppm",
                                  "qoi", "svg", "tga", "tif",  "tiff", "webp", "xcf", "xpm", "xv",  NULL};
 
+    // exts[i] will be false when it will reach NULL
     for (int i = 0; exts[i]; ++i)
         if (strcasecmp(ext, exts[i]) == 0)
             return true;

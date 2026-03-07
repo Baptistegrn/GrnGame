@@ -2,9 +2,10 @@
 
 #include "SDL3/SDL_error.h"
 #include "grngame/assets/load.h"
+#include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
-#include "grngame/platform/traverse.h"
+#include "grngame/platform/directories.h"
 #include "khash.h"
 #include <stdlib.h>
 
@@ -17,7 +18,13 @@ AssetManager AssetManagerCreate()
 
 void AssetManagerLoadFolder(const char *folder)
 {
-    WalkDir(folder, LoadFile, NULL);
+    // warn the user if he tries to use an invalid asset folder
+    if (DirFileCount(folder) == 0) {
+        LOG_WARNING("No files in asset folder '%s'", folder);
+        return;
+    }
+
+    DirWalk(folder, LoadFile, NULL);
 }
 
 static void LoadFile(const char *file, void *user_data)
@@ -41,4 +48,6 @@ static void LoadFile(const char *file, void *user_data)
 
     if (!load_result)
         LOG_WARNING("Failed to load file '%s', SDL error: '%s'", file, SDL_GetError());
+    else
+        LOG_DEBUG("Loaded asset file '%s'", file);
 }

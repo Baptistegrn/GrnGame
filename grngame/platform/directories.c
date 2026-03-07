@@ -1,7 +1,7 @@
-#include "traverse.h"
+#include "directories.h"
 #include <tinydir.h>
 
-void WalkDir(const char *dir_path, FileCallback callback, void *userdata)
+void DirWalk(const char *dir_path, FileCallback callback, void *userdata)
 {
     tinydir_dir dir;
     if (tinydir_open(&dir, dir_path) < 0)
@@ -22,7 +22,7 @@ void WalkDir(const char *dir_path, FileCallback callback, void *userdata)
         {
             if (strcmp(file.name, ".") != 0 &&
                 strcmp(file.name, "..") != 0)
-                WalkDir(file.path, callback, userdata);
+                DirWalk(file.path, callback, userdata);
         }
         else
         {
@@ -33,4 +33,15 @@ void WalkDir(const char *dir_path, FileCallback callback, void *userdata)
     }
 
     tinydir_close(&dir);
+}
+
+static void count_callback(const char* path, void* userdata) {
+    (void)path;
+    (*(int*)userdata)++;
+}
+
+int DirFileCount(const char* dir_path) {
+    int count = 0;
+    DirWalk(dir_path, count_callback, &count);
+    return count;
 }
