@@ -4,8 +4,18 @@
 
 char *Strdup(const char *s)
 {
-    size_t len = strlen(s) + 1;
-    char *d = malloc(len);
-    memcpy(d, s, len);
-    return d;
+#ifdef GRNGAME_WINDOWS
+    return _strdup(s);
+#else
+    return strdup(s);
+#endif
+}
+
+int StrCaseCompare(const char *a, const char *b)
+{
+#ifdef GRNGAME_WINDOWS
+    return _stricmp(a, b);
+#else
+    return strcasecmp(a, b);
+#endif
 }

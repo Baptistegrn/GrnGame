@@ -1,5 +1,6 @@
 #include "paths.h"
 #include "grngame/platform/directories.h"
+#include "grngame/utils/string.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,7 +43,7 @@ bool FileIsLoadableImage(const char *file)
 
     // exts[i] will be false when it will reach NULL
     for (int i = 0; exts[i]; ++i)
-        if (strcasecmp(ext, exts[i]) == 0)
+        if (StrCaseCompare(ext, exts[i]) == 0)
             return true;
 
     return false;
@@ -58,7 +59,7 @@ bool FileIsLoadableAudio(const char *file)
     static const char *exts[] = {"wav", "mp3", "ogg", NULL};
 
     for (int i = 0; exts[i]; ++i)
-        if (strcasecmp(ext, exts[i]) == 0)
+        if (StrCaseCompare(ext, exts[i]) == 0)
             return true;
 
     return false;
