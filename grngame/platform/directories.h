@@ -7,3 +7,6 @@ void DirWalk(const char* dir_path, FileCallback callback, void* userdata);
 
 /// Counts number of regular files in a directory
 int DirFileCount(const char* dir_path);
+
+/// Directory of the executable. Can be null but we may not want to handle it.
+const char* DirOfExecutable();

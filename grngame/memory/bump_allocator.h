@@ -27,3 +27,9 @@ void BumpAllocatorReset(BumpAllocator* allocator);
 
 /// Frees the memory of a bump allocator, this is for when you create it with BumpAllocatorInitMalloc
 void BumpAllocatorFree(BumpAllocator* allocator);
+
+/// Gets the head of the bump allocator (base + offset)
+void *BumpAllocatorHead(BumpAllocator *allocator);
+
+/// Manually increments offset, returning true and doing nothing if we overran
+bool BumpAllocatorIncrement(BumpAllocator* allocator, size_t size, size_t align);

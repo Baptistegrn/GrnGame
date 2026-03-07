@@ -2,7 +2,6 @@
 
 #include "SDL3/SDL_error.h"
 #include "grngame/assets/load.h"
-#include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
 #include "grngame/platform/directories.h"

@@ -41,3 +41,16 @@ void BumpAllocatorFree(BumpAllocator* allocator)
     allocator->base = NULL;
 }
 
+void *BumpAllocatorHead(BumpAllocator *allocator)
+{
+    return allocator->base + allocator->offset;
+}
+
+bool BumpAllocatorIncrement(BumpAllocator* allocator, size_t size, size_t align)
+{
+    size_t aligned = (allocator->offset + (align - 1)) & ~(align - 1);
+    if (aligned + size > allocator->size)
+        return false;
+    allocator->offset = aligned + size;
+    return true;
+}

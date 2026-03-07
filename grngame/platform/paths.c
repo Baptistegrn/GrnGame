@@ -1,5 +1,7 @@
 #include "paths.h"
+#include "grngame/platform/directories.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -60,4 +62,25 @@ bool FileIsLoadableAudio(const char *file)
             return true;
 
     return false;
+}
+
+char *PathFromExecutableDirectory(const char *relative)
+{
+    const char *exe_dir = DirOfExecutable();
+
+    // skip leading slashes on relative
+    while (*relative == '/')
+        relative++;
+
+    size_t exe_len = strlen(exe_dir);
+
+    // trim trailing slashes on exe_dir
+    while (exe_len > 0 && exe_dir[exe_len - 1] == '/')
+        exe_len--;
+
+    size_t len = exe_len + strlen(relative) + 2; // +2 bytes for '/' and for '\0'
+    char *buf = malloc(len);
+    snprintf(buf, len, "%.*s/%s", (int)exe_len, exe_dir, relative);
+
+    return buf;
 }

@@ -10,6 +10,7 @@
 #include "grngame/core/app.h"
 #include "grngame/core/init.h"
 #include "grngame/core/window.h"
+#include "grngame/platform/paths.h"
 #include "grngame/renderer/draw_test.h"
 #include "soloud_c.h"
 #include <stdlib.h>
@@ -56,7 +57,9 @@ void EngineStart(AppInfo app_info)
         exit(1);
     }
 
-    AssetManagerLoadFolder(app_info.asset_folder);
+    char* relative_asset_folder = PathFromExecutableDirectory(app_info.asset_folder);
+    AssetManagerLoadFolder(relative_asset_folder);
+    free(relative_asset_folder);
 
     FilterDef fx[] = {
         {.type = FILTER_REVERB, .reverb = {.room = 0.8f, .wet = 0.5f}},

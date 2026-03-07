@@ -1,4 +1,5 @@
 #include "directories.h"
+#include "SDL3/SDL_filesystem.h"
 #include <tinydir.h>
 
 void DirWalk(const char *dir_path, FileCallback callback, void *userdata)
@@ -44,4 +45,8 @@ int DirFileCount(const char* dir_path) {
     int count = 0;
     DirWalk(dir_path, count_callback, &count);
     return count;
+}
+
+const char* DirOfExecutable() {
+    return SDL_GetBasePath(); // cached by sdl
 }
