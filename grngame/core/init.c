@@ -27,17 +27,25 @@ InitResult InitAll(const AppInfo *app_info)
     }
 
     SDL_IOStream *rw = SDL_IOFromMem(gamecontrollerdb_txt, gamecontrollerdb_txt_len);
-    int mapping_compteur = SDL_AddGamepadMappingsFromIO(rw, true);
-    if (mapping_compteur < 0)
+    int map = SDL_AddGamepadMappingsFromIO(rw, true);
+    if (map < 0)
     {
-        // todo: log
+        LOG_WARNING("Cannot mapping the controller");
     }
     else
     {
-        // todo : log
+        LOG_DEBUG("Successfuly mapping the controller");
     }
 
     SoundInit();
+
+    if (app_info->enable_logs)
+    {
+        if (!LogInit(app_info->log_destination))
+        {
+            return INIT_LOG_FAILED;
+        }
+    }
 
     initialized = true;
     LOG_INFO("All engine subsystems initialized");

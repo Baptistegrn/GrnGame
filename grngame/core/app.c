@@ -10,6 +10,7 @@
 #include "grngame/core/app.h"
 #include "grngame/core/init.h"
 #include "grngame/core/window.h"
+#include "grngame/renderer/draw_test.h"
 #include "soloud_c.h"
 #include <stdlib.h>
 
@@ -26,25 +27,28 @@ void EngineStart(AppInfo app_info)
     }
 
     g_app.info = app_info;
-    g_app.window = WindowCreate(&app_info);
-    g_app.asset_manager = AssetManagerCreate();
+    g_app.info.offset_x = 0;
+    g_app.info.offset_y = 0;
 
-    if (g_app.info.window_fullscreen)
-    {
-        WindowFullscreen(&app_info);
-    }
-    else if (g_app.info.window_maximised)
-    {
-        WindowMaximized(&app_info);
-    }
-    else
-    {
-        WindowSetSize(&app_info, app_info.window_width, app_info.window_height);
-    }
+    g_app.window = WindowCreate(&g_app.info);
+    g_app.asset_manager = AssetManagerCreate();
 
     if (!RendererTryCreate(g_app.window, &g_app.renderer))
     {
         exit(1);
+    }
+    // TODO : move in WindowCreate
+    if (g_app.info.window_fullscreen)
+    {
+        WindowFullscreen(&g_app.info);
+    }
+    else if (g_app.info.window_maximised)
+    {
+        WindowMaximized(&g_app.info);
+    }
+    else
+    {
+        WindowSetSize(&g_app.info, g_app.info.window_width, g_app.info.window_height);
     }
 
     if (!SoundManagerTryCreate(&g_app.sound_manager))
@@ -84,8 +88,11 @@ static void MainLoop()
         PollEvents();
 
         RendererClear(&g_app.renderer);
+        // test
+        TextureDraw("grotte", g_app.info.offset_x, g_app.info.offset_y);
+
         RendererPresent(&g_app.renderer);
-        SDL_Delay(16);
+        SDL_Delay(200);
     }
 }
 

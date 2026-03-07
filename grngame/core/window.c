@@ -32,31 +32,30 @@ bool WindowConfigureScale(uint8 scalex, uint8 scaley)
     return SDL_SetRenderScale(g_app.renderer.renderer, scalex, scaley);
 }
 
-void ApplyResizing(AppInfo *app_info, uint16 width, uint16 height)
+void ApplyResizing(AppInfo *app_info, int16 width, int16 height)
 {
-    uint8 coeff_w = width / app_info->window_universe_width;
-    uint8 coeff_h = height / app_info->window_universe_height;
-    uint8 coeff = (coeff_w < coeff_h) ? coeff_w : coeff_h;
+    int8 coeff_w = width / (int16)app_info->window_universe_width;
+    int8 coeff_h = height / (int16)app_info->window_universe_height;
+    int8 coeff = (coeff_w < coeff_h) ? coeff_w : coeff_h;
     if (coeff < 1)
         coeff = 1;
 
-    uint16 real_w = app_info->window_universe_width * coeff;
-    uint16 real_h = app_info->window_universe_height * coeff;
+    int16 real_w = (int16)app_info->window_universe_width * coeff;
+    int16 real_h = (int16)app_info->window_universe_height * coeff;
 
-    int16 offset_x = (width - real_w) / 2;
-    int16 offset_y = (height - real_h) / 2;
+    int16 offset_x = (int16)SDL_roundf((float)(width - real_w) / 2.0f / (float)coeff);
+    int16 offset_y = (int16)SDL_roundf((float)(height - real_h) / 2.0f / (float)coeff);
 
     if (offset_x < 0)
         offset_x = 0;
     if (offset_y < 0)
         offset_y = 0;
 
-    app_info->window_height = real_h;
     app_info->window_width = real_w;
+    app_info->window_height = real_h;
+    app_info->offset_x = offset_x;
+    app_info->offset_y = offset_y;
 
-    printf("coeff : %d,offset:%d,%d\n", coeff, offset_x, offset_y);
-
-    SDL_SetRenderViewport(g_app.renderer.renderer, &(SDL_Rect){offset_x, offset_y, real_w, real_h});
     WindowConfigureScale(coeff, coeff);
 }
 
