@@ -26,7 +26,19 @@ void EngineStart(AppInfo app_info)
     g_app.info = app_info;
     g_app.window = WindowCreate(&app_info);
     g_app.asset_manager = AssetManagerCreate();
-    WindowConfigureScale(1.0f, 1.0f);
+
+    if (g_app.info.window_fullscreen)
+    {
+        WindowFullscreen(&app_info);
+    }
+    else if (g_app.info.window_maximised)
+    {
+        WindowMaximized(&app_info);
+    }
+    else
+    {
+        WindowSetSize(&app_info, app_info.window_width, app_info.window_height);
+    }
 
     if (!RendererTryCreate(g_app.window, &g_app.renderer))
     {

@@ -12,12 +12,19 @@ typedef struct
     const char *name;
     const char *version;
     const char *asset_folder;
-    uint8 window_universe_width;
-    uint8 window_universe_height;
-    uint8 window_width;
-    uint8 window_height;
+
+    uint16 window_universe_width;
+    uint16 window_universe_height;
+    uint16 window_width;
+    uint16 window_height;
+
     bool window_resizable;
     bool window_fullscreen;
+    bool window_maximised;
+
+    uint16 offset_x;
+    uint16 offset_y;
+
     bool enable_logs;
     LogDestination log_destination;
 } AppInfo;
