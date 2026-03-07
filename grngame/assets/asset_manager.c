@@ -32,10 +32,11 @@ static void LoadFile(const char* file, void* user_data)
     }
     else
     {
-        // todo log unknown file
+        LOG_WARNING("Unknown file extension in asset folder: %s", extension);
     }
 
-    // todo log if it failed to load
+    if (!load_result)
+        LOG_WARNING("Failed to load asset: %s", file);
 }
 
 static bool LoadSoundFile(const char* file)

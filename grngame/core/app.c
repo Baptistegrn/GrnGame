@@ -40,11 +40,24 @@ void EngineStart(AppInfo app_info)
 
     AssetManagerLoadFolder(app_info.asset_folder);
 
+    // jouer son a un endroit specifique avec plusieurs filtres
+    FilterDef fx[] = {
+        {.type = FILTER_REVERB, .reverb = {.room = 0.8f, .wet = 0.5f}},
+        {.type = FILTER_ECHO, .echo = {.delay = 0.3f, .decay = 0.5f, .wet = 0.4f}},
+        {.type = FILTER_BASSBOOST, .bassboost = {.boost = 5}},
+    };
+
+    SoundInfo sound_info = SoundInfoAt(-10000, -10000);
+    sound_info.filters = fx;
+    sound_info.filter_count = 3;
+    SoundPlay("floyd", &sound_info);
+
     MainLoop();
 }
 
 void EngineStop()
 {
+    LOG_INFO("Engine stopping");
     s_is_running = false;
 }
 
