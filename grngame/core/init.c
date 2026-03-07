@@ -32,11 +32,11 @@ InitResult InitAll(const AppInfo *app_info)
     int map = SDL_AddGamepadMappingsFromIO(rw, true);
     if (map < 0)
     {
-        LOG_WARNING("Cannot mapping the controller");
+        LOG_WARNING("Could not the controller");
     }
     else
     {
-        LOG_DEBUG("Successfuly mapping the controller");
+        LOG_INFO("Successfuly mapped the controller");
     }
 
     SoundInit();
