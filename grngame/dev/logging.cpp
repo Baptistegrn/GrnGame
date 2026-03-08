@@ -1,80 +1,83 @@
 #include "logging.h"
 #define QUILL_DISABLE_NON_PREFIXED_MACROS
-#include <quill/Frontend.h>
-#include <quill/Logger.h>
+#include "grngame/utils/attributes.h"
 #include <quill/Backend.h>
+#include <quill/Frontend.h>
+#include <quill/LogMacros.h>
+#include <quill/Logger.h>
 #include <quill/sinks/ConsoleSink.h>
 #include <quill/sinks/FileSink.h>
 #include <quill/sinks/JsonSink.h>
-#include <quill/LogMacros.h>
-#include "grngame/utils/attributes.h"
 #include <stdarg.h>
 
 static LogSeverity LogSeverityForBuildType();
 static quill::LogLevel LogSeverityToLogLevel(LogSeverity log_severity);
-static quill::Logger* s_logger = nullptr;
+static quill::Logger *s_logger = nullptr;
 
-extern "C" {
-bool LogInit(LogDestination log_destination)
+extern "C"
 {
-    quill::Backend::start();
-
-    switch (log_destination)
+    bool LogInit(LogDestination log_destination)
     {
-    case LOG_TO_CONSOLE:
+        quill::Backend::start();
+
+        switch (log_destination)
         {
+        case LOG_TO_CONSOLE: {
             auto console_sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("sink_id_1");
             s_logger = quill::Frontend::create_or_get_logger("grngame", std::move(console_sink));
             break;
         }
-    case LOG_TO_FILE:
-        {
+        case LOG_TO_FILE: {
             auto cfg = quill::FileSinkConfig();
             cfg.set_open_mode('w');
             cfg.set_filename_append_option(quill::FilenameAppendOption::StartDateTime);
-            auto file_sink = quill::Frontend::create_or_get_sink<quill::FileSink>(
-                "grngame.log", std::move(cfg), quill::FileEventNotifier());
+            auto file_sink = quill::Frontend::create_or_get_sink<quill::FileSink>("grngame.log", std::move(cfg),
+                                                                                  quill::FileEventNotifier());
             s_logger = quill::Frontend::create_or_get_logger("grngame", std::move(file_sink));
             break;
         }
-    case LOG_TO_JSON:
-        {
+        case LOG_TO_JSON: {
             auto cfg = quill::FileSinkConfig();
             cfg.set_open_mode('w');
             cfg.set_filename_append_option(quill::FilenameAppendOption::None);
-            auto json_sink = quill::Frontend::create_or_get_sink<quill::JsonFileSink>(
-                "grngame.log", std::move(cfg), quill::FileEventNotifier());
+            auto json_sink = quill::Frontend::create_or_get_sink<quill::JsonFileSink>("grngame.log", std::move(cfg),
+                                                                                      quill::FileEventNotifier());
             s_logger = quill::Frontend::create_or_get_logger("grngame", std::move(json_sink));
             break;
         }
+        }
+
+        if (UNLIKELY(!s_logger))
+            return false;
+
+        s_logger->set_log_level(LogSeverityToLogLevel(LogSeverityForBuildType()));
+        return true;
     }
 
-    if (!s_logger)
-        return false;
+    void Log(LogSeverity log_severity, const char *format, ...)
+    {
+        va_list args;
+        va_start(args, format);
+        int size = vsnprintf(nullptr, 0, format, args);
+        va_end(args);
 
-    s_logger->set_log_level(LogSeverityToLogLevel(LogSeverityForBuildType()));
-    return true;
-}
+        if (size < 0)
+            return;
 
-void Log(LogSeverity log_severity, const char* format, ...)
-{
-    if (!s_logger)
-        return;
+        auto buf = std::vector<char>(size + 1);
+        va_start(args, format);
+        vsnprintf(buf.data(), buf.size(), format, args);
+        va_end(args);
 
-    va_list args;
-    va_start(args, format);
-    int size = vsnprintf(nullptr, 0, format, args);
-    va_end(args);
+        if (UNLIKELY(!s_logger))
+        {
+            fprintf(stderr, "%s\n", buf.data());
+            fflush(stderr);
+            return;
+        }
 
-    if (size < 0) return;
-
-    auto buf = std::vector<char>(size + 1);
-    va_start(args, format);
-    vsnprintf(buf.data(), buf.size(), format, args);
-    va_end(args);
-
-    QUILL_LOG_DYNAMIC(s_logger, LogSeverityToLogLevel(log_severity), "{}", buf.data());
-}
+        QUILL_LOG_DYNAMIC(s_logger, LogSeverityToLogLevel(log_severity), "{}", buf.data());
+    }
 }
 
 static quill::LogLevel LogSeverityToLogLevel(LogSeverity log_severity)

@@ -5,3 +5,4 @@
 bool CheckFloat();
 bool CheckDouble();
 bool CheckInt();
+void CheckAllTypes();

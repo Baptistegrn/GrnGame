@@ -1,7 +1,8 @@
-#include "load.h" 
+#include "load.h"
 #include "SDL3_image/SDL_image.h"
 #include "grngame/assets/asset_manager.h"
 #include "grngame/core/app.h"
+#include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
 
 bool LoadSoundFile(const char *file)
@@ -14,6 +15,12 @@ bool LoadSoundFile(const char *file)
     }
 
     WavStream_load(stream, file);
+    if (WavStream_getLength(stream) <= 0)
+    {
+        LOG_WARNING("Failed to load sound file: %s", file);
+        WavStream_destroy(stream);
+        return false;
+    }
 
     char *key = FileStem(file);
     int32 ret;
@@ -42,6 +49,7 @@ bool LoadTextureFile(const char *file)
     }
 
     SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
     char *key = FileStem(file);
     int32 ret;

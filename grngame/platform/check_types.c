@@ -1,29 +1,56 @@
-#include "../utils/attributes.h"
+#include "grngame/dev/logging.h"
+#include "grngame/utils/attributes.h"
 #include <float.h>
 #include <stdbool.h>
 #include <stdint.h>
 
-bool CheckFloat()
+static bool CheckFloat()
 {
-    if (UNLIKELY(FLT_MAX != 3.402823466e+38f || FLT_MIN != 1.175494351e-38f || FLT_EPSILON != 1.192092896e-07f ||
-                 FLT_DIG != 6))
-    {
+    if (UNLIKELY(sizeof(float) != 4))
         return false;
-    }
+    union {
+        float f;
+        uint32_t u;
+    } v;
+    v.f = 1.0f;
+    if (UNLIKELY(v.u != 0x3F800000u))
+        return false;
+
     return true;
 }
 
-bool CheckDouble()
+static bool CheckDouble()
 {
-    if (UNLIKELY(DBL_MAX != 1.7976931348623157e+308 || DBL_MIN != 2.2250738585072014e-308 ||
-                 DBL_EPSILON != 2.220446049250313e-16 || DBL_DIG != 15))
-    {
+    if (UNLIKELY(sizeof(double) != 8))
         return false;
-    }
+
+    union {
+        double d;
+        uint64_t u;
+    } v;
+    v.d = 1.0;
+    if (UNLIKELY(v.u != 0x3FF0000000000000ull))
+        return false;
+
     return true;
 }
 
 bool CheckInt()
 {
     return sizeof(int) >= 4;
+}
+
+void CheckAllTypes()
+{
+    bool f = CheckFloat();
+    if (UNLIKELY(!f))
+        LOG_WARNING("Float architecture isnt valid");
+    bool d = CheckDouble();
+    if (UNLIKELY(!d))
+        LOG_WARNING("Double architecture isnt valid");
+    bool i = CheckInt();
+    if (UNLIKELY(!i))
+    {
+        LOG_WARNING("Int architecture isnt valid");
+    }
 }

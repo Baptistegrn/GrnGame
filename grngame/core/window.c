@@ -14,7 +14,10 @@ SDL_Window *WindowCreate(const AppInfo *app_info)
         flags |= SDL_WINDOW_FULLSCREEN;
     if (app_info->window_resizable)
         flags |= SDL_WINDOW_RESIZABLE;
-    return SDL_CreateWindow(app_info->name, app_info->window_width, app_info->window_height, flags);
+    SDL_Window *window = SDL_CreateWindow(app_info->name, app_info->window_width, app_info->window_height, flags);
+    if (!window)
+        LOG_ERROR("Failed to create window: %s", SDL_GetError());
+    return window;
 }
 
 ivec2s WindowDimensions(SDL_Window *window)
@@ -30,6 +33,13 @@ ivec2s WindowDimensions(SDL_Window *window)
 bool WindowConfigureScale(uint8 scalex, uint8 scaley)
 {
     return SDL_SetRenderScale(g_app.renderer.renderer, scalex, scaley);
+}
+
+uint8 WidndowGetScale()
+{
+    float32 c;
+    SDL_GetRenderScale(g_app.renderer.renderer, &c, &c);
+    return (uint8)c;
 }
 
 void ApplyResizing(AppInfo *app_info, int16 width, int16 height)
@@ -61,7 +71,8 @@ void ApplyResizing(AppInfo *app_info, int16 width, int16 height)
 
 void WindowFullscreen(AppInfo *app_info)
 {
-    SDL_SetWindowFullscreen(g_app.window, true);
+    if (!SDL_SetWindowFullscreen(g_app.window, true))
+        LOG_ERROR("Failed to set fullscreen: %s", SDL_GetError());
     ivec2s vec = WindowDimensions(g_app.window);
     ApplyResizing(app_info, vec.x, vec.y);
     app_info->window_fullscreen = true;
@@ -70,10 +81,14 @@ void WindowFullscreen(AppInfo *app_info)
 
 void WindowMaximized(AppInfo *app_info)
 {
-    SDL_SetWindowFullscreen(g_app.window, false);
-    SDL_SetWindowResizable(g_app.window, true);
-    SDL_SetWindowBordered(g_app.window, true);
-    SDL_MaximizeWindow(g_app.window);
+    if (!SDL_SetWindowFullscreen(g_app.window, false))
+        LOG_ERROR("Failed to exit fullscreen: %s", SDL_GetError());
+    if (!SDL_SetWindowResizable(g_app.window, true))
+        LOG_ERROR("Failed to set resizable: %s", SDL_GetError());
+    if (!SDL_SetWindowBordered(g_app.window, true))
+        LOG_ERROR("Failed to set bordered: %s", SDL_GetError());
+    if (!SDL_MaximizeWindow(g_app.window))
+        LOG_ERROR("Failed to maximize window: %s", SDL_GetError());
     ivec2s vec = WindowDimensions(g_app.window);
     ApplyResizing(app_info, vec.x, vec.y);
     app_info->window_fullscreen = false;
@@ -96,10 +111,14 @@ void WindowSetSize(AppInfo *app_info, uint16 width, uint16 height)
         LOG_ERROR("Impossible to get usable display bounds: %s", SDL_GetError());
         return;
     }
-    SDL_SetWindowFullscreen(window, false);
-    SDL_SetWindowBordered(window, true);
-    SDL_SetWindowSize(window, width, height);
-    SDL_SetWindowPosition(window, bounds.x + (bounds.w - width) / 2, bounds.y + (bounds.h - height) / 2);
+    if (!SDL_SetWindowFullscreen(window, false))
+        LOG_ERROR("Failed to exit fullscreen: %s", SDL_GetError());
+    if (!SDL_SetWindowBordered(window, true))
+        LOG_ERROR("Failed to set bordered: %s", SDL_GetError());
+    if (!SDL_SetWindowSize(window, width, height))
+        LOG_ERROR("Failed to set window size: %s", SDL_GetError());
+    if (!SDL_SetWindowPosition(window, bounds.x + (bounds.w - width) / 2, bounds.y + (bounds.h - height) / 2))
+        LOG_ERROR("Failed to set window position: %s", SDL_GetError());
     ApplyResizing(app_info, width, height);
     app_info->window_fullscreen = false;
     app_info->window_maximised = false;

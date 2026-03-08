@@ -4,7 +4,7 @@
 int main()
 {
     AppInfo app;
-    app.name = "Noob - The Factionless";
+    app.name = "Noob game";
     app.version = "1.0.1";
     app.window_width = 322;
     app.window_height = 182;
@@ -13,9 +13,9 @@ int main()
     app.asset_folder = "assets";
     app.window_resizable = true;
     app.window_fullscreen = false;
-    app.window_maximised = true;
+    app.window_maximised = false;
     app.enable_logs = true;
     app.log_destination = LOG_TO_CONSOLE;
 
-    EngineStart(app);
+    EngineStart(&app);
 }

@@ -1,5 +1,6 @@
 #include "app.h"
 #include "../renderer/sprite.h"
+#include "SDL3/SDL_error.h"
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_timer.h"
 #include "SDL3/SDL_video.h"
@@ -11,67 +12,63 @@
 #include "grngame/core/app.h"
 #include "grngame/core/init.h"
 #include "grngame/core/window.h"
+#include "grngame/dev/logging.h"
+#include "grngame/input/input_data.h"
+#include "grngame/input/keyboard.h"
+#include "grngame/input/mouse.h"
+#include "grngame/input/poll_events.h"
 #include "grngame/platform/paths.h"
-#include "grngame/renderer/draw.h"
+#include "grngame/renderer/primitive.h"
+#include "grngame/renderer/sprite.h"
+#include "grngame/renderer/texture.h"
+#include "grngame/utils/attributes.h"
 #include "soloud_c.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 static bool s_is_running = false;
 
 static void MainLoop();
-static void PollEvents();
 
-void EngineStart(AppInfo app_info)
+void EngineStart(AppInfo *app_info)
 {
-    if (InitAll(&app_info) != INIT_OK)
-    {
-        exit(1);
-    }
 
-    g_app.info = app_info;
+    InitResult res = InitAll(app_info);
+
+    if (UNLIKELY(res == INIT_SDL_FAILED))
+        exit(1);
+    else if (UNLIKELY(res == INIT_LOG_FAILED))
+        exit(2);
+
+    g_app.info = *app_info;
     g_app.info.offset_x = 0;
     g_app.info.offset_y = 0;
 
     g_app.window = WindowCreate(&g_app.info);
+
+    if (UNLIKELY(!g_app.window))
+        exit(3);
+
     g_app.asset_manager = AssetManagerCreate();
+    g_app.input_manager = InputManagerCreate();
 
-    if (!RendererTryCreate(g_app.window, &g_app.renderer))
-    {
-        exit(1);
-    }
-    // TODO : move in WindowCreate
+    if (UNLIKELY(!RendererTryCreate(g_app.window, &g_app.renderer)))
+        exit(4);
+
+    // todo moove in window.c
     if (g_app.info.window_fullscreen)
-    {
         WindowFullscreen(&g_app.info);
-    }
     else if (g_app.info.window_maximised)
-    {
         WindowMaximized(&g_app.info);
-    }
     else
-    {
         WindowSetSize(&g_app.info, g_app.info.window_width, g_app.info.window_height);
-    }
 
-    if (!SoundManagerTryCreate(&g_app.sound_manager))
-    {
-        exit(1);
-    }
+    if (UNLIKELY(!SoundManagerTryCreate(&g_app.sound_manager)))
+        exit(5);
 
-    char *relative_asset_folder = PathFromExecutableDirectory(app_info.asset_folder);
+    char *relative_asset_folder = PathFromExecutableDirectory(app_info->asset_folder);
     AssetManagerLoadFolder(relative_asset_folder);
     free(relative_asset_folder);
-
-    FilterDef fx[] = {
-        {.type = FILTER_REVERB, .reverb = {.room = 0.8f, .wet = 0.5f}},
-        {.type = FILTER_ECHO, .echo = {.delay = 0.3f, .decay = 0.5f, .wet = 0.4f}},
-        {.type = FILTER_BASSBOOST, .bassboost = {.boost = 5}},
-    };
-
-    SoundInfo sound_info = SoundInfoAt(-10000, -10000);
-    sound_info.filters = fx;
-    sound_info.filter_count = 3;
-    SoundPlay("floyd", &sound_info);
 
     MainLoop();
 }
@@ -86,42 +83,12 @@ static void MainLoop()
 {
     s_is_running = true;
     SDL_ShowWindow(g_app.window);
-    Sprite s = {100, 100, NULL, "player"};
-    int x = 0;
+
     while (s_is_running)
     {
         PollEvents();
-
         RendererClear(&g_app.renderer);
-        // test
-        TextureDraw("grotte", 0, 0, 1, true, 0, 100);
-        SpriteDraw(s, x, 0, 0, 2, false, 0, 100);
-
         RendererPresent(&g_app.renderer);
-        SDL_Delay(200);
-        x++;
-    }
-}
-
-static void PollEvents()
-{
-    SDL_Event event;
-    while (SDL_PollEvent(&event))
-    {
-        switch (event.type)
-        {
-        case SDL_EVENT_QUIT:
-        case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-            s_is_running = false;
-            break;
-
-        case SDL_EVENT_WINDOW_RESIZED:
-            ApplyResizing(&g_app.info, event.window.data1, event.window.data2);
-            break;
-
-        default:
-            break;
-        }
     }
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../input/input_manager.h"
 #include "../math/types.h"
 #include "SDL3/SDL_render.h"
 #include "grngame/assets/asset_manager.h"
@@ -35,10 +36,11 @@ typedef struct
     Renderer renderer;
     SoundManager sound_manager;
     AssetManager asset_manager;
+    InputManager input_manager;
     AppInfo info;
 } App;
 
-void EngineStart(AppInfo app);
+void EngineStart(AppInfo *app);
 void EngineStop();
 
 extern App g_app;

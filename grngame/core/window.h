@@ -13,3 +13,4 @@ void ApplyResizing(AppInfo *app_info, int16 width, int16 height);
 void WindowFullscreen(AppInfo *app_info);
 void WindowMaximized(AppInfo *app_info);
 void WindowSetSize(AppInfo *app_info, uint16 width, uint16 height);
+uint8 WidndowGetScale();
