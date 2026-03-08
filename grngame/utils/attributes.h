@@ -78,5 +78,6 @@
 #include <malloc.h>
 #define STACK_ALLOC(type, n) ((type *)_alloca(sizeof(type) * (n)))
 #else
-#define STACK_ALLOC(type, n) ((type[n]){})
+#include <alloca.h>
+#define STACK_ALLOC(type, n) ((type *)alloca(sizeof(type) * (n)))
 #endif

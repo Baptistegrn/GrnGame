@@ -2,6 +2,7 @@
 #include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
 #include <SDL3/SDL_events.h>
+#include <math.h>
 
 SDL_Gamepad *GamepadOpen(SDL_JoystickID id)
 {
