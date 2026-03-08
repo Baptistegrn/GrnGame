@@ -1,4 +1,5 @@
 #include "app.h"
+#include "../renderer/sprite.h"
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_timer.h"
 #include "SDL3/SDL_video.h"
@@ -11,7 +12,7 @@
 #include "grngame/core/init.h"
 #include "grngame/core/window.h"
 #include "grngame/platform/paths.h"
-#include "grngame/renderer/draw_test.h"
+#include "grngame/renderer/draw.h"
 #include "soloud_c.h"
 #include <stdlib.h>
 
@@ -57,7 +58,7 @@ void EngineStart(AppInfo app_info)
         exit(1);
     }
 
-    char* relative_asset_folder = PathFromExecutableDirectory(app_info.asset_folder);
+    char *relative_asset_folder = PathFromExecutableDirectory(app_info.asset_folder);
     AssetManagerLoadFolder(relative_asset_folder);
     free(relative_asset_folder);
 
@@ -85,17 +86,20 @@ static void MainLoop()
 {
     s_is_running = true;
     SDL_ShowWindow(g_app.window);
-
+    Sprite s = {100, 100, NULL, "player"};
+    int x = 0;
     while (s_is_running)
     {
         PollEvents();
 
         RendererClear(&g_app.renderer);
         // test
-        TextureDraw("grotte", g_app.info.offset_x, g_app.info.offset_y);
+        TextureDraw("grotte", 0, 0, 1, true, 0, 100);
+        SpriteDraw(s, x, 0, 0, 2, false, 0, 100);
 
         RendererPresent(&g_app.renderer);
         SDL_Delay(200);
+        x++;
     }
 }
 

@@ -22,8 +22,8 @@ typedef struct
     bool window_fullscreen;
     bool window_maximised;
 
-    uint16 offset_x;
-    uint16 offset_y;
+    float32 offset_x;
+    float32 offset_y;
 
     bool enable_logs;
     LogDestination log_destination;

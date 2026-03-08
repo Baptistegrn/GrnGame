@@ -43,8 +43,8 @@ void ApplyResizing(AppInfo *app_info, int16 width, int16 height)
     int16 real_w = (int16)app_info->window_universe_width * coeff;
     int16 real_h = (int16)app_info->window_universe_height * coeff;
 
-    int16 offset_x = (int16)SDL_roundf((float)(width - real_w) / 2.0f / (float)coeff);
-    int16 offset_y = (int16)SDL_roundf((float)(height - real_h) / 2.0f / (float)coeff);
+    float32 offset_x = (float32)(width - real_w) / 2.0f / (float32)coeff;
+    float32 offset_y = (float32)(height - real_h) / 2.0f / (float32)coeff;
 
     if (offset_x < 0)
         offset_x = 0;
