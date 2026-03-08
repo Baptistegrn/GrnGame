@@ -2,6 +2,7 @@
 #include "cglm/types-struct.h"
 #include "controller.h"
 #include "grngame/core/window.h"
+#include "grngame/utils/string.h"
 #include "mouse.h"
 #include <SDL3/SDL_events.h>
 
