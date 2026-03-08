@@ -17,6 +17,7 @@
 #include "grngame/input/keyboard.h"
 #include "grngame/input/mouse.h"
 #include "grngame/input/poll_events.h"
+#include "grngame/platform/check_type.h"
 #include "grngame/platform/paths.h"
 #include "grngame/renderer/primitive.h"
 #include "grngame/renderer/sprite.h"
@@ -32,7 +33,7 @@ static void MainLoop();
 
 void EngineStart(AppInfo *app_info)
 {
-
+    CheckAllTypes();
     InitResult res = InitAll(app_info);
 
     if (UNLIKELY(res == INIT_SDL_FAILED))

@@ -4,6 +4,7 @@
 #include <SDL3/SDL_events.h>
 #include <math.h>
 
+// sdl wrappent
 SDL_Gamepad *GamepadOpen(SDL_JoystickID id)
 {
     SDL_Gamepad *gp = SDL_OpenGamepad(id);
