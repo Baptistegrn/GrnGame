@@ -1,6 +1,6 @@
 #include "sound.h"
 #include "grngame/core/app.h"
-#include "grngame/utils/string.h"
+#include "grngame/utils/string_compat.h"
 #include <khash.h>
 #include <kvec.h>
 #include <math.h>
@@ -52,7 +52,7 @@ static SoundState *GetOrCreateState(const char *name)
     SoundState state = {0};
     kv_init(state.active_filters);
     int ret;
-    k = kh_put(SoundStateMap, s_sound_states, Strdup(name), &ret);
+    k = kh_put(SoundStateMap, s_sound_states, strdup(name), &ret);
     kh_value(s_sound_states, k) = state;
     return &kh_value(s_sound_states, k);
 }
