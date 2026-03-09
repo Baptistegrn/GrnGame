@@ -3,6 +3,7 @@
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
+#include <math.h>
 
 bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
 {
