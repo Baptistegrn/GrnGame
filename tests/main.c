@@ -1,3 +1,4 @@
+#include "grngame/bindings/pocketpy.h"
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 
@@ -17,5 +18,5 @@ int main()
     app.enable_logs = true;
     app.log_destination = LOG_TO_CONSOLE;
 
-    EngineStart(&app);
+    return 0;
 }
