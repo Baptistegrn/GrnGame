@@ -25,3 +25,6 @@ int32 MouseX();
 int32 MouseY();
 int8 MouseScrollX();
 int8 MouseScrollY();
+void MoveMouse(int16 x, int16 y);
+bool ShowCursor();
+bool HideCursor();

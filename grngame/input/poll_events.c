@@ -35,7 +35,7 @@ static void ResetInputManagerKeys()
 static void UpdateMousePosition()
 {
     vec2s i = GetMousePosition();
-    uint8 coeff = WidndowGetScale();
+    uint8 coeff = WindowGetScale();
     g_app.input_manager.mouse.x = (int32)SDL_roundf(i.x / (float32)coeff - g_app.info.offset_x);
     g_app.input_manager.mouse.y = (int32)SDL_roundf(i.y / (float32)coeff - g_app.info.offset_y);
 }

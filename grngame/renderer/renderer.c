@@ -67,3 +67,19 @@ void RendererSetTextureAlpha(SDL_Texture *texture, uint8 a)
     if (UNLIKELY(!SDL_SetTextureAlphaMod(texture, a)))
         LOG_ERROR("Failed to set texture alpha: %s", SDL_GetError());
 }
+
+bool OffScreen(int16 x, int16 y, uint16 w, uint16 h)
+{
+    uint16 u_w = g_app.info.window_universe_width;
+    uint16 u_h = g_app.info.window_universe_height;
+
+    float off_x = g_app.info.offset_x;
+    float off_y = g_app.info.offset_y;
+
+    int16 offx_ceil = (int16)ceilf(off_x);
+    int16 offx_floor = (int16)floorf(off_x);
+    int16 offy_ceil = (int16)ceilf(off_y);
+    int16 offy_floor = (int16)floorf(off_y);
+
+    return x + w > u_w + offx_ceil || x < offx_floor || y + h > u_h + offy_ceil || y < offy_floor;
+}

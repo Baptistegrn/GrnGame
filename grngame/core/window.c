@@ -73,7 +73,7 @@ bool WindowConfigureScale(uint8 scalex, uint8 scaley)
     return SDL_SetRenderScale(g_app.renderer.renderer, scalex, scaley);
 }
 
-uint8 WidndowGetScale()
+uint8 WindowGetScale()
 {
     // scaleX and scaleY are the same ( pixel art )
     float32 c;
