@@ -5,6 +5,8 @@
 #include "grngame/dev/logging.h"
 #include <SDL3/SDL_mouse.h>
 
+#include <math.h>
+
 vec2s GetMousePosition()
 {
     float mx, my;
