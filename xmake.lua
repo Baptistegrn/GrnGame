@@ -1,5 +1,56 @@
 add_rules("mode.debug", "mode.release")
 
+package("daslang")
+    set_homepage("https://github.com/GaijinEntertainment/daScript")
+    set_description("daScript - high-performance statically strong typed scripting language")
+    set_license("BSD-3-Clause")
+
+    set_urls("https://github.com/GaijinEntertainment/daScript.git")
+    add_versions("v0.6.0", "v0.6.0")
+
+    add_deps("cmake")
+
+    on_install(function (package)
+        local configs = {
+            "-DDAS_TOOLS_DISABLED=ON",
+            "-DDAS_TESTS_DISABLED=ON",
+            "-DDAS_TUTORIAL_DISABLED=ON",
+            "-DDAS_AOT_EXAMPLES_DISABLED=ON",
+            "-DDAS_CLANG_BIND_DISABLED=ON",
+            "-DDAS_LLVM_DISABLED=ON",
+            "-DDAS_HV_DISABLED=ON",
+            "-DDAS_IMGUI_DISABLED=ON",
+            "-DDAS_MINFFT_DISABLED=ON",
+            "-DDAS_AUDIO_DISABLED=ON",
+            "-DDAS_PUGIXML_DISABLED=ON",
+            "-DDAS_SQLITE_DISABLED=ON",
+            "-DDAS_TREE_SITTER_DISABLED=ON",
+            "-DDAS_FLEX_BISON_DISABLED=ON",
+            "-DDAS_GLFW_DISABLED=ON",
+            "-DDAS_STDDLG_DISABLED=ON",
+            "-DDAS_STBIMAGE_DISABLED=ON",
+            "-DDAS_STBTRUETYPE_DISABLED=ON",
+        }
+
+        table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
+        table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
+
+        if package:config("lto") then
+            table.insert(configs, "-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON")
+        end
+
+        import("package.tools.cmake").install(package, configs, {
+            buildir = "xmake_build"
+        })
+    end)
+package_end()
+
+add_requires("daslang v0.6.0", {
+    configs = {
+        lto = false,
+        shared = false,
+    }
+})
 add_requires("libsdl3", {version = "3.4.0"},{configs={runtimes="MT", shared=false}})
 add_requires("libsdl3_image", {version = "3.2.0"},{configs={runtimes="MT", shared=false}})
 add_requires("libsdl3_ttf", {version = "3.2.2"},{configs={runtimes="MT", shared=false}})
@@ -8,7 +59,6 @@ add_requires("klib", {version = "2024.06.03"},{configs={runtimes="MT", shared=fa
 add_requires("cglm", {version = "v0.9.6"},{configs={runtimes="MT", shared=false}})
 add_requires("soloud",{configs={runtimes="MT", shared=false}})
 add_requires("tinydir",{configs={runtimes="MT", shared=false}})
-add_requires("dascript",{configs={runtimes="MT", shared=false}})
 set_warnings("all", "extra")
 target("GrnGame")
     set_languages("c17", "cxx17")
@@ -52,6 +102,7 @@ target("GrnGame")
         "cglm",
         "soloud",
         "tinydir",
+        "daslang",
         { public = true }
     )
 
