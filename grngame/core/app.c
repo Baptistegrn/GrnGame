@@ -2,6 +2,7 @@
 #include "../renderer/sprite.h"
 #include "SDL3/SDL_error.h"
 #include "SDL3/SDL_events.h"
+#include "SDL3/SDL_system.h"
 #include "SDL3/SDL_timer.h"
 #include "SDL3/SDL_video.h"
 #include "cglm/types-struct.h"
@@ -84,12 +85,17 @@ static void MainLoop()
 {
     s_is_running = true;
     SDL_ShowWindow(g_app.window);
-
+    int16 x = 0;
+    int16 y = 0;
     while (s_is_running)
     {
         PollEvents();
         RendererClear(&g_app.renderer);
+        MoveMouse(x, y);
+        x++;
+        y++;
         RendererPresent(&g_app.renderer);
+        SDL_Delay(400);
     }
 }
 

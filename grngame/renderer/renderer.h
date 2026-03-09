@@ -18,3 +18,4 @@ void RendererRect(const SDL_FRect *rect);
 void RendererTextureRotated(SDL_Texture *texture, const SDL_FRect *src, const SDL_FRect *dst, float64 angle,
                             const SDL_FPoint *center, SDL_FlipMode flip);
 void RendererSetTextureAlpha(SDL_Texture *texture, uint8 a);
+bool OffScreen(int16 x, int16 y, uint16 w, uint16 h);

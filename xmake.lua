@@ -8,7 +8,7 @@ add_requires("klib", {version = "2024.06.03"},{configs={runtimes="MT", shared=fa
 add_requires("cglm", {version = "v0.9.6"},{configs={runtimes="MT", shared=false}})
 add_requires("soloud",{configs={runtimes="MT", shared=false}})
 add_requires("tinydir",{configs={runtimes="MT", shared=false}})
-add_requires("dascript",{configs={runtimes="MT", shared=false}})
+
 set_warnings("all", "extra")
 target("GrnGame")
     set_languages("c17", "cxx17")
