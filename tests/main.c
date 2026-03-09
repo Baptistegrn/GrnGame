@@ -1,4 +1,4 @@
-#include "grngame/bindings/pocketpy.h"
+
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 
