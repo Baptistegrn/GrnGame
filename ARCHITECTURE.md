@@ -33,6 +33,9 @@ Binding everything to Lua/Dascript
 ### /renderer
 Rendering related functions and structs
 
+### /build 
+create a build for commercials games (cryption etc...)
+
 # Naming conventions
 ## Casing
 - **Types:** PascalCase
