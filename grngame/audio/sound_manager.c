@@ -36,4 +36,5 @@ void SoundManagerDestroy(const SoundManager *sound_manager)
 {
     Soloud_deinit(sound_manager->soloud);
     Soloud_destroy(sound_manager->soloud);
+    Speech_destroy(sound_manager->speech);
 }
