@@ -7,10 +7,10 @@ int main()
     AppInfo app;
     app.name = "Noob game";
     app.version = "1.0.1";
-    app.window_width = 322;
-    app.window_height = 182;
-    app.window_universe_height = 182;
-    app.window_universe_width = 322;
+    app.window_width = 200;
+    app.window_height = 200;
+    app.window_universe_height = 200;
+    app.window_universe_width = 200;
     app.asset_folder = "assets";
     app.window_resizable = true;
     app.window_fullscreen = false;

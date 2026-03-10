@@ -14,3 +14,5 @@ typedef int64_t int64;
 
 typedef float float32;
 typedef double float64;
+
+#define pi 3.14159265358979323846
