@@ -68,9 +68,7 @@ package("daslang")
             end
         end
 
-        import("package.tools.cmake").install(package, configs, {
-            buildir = "xmake_build"
-        })
+        import("package.tools.cmake").install(package, configs)
     end)
 package_end()
 

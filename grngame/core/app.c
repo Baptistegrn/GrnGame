@@ -32,7 +32,7 @@ static bool s_is_running = false;
 
 static void MainLoop();
 
-void EngineStart(AppInfo *app_info)
+void EngineStart(AppInfo* app_info)
 {
     CheckAllTypes();
     InitResult res = InitAll(app_info);
@@ -68,9 +68,19 @@ void EngineStart(AppInfo *app_info)
     if (UNLIKELY(!SoundManagerTryCreate(&g_app.sound_manager)))
         exit(5);
 
-    char *relative_asset_folder = PathFromExecutableDirectory(app_info->asset_folder);
+    g_app.da_script_engine = DaScriptEngineCreate();
+    if (UNLIKELY(!g_app.da_script_engine))
+        exit(6);
+
+    char* relative_asset_folder = PathFromExecutableDirectory(app_info->asset_folder);
     AssetManagerLoadFolder(relative_asset_folder);
     free(relative_asset_folder);
+
+    if (!DaScriptEngineCompileScript(g_app.da_script_engine, "hello.das"))
+        exit(7);
+
+    if (!DaScriptEngineRunScript(g_app.da_script_engine, "hellos.das", "main"))
+        exit(8);
 
     MainLoop();
 }
@@ -91,11 +101,11 @@ static void MainLoop()
     {
         PollEvents();
         RendererClear(&g_app.renderer);
-        MoveMouse(x, y);
-        x++;
-        y++;
+        // MoveMouse(x, y);
+        // x++;
+        // y++;
         RendererPresent(&g_app.renderer);
-        SDL_Delay(400);
+        SDL_Delay(16);
     }
 }
 
