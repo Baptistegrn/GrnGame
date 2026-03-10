@@ -1,26 +1,47 @@
 #include "da_script_bind.h"
+
 #include "da_script_engine.hpp"
-#include <cstdio>
 
-extern "C"
-{
-    DaScriptVm *DaScriptEngineCreate(void)
+extern "C" {
+
+    DaScriptManager* DaScriptManagerNew()
     {
-        return (DaScriptVm *)(new DaScriptEngine());
+        return reinterpret_cast<DaScriptManager*>(new DaScriptEngine());
     }
 
-    void DaScriptEngineDestroy(DaScriptVm *self)
+    void DaScriptManagerDelete(DaScriptManager* manager)
     {
-        delete reinterpret_cast<DaScriptEngine *>(self);
+        delete reinterpret_cast<DaScriptEngine*>(manager);
     }
 
-    bool DaScriptEngineCompileScript(DaScriptVm *self, const char *script_name)
+    bool DaScriptManagerInitialize(DaScriptManager* manager, const char* main_script_name)
     {
-        return reinterpret_cast<DaScriptEngine *>(self)->CompileScript(script_name);
+        return reinterpret_cast<DaScriptEngine*>(manager)->Init(main_script_name);
     }
 
-    bool DaScriptEngineRunScript(DaScriptVm *self, const char *script_name, const char *entry)
+    bool DaScriptManagerCallOnStart(DaScriptManager* manager)
     {
-        return reinterpret_cast<DaScriptEngine *>(self)->RunScript(script_name, entry);
+        return reinterpret_cast<DaScriptEngine*>(manager)->CallOnStart();
     }
+
+    bool DaScriptManagerCallOnUpdate(DaScriptManager* manager, float delta)
+    {
+        return reinterpret_cast<DaScriptEngine*>(manager)->CallOnUpdate(delta);
+    }
+
+    bool DaScriptManagerCallOnFixedUpdate(DaScriptManager* manager, float delta)
+    {
+        return reinterpret_cast<DaScriptEngine*>(manager)->CallOnFixedUpdate(delta);
+    }
+
+    bool DaScriptManagerCallOnRender(DaScriptManager* manager)
+    {
+        return reinterpret_cast<DaScriptEngine*>(manager)->CallOnRender();
+    }
+
+    bool DaScriptManagerCallOnDestroy(DaScriptManager* manager)
+    {
+        return reinterpret_cast<DaScriptEngine*>(manager)->CallOnDestroy();
+    }
+
 } // extern "C"

@@ -1,31 +1,16 @@
 #include "app.h"
-#include "../renderer/sprite.h"
-#include "SDL3/SDL_error.h"
-#include "SDL3/SDL_events.h"
-#include "SDL3/SDL_system.h"
 #include "SDL3/SDL_timer.h"
 #include "SDL3/SDL_video.h"
-#include "cglm/types-struct.h"
-#include "grngame/audio/sound.h"
-#include "grngame/audio/sound_info.h"
 #include "grngame/audio/sound_manager.h"
-#include "grngame/audio/speech.h"
 #include "grngame/core/app.h"
 #include "grngame/core/init.h"
 #include "grngame/core/window.h"
 #include "grngame/dev/logging.h"
 #include "grngame/input/input_data.h"
-#include "grngame/input/keyboard.h"
-#include "grngame/input/mouse.h"
 #include "grngame/input/poll_events.h"
 #include "grngame/platform/check_type.h"
 #include "grngame/platform/paths.h"
-#include "grngame/renderer/primitive.h"
-#include "grngame/renderer/sprite.h"
-#include "grngame/renderer/texture.h"
 #include "grngame/utils/attributes.h"
-#include "soloud_c.h"
-#include <stdio.h>
 #include <stdlib.h>
 
 static bool s_is_running = false;
@@ -68,20 +53,14 @@ void EngineStart(AppInfo* app_info)
     if (UNLIKELY(!SoundManagerTryCreate(&g_app.sound_manager)))
         exit(5);
 
-    g_app.da_script_engine = DaScriptEngineCreate();
-    if (UNLIKELY(!g_app.da_script_engine))
-        exit(6);
+    g_app.da_script = DaScriptManagerNew();
 
     char* relative_asset_folder = PathFromExecutableDirectory(app_info->asset_folder);
     AssetManagerLoadFolder(relative_asset_folder);
     free(relative_asset_folder);
 
-    if (!DaScriptEngineCompileScript(g_app.da_script_engine, "main"))
-        exit(7);
-
-    if (!DaScriptEngineRunScript(g_app.da_script_engine, "main", "main"))
-        exit(8);
-
+    // Before starting the app, compile and call on_start
+    DaScriptManagerInitialize(g_app.da_script, "main");
     MainLoop();
 }
 
@@ -101,9 +80,7 @@ static void MainLoop()
     {
         PollEvents();
         RendererClear(&g_app.renderer);
-        // MoveMouse(x, y);
-        // x++;
-        // y++;
+        DaScriptManagerCallOnUpdate(g_app.da_script, 0.16f);
         RendererPresent(&g_app.renderer);
         SDL_Delay(16);
     }

@@ -38,7 +38,7 @@ typedef struct
     SoundManager sound_manager;
     AssetManager asset_manager;
     InputManager input_manager;
-    DaScriptVm* da_script_engine;
+    DaScriptManager* da_script;
     AppInfo info;
 } App;
 

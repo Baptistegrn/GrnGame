@@ -1,9 +1,11 @@
 #pragma once
-#include <unordered_map>
 #define DAS_SMART_PTR_TRACKER 0
 #define DAS_SMART_PTR_MAGIC 0
+#include "daScript/ast/ast.h"
+#include "daScript/simulate/simulate.h"
+#include <unordered_map>
 #include <daScript/daScript.h>
-
+#include <optional>
 
 class DaScriptEngine
 {
@@ -11,14 +13,25 @@ class DaScriptEngine
     das::TextPrinter text_printer;
     das::ModuleGroup module_group;
     das::CodeOfPolicies policies;
-    std::unordered_map<std::string, das::smart_ptr<das::Context>> contexts;
+    das::ProgramPtr main_program;
+    std::unique_ptr<das::Context> main_context;
+
+    das::SimFunction* on_update = nullptr;
+    das::SimFunction* on_start = nullptr;
+    das::SimFunction* on_fixed_update = nullptr;
+    das::SimFunction* on_render = nullptr;
+    das::SimFunction* on_destroy = nullptr;
 public:
     DaScriptEngine();
     ~DaScriptEngine();
 
-    bool CompileScript(const char* script_name);
-    bool RunScript(const char* script_name, const char* entry = "main");
+    bool Init(const char* main_script_name);
 
+    bool CallOnStart() const;
+    bool CallOnUpdate(float delta) const;
+    bool CallOnFixedUpdate(float delta) const;
+    bool CallOnRender() const;
+    bool CallOnDestroy() const;
 private:
     static void LogErrorsOfProgram(const das::ProgramPtr& program);
 };
