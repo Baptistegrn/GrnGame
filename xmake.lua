@@ -26,7 +26,7 @@ package("daslang")
             "-DDAS_MINFFT_DISABLED=ON",
             "-DDAS_AUDIO_DISABLED=ON",
             "-DDAS_PUGIXML_DISABLED=ON",
-            "-DDAS_SQLITE_DISABLED=ON",
+            "-DDAS_SQLITE_DISABLED=OFF",
             "-DDAS_TREE_SITTER_DISABLED=ON",
             "-DDAS_FLEX_BISON_DISABLED=ON",
             "-DDAS_GLFW_DISABLED=ON",
