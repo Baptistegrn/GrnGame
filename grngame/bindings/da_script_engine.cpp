@@ -21,6 +21,7 @@ DaScriptEngine::DaScriptEngine() : file_access(das::make_smart<das::FsFileAccess
     policies.fail_on_no_aot = false;
 
     NEED_MODULE(SoundModule);
+    NEED_MODULE(Module_dasSQLITE);
 }
 
 DaScriptEngine::~DaScriptEngine()
