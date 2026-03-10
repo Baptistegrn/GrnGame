@@ -2,7 +2,6 @@
 #include "daScript/ast/dyn_modules.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/directories.h"
-#include <cstdio>
 #include <filesystem>
 
 DaScriptEngine::DaScriptEngine() : file_access(das::make_smart<das::FsFileAccess>())
@@ -28,7 +27,7 @@ bool DaScriptEngine::CompileScript(const char *script_name)
     }
 
     auto script_path = std::filesystem::path(DirOfExecutable()) / "scripts" / (std::string(script_name) + ".das");
-    auto program = das::compileDaScript(script_path, file_access, text_printer, module_group, policies);
+    auto program = das::compileDaScript(script_path.string(), file_access, text_printer, module_group, policies);
     if (program->failed())
     {
         LOG_ERROR("Failed to compile daScript file '%s':\n", script_name);

@@ -1,6 +1,7 @@
 add_rules("mode.debug", "mode.release")
 
 local msvcRuntime = is_mode("debug") and "MTd" or "MT"
+set_runtimes(msvcRuntime)
 
 package("daslang")
     set_homepage("https://github.com/GaijinEntertainment/daScript")
@@ -11,13 +12,6 @@ package("daslang")
     add_versions("v0.6.0", "v0.6.0")
 
     add_deps("cmake")
-
-    add_configs("runtime", {
-        description = "MSVC runtime library (MT, MTd, MD, MDd)",
-        default = "MT",
-        type = "string",
-        values = {"MT", "MTd", "MD", "MDd"}
-    })
 
     on_install(function (package)
         local configs = {
@@ -49,45 +43,24 @@ package("daslang")
             table.insert(configs, "-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON")
         end
 
-        -- select runtime if this is windows
-        if package:is_plat("windows") then
-            local runtime = package:config("runtime")
-            local runtime_flag_map = {
-                MT  = "/MT",
-                MTd = "/MTd",
-                MD  = "/MD",
-                MDd = "/MDd",
-            }
-            local flag = runtime_flag_map[runtime]
-            if flag then
-                table.insert(configs, "-DCMAKE_MSVC_RUNTIME_LIBRARY=" .. ({
-                    ["/MT"]  = "MultiThreaded",
-                    ["/MTd"] = "MultiThreadedDebug",
-                    ["/MD"]  = "MultiThreadedDLL",
-                    ["/MDd"] = "MultiThreadedDebugDLL",
-                })[flag])
-            end
-        end
-
         import("package.tools.cmake").install(package, configs)
     end)
 package_end()
 
 add_requires("daslang v0.6.0", {
     configs = {
-        lto = false,
-        shared = false,
-        runtime = msvcRuntime
+        lto = is_mode("release"),
+        shared = false
     }
 })
-add_requires("libsdl3", {version = "3.4.0"},{configs={runtimes=msvcRuntime, shared=false}})
-add_requires("libsdl3_image", {version = "3.2.0"},{configs={runtimes=msvcRuntime, shared=false}})
-add_requires("libsdl3_ttf", {version = "3.2.2"},{configs={runtimes=msvcRuntime, shared=false}})
-add_requires("quill", {version = "v11.0.2"},{configs={runtimes=msvcRuntime, shared=false}})
-add_requires("klib", {version = "2024.06.03"},{configs={runtimes=msvcRuntime, shared=false}})
-add_requires("cglm", {version = "v0.9.6"},{configs={runtimes=msvcRuntime, shared=false}})
-add_requires("soloud",{configs={runtimes=msvcRuntime, shared=false}})
-add_requires("tinydir",{configs={runtimes=msvcRuntime, shared=false}})
+add_requires("libsdl3", {version = "3.4.0"},{configs={shared=false}})
+add_requires("libsdl3_image", {version = "3.2.0"},{configs={shared=false}})
+add_requires("libsdl3_ttf", {version = "3.2.2"},{configs={shared=false}})
+add_requires("quill", {version = "v11.0.2"},{configs={shared=false}})
+add_requires("klib", {version = "2024.06.03"},{configs={shared=false}})
+add_requires("cglm", {version = "v0.9.6"},{configs={shared=false}})
+add_requires("soloud",{configs={shared=false}})
+add_requires("tinydir",{configs={shared=false}})
 set_warnings("all", "extra")
 target("GrnGame")
     set_languages("c17", "cxx17")
@@ -110,7 +83,6 @@ target("GrnGame")
             { public = true })
     elseif is_plat("windows") then
         add_defines("GRNGAME_WINDOWS", { public = true })
-                set_runtimes("MT")
     elseif is_plat("macos") then
         add_defines("GRNGAME_MACOS", { public = true })
     end
@@ -138,14 +110,12 @@ target("GrnGame")
 target("App")    
     set_languages("c17", "cxx17")
     set_kind("binary")
-                set_runtimes("MT")
     add_files("app/main.c")
     add_deps("GrnGame")
 
 target("Tests")    
     set_languages("c17", "cxx17")
     set_kind("binary")
-                set_runtimes("MT")
     add_files("tests/main.c")
     add_deps("GrnGame")
 
