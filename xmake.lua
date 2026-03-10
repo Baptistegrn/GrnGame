@@ -38,6 +38,7 @@ package("daslang")
             "-DDAS_GLFW_DISABLED=ON",
             "-DDAS_STDDLG_DISABLED=ON",
             "-DDAS_STBIMAGE_DISABLED=ON",
+            "-DDAS_URIPARSER_DISABLED=ON",
             "-DDAS_STBTRUETYPE_DISABLED=ON",
         }
 
@@ -68,9 +69,7 @@ package("daslang")
             end
         end
 
-        import("package.tools.cmake").install(package, configs, {
-            buildir = "xmake_build"
-        })
+        import("package.tools.cmake").install(package, configs)
     end)
 package_end()
 
@@ -149,3 +148,11 @@ target("Tests")
                 set_runtimes("MT")
     add_files("tests/main.c")
     add_deps("GrnGame")
+
+        after_build(function(target)
+        os.execv("python3", {
+            "scripts/asset_pipeline.py",
+            "test_game",
+            target:targetdir()
+        })
+    end)

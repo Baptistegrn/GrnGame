@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef void (*FileCallback)(const char* path, void* userdata);
 
 /// Recursively traverses a directory, calling your callback on every regular file, with the given userdata
@@ -10,3 +14,7 @@ int DirFileCount(const char* dir_path);
 
 /// Directory of the executable. Can be null but we may not want to handle it.
 const char* DirOfExecutable();
+
+#ifdef __cplusplus
+}
+#endif

@@ -6,6 +6,7 @@
 #include "grngame/assets/asset_manager.h"
 #include "grngame/audio/sound_manager.h"
 #include "grngame/dev/logging.h"
+#include "grngame/bindings/da_script_bind.h"
 #include "grngame/renderer/renderer.h"
 
 typedef struct
@@ -37,6 +38,7 @@ typedef struct
     SoundManager sound_manager;
     AssetManager asset_manager;
     InputManager input_manager;
+    DaScriptVm* da_script_engine;
     AppInfo info;
 } App;
 

@@ -27,10 +27,10 @@ jobs:
           build-cache: true
 
       - name: Configure
-        run: xmake config -m ${{ matrix.buildtype }} -y
+        run: xmake config -m ${{ matrix.buildtype }} -y -vv
 
       - name: Build
-        run: xmake build -y
+        run: xmake build -y -vv
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
