@@ -49,7 +49,7 @@ package_end()
 
 add_requires("daslang v0.6.0", {
     configs = {
-        lto = is_mode("release"),
+        lto = false, -- causes problems in mac and windows to have it on for daslang so we turn it off right now
         shared = false
     }
 })
