@@ -1,4 +1,5 @@
 #pragma once
+#include <unordered_map>
 #define DAS_SMART_PTR_TRACKER 0
 #define DAS_SMART_PTR_MAGIC 0
 #include <daScript/daScript.h>
@@ -10,8 +11,7 @@ class DaScriptEngine
     das::TextPrinter text_printer;
     das::ModuleGroup module_group;
     das::CodeOfPolicies policies;
-    das::ProgramPtr main_program;
-    das::Context* main_context;
+    std::unordered_map<std::string, das::smart_ptr<das::Context>> contexts;
 public:
     DaScriptEngine();
     ~DaScriptEngine();

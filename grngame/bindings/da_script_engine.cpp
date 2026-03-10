@@ -2,7 +2,7 @@
 #include "daScript/ast/dyn_modules.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/directories.h"
-
+#include <cstdio>
 
 DaScriptEngine::DaScriptEngine() : file_access(das::make_smart<das::FsFileAccess>())
 {
@@ -18,31 +18,39 @@ DaScriptEngine::~DaScriptEngine()
     das::Module::Shutdown();
 }
 
-bool DaScriptEngine::CompileScript(const char* script_name)
+bool DaScriptEngine::CompileScript(const char *script_name)
 {
-    main_program = das::compileDaScript(script_name, file_access, text_printer, module_group, policies);
-    if (main_program->failed())
+    auto program = das::compileDaScript(script_name, file_access, text_printer, module_group, policies);
+    if (program->failed())
     {
         LOG_ERROR("Failed to compile daScript file '%s':\n", script_name);
-        LogErrorsOfProgram(main_program);
+        LogErrorsOfProgram(program);
         return false;
     }
 
-    main_context = new das::Context(main_program->getContextStackSize());
+    contexts[script_name] = das::make_smart<das::Context>(program->getContextStackSize());
 
-    if (!main_program->simulate(*main_context, text_printer))
+    if (!program->simulate(*contexts[script_name], text_printer))
     {
         LOG_ERROR("Failed to simulate script '%s':\n", script_name);
-        LogErrorsOfProgram(main_program);
+        LogErrorsOfProgram(program);
         return false;
     }
 
     return true;
 }
 
-bool DaScriptEngine::RunScript(const char* script_name, const char* entry)
+bool DaScriptEngine::RunScript(const char *script_name, const char *entry)
 {
-    auto functions = main_context->findFunctions(entry);
+    auto it = contexts.find(script_name);
+    if (it == contexts.end())
+    {
+        LOG_ERROR("No such script '%s'\n", script_name);
+        return false;
+    }
+
+    auto functions = it->second->findFunctions(entry);
+
     if (functions.empty())
     {
         LOG_ERROR("Failed to find function '%s' in script '%s'", entry, script_name);
@@ -55,14 +63,14 @@ bool DaScriptEngine::RunScript(const char* script_name, const char* entry)
     }
     else
     {
-        main_context->evalWithCatch(functions.at(0), nullptr);
+        contexts[script_name]->evalWithCatch(functions.at(0), nullptr);
         return true;
     }
 }
 
-void DaScriptEngine::LogErrorsOfProgram(const das::ProgramPtr& program)
+void DaScriptEngine::LogErrorsOfProgram(const das::ProgramPtr &program)
 {
-    for (const auto& err : program->errors)
+    for (const auto &err : program->errors)
     {
         LOG_ERROR("- %s\n", err.what.c_str()); // TODO better logging
     }

@@ -79,7 +79,7 @@ void EngineStart(AppInfo* app_info)
     if (!DaScriptEngineCompileScript(g_app.da_script_engine, "hello.das"))
         exit(7);
 
-    if (!DaScriptEngineRunScript(g_app.da_script_engine, "hellos.das", "main"))
+    if (!DaScriptEngineRunScript(g_app.da_script_engine, "hello.das", "main"))
         exit(8);
 
     MainLoop();

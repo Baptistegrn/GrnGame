@@ -38,6 +38,7 @@ package("daslang")
             "-DDAS_GLFW_DISABLED=ON",
             "-DDAS_STDDLG_DISABLED=ON",
             "-DDAS_STBIMAGE_DISABLED=ON",
+            "-DDAS_URIPARSER_DISABLED=ON",
             "-DDAS_STBTRUETYPE_DISABLED=ON",
         }
 
