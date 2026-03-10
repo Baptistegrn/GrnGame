@@ -148,3 +148,11 @@ target("Tests")
                 set_runtimes("MT")
     add_files("tests/main.c")
     add_deps("GrnGame")
+
+        after_build(function(target)
+        os.execv("python3", {
+            "scripts/asset_pipeline.py",
+            "test_game",
+            target:targetdir()
+        })
+    end)

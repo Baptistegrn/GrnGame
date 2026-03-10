@@ -76,10 +76,10 @@ void EngineStart(AppInfo* app_info)
     AssetManagerLoadFolder(relative_asset_folder);
     free(relative_asset_folder);
 
-    if (!DaScriptEngineCompileScript(g_app.da_script_engine, "hello.das"))
+    if (!DaScriptEngineCompileScript(g_app.da_script_engine, "main"))
         exit(7);
 
-    if (!DaScriptEngineRunScript(g_app.da_script_engine, "hello.das", "main"))
+    if (!DaScriptEngineRunScript(g_app.da_script_engine, "main", "main"))
         exit(8);
 
     MainLoop();

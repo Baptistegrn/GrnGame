@@ -3,6 +3,7 @@
 #include "grngame/dev/logging.h"
 #include "grngame/platform/directories.h"
 #include <cstdio>
+#include <filesystem>
 
 DaScriptEngine::DaScriptEngine() : file_access(das::make_smart<das::FsFileAccess>())
 {
@@ -20,7 +21,14 @@ DaScriptEngine::~DaScriptEngine()
 
 bool DaScriptEngine::CompileScript(const char *script_name)
 {
-    auto program = das::compileDaScript(script_name, file_access, text_printer, module_group, policies);
+    if (contexts.find(script_name) != contexts.end())
+    {
+        LOG_ERROR("Tried to compile script '%s' which was already compiled", script_name);
+        return false;
+    }
+
+    auto script_path = std::filesystem::path(DirOfExecutable()) / "scripts" / (std::string(script_name) + ".das");
+    auto program = das::compileDaScript(script_path, file_access, text_printer, module_group, policies);
     if (program->failed())
     {
         LOG_ERROR("Failed to compile daScript file '%s':\n", script_name);
@@ -32,10 +40,12 @@ bool DaScriptEngine::CompileScript(const char *script_name)
 
     if (!program->simulate(*contexts[script_name], text_printer))
     {
-        LOG_ERROR("Failed to simulate script '%s':\n", script_name);
+        LOG_ERROR("Failed to simulate script '%s':", script_name);
         LogErrorsOfProgram(program);
         return false;
     }
+
+    LOG_INFO("Sucesfully compiled script '%s'", script_name);
 
     return true;
 }
