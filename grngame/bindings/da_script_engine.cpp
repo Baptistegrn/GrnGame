@@ -141,10 +141,37 @@ bool DaScriptEngine::CallOnDestroy() const
     return true;
 }
 
-void DaScriptEngine::LogErrorsOfProgram(const das::ProgramPtr &program)
+std::string FormatProgramErrors(const das::ProgramPtr &program)
 {
+    std::ostringstream oss;
+
     for (const auto &err : program->errors)
     {
-        LOG_ERROR("%s\n", err.what.c_str()); // TODO better logging
+        const auto &at = err.at;
+
+        if (at.line > 0)
+        {
+            oss << "[daScript] "
+                << " at " << (at.fileInfo ? at.fileInfo->name : "<unknown>") << ":" << at.line << ":" << at.column
+                << " — " << err.what << "\n";
+        }
+        else
+        {
+            oss << "[daScript] " << " — " << err.what << "\n";
+        }
+
+        if (!err.extra.empty())
+            oss << "  extra: " << err.extra << "\n";
+
+        if (!err.fixme.empty())
+            oss << "  fixme: " << err.fixme << "\n";
     }
+
+    return oss.str();
+}
+
+void DaScriptEngine::LogErrorsOfProgram(const das::ProgramPtr &program)
+{
+
+    LOG_ERROR("%s", FormatProgramErrors(program).c_str());
 }

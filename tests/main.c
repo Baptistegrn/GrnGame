@@ -5,7 +5,7 @@
 int main()
 {
     AppInfo app;
-    app.name = "Noob game";
+    app.name = "Noob - The Factionless";
     app.version = "1.0.1";
     app.fps = 80.0;
     app.window_width = 200;
