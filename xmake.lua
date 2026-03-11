@@ -14,6 +14,9 @@ package("daslang")
     add_deps("cmake")
 
     on_install(function (package)
+        io.replace("CMakeCommon.txt", "-fno-rtti", "-frtti", {plain = true})
+        io.replace("CMakeCommon.txt", "-fno-exceptions", "-fexceptions", {plain = true})
+
         local configs = {
             "-DDAS_TOOLS_DISABLED=ON",
             "-DDAS_TESTS_DISABLED=ON",
@@ -34,6 +37,8 @@ package("daslang")
             "-DDAS_STBIMAGE_DISABLED=ON",
             "-DDAS_URIPARSER_DISABLED=ON",
             "-DDAS_STBTRUETYPE_DISABLED=ON",
+            "-DBUILD_SHARED_LIBS=OFF",
+            "-DDAS_DYNAMIC_DISABLED=ON",  
         }
 
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
@@ -41,6 +46,10 @@ package("daslang")
 
         if package:config("lto") then
             table.insert(configs, "-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON")
+        end
+
+        if not package:is_plat("windows") then
+            table.insert(configs, "-DCMAKE_CXX_FLAGS=-frtti -fexceptions")
         end
 
         import("package.tools.cmake").install(package, configs)
@@ -59,8 +68,8 @@ add_requires("libsdl3_ttf", {version = "3.2.2"},{configs={shared=false}})
 add_requires("quill", {version = "v11.0.2"},{configs={shared=false}})
 add_requires("klib", {version = "2024.06.03"},{configs={shared=false}})
 add_requires("cglm", {version = "v0.9.6"},{configs={shared=false}})
-add_requires("soloud",{configs={shared=false}})
-add_requires("tinydir",{configs={shared=false}})
+add_requires("soloud",{version = "2020.02.07", configs={shared=false}})
+add_requires("tinydir",{version = "1.2.6", configs={shared=false}})
 set_warnings("all", "extra")
 target("GrnGame")
     set_languages("c17", "cxx17")
@@ -81,6 +90,7 @@ target("GrnGame")
             "GRNGAME_LINUX",
             "_GNU_SOURCE", -- So we get access to GNU/Posix extensions
             { public = true })
+        add_cxxflags("-frtti", "-fexceptions")
     elseif is_plat("windows") then
         add_defines("GRNGAME_WINDOWS", { public = true })
     elseif is_plat("macos") then
