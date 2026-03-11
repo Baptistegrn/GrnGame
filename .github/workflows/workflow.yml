@@ -19,13 +19,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup xmake
-              uses: xmake-io/github-action-setup-xmake@v1
-              with:
-                xmake-version: latest
-                actions-cache-folder: '.xmake-cache'
-                package-cache: true
-                package-cache-key: "packages-${{ matrix.os }}-${{ matrix.buildtype }}-${{ hashFiles('xmake.lua') }}"
-                build-cache: true
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+          actions-cache-folder: '.xmake-cache-v2'
+          package-cache: true
+          build-cache: true
 
       - name: Configure
         run: xmake config -m ${{ matrix.buildtype }} -y -vv
