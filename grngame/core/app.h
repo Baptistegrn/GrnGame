@@ -32,6 +32,9 @@ typedef struct
 
     bool enable_logs;
     LogDestination log_destination;
+
+    // for draw render
+    uint8 r, g, b;
 } AppInfo;
 
 typedef struct

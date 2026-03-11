@@ -7,7 +7,7 @@ int main()
     AppInfo app;
     app.name = "Noob game";
     app.version = "1.0.1";
-    app.fps = 20.0;
+    app.fps = 80.0;
     app.window_width = 200;
     app.window_height = 200;
     app.window_universe_height = 200;

@@ -145,6 +145,6 @@ void DaScriptEngine::LogErrorsOfProgram(const das::ProgramPtr &program)
 {
     for (const auto &err : program->errors)
     {
-        LOG_ERROR("- %s\n", err.what.c_str()); // TODO better logging
+        LOG_ERROR("%s\n", err.what.c_str()); // TODO better logging
     }
 }
