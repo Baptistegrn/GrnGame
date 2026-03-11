@@ -2,6 +2,7 @@
 #include "SDL3/SDL_timer.h"
 #include "SDL3/SDL_video.h"
 #include "grngame/audio/sound_manager.h"
+#include "grngame/bindings/da_script_bind.h"
 #include "grngame/core/app.h"
 #include "grngame/core/init.h"
 #include "grngame/core/window.h"
@@ -10,14 +11,8 @@
 #include "grngame/input/poll_events.h"
 #include "grngame/platform/check_type.h"
 #include "grngame/platform/paths.h"
-#include "grngame/renderer/particule.h"
-#include "grngame/renderer/primitive.h"
-#include "grngame/renderer/sprite.h"
-#include "grngame/renderer/texture.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/random.h"
-#include "soloud_c.h"
-#include <stdio.h>
 #include <stdlib.h>
 
 static bool s_is_running = false;
@@ -83,55 +78,40 @@ static void MainLoop()
     s_is_running = true;
     SDL_ShowWindow(g_app.window);
 
-    ParticleEmitter rain = ParticleEmitterCreate();
-    rain.position = (vec2s){{300.0f, -30.0f}};
-    rain.emission_rate = 2000.0f;
-    rain.speed_min = 40.0f;
-    rain.speed_max = 60.0f;
-    rain.particle_lifetime_min = 0.8f;
-    rain.particle_lifetime_max = 1.6f;
-    rain.size_start_x = 1.0f;
-    rain.size_start_y = 12.0f;
-    rain.size_end_x = 1.0f;
-    rain.size_end_y = 3.0f;
-    rain.size_variation_x = 0.2f;
-    rain.size_variation_y = 2.0f;
-    rain.force_same_direction = true;
-    rain.direction_angle = 1.63f;
-    rain.angle_min = 1.55f;
-    rain.angle_max = 1.70f;
-    rain.spread_x = 400.0f;
-    rain.spread_y = 12.0f;
-    rain.spawn_offset_x = 0.0f;
-    rain.spawn_offset_y = 0.0f;
-    rain.gravity = 160.0f;
-    rain.damping = 0.998f;
-    rain.angular_velocity_min = -3.0f;
-    rain.angular_velocity_max = 3.0f;
-    rain.initial_rotation_min = -2.0f;
-    rain.initial_rotation_max = 2.0f;
-    rain.acceleration_x = 20.0f;
-    rain.acceleration_y = 0.0f;
-    rain.color_variation = 14;
-    rain.randomize_color = true;
-    rain.randomize_size = true;
-    rain.enable_gravity = true;
-    rain.enable_rotation = false;
-    rain.rs = 0;
-    rain.gs = 0;
-    rain.bs = 200;
-    rain.as = 130;
-    rain.re = 0;
-    rain.ge = 0;
-    rain.be = 180;
-    rain.ae = 50;
+    float64 target_frame_ms = 1000.0 / (float64)g_app.info.fps;
+    float64 fixed_dt = 0.016;
+    float64 fixed_accumulator = 0.0;
+    Uint64 previous_ticks = SDL_GetTicks();
 
     while (s_is_running)
     {
+        Uint64 frame_start = SDL_GetTicks();
+        g_app.info.dt = (float64)(frame_start - previous_ticks) / 1000.0;
+        previous_ticks = frame_start;
+
         PollEvents();
+
+        if (g_app.da_script)
+        {
+            DaScriptManagerCallOnUpdate(g_app.da_script, (float32)g_app.info.dt);
+
+            fixed_accumulator += g_app.info.dt;
+            while (fixed_accumulator >= fixed_dt)
+            {
+                DaScriptManagerCallOnFixedUpdate(g_app.da_script, (float32)fixed_dt);
+                fixed_accumulator -= fixed_dt;
+            }
+        }
+
         RendererClear(&g_app.renderer);
+        DaScriptManagerCallOnRender(g_app.da_script);
         RendererPresent(&g_app.renderer);
-        SDL_Delay(16);
+
+        Uint64 frame_end = SDL_GetTicks();
+        float64 frame_ms = (float64)(frame_end - frame_start);
+
+        if (frame_ms < target_frame_ms)
+            SDL_Delay((Uint32)(target_frame_ms - frame_ms));
     }
 }
 

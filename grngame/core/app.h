@@ -5,8 +5,8 @@
 #include "SDL3/SDL_render.h"
 #include "grngame/assets/asset_manager.h"
 #include "grngame/audio/sound_manager.h"
-#include "grngame/dev/logging.h"
 #include "grngame/bindings/da_script_bind.h"
+#include "grngame/dev/logging.h"
 #include "grngame/renderer/renderer.h"
 
 typedef struct
@@ -14,6 +14,9 @@ typedef struct
     const char *name;
     const char *version;
     const char *asset_folder;
+
+    uint16 fps;
+    float64 dt;
 
     uint16 window_universe_width;
     uint16 window_universe_height;
@@ -38,7 +41,7 @@ typedef struct
     SoundManager sound_manager;
     AssetManager asset_manager;
     InputManager input_manager;
-    DaScriptManager* da_script;
+    DaScriptManager *da_script;
     AppInfo info;
 } App;
 

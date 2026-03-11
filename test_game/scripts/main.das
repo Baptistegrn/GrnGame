@@ -2,24 +2,22 @@ require grngame_sound
 
 [export]
 def on_start()
-    print("start\n")
+    print("on_start\n")
     let sound_info = sound_info_default()
-    speech_say("Leo is the best chinese Godot game engine developer, G R N game is india!", sound_info)
+    speech_say("hello", sound_info)
 
-/*
 [export]
 def on_update(dt: float)
-    print("update\n")
+    print("on_update\n")
 
 [export]
 def on_fixed_update(dt: float)
-    print("fixed update\n")
+    print("on_fixed_update\n")
 
 [export]
 def on_render()
-    print("render\n")
+    print("on_render\n")
 
 [export]
 def on_destroy()
-    print("destroy\n")
-*/
+    print("on_destroy\n")
