@@ -20,7 +20,10 @@ bool SpriteDraw(Sprite s, uint16 frame, float x, float y, uint8 c, bool f, int16
     int16 tex_w = tex->w;
 
     if (OffScreen(x, y, tex_w, tex->h))
+    {
+        // todo log
         return false;
+    }
 
     int16 cols = tex_w / s.w;
     if (cols <= 0)

@@ -24,7 +24,10 @@ bool TextureDraw(const char *name, float x, float y, uint8 c, bool f, int16 r, u
     }
 
     if (OffScreen(x, y, tex->w, tex->h))
+    {
+        // todo log
         return false;
+    }
 
     SDL_FRect dst = {x + g_app.info.offset_x, y + g_app.info.offset_y, (float)(tex->w * c), (float)(tex->h * c)};
 

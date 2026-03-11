@@ -6,11 +6,11 @@
 #include "daScript/ast/dyn_modules.h"
 #include "daScript/daScriptModule.h"
 #include "grngame/audio/speech.h"
+#include "grngame/bindings/renderer_module.hpp"
+#include "grngame/bindings/sound_module.hpp"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/directories.h"
-#include "grngame/bindings/sound_module.hpp"
 #include <filesystem>
-
 
 DaScriptEngine::DaScriptEngine() : file_access(das::make_smart<das::FsFileAccess>())
 {
@@ -20,6 +20,7 @@ DaScriptEngine::DaScriptEngine() : file_access(das::make_smart<das::FsFileAccess
     policies.aot = true;
     policies.fail_on_no_aot = false;
 
+    NEED_MODULE(RendererModule);
     NEED_MODULE(SoundModule);
     NEED_MODULE(Module_dasSQLITE);
 }
@@ -32,7 +33,8 @@ DaScriptEngine::~DaScriptEngine()
 
 bool DaScriptEngine::Init(const char *main_script_name)
 {
-    auto path_of_script = std::filesystem::path(DirOfExecutable()) / "scripts" / (std::string(main_script_name) + ".das");
+    auto path_of_script =
+        std::filesystem::path(DirOfExecutable()) / "scripts" / (std::string(main_script_name) + ".das");
     main_program = das::compileDaScript(path_of_script.string(), file_access, text_printer, module_group, policies);
     if (main_program->failed())
     {
@@ -82,7 +84,7 @@ bool DaScriptEngine::CallOnUpdate(float delta) const
     if (!on_update)
         return false;
 
-    vec4f args[1] = { das::cast<float>::from(delta) };
+    vec4f args[1] = {das::cast<float>::from(delta)};
     main_context->evalWithCatch(on_update, args);
     if (main_context->getException())
     {
@@ -98,7 +100,7 @@ bool DaScriptEngine::CallOnFixedUpdate(float delta) const
     if (!on_fixed_update)
         return false;
 
-    vec4f args[1] = { das::cast<float>::from(delta) };
+    vec4f args[1] = {das::cast<float>::from(delta)};
     main_context->evalWithCatch(on_fixed_update, args);
     if (main_context->getException())
     {

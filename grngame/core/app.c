@@ -11,8 +11,10 @@
 #include "grngame/input/poll_events.h"
 #include "grngame/platform/check_type.h"
 #include "grngame/platform/paths.h"
+#include "grngame/renderer/texture.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/random.h"
+#include <stdbool.h>
 #include <stdlib.h>
 
 static bool s_is_running = false;

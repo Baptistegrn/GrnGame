@@ -1,4 +1,5 @@
 #include "logging.h"
+#include "grngame/dev/logging.h"
 #define QUILL_DISABLE_NON_PREFIXED_MACROS
 #include "grngame/utils/attributes.h"
 #include <quill/Backend.h>
