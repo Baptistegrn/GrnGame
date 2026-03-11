@@ -24,7 +24,7 @@ jobs:
                 xmake-version: latest
                 actions-cache-folder: '.xmake-cache'
                 package-cache: true
-                package-cache-key: 'packages-${{ matrix.os }}-${{ matrix.buildtype }}-${{ hashFiles(''xmake.lua'') }}'
+                package-cache-key: "packages-${{ matrix.os }}-${{ matrix.buildtype }}-${{ hashFiles('xmake.lua') }}"
                 build-cache: true
 
       - name: Configure
