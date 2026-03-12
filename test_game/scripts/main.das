@@ -3,6 +3,8 @@ require grngame_renderer
 
 var emit : ParticleEmitter
 
+require std/core/node
+
 [export]
 def on_start()
     let sound_info = sound_info_default()
