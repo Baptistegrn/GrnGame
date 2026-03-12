@@ -1,7 +1,5 @@
 options gen2
 
-module node public;
-
 class Node {
     name : string
     position : float2
@@ -40,9 +38,9 @@ class Node {
         }
     }
 
-    def render(dt : float)  {
+    def render()  {
         for (c in children) {
-            c.render(dt)
+            c.render()
         }
     }
 

@@ -2,8 +2,9 @@ require grngame_sound
 require grngame_renderer
 
 var emit : ParticleEmitter
+var s = new SpriteNode("player", 100, 100)
 
-require std/core/node
+require std/all
 
 [export]
 def on_start()
@@ -26,6 +27,5 @@ def on_update(dt : float)
 [export]
 def on_render()
     cls(20,100,200)
-    let s = sprite("player", 100, 100)
-    sprite_draw(s, 1, 20, 20, 1, false, 0, 200)
+    s.render()
     emitter_render(emit)
