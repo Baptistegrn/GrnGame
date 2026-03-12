@@ -11,6 +11,7 @@
 #include "grngame/dev/logging.h"
 #include "grngame/platform/directories.h"
 #include <filesystem>
+#include <sstream>
 
 DaScriptEngine::DaScriptEngine() : file_access(das::make_smart<das::FsFileAccess>())
 {
