@@ -5,6 +5,7 @@
 #include "app.h"
 #include "cglm/types-struct.h"
 #include "grngame/dev/logging.h"
+#include "grngame/renderer/renderer.h"
 #include "grngame/utils/attributes.h"
 
 // sdl wrappent
@@ -81,6 +82,36 @@ uint8 WindowGetScale()
     return (uint8)c;
 }
 
+int WindowGetWidth()
+{
+    return (int)g_app.info.window_width;
+}
+
+int WindowGetHeight()
+{
+    return (int)g_app.info.window_height;
+}
+
+int WindowGetUniverseWidth()
+{
+    return (int)g_app.info.window_universe_width;
+}
+
+int WindowGetUniverseHeight()
+{
+    return (int)g_app.info.window_universe_height;
+}
+
+float32 WindowGetOffsetX()
+{
+    return g_app.info.offset_x;
+}
+
+float32 WindowGetOffsetY()
+{
+    return g_app.info.offset_y;
+}
+
 void ApplyResizing(AppInfo *app_info, int16 width, int16 height)
 {
     int8 coeff_w = width / (int16)app_info->window_universe_width;
@@ -152,4 +183,27 @@ void WindowSetSize(AppInfo *app_info, uint16 width, uint16 height)
     ApplyResizing(app_info, width, height);
     app_info->window_fullscreen = false;
     app_info->window_maximised = false;
+}
+
+void ApplyBlackStripes()
+{
+    if (g_app.info.force_universe_scale)
+    {
+        float32 off_x = g_app.info.offset_x;
+        float32 off_y = g_app.info.offset_y;
+        float32 uw = (float32)g_app.info.window_universe_width;
+        float32 uh = (float32)g_app.info.window_universe_height;
+        float32 total_w = uw + 2.0f * off_x;
+        float32 total_h = uh + 2.0f * off_y;
+
+        SDL_FRect rects[4] = {
+            {0.0f, 0.0f, off_x, total_h},
+            {off_x + uw, 0.0f, off_x, total_h},
+            {0.0f, 0.0f, total_w, off_y},
+            {0.0f, off_y + uh, total_w, off_y},
+        };
+
+        RendererSetColor(10, 10, 10, 255);
+        RendererFillRects(rects, 4);
+    }
 }

@@ -26,6 +26,7 @@ bool TextureDraw(const char *name, float x, float y, uint8 c, bool f, int16 r, u
     if (OffScreen(x, y, tex->w, tex->h))
     {
         // todo log
+        LOG_ERROR("impossible");
         return false;
     }
 

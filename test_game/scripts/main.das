@@ -1,11 +1,12 @@
 require grngame_sound
 require grngame_renderer
 
-var emit : ParticleEmitter
-var s = new SpriteNode("player", 100, 100)
-
 require std/all
 
+var emit : ParticleEmitter
+var s = new SpriteNode("player", 100, 100)
+var btn = new UiNode("1", 127, 123, centering.left_up)
+var btn2 = new UiNode("3",127,123,centering.middle)
 [export]
 def on_start()
     let sound_info = sound_info_default()
@@ -29,3 +30,5 @@ def on_render()
     cls(20,100,200)
     s.render()
     emitter_render(emit)
+    btn.render()
+    btn2.render()

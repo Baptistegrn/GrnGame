@@ -33,6 +33,8 @@ typedef struct
     bool enable_logs;
     LogDestination log_destination;
 
+    bool force_universe_scale; // apply black stripes to the window
+
     // for draw render
     uint8 r, g, b;
 } AppInfo;

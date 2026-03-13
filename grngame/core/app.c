@@ -107,6 +107,7 @@ static void MainLoop()
 
         RendererClear(&g_app.renderer);
         DaScriptManagerCallOnRender(g_app.da_script);
+        ApplyBlackStripes();
         RendererPresent(&g_app.renderer);
 
         Uint64 frame_end = SDL_GetTicks();

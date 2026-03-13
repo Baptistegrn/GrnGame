@@ -9,7 +9,7 @@ class SpriteNode : Node {
     flip_x: bool
     alpha: int
     rotation: int
-    color: int
+    coeff: int
 
     def SpriteNode(sprite_name: string, w: int, h: int) {
         Node`Node(self, sprite_name)
@@ -18,11 +18,11 @@ class SpriteNode : Node {
         self.flip_x = false
         self.alpha = 255
         self.rotation = 0
-        self.color = 1
+        self.coeff = 1
     }
 
     def override render() {
         super.render()
-        sprite_draw(spr, frame, position.x, position.y, color, flip_x, rotation, alpha)
+        sprite_draw(spr, frame, position.x, position.y, coeff, flip_x, rotation, alpha)
     }
 }

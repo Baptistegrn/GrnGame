@@ -8,6 +8,7 @@
 #include "grngame/audio/speech.h"
 #include "grngame/bindings/renderer_module.hpp"
 #include "grngame/bindings/sound_module.hpp"
+#include "grngame/bindings/window_module.hpp"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/directories.h"
 #include <filesystem>
@@ -23,6 +24,7 @@ DaScriptEngine::DaScriptEngine() : file_access(das::make_smart<das::FsFileAccess
 
     NEED_MODULE(RendererModule);
     NEED_MODULE(SoundModule);
+    NEED_MODULE(WindowModule);
     NEED_MODULE(Module_dasSQLITE);
 }
 
