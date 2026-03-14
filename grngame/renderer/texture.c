@@ -1,4 +1,6 @@
 #include "texture.h"
+#include "cglm/types-struct.h"
+#include "grngame/assets/asset_manager.h"
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 #include "renderer.h"
@@ -26,7 +28,6 @@ bool TextureDraw(const char *name, float x, float y, uint8 c, bool f, int16 r, u
     if (OffScreen(x, y, tex->w, tex->h))
     {
         // todo log
-        LOG_ERROR("impossible");
         return false;
     }
 
@@ -40,4 +41,16 @@ bool TextureDraw(const char *name, float x, float y, uint8 c, bool f, int16 r, u
     RendererTextureRotated(tex->texture, NULL, &dst, (float64)r, &center, flip_mode);
 
     return true;
+}
+
+ivec2s TextureGetSize(const char *name)
+{
+    Texture *tex = TextureGet(name);
+    if (!tex)
+    {
+        LOG_WARNING("Impossible to get texture: %s", name);
+        return (ivec2s){{0, 0}};
+    }
+
+    return (ivec2s){{(int)tex->w, (int)tex->h}};
 }

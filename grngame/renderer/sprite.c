@@ -22,7 +22,6 @@ bool SpriteDraw(Sprite s, uint16 frame, float x, float y, uint8 c, bool f, int16
     if (OffScreen(x, y, tex_w, tex->h))
     {
         // todo log
-        LOG_ERROR("impossible");
         return false;
     }
 

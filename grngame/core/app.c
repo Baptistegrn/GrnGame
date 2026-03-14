@@ -64,8 +64,9 @@ void EngineStart(AppInfo *app_info)
     AssetManagerLoadFolder(relative_asset_folder);
     free(relative_asset_folder);
 
-    // Before starting the app, compile and call on_start
-    DaScriptManagerInitialize(g_app.da_script, "main");
+    bool script_initialized = DaScriptManagerInitialize(g_app.da_script, "main");
+    if (!script_initialized)
+        SetRenderColor(255, 0, 0);
     MainLoop();
 }
 
