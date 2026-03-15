@@ -4,8 +4,8 @@ require grngame_renderer
 require std/all
 
 var emit = new ParticleEmitterNode("emit")
-var s = new SpriteNode("player", 100, 100)
-var btn = new UiNode("1", 1, centering.middle)
+var s = new SpriteNode("player", "player", 100, 100)
+var btn = new UiNode("btn", "1", 1, centering.middle)
 
 [export]
 def on_start()

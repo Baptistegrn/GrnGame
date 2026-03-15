@@ -11,8 +11,8 @@ class SpriteNode : Node {
     rotation : int
     coeff : int
 
-    def SpriteNode(sprite_name : string, w : int, h : int) {
-        Node`Node(self, sprite_name)
+    def SpriteNode(name: string, sprite_name : string, w : int, h : int) {
+        Node`Node(self, name)
         self.spr = sprite(sprite_name, w, h)
         self.frame = 0
         self.flip_x = false

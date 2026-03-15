@@ -20,14 +20,17 @@ class UiNode : Node
     flip_x:   bool = false
     alpha:    int  = 255
     rotation: int  = 0
+    ui_name: string
 
-    def UiNode(ui_name: string; in_coeff: int; is_center: centering)
-        Node`Node(self, ui_name)
+    def UiNode(name: string, ui_name: string; in_coeff: int; is_center: centering)
+        Node`Node(self, name)
         let tex_size = texture_get_size(ui_name)
         self.w      = tex_size.x * in_coeff
         self.h      = tex_size.y * in_coeff
         self.coeff  = in_coeff
         self.center = is_center
+        self.ui_name = ui_name
+
     //todo : calculate if window is resizing 
     def get_draw_position() : float2
         let force_scale = window_is_force_universe_scale()
@@ -80,4 +83,4 @@ class UiNode : Node
     def override render()
         super.render()
         let draw_pos = get_draw_position()
-        draw(name, draw_pos.x, draw_pos.y, coeff, flip_x, rotation, alpha)
+        draw(ui_name, draw_pos.x, draw_pos.y, coeff, flip_x, rotation, alpha)
