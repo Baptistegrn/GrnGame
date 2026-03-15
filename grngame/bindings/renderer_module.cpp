@@ -2,12 +2,10 @@
 #include "daScript/ast/ast.h"
 #include "daScript/ast/ast_handle.h"
 #include "daScript/ast/ast_interop.h"
-#include "daScript/das_config.h"
 #include "daScript/simulate/simulate.h"
 
 extern "C"
 {
-#include "cglm/types-struct.h"
 #include "grngame/renderer/particule.h"
 #include "grngame/renderer/primitive.h"
 #include "grngame/renderer/renderer.h"
@@ -19,6 +17,7 @@ struct ParticleEmitterAnnotation : das::ManagedStructureAnnotation<ParticleEmitt
 {
     ParticleEmitterAnnotation(das::ModuleLibrary &ml) : ManagedStructureAnnotation("ParticleEmitter", ml)
     {
+        addField<DAS_BIND_MANAGED_FIELD(position)>("position");
         addField<DAS_BIND_MANAGED_FIELD(lifetime)>("lifetime");
         addField<DAS_BIND_MANAGED_FIELD(explosiveness)>("explosiveness");
         addField<DAS_BIND_MANAGED_FIELD(one_shot)>("one_shot");
@@ -53,16 +52,6 @@ struct SpriteAnnotation : das::ManagedStructureAnnotation<Sprite, false>
         addField<DAS_BIND_MANAGED_FIELD(w)>("w");
         addField<DAS_BIND_MANAGED_FIELD(h)>("h");
         addField<DAS_BIND_MANAGED_FIELD(name)>("name");
-    }
-};
-
-// todo : move in utils bindings
-struct ivec2sAnnotation : das::ManagedStructureAnnotation<ivec2s, false>
-{
-    ivec2sAnnotation(das::ModuleLibrary &ml) : ManagedStructureAnnotation("ivec2s", ml)
-    {
-        addField<DAS_BIND_MANAGED_FIELD(x)>("x");
-        addField<DAS_BIND_MANAGED_FIELD(y)>("y");
     }
 };
 
@@ -183,8 +172,6 @@ RendererModule::RendererModule() : Module("grngame_renderer")
     addAnnotation(das::make_smart<ParticleEmitterAnnotation>(module_library));
     addAnnotation(das::make_smart<SpriteAnnotation>(module_library));
 
-    // todo : move in utils bindings
-    addAnnotation(das::make_smart<ivec2sAnnotation>(module_library));
     das::addExtern<DAS_BIND_FUN(TextureGetSize), das::SimNode_ExtFuncCallAndCopyOrMove>(
         *this, module_library, "texture_get_size", das::SideEffects::modifyExternal, "TextureGetSize");
 

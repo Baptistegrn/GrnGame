@@ -1,7 +1,6 @@
 #pragma once
-#include "cglm/types-struct.h"
-#include "daScript/ast/ast_typefactory.h"
-#include "da_script_engine.hpp"
+#include <daScript/daScript.h>
+#include "utils_module.hpp" // we need to include it since it has the type factories of vec2s and ivec2s
 
 extern "C"
 {
@@ -11,8 +10,6 @@ extern "C"
 
 MAKE_TYPE_FACTORY(ParticleEmitter, ParticleEmitter);
 MAKE_TYPE_FACTORY(Sprite, Sprite);
-// todo : move in utils bindings
-MAKE_TYPE_FACTORY(ivec2s, ivec2s);
 
 class RendererModule : public das::Module
 {

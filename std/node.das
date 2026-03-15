@@ -15,6 +15,7 @@ class Node {
     def add_child(var node : Node?) {
         node.parent = unsafe(addr(self))
         children.push(node)
+        return node
     }
 
     def get_world_position() : float2 {

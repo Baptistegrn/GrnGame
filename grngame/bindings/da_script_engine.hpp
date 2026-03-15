@@ -1,11 +1,6 @@
 #pragma once
-#define DAS_SMART_PTR_TRACKER 0
-#define DAS_SMART_PTR_MAGIC 0
-#include "daScript/ast/ast.h"
-#include "daScript/simulate/simulate.h"
-#include <unordered_map>
+#include <daScript/simulate/simulate.h>
 #include <daScript/daScript.h>
-#include <optional>
 
 class DaScriptEngine
 {

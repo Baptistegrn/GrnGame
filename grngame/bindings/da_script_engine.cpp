@@ -1,14 +1,7 @@
 #include "da_script_engine.hpp"
 #include "daScript/ast/ast.h"
-#include "daScript/ast/ast_handle.h"
-#include "daScript/ast/ast_interop.h"
-#include "daScript/ast/ast_typefactory_bind.h"
 #include "daScript/ast/dyn_modules.h"
 #include "daScript/daScriptModule.h"
-#include "grngame/audio/speech.h"
-#include "grngame/bindings/renderer_module.hpp"
-#include "grngame/bindings/sound_module.hpp"
-#include "grngame/bindings/window_module.hpp"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/directories.h"
 #include <filesystem>
@@ -22,6 +15,7 @@ DaScriptEngine::DaScriptEngine() : file_access(das::make_smart<das::FsFileAccess
     policies.aot = true;
     policies.fail_on_no_aot = false;
 
+    NEED_MODULE(UtilsModule);
     NEED_MODULE(RendererModule);
     NEED_MODULE(SoundModule);
     NEED_MODULE(WindowModule);
