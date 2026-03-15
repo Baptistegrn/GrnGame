@@ -17,6 +17,14 @@ class Node {
         children.push(node)
     }
 
+    def get_world_position() : float2 {
+        if (parent != null) {
+            return parent.get_world_position() + position
+        } else {
+            return position
+        }
+    }
+
     def get_node(name : string) : Node? {
         for (child in children) {
             if (child.name == name) {
