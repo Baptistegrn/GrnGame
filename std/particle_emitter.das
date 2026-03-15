@@ -64,17 +64,17 @@ class ParticleEmitterNode : Node {
     }
 
     def set_color_start(r, g, b, a : uint8) {
-        emit.rs = r
-        emit.gs = g
-        emit.bs = b
-        // emit.as = a
+        emit.red_start   = r
+        emit.green_start = g
+        emit.blue_start  = b
+        emit.alpha_start = a
     }
 
     def set_color_end(r, g, b, a : uint8) {
-        emit.re = r
-        emit.ge = g
-        emit.be = b
-        emit.ae = a
+        emit.red_end   = r
+        emit.green_end = g
+        emit.blue_end  = b
+        emit.alpha_end = a
     }
 
     def set_emit_accumulator(v : float) {

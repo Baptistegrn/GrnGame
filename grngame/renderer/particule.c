@@ -62,14 +62,14 @@ ParticleEmitter ParticleEmitterCreate()
         .scale_start = 8.0f,
         .scale_end = 2.0f,
         .scale_amount_curve = 1.0f,
-        .rs = 255,
-        .gs = 255,
-        .bs = 255,
-        .as = 255,
-        .re = 255,
-        .ge = 255,
-        .be = 255,
-        .ae = 255,
+        .red_start = 255,
+        .green_start = 255,
+        .blue_start = 255,
+        .alpha_start = 255,
+        .red_end = 255,
+        .green_end = 255,
+        .blue_end = 255,
+        .alpha_end = 255,
         .emit_accumulator = 0.0f,
         .emit_cycle_time = 0.0f,
         .previous_position = (vec2s){{0.0f, 0.0f}},
@@ -108,10 +108,10 @@ void SpawnParticle(ParticleEmitter *emit)
         p->age = 0;
 
         p->size = emit->scale_start;
-        p->r = emit->rs;
-        p->g = emit->gs;
-        p->b = emit->bs;
-        p->a = emit->as;
+        p->r = emit->red_start;
+        p->g = emit->green_start;
+        p->b = emit->blue_start;
+        p->a = emit->alpha_start;
         return;
     }
 }
@@ -148,10 +148,10 @@ static void UpdateParticle(ParticleEmitter *emit, Particle *p, float32 dt)
     if (p->size < 1.0f)
         p->size = 1.0f;
 
-    p->r = LerpU8(emit->rs, emit->re, t);
-    p->g = LerpU8(emit->gs, emit->ge, t);
-    p->b = LerpU8(emit->bs, emit->be, t);
-    p->a = LerpU8(emit->as, emit->ae, t);
+    p->r = LerpU8(emit->red_start, emit->red_end, t);
+    p->g = LerpU8(emit->green_start, emit->green_end, t);
+    p->b = LerpU8(emit->blue_start, emit->blue_end, t);
+    p->a = LerpU8(emit->alpha_start, emit->alpha_end, t);
 }
 
 void UpdateEmitter(ParticleEmitter *emit, float32 dt)

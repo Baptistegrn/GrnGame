@@ -41,8 +41,8 @@ typedef struct
     float32 scale_end;
     float32 scale_amount_curve;
 
-    uint8 rs, gs, bs, as;
-    uint8 re, ge, be, ae;
+    uint8 red_start, green_start, blue_start, alpha_start;
+    uint8 red_end, green_end, blue_end, alpha_end;
 
     float32 emit_accumulator;
     float32 emit_cycle_time;
