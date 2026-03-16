@@ -104,8 +104,13 @@ target("GrnGame")
         set_policy("build.optimization.lto", true)
     end
 
-    -- causes linking problem if we enable them and doesnt really matters
-    add_defines("DAS_SMART_PTR_MAGIC=0", "DAS_SMART_PTR_TRACKER=0", { public = true })
+    add_defines(
+        -- causes linking problem if we enable them and doesnt really matters
+        "DAS_SMART_PTR_MAGIC=0",
+        "DAS_SMART_PTR_TRACKER=0", 
+        -- force it so vec2s has x and y members instead of an array 
+        "CGLM_USE_ANONYMOUS_STRUCT",
+        { public = true })
 
     add_packages(
         "libsdl3",
