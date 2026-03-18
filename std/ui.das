@@ -16,11 +16,13 @@ class UiNode : Node
     h:        int
     center:   centering
     coeff:    int
-    padding:  int  = 0
-    flip_x:   bool = false
+    padding: float2
+    flip:   bool = false
     alpha:    int  = 255
     rotation: int  = 0
     ui_name: string
+    cached_draw_position: float2
+    has_cached_draw_position: bool = false
 
     def UiNode(name: string, ui_name: string; in_coeff: int; is_center: centering)
         Node`Node(self, name)
@@ -31,10 +33,9 @@ class UiNode : Node
         self.center = is_center
         self.ui_name = ui_name
 
-    //todo : calculate if window is resizing 
-    def get_draw_position() : float2
+    def compute_centered_position() : float2
         let force_scale = window_is_force_universe_scale()
-        
+
         let ox = force_scale ? 0.0f : window_get_offset_x()
         let oy = force_scale ? 0.0f : window_get_offset_y()
         var cx = 0.0f
@@ -56,14 +57,15 @@ class UiNode : Node
 
         let fw = float(w)
         let fh = float(h)
-        let p  = float(padding)
+        let px = padding.x
+        let py = padding.y
 
         let mid_x    = cx + (cw - fw) * 0.5f
         let mid_y    = cy + (ch - fh) * 0.5f
-        let right_x  = cx + cw - fw - p
-        let bottom_y = cy + ch - fh - p
-        let left_x   = cx + p
-        let top_y    = cy + p
+        let right_x  = cx + cw - fw - px
+        let bottom_y = cy + ch - fh - py
+        let left_x   = cx + px
+        let top_y    = cy + py
 
         if center == centering.left_up
             return float2(left_x, top_y)
@@ -80,7 +82,15 @@ class UiNode : Node
         else
             return float2(right_x, mid_y)
 
+    def get_draw_position() : float2
+        if window_change() || !has_cached_draw_position
+            cached_draw_position = compute_centered_position()
+            position = cached_draw_position
+            has_cached_draw_position = true
+
+        return cached_draw_position
+
     def override render()
         super.render()
         let draw_pos = get_draw_position()
-        draw(ui_name, draw_pos.x, draw_pos.y, coeff, flip_x, rotation, alpha)
+        draw(ui_name, draw_pos.x, draw_pos.y, coeff, flip, rotation, alpha)

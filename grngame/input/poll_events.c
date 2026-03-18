@@ -2,6 +2,7 @@
 #include "cglm/types-struct.h"
 #include "controller.h"
 #include "grngame/core/window.h"
+#include "grngame/utils/clear.h"
 #include "grngame/utils/string_compat.h"
 #include "mouse.h"
 #include <SDL3/SDL_events.h>
@@ -27,9 +28,9 @@ static void ResetInputManagerKeys()
     im->mouse.right_just_pressed = false;
     im->mouse.scroll_x = 0;
     im->mouse.scroll_y = 0;
-    memset(im->key_just_pressed, 0, sizeof(im->key_just_pressed));
+    CLEAR_PTR(im->key_just_pressed);
     for (int i = 0; i < MAX_CONTROLLERS; i++)
-        memset(im->controllers[i].just_pressed, 0, sizeof(im->controllers[i].just_pressed));
+        CLEAR_PTR(im->controllers[i].just_pressed);
 }
 
 static void UpdateMousePosition()

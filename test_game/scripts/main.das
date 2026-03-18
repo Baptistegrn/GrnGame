@@ -12,12 +12,13 @@ def on_start()
     let sound_info = sound_info_default()
     speech_say("Baptiste will you marry me, my Indian love ?", sound_info)
     emit.set_lifetime(2.0)
-    emit.set_spread(180.0)
+    emit.set_spread(20.0)
     emit.set_initial_velocity(120.0)
-    emit.set_gravity(50.0)
+    emit.set_gravity(300.0)
     emit.set_scale_start(8.0)
     emit.set_scale_end(1.0)
     emit.set_one_shot(false)
+    s.coeff = 3
 
 [export]
 def on_update(dt : float)
@@ -26,6 +27,6 @@ def on_update(dt : float)
 [export]
 def on_render()
     cls(20,100,200)
-    s.render()
     emit.render()
     btn.render()
+    s.render()

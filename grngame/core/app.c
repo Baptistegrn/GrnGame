@@ -13,6 +13,7 @@
 #include "grngame/platform/paths.h"
 #include "grngame/renderer/texture.h"
 #include "grngame/utils/attributes.h"
+#include "grngame/utils/clear.h"
 #include "grngame/utils/random.h"
 #include <stdbool.h>
 #include <stdlib.h>
@@ -20,44 +21,46 @@
 static bool s_is_running = false;
 
 static void MainLoop();
+static void EnsureInitSucceeded(InitResult res);
+static void InitializeAppState(const AppInfo *app_info);
+static void InitializeManagers();
+static void InitializeAssetsAndScripts(const AppInfo *app_info);
 
-void EngineStart(AppInfo *app_info)
+static void EnsureInitSucceeded(InitResult res)
 {
-    SetSeed();
-    CheckAllTypes();
-    InitResult res = InitAll(app_info);
-
     if (UNLIKELY(res == INIT_SDL_FAILED))
         exit(1);
-    else if (UNLIKELY(res == INIT_LOG_FAILED))
+    if (UNLIKELY(res == INIT_LOG_FAILED))
         exit(2);
+}
 
+static void InitializeAppState(const AppInfo *app_info)
+{
     g_app.info = *app_info;
     g_app.info.offset_x = 0;
     g_app.info.offset_y = 0;
 
     g_app.window = WindowCreate(&g_app.info);
-
     if (UNLIKELY(!g_app.window))
         exit(3);
-
-    g_app.asset_manager = AssetManagerCreate();
-    g_app.input_manager = InputManagerCreate();
 
     if (UNLIKELY(!RendererTryCreate(g_app.window, &g_app.renderer)))
         exit(4);
 
-    // todo moove in window.c
-    if (g_app.info.window_fullscreen)
-        WindowFullscreen(&g_app.info);
-    else if (g_app.info.window_maximised)
-        WindowMaximized(&g_app.info);
-    else
-        WindowSetSize(&g_app.info, g_app.info.window_width, g_app.info.window_height);
+    WindowApplyInitialMode(&g_app.info);
+}
+
+static void InitializeManagers()
+{
+    g_app.asset_manager = AssetManagerCreate();
+    g_app.input_manager = InputManagerCreate();
 
     if (UNLIKELY(!SoundManagerTryCreate(&g_app.sound_manager)))
         exit(5);
+}
 
+static void InitializeAssetsAndScripts(const AppInfo *app_info)
+{
     g_app.da_script = DaScriptManagerNew();
 
     char *relative_asset_folder = PathFromExecutableDirectory(app_info->asset_folder);
@@ -67,6 +70,19 @@ void EngineStart(AppInfo *app_info)
     bool script_initialized = DaScriptManagerInitialize(g_app.da_script, "main");
     if (!script_initialized)
         SetRenderColor(255, 0, 0);
+}
+
+void EngineStart(AppInfo *app_info)
+{
+    SetSeed();
+    CheckAllTypes();
+    InitResult res = InitAll(app_info);
+    EnsureInitSucceeded(res);
+
+    InitializeAppState(app_info);
+    InitializeManagers();
+    InitializeAssetsAndScripts(app_info);
+
     MainLoop();
 }
 
@@ -91,7 +107,6 @@ static void MainLoop()
         Uint64 frame_start = SDL_GetTicks();
         g_app.info.dt = (float64)(frame_start - previous_ticks) / 1000.0;
         previous_ticks = frame_start;
-
         PollEvents();
 
         if (g_app.da_script)
@@ -107,10 +122,12 @@ static void MainLoop()
         }
 
         RendererClear(&g_app.renderer);
+
         DaScriptManagerCallOnRender(g_app.da_script);
         ApplyBlackStripes();
-        RendererPresent(&g_app.renderer);
 
+        RendererPresent(&g_app.renderer);
+        ClearAll();
         Uint64 frame_end = SDL_GetTicks();
         float64 frame_ms = (float64)(frame_end - frame_start);
 

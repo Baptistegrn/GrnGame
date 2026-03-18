@@ -57,6 +57,11 @@ static bool window_is_force_universe_scale()
     return g_app.info.force_universe_scale;
 }
 
+static bool window_get_change()
+{
+    return WindowGetChange();
+}
+
 WindowModule::WindowModule() : Module("grngame_window")
 {
     auto module_library = das::ModuleLibrary(this);
@@ -87,6 +92,8 @@ WindowModule::WindowModule() : Module("grngame_window")
     das::addExtern<DAS_BIND_FUN(window_is_force_universe_scale)>(
         *this, module_library, "window_is_force_universe_scale", das::SideEffects::modifyExternal,
         "window_is_force_universe_scale");
+    das::addExtern<DAS_BIND_FUN(window_get_change)>(*this, module_library, "window_change",
+                                                    das::SideEffects::modifyExternal, "window_change");
 }
 
 REGISTER_MODULE(WindowModule);

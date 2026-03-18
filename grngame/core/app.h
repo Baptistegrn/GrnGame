@@ -26,6 +26,7 @@ typedef struct
     bool window_resizable;
     bool window_fullscreen;
     bool window_maximised;
+    bool window_change;
 
     float32 offset_x;
     float32 offset_y;

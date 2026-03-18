@@ -112,6 +112,11 @@ float32 WindowGetOffsetY()
     return g_app.info.offset_y;
 }
 
+bool WindowGetChange()
+{
+    return g_app.info.window_change;
+}
+
 void ApplyResizing(AppInfo *app_info, int16 width, int16 height)
 {
     int8 coeff_w = width / (int16)app_info->window_universe_width;
@@ -137,6 +142,8 @@ void ApplyResizing(AppInfo *app_info, int16 width, int16 height)
     app_info->offset_y = offset_y;
 
     WindowConfigureScale(coeff, coeff);
+
+    g_app.info.window_change = true;
 }
 
 void WindowFullscreen(AppInfo *app_info)
@@ -183,6 +190,16 @@ void WindowSetSize(AppInfo *app_info, uint16 width, uint16 height)
     ApplyResizing(app_info, width, height);
     app_info->window_fullscreen = false;
     app_info->window_maximised = false;
+}
+
+void WindowApplyInitialMode(AppInfo *app_info)
+{
+    if (app_info->window_fullscreen)
+        WindowFullscreen(app_info);
+    else if (app_info->window_maximised)
+        WindowMaximized(app_info);
+    else
+        WindowSetSize(app_info, app_info->window_width, app_info->window_height);
 }
 
 void ApplyBlackStripes()
