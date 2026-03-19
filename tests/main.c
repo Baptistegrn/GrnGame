@@ -18,7 +18,7 @@ int main()
     app.window_maximised = false;
     app.enable_logs = true;
     app.log_destination = LOG_TO_CONSOLE;
-    app.force_universe_scale = false;
+    app.force_universe_scale = true;
     EngineStart(&app);
     return 0;
 }

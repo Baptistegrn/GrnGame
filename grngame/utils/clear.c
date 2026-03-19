@@ -4,4 +4,5 @@
 void ClearAll()
 {
     CLEAR(g_app.info.window_change);
+
 }

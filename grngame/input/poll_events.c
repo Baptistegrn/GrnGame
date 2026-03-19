@@ -28,9 +28,9 @@ static void ResetInputManagerKeys()
     im->mouse.right_just_pressed = false;
     im->mouse.scroll_x = 0;
     im->mouse.scroll_y = 0;
-    CLEAR_PTR(im->key_just_pressed);
+    CLEAR(im->key_just_pressed);
     for (int i = 0; i < MAX_CONTROLLERS; i++)
-        CLEAR_PTR(im->controllers[i].just_pressed);
+        CLEAR(im->controllers[i].just_pressed);
 }
 
 static void UpdateMousePosition()
@@ -81,6 +81,14 @@ void PollEvents()
         case SDL_EVENT_WINDOW_MAXIMIZED: {
             ivec2s i = WindowDimensions(g_app.window);
             ApplyResizing(&g_app.info, (int16)i.x, (int16)i.y);
+            break;
+        }
+        case SDL_EVENT_WINDOW_MINIMIZED:{
+            g_app.info.window_occlusion_culled =true;
+            break;
+        }
+        case SDL_EVENT_WINDOW_RESTORED:{
+            g_app.info.window_occlusion_culled =false;
             break;
         }
         case SDL_EVENT_KEY_DOWN:

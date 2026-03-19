@@ -39,6 +39,7 @@ static void InitializeAppState(const AppInfo *app_info)
     g_app.info = *app_info;
     g_app.info.offset_x = 0;
     g_app.info.offset_y = 0;
+    g_app.info.window_occlusion_culled =false;
 
     g_app.window = WindowCreate(&g_app.info);
     if (UNLIKELY(!g_app.window))
@@ -120,13 +121,14 @@ static void MainLoop()
                 fixed_accumulator -= fixed_dt;
             }
         }
+        if(!g_app.info.window_occlusion_culled){
+            RendererClear(&g_app.renderer);
 
-        RendererClear(&g_app.renderer);
+            DaScriptManagerCallOnRender(g_app.da_script);
+            ApplyBlackStripes();
 
-        DaScriptManagerCallOnRender(g_app.da_script);
-        ApplyBlackStripes();
-
-        RendererPresent(&g_app.renderer);
+            RendererPresent(&g_app.renderer);
+        }
         ClearAll();
         uint64 frame_end = SDL_GetTicks();
         float64 frame_ms = (float64)(frame_end - frame_start);
