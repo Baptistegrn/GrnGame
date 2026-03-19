@@ -1,8 +1,8 @@
 #include "sound_info.h"
 
 #include <float.h>
-#include <stddef.h>
 #include <math.h>
+#include <stddef.h>
 
 SoundInfo SoundInfoDefault()
 {

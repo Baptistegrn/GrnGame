@@ -7,7 +7,7 @@
 void SpeechSay(const char *text, const SoundInfo *sound_info)
 {
     // TODO have it work with filters like sound
-    
+
     Speech *speech = g_app.sound_manager.speech;
     Soloud soloud = g_app.sound_manager.soloud;
 

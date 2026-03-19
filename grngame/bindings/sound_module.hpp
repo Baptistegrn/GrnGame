@@ -6,6 +6,6 @@ MAKE_TYPE_FACTORY(SoundInfo, SoundInfo);
 
 class SoundModule : public das::Module
 {
-public:
+  public:
     SoundModule();
 };

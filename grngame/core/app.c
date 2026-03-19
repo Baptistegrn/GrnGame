@@ -100,11 +100,11 @@ static void MainLoop()
     float64 target_frame_ms = 1000.0 / (float64)g_app.info.fps;
     float64 fixed_dt = 0.016;
     float64 fixed_accumulator = 0.0;
-    Uint64 previous_ticks = SDL_GetTicks();
+    uint64 previous_ticks = SDL_GetTicks();
 
     while (s_is_running)
     {
-        Uint64 frame_start = SDL_GetTicks();
+        uint64 frame_start = SDL_GetTicks();
         g_app.info.dt = (float64)(frame_start - previous_ticks) / 1000.0;
         previous_ticks = frame_start;
         PollEvents();
@@ -128,11 +128,11 @@ static void MainLoop()
 
         RendererPresent(&g_app.renderer);
         ClearAll();
-        Uint64 frame_end = SDL_GetTicks();
+        uint64 frame_end = SDL_GetTicks();
         float64 frame_ms = (float64)(frame_end - frame_start);
 
         if (frame_ms < target_frame_ms)
-            SDL_Delay((Uint32)(target_frame_ms - frame_ms));
+            SDL_Delay((uint32)(target_frame_ms - frame_ms));
     }
 }
 

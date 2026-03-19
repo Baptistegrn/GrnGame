@@ -2,46 +2,46 @@
 
 #include "da_script_engine.hpp"
 
-extern "C" {
-
-    DaScriptManager* DaScriptManagerNew()
+extern "C"
+{
+    DaScriptManager *DaScriptManagerNew()
     {
-        return reinterpret_cast<DaScriptManager*>(new DaScriptEngine());
+        return reinterpret_cast<DaScriptManager *>(new DaScriptEngine());
     }
 
-    void DaScriptManagerDelete(DaScriptManager* manager)
+    void DaScriptManagerDelete(DaScriptManager *manager)
     {
-        delete reinterpret_cast<DaScriptEngine*>(manager);
+        delete reinterpret_cast<DaScriptEngine *>(manager);
     }
 
-    bool DaScriptManagerInitialize(DaScriptManager* manager, const char* main_script_name)
+    bool DaScriptManagerInitialize(DaScriptManager *manager, const char *main_script_name)
     {
-        return reinterpret_cast<DaScriptEngine*>(manager)->Init(main_script_name);
+        return reinterpret_cast<DaScriptEngine *>(manager)->Init(main_script_name);
     }
 
-    bool DaScriptManagerCallOnStart(DaScriptManager* manager)
+    bool DaScriptManagerCallOnStart(DaScriptManager *manager)
     {
-        return reinterpret_cast<DaScriptEngine*>(manager)->CallOnStart();
+        return reinterpret_cast<DaScriptEngine *>(manager)->CallOnStart();
     }
 
-    bool DaScriptManagerCallOnUpdate(DaScriptManager* manager, float delta)
+    bool DaScriptManagerCallOnUpdate(DaScriptManager *manager, float delta)
     {
-        return reinterpret_cast<DaScriptEngine*>(manager)->CallOnUpdate(delta);
+        return reinterpret_cast<DaScriptEngine *>(manager)->CallOnUpdate(delta);
     }
 
-    bool DaScriptManagerCallOnFixedUpdate(DaScriptManager* manager, float delta)
+    bool DaScriptManagerCallOnFixedUpdate(DaScriptManager *manager, float delta)
     {
-        return reinterpret_cast<DaScriptEngine*>(manager)->CallOnFixedUpdate(delta);
+        return reinterpret_cast<DaScriptEngine *>(manager)->CallOnFixedUpdate(delta);
     }
 
-    bool DaScriptManagerCallOnRender(DaScriptManager* manager)
+    bool DaScriptManagerCallOnRender(DaScriptManager *manager)
     {
-        return reinterpret_cast<DaScriptEngine*>(manager)->CallOnRender();
+        return reinterpret_cast<DaScriptEngine *>(manager)->CallOnRender();
     }
 
-    bool DaScriptManagerCallOnDestroy(DaScriptManager* manager)
+    bool DaScriptManagerCallOnDestroy(DaScriptManager *manager)
     {
-        return reinterpret_cast<DaScriptEngine*>(manager)->CallOnDestroy();
+        return reinterpret_cast<DaScriptEngine *>(manager)->CallOnDestroy();
     }
 
 } // extern "C"

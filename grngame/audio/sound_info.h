@@ -1,29 +1,24 @@
 #pragma once
 #include "filter.h"
-
+#include "grngame/utils/c_cpp.h"
 #include <cglm/types-struct.h>
 #include <stdbool.h>
 
-#ifdef __cplusplus
-extern "C"
+BEGIN_DECLARATIONS
+
+typedef struct
 {
-#endif
+    float volume;
+    float pitch;
+    float pan; // -1.0 = left, 0.0 = center, 1.0 = right
+    bool looping;
+    float fade_in; // seconds
+    vec2s position;
+    FilterDef *filters;
+    int filter_count;
+} SoundInfo;
 
-    typedef struct
-    {
-        float volume;
-        float pitch;
-        float pan; // -1.0 = left, 0.0 = center, 1.0 = right
-        bool looping;
-        float fade_in; // seconds
-        vec2s position;
-        FilterDef *filters;
-        int filter_count;
-    } SoundInfo;
+SoundInfo SoundInfoDefault();
+SoundInfo SoundInfoAt(float x, float y);
 
-    SoundInfo SoundInfoDefault();
-    SoundInfo SoundInfoAt(float x, float y);
-
-#ifdef __cplusplus
-}
-#endif
+END_DECLARATIONS

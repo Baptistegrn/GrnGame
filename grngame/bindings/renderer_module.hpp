@@ -1,6 +1,6 @@
 #pragma once
-#include <daScript/daScript.h>
 #include "utils_module.hpp" // we need to include it since it has the type factories of vec2s and ivec2s
+#include <daScript/daScript.h>
 
 extern "C"
 {

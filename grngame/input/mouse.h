@@ -2,6 +2,9 @@
 #include "../math/types.h"
 #include "cglm/types-struct.h"
 #include <stdbool.h>
+#include "grngame/utils/c_cpp.h"
+
+BEGIN_DECLARATIONS
 
 typedef struct
 {
@@ -28,3 +31,5 @@ int8 MouseScrollY();
 void MoveMouse(int16 x, int16 y);
 bool ShowCursor();
 bool HideCursor();
+
+END_DECLARATIONS

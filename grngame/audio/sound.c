@@ -25,7 +25,6 @@ typedef struct
     bool playing;
 } SoundState;
 
-
 KHASH_MAP_INIT_STR(SoundStateMap, SoundState)
 
 static khash_t(SoundStateMap) *s_sound_states = NULL;

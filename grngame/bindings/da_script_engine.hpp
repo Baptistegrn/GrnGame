@@ -1,6 +1,6 @@
 #pragma once
-#include <daScript/simulate/simulate.h>
 #include <daScript/daScript.h>
+#include <daScript/simulate/simulate.h>
 
 class DaScriptEngine
 {
@@ -11,22 +11,24 @@ class DaScriptEngine
     das::ProgramPtr main_program;
     std::unique_ptr<das::Context> main_context;
 
-    das::SimFunction* on_update = nullptr;
-    das::SimFunction* on_start = nullptr;
-    das::SimFunction* on_fixed_update = nullptr;
-    das::SimFunction* on_render = nullptr;
-    das::SimFunction* on_destroy = nullptr;
-public:
+    das::SimFunction *on_update = nullptr;
+    das::SimFunction *on_start = nullptr;
+    das::SimFunction *on_fixed_update = nullptr;
+    das::SimFunction *on_render = nullptr;
+    das::SimFunction *on_destroy = nullptr;
+
+  public:
     DaScriptEngine();
     ~DaScriptEngine();
 
-    bool Init(const char* main_script_name);
+    bool Init(const char *main_script_name);
 
     bool CallOnStart() const;
     bool CallOnUpdate(float delta) const;
     bool CallOnFixedUpdate(float delta) const;
     bool CallOnRender() const;
     bool CallOnDestroy() const;
-private:
-    static void LogErrorsOfProgram(const das::ProgramPtr& program);
+
+  private:
+    static void LogErrorsOfProgram(const das::ProgramPtr &program);
 };

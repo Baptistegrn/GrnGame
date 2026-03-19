@@ -1,9 +1,8 @@
 #pragma once
+#include "grngame/utils/c_cpp.h"
 #include <stdbool.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+BEGIN_DECLARATIONS
 
 typedef enum
 {
@@ -22,14 +21,12 @@ typedef enum
 } LogSeverity;
 
 bool LogInit(LogDestination log_destination);
-void Log(LogSeverity log_severity, const char* format, ...);
+void Log(LogSeverity log_severity, const char *format, ...);
 
-#define LOG_DEBUG(fmt, ...)    Log(LOG_SEVERITY_DEBUG,    fmt, ##__VA_ARGS__)
-#define LOG_INFO(fmt, ...)     Log(LOG_SEVERITY_INFO,     fmt, ##__VA_ARGS__)
-#define LOG_WARNING(fmt, ...)     Log(LOG_SEVERITY_WARNING,  fmt, ##__VA_ARGS__)
-#define LOG_ERROR(fmt, ...)    Log(LOG_SEVERITY_ERROR,    fmt, ##__VA_ARGS__)
+#define LOG_DEBUG(fmt, ...) Log(LOG_SEVERITY_DEBUG, fmt, ##__VA_ARGS__)
+#define LOG_INFO(fmt, ...) Log(LOG_SEVERITY_INFO, fmt, ##__VA_ARGS__)
+#define LOG_WARNING(fmt, ...) Log(LOG_SEVERITY_WARNING, fmt, ##__VA_ARGS__)
+#define LOG_ERROR(fmt, ...) Log(LOG_SEVERITY_ERROR, fmt, ##__VA_ARGS__)
 #define LOG_CRITICAL(fmt, ...) Log(LOG_SEVERITY_CRITICAL, fmt, ##__VA_ARGS__)
 
-#ifdef __cplusplus
-}
-#endif
+END_DECLARATIONS

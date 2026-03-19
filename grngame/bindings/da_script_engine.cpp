@@ -19,6 +19,8 @@ DaScriptEngine::DaScriptEngine() : file_access(das::make_smart<das::FsFileAccess
     NEED_MODULE(RendererModule);
     NEED_MODULE(SoundModule);
     NEED_MODULE(WindowModule);
+    NEED_MODULE(InputModule);
+
     NEED_MODULE(Module_dasSQLITE);
 }
 

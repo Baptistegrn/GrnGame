@@ -21,8 +21,7 @@ void DirWalk(const char *dir_path, FileCallback callback, void *userdata)
 
         if (file.is_dir)
         {
-            if (strcmp(file.name, ".") != 0 &&
-                strcmp(file.name, "..") != 0)
+            if (strcmp(file.name, ".") != 0 && strcmp(file.name, "..") != 0)
                 DirWalk(file.path, callback, userdata);
         }
         else
@@ -36,17 +35,20 @@ void DirWalk(const char *dir_path, FileCallback callback, void *userdata)
     tinydir_close(&dir);
 }
 
-static void count_callback(const char* path, void* userdata) {
+static void count_callback(const char *path, void *userdata)
+{
     (void)path;
-    (*(int*)userdata)++;
+    (*(int *)userdata)++;
 }
 
-int DirFileCount(const char* dir_path) {
+int DirFileCount(const char *dir_path)
+{
     int count = 0;
     DirWalk(dir_path, count_callback, &count);
     return count;
 }
 
-const char* DirOfExecutable() {
+const char *DirOfExecutable()
+{
     return SDL_GetBasePath(); // cached by sdl
 }

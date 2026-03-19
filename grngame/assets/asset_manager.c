@@ -3,8 +3,8 @@
 #include "SDL3/SDL_error.h"
 #include "grngame/assets/load.h"
 #include "grngame/dev/logging.h"
-#include "grngame/platform/paths.h"
 #include "grngame/platform/directories.h"
+#include "grngame/platform/paths.h"
 #include "khash.h"
 #include <stdlib.h>
 
@@ -18,7 +18,8 @@ AssetManager AssetManagerCreate()
 void AssetManagerLoadFolder(const char *folder)
 {
     // warn the user if he tries to use an invalid asset folder
-    if (DirFileCount(folder) == 0) {
+    if (DirFileCount(folder) == 0)
+    {
         LOG_WARNING("No files in asset folder '%s'", folder);
         return;
     }
