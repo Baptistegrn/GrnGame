@@ -6,11 +6,18 @@ require std/all
 var emit = new ParticleEmitterNode("emit")
 var s = new SpriteNode("player", "player", 100, 100)
 var btn = new UiNode("btn", "1", 1, centering.middle)
+var inpt = new InputNode()
 
 [export]
 def on_start()
+    inpt.add_alias("interact", 13)
+
+    inpt.add_callback("interact", @() : void {
+        print("allah\n");
+    })
+
     let sound_info = sound_info_default()
-    speech_say("Baptiste will you marry me, my Indian love ?", sound_info)
+    speech_say("Your thirst will not be quenched", sound_info)
     emit.set_lifetime(2.0)
     emit.set_spread(20.0)
     emit.set_initial_velocity(120.0)
@@ -23,10 +30,11 @@ def on_start()
 [export]
 def on_update(dt : float)
     emit.update(dt)
+    inpt.update(dt)
 
 [export]
 def on_render()
-    cls(20,100,200)
+    cls(20, 100, 200)
     emit.render()
     btn.render()
     s.render()

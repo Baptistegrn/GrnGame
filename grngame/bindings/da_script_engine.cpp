@@ -4,6 +4,7 @@
 #include "daScript/daScriptModule.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/directories.h"
+#include <cstdio>
 #include <filesystem>
 #include <sstream>
 
@@ -172,5 +173,5 @@ std::string FormatProgramErrors(const das::ProgramPtr &program)
 void DaScriptEngine::LogErrorsOfProgram(const das::ProgramPtr &program)
 {
 
-    LOG_ERROR("%s", FormatProgramErrors(program).c_str());
+    fprintf(stderr, "%s", FormatProgramErrors(program).c_str());
 }
