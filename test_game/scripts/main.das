@@ -10,10 +10,10 @@ var inpt = new InputNode()
 
 [export]
 def on_start()
-    inpt.add_alias("interact", 13)
+    inpt.add_alias("interact", KeyCode.KEY_0)
 
-    inpt.add_callback("interact", @() : void {
-        print("allah\n");
+    inpt.add_callback("interact",input_event.pressed, @() : void {
+        print("hey\n");
     })
 
     let sound_info = sound_info_default()
