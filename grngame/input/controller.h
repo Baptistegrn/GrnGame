@@ -2,6 +2,7 @@
 
 #include "../math/types.h"
 #include "SDL3/SDL_gamepad.h"
+#include "grngame/utils/c_cpp.h"
 #include <stdbool.h>
 
 #define MAX_CONTROLLERS 8
@@ -17,6 +18,8 @@ typedef struct
     bool just_pressed[SDL_GAMEPAD_BUTTON_COUNT];
 } Controller;
 
+BEGIN_DECLARATIONS;
+
 bool ControllerOpen(int16 index);
 void ControllerClose(int16 index);
 
@@ -31,3 +34,5 @@ void GamepadClose(SDL_Gamepad *gp);
 
 void PadSticks(uint16 index, float32 dead_zone, float32 *out_lx, float32 *out_ly, float32 *out_rx, float32 *out_ry);
 void PadTriggers(uint8 index, float32 dead_zone, float32 *out_left, float32 *out_right);
+
+END_DECLARATIONS;

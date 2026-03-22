@@ -10,9 +10,9 @@ var inpt = new InputNode()
 
 [export]
 def on_start()
-    inpt.add_alias("interact", KeyCode.KEY_0)
+    inpt.add_pad_alias("interact",PadButton.PAD_SOUTH )
 
-    inpt.add_callback("interact",input_event.pressed, @() : void {
+    inpt.add_pad_callback("interact",input_event.pressed, @() : void {
         print("hey\n");
     })
 

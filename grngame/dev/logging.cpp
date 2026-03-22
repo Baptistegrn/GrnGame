@@ -105,6 +105,6 @@ static LogSeverity LogSeverityForBuildType()
 #ifdef GRNGAME_DEBUG
     return LOG_SEVERITY_DEBUG;
 #else
-    return LOG_SEVERITY_WARNING;
+    return LOG_SEVERITY_DEBUG;
 #endif
 }

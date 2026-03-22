@@ -19,23 +19,28 @@ InputModule::InputModule() : das::Module("grngame_input")
     das::addExtern<DAS_BIND_FUN(KeyJustPressed)>(*this, module_library, "key_just_pressed", das::SideEffects::none,
                                                  "KeyJustPressed");
 
+    // Controller
+
+    das::addExtern<DAS_BIND_FUN(PadPressed)>(*this, module_library, "pad_pressed", das::SideEffects::none,
+                                             "PadPressed");
+    das::addExtern<DAS_BIND_FUN(PadJustPressed)>(*this, module_library, "pad_just_pressed", das::SideEffects::none,
+                                                 "PadJustPressed");
+
     // Mouse position
-    das::addExtern<DAS_BIND_FUN(GetMousePosition), das::SimNode_ExtFuncCallAndCopyOrMove>(*this, module_library, "get_mouse_position", das::SideEffects::none,
-                                                   "GetMousePosition");
-    das::addExtern<DAS_BIND_FUN(MouseX)>(*this, module_library, "mouse_x", das::SideEffects::none,
-                                         "MouseX");
-    das::addExtern<DAS_BIND_FUN(MouseY)>(*this, module_library, "mouse_y", das::SideEffects::none,
-                                         "MouseY");
+    das::addExtern<DAS_BIND_FUN(GetMousePosition), das::SimNode_ExtFuncCallAndCopyOrMove>(
+        *this, module_library, "get_mouse_position", das::SideEffects::none, "GetMousePosition");
+    das::addExtern<DAS_BIND_FUN(MouseX)>(*this, module_library, "mouse_x", das::SideEffects::none, "MouseX");
+    das::addExtern<DAS_BIND_FUN(MouseY)>(*this, module_library, "mouse_y", das::SideEffects::none, "MouseY");
 
     // Mouse buttons
     das::addExtern<DAS_BIND_FUN(MouseLeftPressed)>(*this, module_library, "mouse_left_pressed", das::SideEffects::none,
                                                    "MouseLeftPressed");
-    das::addExtern<DAS_BIND_FUN(MouseLeftJustPressed)>(*this, module_library, "mouse_left_just_pressed", das::SideEffects::none,
-                                                       "MouseLeftJustPressed");
-    das::addExtern<DAS_BIND_FUN(MouseRightPressed)>(*this, module_library, "mouse_right_pressed", das::SideEffects::none,
-                                                    "MouseRightPressed");
-    das::addExtern<DAS_BIND_FUN(MouseRightJustPressed)>(*this, module_library, "mouse_right_just_pressed", das::SideEffects::none,
-                                                        "MouseRightJustPressed");
+    das::addExtern<DAS_BIND_FUN(MouseLeftJustPressed)>(*this, module_library, "mouse_left_just_pressed",
+                                                       das::SideEffects::none, "MouseLeftJustPressed");
+    das::addExtern<DAS_BIND_FUN(MouseRightPressed)>(*this, module_library, "mouse_right_pressed",
+                                                    das::SideEffects::none, "MouseRightPressed");
+    das::addExtern<DAS_BIND_FUN(MouseRightJustPressed)>(*this, module_library, "mouse_right_just_pressed",
+                                                        das::SideEffects::none, "MouseRightJustPressed");
 
     // Mouse scroll
     das::addExtern<DAS_BIND_FUN(MouseScrollX)>(*this, module_library, "mouse_scroll_x", das::SideEffects::none,

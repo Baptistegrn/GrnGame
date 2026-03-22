@@ -6,7 +6,7 @@ require grngame_renderer
 class SpriteNode : Node {
     spr : Sprite
     frame : int
-    flip_x : bool
+    flip : bool
     alpha : int
     rotation : int
     coeff : int
@@ -15,7 +15,7 @@ class SpriteNode : Node {
         Node`Node(self, name)
         self.spr = sprite(sprite_name, w, h)
         self.frame = 0
-        self.flip_x = false
+        self.flip = false
         self.alpha = 255
         self.rotation = 0
         self.coeff = 1
@@ -24,6 +24,6 @@ class SpriteNode : Node {
     def override render() {
         super.render()
         let wp = get_world_position()
-        sprite_draw(spr, frame, wp.x, wp.y, coeff, flip_x, rotation, alpha)
+        sprite_draw(spr, frame, wp.x, wp.y, coeff, flip, rotation, alpha)
     }
 }
