@@ -97,6 +97,27 @@ bool PadJustPressed(int button, int16 index)
     return g_app.input_manager.controllers[index].just_pressed[button];
 }
 
+int PadFirstPressedIndexForButton(int button)
+{
+    if (UNLIKELY(button < 0 || button >= SDL_GAMEPAD_BUTTON_COUNT))
+    {
+        LOG_WARNING("Invalid pad button %d", button);
+        return -1;
+    }
+
+    for (int i = 0; i < MAX_CONTROLLERS; ++i)
+    {
+        Controller *c = &g_app.input_manager.controllers[i];
+        if (!c->gamepad)
+            continue;
+
+        if (c->pressed[button])
+            return i;
+    }
+
+    return -1;
+}
+
 void PadSticks(uint16 index, float32 dead_zone, float32 *out_lx, float32 *out_ly, float32 *out_rx, float32 *out_ry)
 {
     if (index >= MAX_CONTROLLERS)

@@ -26,6 +26,8 @@ void ControllerClose(int16 index);
 bool PadPressed(int button, int16 index);
 bool PadJustPressed(int button, int16 index);
 
+int PadFirstPressedIndexForButton(int button);
+
 SDL_Gamepad *GamepadOpen(SDL_JoystickID id);
 SDL_Gamepad *GamepadFromID(SDL_JoystickID id);
 SDL_Joystick *GamepadGetJoystick(SDL_Gamepad *gp);

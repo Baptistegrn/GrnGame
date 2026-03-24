@@ -26,6 +26,9 @@ InputModule::InputModule() : das::Module("grngame_input")
     das::addExtern<DAS_BIND_FUN(PadJustPressed)>(*this, module_library, "pad_just_pressed", das::SideEffects::none,
                                                  "PadJustPressed");
 
+    das::addExtern<DAS_BIND_FUN(PadFirstPressedIndexForButton)>(
+        *this, module_library, "pad_first_pressed_index", das::SideEffects::none, "PadFirstPressedIndexForButton");
+
     // Mouse position
     das::addExtern<DAS_BIND_FUN(GetMousePosition), das::SimNode_ExtFuncCallAndCopyOrMove>(
         *this, module_library, "get_mouse_position", das::SideEffects::none, "GetMousePosition");

@@ -24,7 +24,7 @@ class UiNode : Node
     cached_draw_position: float2
     has_cached_draw_position: bool = false
 
-    def UiNode(name: string, ui_name: string; in_coeff: int; is_center: centering)
+    def UiNode(name: string, ui_name: string; in_coeff: int =1; is_center: centering =centering.middle)
         Node`Node(self, name)
         let tex_size = texture_get_size(ui_name)
         self.w      = tex_size.x * in_coeff

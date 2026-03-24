@@ -39,88 +39,52 @@ enum input_event {
     pressed
 }
 
-class InputNode : Node {
-    key_aliases: table<string; KeyCode>
-    key_just_pressed_events : table<KeyCode; array<lambda>>
-    key_pressed_events : table<KeyCode; array<lambda>>
+class KeyboardInputNode : Node {
+    aliases: table<string; KeyCode>
+    just_pressed_events : table<KeyCode; array<lambda>>
+    pressed_events : table<KeyCode; array<lambda>>
 
-    pad_aliases: table<string; PadButton>
-    pad_just_pressed_events : table<PadButton; array<lambda>>
-    pad_pressed_events : table<PadButton; array<lambda>>
-
-    def InputNode() {
-        Node`Node(self, "InputNode");
+    def KeyboardInputNode() {
+        Node`Node(self, "KeyboardInputNode");
         
-        self.key_aliases <- table<string; KeyCode>();
-        self.key_just_pressed_events <- table<KeyCode; array<lambda>>();
-        self.key_pressed_events <- table<KeyCode; array<lambda>>();
-
-        self.pad_aliases <- table<string; PadButton>();
-        self.pad_just_pressed_events <- table<PadButton; array<lambda>>();
-        self.pad_pressed_events <- table<PadButton; array<lambda>>();
+        self.aliases <- table<string; KeyCode>();
+        self.just_pressed_events <- table<KeyCode; array<lambda>>();
+        self.pressed_events <- table<KeyCode; array<lambda>>();
     }
 
-    def add_key_alias(name: string; key: KeyCode) : void {
-        self.key_aliases |> insert(name, key);
+    def add_alias(name: string; key: KeyCode) : void {
+        self.aliases |> insert(name, key);
     }
 
-    def add_key_callback(alias: string; input_type: input_event; var callback: lambda) : bool {
-        if (!self.key_aliases.key_exists(alias)) {
+    def add_callback(alias: string; input_type: input_event; var callback: lambda) : bool {
+        if (!self.aliases.key_exists(alias)) {
             return false;
         }
 
-        let aliased_key = self.key_aliases |> get_value(alias);
-        self.add_key_callback_raw(aliased_key, input_type, callback);
+        let aliased_key = self.aliases |> get_value(alias);
+        self.add_callback_raw(aliased_key, input_type, callback);
         return true;
     }
 
-    def add_key_callback_raw(key: KeyCode; input_type: input_event; var callback: lambda) : void {
+    def add_callback_raw(key: KeyCode; input_type: input_event; var callback: lambda) : void {
         if (input_type == input_event.just_pressed) {
-            if (!self.key_just_pressed_events.key_exists(key)) {
-                self.key_just_pressed_events[key] <- array<lambda>();
+            if (!self.just_pressed_events.key_exists(key)) {
+                self.just_pressed_events[key] <- array<lambda>();
             }
-            self.key_just_pressed_events[key].emplace(callback);
+            self.just_pressed_events[key].emplace(callback);
         }
         elif (input_type == input_event.pressed) {
-            if (!self.key_pressed_events.key_exists(key)) {
-                self.key_pressed_events[key] <- array<lambda>();
+            if (!self.pressed_events.key_exists(key)) {
+                self.pressed_events[key] <- array<lambda>();
             }
-            self.key_pressed_events[key].emplace(callback);
+            self.pressed_events[key].emplace(callback);
         }
     }
 
-    def add_pad_alias(name: string; button: PadButton) : void {
-        self.pad_aliases |> insert(name, button);
-    }
-
-    def add_pad_callback(alias: string; input_type: input_event; var callback: lambda) : bool {
-        if (!self.pad_aliases.key_exists(alias)) {
-            return false;
-        }
-
-        let aliased_pad = self.pad_aliases |> get_value(alias);
-        self.add_pad_callback_raw(aliased_pad, input_type, callback);
-        return true;
-    }
-
-    def add_pad_callback_raw(button: PadButton; input_type: input_event; var callback: lambda) : void {
-        if (input_type == input_event.just_pressed) {
-            if (!self.pad_just_pressed_events.key_exists(button)) {
-                self.pad_just_pressed_events[button] <- array<lambda>();
-            }
-            self.pad_just_pressed_events[button].emplace(callback);
-        }
-        elif (input_type == input_event.pressed) {
-            if (!self.pad_pressed_events.key_exists(button)) {
-                self.pad_pressed_events[button] <- array<lambda>();
-            }
-            self.pad_pressed_events[button].emplace(callback);
-        }
-    }
-
- def override update(dt: float) {
+    def override update(dt: float) {
         super.update(dt);
-        for (key, callbacks in keys(self.key_just_pressed_events), values(self.key_just_pressed_events)) {
+
+        for (key, callbacks in keys(self.just_pressed_events), values(self.just_pressed_events)) {
             if (key_just_pressed(int(key))) {
                 for (cb in callbacks) {
                     invoke(cb);
@@ -128,29 +92,102 @@ class InputNode : Node {
             }
         }
 
-        for (key, callbacks in keys(self.key_pressed_events), values(self.key_pressed_events)) {
+        for (key, callbacks in keys(self.pressed_events), values(self.pressed_events)) {
             if (key_pressed(int(key))) {
                 for (cb in callbacks) {
                     invoke(cb);
                 }
             }
         }
-        for (button, callbacks in keys(self.pad_just_pressed_events), values(self.pad_just_pressed_events)) {
-            for (pad_id in range(8)) {
-                if (pad_just_pressed(int(button),int16(pad_id))) { 
-                    for (cb in callbacks) {
-                        invoke(cb);
-                    }
+    }
+}
+
+
+class PadInputNode : Node {
+    pad_id: int
+    has_pad: bool
+    detect_button: PadButton
+    aliases: table<string; PadButton>
+    just_pressed_events : table<PadButton; array<lambda>>
+    pressed_events : table<PadButton; array<lambda>>
+
+    def PadInputNode(button :PadButton = PadButton.PAD_SOUTH) { // default is key A
+        Node`Node(self, "PadInputNode");
+        self.pad_id =0; // id of controller
+        self.has_pad = false; // is connected ? 
+        self.detect_button = button;
+        self.aliases <- table<string; PadButton>();
+        self.just_pressed_events <- table<PadButton; array<lambda>>();
+        self.pressed_events <- table<PadButton; array<lambda>>();
+    }
+
+    def add_alias(name: string; button: PadButton) : void {
+        self.aliases |> insert(name, button);
+    }
+
+    def set_id(button : PadButton): bool{
+        self.pad_id = pad_first_pressed_index(int(button));
+        if(self.pad_id ==-1){
+            self.has_pad = false;
+            return false;
+        }
+        else{
+            self.has_pad = true;
+            return true;
+        }
+    }
+
+    def set_detect_button(button : PadButton) : void {
+        self.detect_button = button;
+    }
+
+    def add_callback(alias: string; input_type: input_event; var callback: lambda) : bool {
+        if (!self.aliases.key_exists(alias)) {
+            return false;
+        }
+
+        let aliased_pad = self.aliases |> get_value(alias);
+        self.add_callback_raw(aliased_pad, input_type, callback);
+        return true;
+    }
+
+    def add_callback_raw(button: PadButton; input_type: input_event; var callback: lambda) : void {
+        if (input_type == input_event.just_pressed) {
+            if (!self.just_pressed_events.key_exists(button)) {
+                self.just_pressed_events[button] <- array<lambda>();
+            }
+            self.just_pressed_events[button].emplace(callback);
+        }
+        elif (input_type == input_event.pressed) {
+            if (!self.pressed_events.key_exists(button)) {
+                self.pressed_events[button] <- array<lambda>();
+            }
+            self.pressed_events[button].emplace(callback);
+        }
+    }
+
+    def override update(dt: float) {
+        super.update(dt);
+
+        if (!self.has_pad) {
+            self.has_pad = self.set_id(self.detect_button);
+            if (!self.has_pad) {
+                return;
+            }
+        }
+    
+        for (button, callbacks in keys(self.just_pressed_events), values(self.just_pressed_events)) {
+            if (pad_just_pressed(int(button), int16(self.pad_id))) { 
+                for (cb in callbacks) {
+                    invoke(cb);
                 }
             }
         }
 
-        for (button, callbacks in keys(self.pad_pressed_events), values(self.pad_pressed_events)) {
-            for (pad_id in range(8)) {
-                if (pad_pressed( int(button),int16(pad_id))) {
-                    for (cb in callbacks) {
-                        invoke(cb);
-                    }
+        for (button, callbacks in keys(self.pressed_events), values(self.pressed_events)) {
+            if (pad_pressed(int(button), int16(self.pad_id))) {
+                for (cb in callbacks) {
+                    invoke(cb);
                 }
             }
         }

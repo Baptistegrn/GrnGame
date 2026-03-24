@@ -249,7 +249,7 @@ void RenderEmitter(ParticleEmitter *emit)
         float32 w = p->size;
         float32 h = p->size;
 
-        SDL_FColor color = {p->r, p->g, p->b, p->a};
+        SDL_FColor color = {p->r / 255.0f, p->g / 255.0f, p->b / 255.0f, p->a / 255.0f};
 
         int32 base = vcount;
 

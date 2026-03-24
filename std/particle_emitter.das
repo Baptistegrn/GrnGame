@@ -59,22 +59,22 @@ class ParticleEmitterNode : Node {
         emit.scale_amount_curve = v
     }
 
-    def set_amount(v : int16) {
-        emit.amount = v
+    def set_amount(v : int) {
+        emit.amount = int16(v)
     }
 
-    def set_color_start(r, g, b, a : uint8) {
-        emit.red_start   = r
-        emit.green_start = g
-        emit.blue_start  = b
-        emit.alpha_start = a
+    def set_color_start(r, g, b, a : int) {
+        emit.red_start   = uint8(r)
+        emit.green_start = uint8(g)
+        emit.blue_start  = uint8(b)
+        emit.alpha_start = uint8(a)
     }
 
-    def set_color_end(r, g, b, a : uint8) {
-        emit.red_end   = r
-        emit.green_end = g
-        emit.blue_end  = b
-        emit.alpha_end = a
+    def set_color_end(r, g, b, a : int) {
+        emit.red_end   = uint8(r)
+        emit.green_end = uint8(g)
+        emit.blue_end  = uint8(b)
+        emit.alpha_end = uint8(a)
     }
 
     def set_emit_accumulator(v : float) {
@@ -87,6 +87,18 @@ class ParticleEmitterNode : Node {
 
     def set_one_shot_done(v : bool) {
         emit.one_shot_done = v
+    }
+
+    def set_position(x : float, y : float) {
+        position.x = x
+        position.y = y
+        let wp = get_world_position()
+        emit.position.x = wp.x
+        emit.position.y = wp.y
+    }
+
+    def set_positions(x : float, y : float) {
+        set_position(x, y)
     }
 
     def override update(dt : float) {

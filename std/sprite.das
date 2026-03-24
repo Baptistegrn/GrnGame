@@ -11,14 +11,14 @@ class SpriteNode : Node {
     rotation : int
     coeff : int
 
-    def SpriteNode(name: string, sprite_name : string, w : int, h : int) {
+    def SpriteNode(name: string, sprite_name : string, w : int, h : int,flip:bool = false,alpha:int =255,rotation:int= 0,coeff:int =1) {
         Node`Node(self, name)
         self.spr = sprite(sprite_name, w, h)
         self.frame = 0
-        self.flip = false
-        self.alpha = 255
-        self.rotation = 0
-        self.coeff = 1
+        self.flip = flip
+        self.alpha = alpha
+        self.rotation = rotation
+        self.coeff =coeff
     }
 
     def override render() {

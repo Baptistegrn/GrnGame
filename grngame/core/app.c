@@ -39,7 +39,7 @@ static void InitializeAppState(const AppInfo *app_info)
     g_app.info = *app_info;
     g_app.info.offset_x = 0;
     g_app.info.offset_y = 0;
-    g_app.info.window_occlusion_culled =false;
+    g_app.info.window_occlusion_culled = false;
 
     g_app.window = WindowCreate(&g_app.info);
     if (UNLIKELY(!g_app.window))
@@ -71,6 +71,8 @@ static void InitializeAssetsAndScripts(const AppInfo *app_info)
     bool script_initialized = DaScriptManagerInitialize(g_app.da_script, "main");
     if (!script_initialized)
         SetRenderColor(255, 0, 0);
+    else
+        DaScriptManagerCallOnStart(g_app.da_script);
 }
 
 void EngineStart(AppInfo *app_info)
@@ -121,7 +123,8 @@ static void MainLoop()
                 fixed_accumulator -= fixed_dt;
             }
         }
-        if(!g_app.info.window_occlusion_culled){
+        if (!g_app.info.window_occlusion_culled)
+        {
             RendererClear(&g_app.renderer);
 
             DaScriptManagerCallOnRender(g_app.da_script);
