@@ -2,6 +2,7 @@
 #include "daScript/ast/ast.h"
 #include "daScript/ast/dyn_modules.h"
 #include "daScript/daScriptModule.h"
+#include "grngame/bindings/utils.hpp"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/directories.h"
 #include <cstdio>
@@ -33,8 +34,7 @@ DaScriptEngine::~DaScriptEngine()
 
 bool DaScriptEngine::Init(const char *main_script_name)
 {
-    auto path_of_script =
-        std::filesystem::path(DirOfExecutable()) / "scripts" / (std::string(main_script_name) + ".das");
+    auto path_of_script = BuildModulePath(main_script_name, ".das");
     main_program = das::compileDaScript(path_of_script.string(), file_access, text_printer, module_group, policies);
     if (main_program->failed())
     {

@@ -70,6 +70,8 @@ add_requires("klib", {version = "2024.06.03"},{configs={shared=false}})
 add_requires("cglm", {version = "v0.9.6"},{configs={shared=false}})
 add_requires("soloud",{version = "2020.02.07", configs={shared=false}})
 add_requires("tinydir",{version = "1.2.6", configs={shared=false}})
+add_requires("wren",{configs = {shared=false}})
+
 set_warnings("all", "extra")
 target("GrnGame")
     set_languages("c17", "cxx17")
@@ -122,6 +124,7 @@ target("GrnGame")
         "soloud",
         "tinydir",
         "daslang",
+        "wren",
         { public = true }
     )
 

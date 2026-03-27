@@ -2,7 +2,8 @@
 #include "SDL3/SDL_timer.h"
 #include "SDL3/SDL_video.h"
 #include "grngame/audio/sound_manager.h"
-#include "grngame/bindings/da_script_bind.h"
+#include "grngame/bindings/dascript/da_script_bind.h"
+#include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/core/app.h"
 #include "grngame/core/init.h"
 #include "grngame/core/window.h"
@@ -25,6 +26,7 @@ static void EnsureInitSucceeded(InitResult res);
 static void InitializeAppState(const AppInfo *app_info);
 static void InitializeManagers();
 static void InitializeAssetsAndScripts(const AppInfo *app_info);
+static void ShutdownScripts();
 
 static void EnsureInitSucceeded(InitResult res)
 {
@@ -62,20 +64,62 @@ static void InitializeManagers()
 
 static void InitializeAssetsAndScripts(const AppInfo *app_info)
 {
-    g_app.da_script = DaScriptManagerNew();
+    g_app.da_script = NULL;
+    g_app.wren = NULL;
 
     char *relative_asset_folder = PathFromExecutableDirectory(app_info->asset_folder);
     AssetManagerLoadFolder(relative_asset_folder);
     free(relative_asset_folder);
 
-    bool script_initialized = DaScriptManagerInitialize(g_app.da_script, "main");
-    if (!script_initialized)
-        SetRenderColor(255, 0, 0);
-    else
-        DaScriptManagerCallOnStart(g_app.da_script);
+    if (app_info->script_language == SCRIPT_LANGUAGE_DASCRIPT)
+    {
+        g_app.da_script = DaScriptManagerNew();
+        if (!g_app.da_script || !DaScriptManagerInitialize(g_app.da_script, "main"))
+        {
+            SetRenderColor(255, 0, 0);
+            LOG_ERROR("Failed to initialize daScript runtime");
+            return;
+        }
+
+        LOG_INFO("daScript runtime initialized with script 'main.das'");
+        return;
+    }
+
+    if (app_info->script_language == SCRIPT_LANGUAGE_WREN)
+    {
+        g_app.wren = WrenManagerNew();
+        if (!g_app.wren || !WrenManagerInitialize(g_app.wren, "main"))
+        {
+            SetRenderColor(255, 0, 0);
+            LOG_ERROR("Failed to initialize Wren runtime");
+            return;
+        }
+
+        LOG_INFO("Wren runtime initialized with script 'main.wren'");
+        return;
+    }
+
+    SetRenderColor(255, 0, 0);
+    LOG_ERROR("Unknown script language selected");
 }
 
-void EngineStart(AppInfo *app_info)
+static void ShutdownScripts()
+{
+
+    if (g_app.da_script)
+    {
+        DaScriptManagerDelete(g_app.da_script);
+        g_app.da_script = NULL;
+    }
+
+    if (g_app.wren)
+    {
+        WrenManagerDelete(g_app.wren);
+        g_app.wren = NULL;
+    }
+}
+
+void EngineStart(const AppInfo *app_info)
 {
     SetSeed();
     CheckAllTypes();
@@ -87,6 +131,7 @@ void EngineStart(AppInfo *app_info)
     InitializeAssetsAndScripts(app_info);
 
     MainLoop();
+    ShutdownScripts();
 }
 
 void EngineStop()
@@ -105,7 +150,7 @@ static void MainLoop()
     float64 fixed_accumulator = 0.0;
     uint64 previous_ticks = SDL_GetTicks();
 
-    while (s_is_running)
+    while (LIKELY(s_is_running))
     {
         uint64 frame_start = SDL_GetTicks();
         g_app.info.dt = (float64)(frame_start - previous_ticks) / 1000.0;
@@ -123,11 +168,26 @@ static void MainLoop()
                 fixed_accumulator -= fixed_dt;
             }
         }
+        else if (g_app.wren)
+        {
+            WrenManagerCallOnUpdate(g_app.wren, (float32)g_app.info.dt);
+
+            fixed_accumulator += g_app.info.dt;
+            while (fixed_accumulator >= fixed_dt)
+            {
+                WrenManagerCallOnFixedUpdate(g_app.wren, (float32)fixed_dt);
+                fixed_accumulator -= fixed_dt;
+            }
+        }
+
         if (!g_app.info.window_occlusion_culled)
         {
             RendererClear(&g_app.renderer);
 
-            DaScriptManagerCallOnRender(g_app.da_script);
+            if (g_app.da_script)
+                DaScriptManagerCallOnRender(g_app.da_script);
+            else if (g_app.wren)
+                WrenManagerCallOnRender(g_app.wren);
             ApplyBlackStripes();
 
             RendererPresent(&g_app.renderer);

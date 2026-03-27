@@ -83,12 +83,12 @@ void PollEvents()
             ApplyResizing(&g_app.info, (int16)i.x, (int16)i.y);
             break;
         }
-        case SDL_EVENT_WINDOW_MINIMIZED:{
-            g_app.info.window_occlusion_culled =true;
+        case SDL_EVENT_WINDOW_MINIMIZED: {
+            g_app.info.window_occlusion_culled = true;
             break;
         }
-        case SDL_EVENT_WINDOW_RESTORED:{
-            g_app.info.window_occlusion_culled =false;
+        case SDL_EVENT_WINDOW_RESTORED: {
+            g_app.info.window_occlusion_culled = false;
             break;
         }
         case SDL_EVENT_KEY_DOWN:
@@ -151,8 +151,10 @@ void PollEvents()
             int16 idx = FindControllerIndex(event.gbutton.which);
             if (idx >= 0 && event.gbutton.button < SDL_GAMEPAD_BUTTON_COUNT)
             {
-                im->controllers[idx].pressed[event.gbutton.button] = true;
-                im->controllers[idx].just_pressed[event.gbutton.button] = true;
+                bool *pressed = &im->controllers[idx].pressed[event.gbutton.button];
+                if (!*pressed)
+                    im->controllers[idx].just_pressed[event.gbutton.button] = true;
+                *pressed = true;
             }
             break;
         }

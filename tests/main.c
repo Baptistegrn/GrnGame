@@ -19,6 +19,7 @@ int main()
     app.enable_logs = true;
     app.log_destination = LOG_TO_CONSOLE;
     app.force_universe_scale = true;
+    app.script_language = SCRIPT_LANGUAGE_WREN;
     EngineStart(&app);
     return 0;
 }
