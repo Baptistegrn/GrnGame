@@ -4,7 +4,7 @@ import "std/wren/sound" for Sound, FilterDef
 class Wren {
   static on_start() {
     var boost =FilterDef.bassboost()
-    var echo = FilterDef.echo()
+    var echo = FilterDef.echo(100,0.3)
     Sound.play(
       "song",
       1.0,
@@ -14,8 +14,9 @@ class Wren {
       2.0,
       100,
       200,
-      [boost,echo]
+      [echo]
     )
+    Sound.speach_say("hello")
     }
 
     static on_update(dt) {

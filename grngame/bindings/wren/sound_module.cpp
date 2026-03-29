@@ -2,6 +2,7 @@
 #include "grngame/audio/filter.h"
 #include "grngame/audio/sound.h"
 #include "grngame/audio/sound_info.h"
+#include "grngame/audio/speech.h"
 #include "grngame/bindings/wren/wren_engine.hpp"
 #include "grngame/utils/attributes.h"
 #include <cstdlib>
@@ -140,6 +141,50 @@ static void sound_play(WrenVM *vm)
     SoundPlay(name, &info);
 }
 
+static void speach_say(WrenVM *vm)
+{
+    wrenEnsureSlots(vm, 11);
+
+    const char *name = wren_get<const char *>(vm, 1);
+    float volume = wren_get<float>(vm, 2);
+    float pitch = wren_get<float>(vm, 3);
+    float pan = wren_get<float>(vm, 4);
+    bool looping = wren_get<bool>(vm, 5);
+    float fade_in = wren_get<float>(vm, 6);
+    float pos_x = wren_get<float>(vm, 7);
+    float pos_y = wren_get<float>(vm, 8);
+
+    int filter_count = 0;
+    memset(static_filters, 0, sizeof(static_filters));
+
+    if (LIKELY(wrenGetSlotType(vm, 9) == WREN_TYPE_LIST))
+    {
+        filter_count = wrenGetListCount(vm, 9);
+        if (filter_count > MAX_FILTERS)
+            filter_count = MAX_FILTERS;
+
+        for (int i = 0; i < filter_count; i++)
+        {
+            wrenGetListElement(vm, 9, i, 10);
+            FilterDef *f = (FilterDef *)wrenGetSlotForeign(vm, 10);
+            static_filters[i] = *f;
+        }
+    }
+
+    SoundInfo info = {
+        .volume = volume,
+        .pitch = pitch,
+        .pan = pan,
+        .looping = looping,
+        .fade_in = fade_in,
+        .position = {pos_x, pos_y},
+        .filters = static_filters,
+        .filter_count = filter_count,
+    };
+
+    SpeechSay(name, &info);
+}
+
 static void sound_stop(WrenVM *vm)
 {
     const char *name = wren_get<const char *>(vm, 1);
@@ -187,6 +232,8 @@ WrenForeignMethodFn BindForeignMethodCallbackSound(WrenVM *vm, const char *modul
                 return sound_is_playing;
             if (strcmp(signature, "info_at(_,_)") == 0)
                 return sound_info_at;
+            if (strcmp(signature, "speach_say(_,_,_,_,_,_,_,_,_)") == 0)
+                return speach_say;
         }
 
         if (strcmp(class_name, "FilterDef") == 0 && !is_static)

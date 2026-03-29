@@ -6,6 +6,7 @@ class Sound {
     foreign static stop(name)
     foreign static is_playing(name)
     foreign static info_at(x, y)
+    foreign static speach_say(name, volume, pitch, pan, looping, fade_in, pos_x, pos_y, filters)
 
     static play(name) {
         play(name, 1.0, 1.0, 0.0, false, 0.0, 0.0, 0.0, [])
@@ -33,6 +34,35 @@ class Sound {
 
     static play(name, volume, pitch, pan, looping, fade_in, position, filters) {
         play(name, volume, pitch, pan, looping, fade_in, position.x, position.y, filters)
+    }
+
+
+    static speach_say(name) {
+        speach_say(name, 1.0, 1.0, 0.0, false, 0.0, 0.0, 0.0, [])
+    }
+
+    static speach_say(name, volume) {
+        speach_say(name, volume, 1.0, 0.0, false, 0.0, 0.0, 0.0, [])
+    }
+
+    static speach_say(name, volume, pitch) {
+        speach_say(name, volume, pitch, 0.0, false, 0.0, 0.0, 0.0, [])
+    }
+    
+    static speach_say(name, volume, pitch, pan) {
+        speach_say(name, volume, pitch, pan, false, 0.0, 0.0, 0.0, [])
+    }
+
+    static speach_say(name, volume, pitch, pan, looping) {
+        speach_say(name, volume, pitch, pan, looping, 0.0, 0.0, 0.0, [])
+    }
+
+    static speach_say(name, volume, pitch, pan, looping, fade_in, position) {
+        speach_say(name, volume, pitch, pan, looping, fade_in, position.x, position.y, [])
+    }
+
+    static speach_say(name, volume, pitch, pan, looping, fade_in, position, filters) {
+        speach_say(name, volume, pitch, pan, looping, fade_in, position.x, position.y, filters)
     }
 }
 
