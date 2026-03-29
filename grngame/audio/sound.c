@@ -1,5 +1,6 @@
 #include "sound.h"
 #include "grngame/core/app.h"
+#include "grngame/dev/logging.h"
 #include "grngame/utils/string_compat.h"
 #include <khash.h>
 #include <kvec.h>
@@ -132,7 +133,6 @@ static void ClearFilters(SoundState *state, WavStream *stream)
 static void ApplyFilters(SoundState *state, WavStream *stream, const SoundInfo *info)
 {
     ClearFilters(state, stream);
-
     for (int i = 0; i < info->filter_count && i < MAX_FILTERS; i++)
     {
         const FilterDef *def = &info->filters[i];

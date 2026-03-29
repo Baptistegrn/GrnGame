@@ -74,7 +74,7 @@ add_requires("wren",{configs = {shared=false}})
 
 set_warnings("all", "extra")
 target("GrnGame")
-    set_languages("c17", "cxx17")
+    set_languages("c17", "cxx20")
     set_kind("static")
 
     add_rules("utils.bin2obj", {extensions = ".txt"})

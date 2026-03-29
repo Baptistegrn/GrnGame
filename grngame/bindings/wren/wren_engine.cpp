@@ -3,7 +3,10 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "grngame/audio/sound.h"
+#include "grngame/audio/sound_info.h"
 #include "grngame/bindings/utils.hpp"
+#include "grngame/bindings/wren/sound_module.hpp"
 #include "grngame/dev/logging.h"
 
 WrenEngine::WrenEngine() = default;
@@ -37,6 +40,8 @@ bool WrenEngine::Init(const char *main_script_name)
     config.userData = this;
     config.writeFn = &WrenEngine::WriteCallback;
     config.errorFn = &WrenEngine::ErrorCallback;
+    config.bindForeignMethodFn = &WrenEngine::BindForeignMethodCallback;
+    config.bindForeignClassFn = &WrenEngine::BindForeignClassCallback;
     config.loadModuleFn = &WrenEngine::LoadModuleCallback;
 
     vm = wrenNewVM(&config);
@@ -229,6 +234,18 @@ void WrenEngine::ErrorCallback(WrenVM *vm, WrenErrorType type, const char *modul
         LOG_ERROR("[wren][unknown] %s", message ? message : "");
         break;
     }
+}
+
+// bind every methods of every modules
+WrenForeignMethodFn WrenEngine::BindForeignMethodCallback(WrenVM *vm, const char *module, const char *class_name,
+                                                          bool is_static, const char *signature)
+{
+    return BindForeignMethodCallbackSound(vm, module, class_name, is_static, signature);
+}
+
+WrenForeignClassMethods WrenEngine::BindForeignClassCallback(WrenVM *vm, const char *module, const char *class_name)
+{
+    return BindForeignClassCallbackSound(vm, module, class_name);
 }
 
 WrenLoadModuleResult WrenEngine::LoadModuleCallback(WrenVM *vm, const char *module_name)
