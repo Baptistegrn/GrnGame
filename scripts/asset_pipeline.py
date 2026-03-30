@@ -7,7 +7,10 @@ def bundle_assets(dir_from: str, dir_to: str) -> None:
                     copy_function=shutil.copy2)
 
 def bundle_std(dir_to: str) -> None:
-    shutil.copytree('std', os.path.join(dir_to, 'scripts', 'std'), dirs_exist_ok=True, 
+    shutil.copytree(os.path.join('std', 'dascript'), os.path.join(dir_to, 'scripts', 'std'), dirs_exist_ok=True, 
+                    copy_function=shutil.copy2)
+
+    shutil.copytree(os.path.join('std', 'wren'), os.path.join(dir_to, 'scripts', 'std'), dirs_exist_ok=True, 
                     copy_function=shutil.copy2)
 
 if __name__ == '__main__':
