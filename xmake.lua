@@ -148,11 +148,26 @@ target("Editor")
         os.cp("editor/main.wren", path.join(scripts_dir, "main.wren"))
     end)
 
-target("Tests")    
+target("WrenTest")    
     set_languages("c17", "cxx17")
     set_kind("binary")
-    set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "Tests"))
-    add_files("tests/main.c")
+    -- set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "Tests"))
+    add_files("wren_test/main.c")
+    add_deps("GrnGame")
+
+        after_build(function(target)
+        os.execv("python3", {
+            "scripts/asset_pipeline.py",
+            "test_game",
+            target:targetdir()
+        })
+    end)
+
+target("DascriptTest")    
+    set_languages("c17", "cxx17")
+    set_kind("binary")
+    -- set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "Tests"))
+    add_files("dascript_test/main.c")
     add_deps("GrnGame")
 
         after_build(function(target)
