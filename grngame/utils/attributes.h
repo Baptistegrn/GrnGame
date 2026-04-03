@@ -12,7 +12,16 @@
  * PREFETCH_WRITE: Prefetch but allows writing
  * ASSUME: Tell the compiler something is true
  * FLATTEN: All calls inside this function should be inlined
+ * RESTRICT: pointers never overlap
  */
+
+#if defined(__clang__) || defined(__GNUC__)
+#define RESTRICT __restrict__
+#elif defined(_MSC_VER)
+#define RESTRICT __restrict
+#else
+#define RESTRICT
+#endif
 
 #if defined(__clang__)
 #define LIKELY(x) __builtin_expect(!!(x), 1)

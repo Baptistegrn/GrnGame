@@ -38,32 +38,32 @@ void RendererSetColor(uint8 r, uint8 g, uint8 b, uint8 a)
         LOG_ERROR("Failed to set draw color: %s", SDL_GetError());
 }
 
-void RendererFillRect(const SDL_FRect *rect)
+void RendererFillRect(const SDL_FRect *restrict rect)
 {
     if (UNLIKELY(!SDL_RenderFillRect(g_app.renderer.renderer, rect)))
         LOG_ERROR("Failed to fill rect: %s", SDL_GetError());
 }
 
-void RendererFillRects(const SDL_FRect *rects, int count)
+void RendererFillRects(const SDL_FRect *restrict rects, int count)
 {
     if (UNLIKELY(!SDL_RenderFillRects(g_app.renderer.renderer, rects, count)))
         LOG_ERROR("Failed to fill rects: %s", SDL_GetError());
 }
 
-void RendererRect(const SDL_FRect *rect)
+void RendererRect(const SDL_FRect *restrict rect)
 {
     if (UNLIKELY(!SDL_RenderRect(g_app.renderer.renderer, rect)))
         LOG_ERROR("Failed to draw rect: %s", SDL_GetError());
 }
 
-void RendererTextureRotated(SDL_Texture *texture, const SDL_FRect *src, const SDL_FRect *dst, float64 angle,
-                            const SDL_FPoint *center, SDL_FlipMode flip)
+void RendererTextureRotated(SDL_Texture *restrict texture, const SDL_FRect *restrict src, const SDL_FRect *restrict dst,
+                            float64 angle, const SDL_FPoint *restrict center, SDL_FlipMode flip)
 {
     if (UNLIKELY(!SDL_RenderTextureRotated(g_app.renderer.renderer, texture, src, dst, angle, center, flip)))
         LOG_ERROR("Failed to render texture: %s", SDL_GetError());
 }
 
-void RendererSetTextureAlpha(SDL_Texture *texture, uint8 a)
+void RendererSetTextureAlpha(SDL_Texture *restrict texture, uint8 a)
 {
     if (UNLIKELY(!SDL_SetTextureAlphaMod(texture, a)))
         LOG_ERROR("Failed to set texture alpha: %s", SDL_GetError());

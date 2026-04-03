@@ -118,7 +118,8 @@ int PadFirstPressedIndexForButton(int button)
     return -1;
 }
 
-void PadSticks(uint16 index, float32 dead_zone, float32 *out_lx, float32 *out_ly, float32 *out_rx, float32 *out_ry)
+void PadSticks(uint16 index, float32 dead_zone, float32 *RESTRICT out_lx, float32 *RESTRICT out_ly,
+               float32 *RESTRICT out_rx, float32 *RESTRICT out_ry)
 {
     if (index >= MAX_CONTROLLERS)
     {
@@ -141,7 +142,7 @@ void PadSticks(uint16 index, float32 dead_zone, float32 *out_lx, float32 *out_ly
     *out_ry = fabsf(ry) < dead_zone ? 0.0f : ry;
 }
 
-void PadTriggers(uint8 index, float32 dead_zone, float32 *out_left, float32 *out_right)
+void PadTriggers(uint8 index, float32 dead_zone, float32 *RESTRICT out_left, float32 *RESTRICT out_right)
 {
     if (index >= MAX_CONTROLLERS)
     {

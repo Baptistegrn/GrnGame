@@ -121,7 +121,7 @@ static uint8 LerpU8(uint8 a, uint8 b, float32 t)
     return (uint8)(SDL_roundf((float32)(a + (b - a)) * t));
 }
 
-static void UpdateParticle(ParticleEmitter *emit, Particle *p, float32 dt)
+static void UpdateParticle(ParticleEmitter *restrict emit, Particle *restrict p, float32 dt)
 {
     if (p->lifetime <= 0)
         return;
