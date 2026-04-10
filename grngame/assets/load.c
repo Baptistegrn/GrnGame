@@ -4,6 +4,24 @@
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
+#include "grngame/utils/attributes.h"
+#include <string.h>
+
+static const EmbeddedAsset *FindEmbeddedAsset(const char *name)
+{
+
+    if (UNLIKELY(!g_app.info.embedded_assets))
+        return NULL;
+
+    for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
+    {
+        if (strcmp(g_app.info.embedded_assets[i].name, name) == 0)
+        {
+            return &g_app.info.embedded_assets[i];
+        }
+    }
+    return NULL;
+}
 
 bool LoadSoundFile(const char *file)
 {
@@ -14,7 +32,18 @@ bool LoadSoundFile(const char *file)
         return false;
     }
 
-    WavStream_load(stream, file);
+    char *key = FileStem(file);
+    const EmbeddedAsset *asset = FindEmbeddedAsset(key);
+
+    if (asset)
+    {
+        WavStream_loadMemEx(stream, (const unsigned char *)asset->data, asset->size, 0, 0);
+    }
+    else
+    {
+        WavStream_load(stream, file);
+    }
+
     if (WavStream_getLength(stream) <= 0)
     {
         LOG_WARNING("Failed to load sound file: %s", file);
@@ -22,7 +51,6 @@ bool LoadSoundFile(const char *file)
         return false;
     }
 
-    char *key = FileStem(file);
     int32 ret;
     khiter_t k = kh_put(SoundMap, sound_map, key, &ret);
     kh_value(sound_map, k) = stream;
@@ -32,7 +60,23 @@ bool LoadSoundFile(const char *file)
 bool LoadTextureFile(const char *file)
 {
     khash_t(TextureMap) *texture_map = g_app.asset_manager.texture_map;
-    SDL_Surface *surface = IMG_Load(file);
+    SDL_Surface *surface = NULL;
+    char *key = FileStem(file);
+
+    const EmbeddedAsset *asset = FindEmbeddedAsset(key);
+    if (asset)
+    {
+        SDL_IOStream *io = SDL_IOFromConstMem(asset->data, asset->size);
+        if (io)
+        {
+            surface = IMG_Load_IO(io, true);
+        }
+    }
+    else
+    {
+        surface = IMG_Load(file);
+    }
+
     if (!surface)
         return false;
 
@@ -51,7 +95,6 @@ bool LoadTextureFile(const char *file)
     SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-    char *key = FileStem(file);
     int32 ret;
     khiter_t k = kh_put(TextureMap, texture_map, key, &ret);
     Texture tex = {.texture = texture, .w = (int16)w, .h = (int16)h};

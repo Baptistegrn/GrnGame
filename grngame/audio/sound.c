@@ -64,10 +64,16 @@ bool SoundPlay(const char *name, const SoundInfo *info)
 
     khiter_t k = kh_get(SoundMap, sound_map, name);
     if (k == kh_end(sound_map))
+    {
+        LOG_WARNING("Failed to play sound: '%s' not loaded or not found in asset manager", name);
         return false;
+    }
 
     WavStream *stream = kh_value(sound_map, k);
     SoundState *state = GetOrCreateState(name);
+
+    if (state->playing)
+        SoundStop(name);
 
     ApplyFilters(state, stream, info);
 

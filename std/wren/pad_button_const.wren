@@ -1,0 +1,29 @@
+class PadButton {
+    static PAD_SOUTH { 0 }
+    static PAD_EAST { 1 }
+    static PAD_WEST { 2 }
+    static PAD_NORTH { 3 }
+    static PAD_LB { 9 }
+    static PAD_RB { 10 }
+    static PAD_LS { 7 }
+    static PAD_RS { 8 }
+    static PAD_START { 6 }
+    static PAD_BACK { 4 }
+    static PAD_GUIDE { 5 }
+    static PAD_DPAD_UP { 11 }
+    static PAD_DPAD_DOWN { 12 }
+    static PAD_DPAD_LEFT { 13 }
+    static PAD_DPAD_RIGHT { 14 }
+    static PAD_MISC1 { 15 }
+    static PAD_MISC2 { 21 }
+    static PAD_MISC3 { 22 }
+    static PAD_MISC4 { 23 }
+    static PAD_MISC5 { 24 }
+    static PAD_MISC6 { 25 }
+    static PAD_PADDLE1 { 16 }
+    static PAD_PADDLE2 { 17 }
+    static PAD_PADDLE3 { 18 }
+    static PAD_PADDLE4 { 19 }
+    static PAD_TOUCHPAD { 20 }
+    static PAD_BUTTON_COUNT { 26 }
+}

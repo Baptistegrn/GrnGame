@@ -6,6 +6,13 @@
 
 typedef struct
 {
+    const char *name;
+    const unsigned char *data;
+    unsigned int size;
+} EmbeddedAsset;
+
+typedef struct
+{
     SDL_Texture *texture;
     uint16 w;
     uint16 h;

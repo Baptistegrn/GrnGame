@@ -125,7 +125,6 @@ void EngineStart(const AppInfo *app_info)
     CheckAllTypes();
     InitResult res = InitAll(app_info);
     EnsureInitSucceeded(res);
-
     InitializeAppState(app_info);
     InitializeManagers();
     InitializeAssetsAndScripts(app_info);

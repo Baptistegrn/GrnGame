@@ -19,6 +19,7 @@ int main()
     app.log_destination = LOG_TO_CONSOLE;
     app.force_universe_scale = true;
     app.script_language = SCRIPT_LANGUAGE_DASCRIPT;
+    app.embedded_assets = NULL;
     EngineStart(&app);
     return 0;
 }

@@ -10,59 +10,68 @@
 #include "grngame/dev/logging.h"
 #include "grngame/renderer/renderer.h"
 
-typedef enum
+#ifdef __cplusplus
+extern "C"
 {
-    SCRIPT_LANGUAGE_DASCRIPT = 0,
-    SCRIPT_LANGUAGE_WREN = 1
-} ScriptLanguage;
+#endif
 
-typedef struct
-{
-    const char *name;
-    const char *version;
-    const char *asset_folder;
+    typedef enum
+    {
+        SCRIPT_LANGUAGE_DASCRIPT = 0,
+        SCRIPT_LANGUAGE_WREN = 1
+    } ScriptLanguage;
 
-    uint16 fps;
-    float64 dt;
+    typedef struct
+    {
+        const EmbeddedAsset *embedded_assets;
+        const char *name;
+        const char *version;
+        const char *asset_folder;
+        uint16 fps;
+        float64 dt;
 
-    uint16 window_universe_width;
-    uint16 window_universe_height;
-    uint16 window_width;
-    uint16 window_height;
+        uint16 window_universe_width;
+        uint16 window_universe_height;
+        uint16 window_width;
+        uint16 window_height;
 
-    bool window_resizable;
-    bool window_fullscreen;
-    bool window_maximised;
-    bool window_change;
-    bool window_occlusion_culled;
+        bool window_resizable;
+        bool window_fullscreen;
+        bool window_maximised;
+        bool window_change;
+        bool window_occlusion_culled;
 
-    float32 offset_x;
-    float32 offset_y;
+        float32 offset_x;
+        float32 offset_y;
 
-    bool enable_logs;
-    LogDestination log_destination;
+        bool enable_logs;
+        LogDestination log_destination;
 
-    bool force_universe_scale; // apply black stripes to the window
+        bool force_universe_scale; // apply black stripes to the window
 
-    ScriptLanguage script_language;
+        ScriptLanguage script_language;
 
-    // for draw render
-    uint8 r, g, b;
-} AppInfo;
+        // for draw render
+        uint8 r, g, b;
+    } AppInfo;
 
-typedef struct
-{
-    SDL_Window *window;
-    Renderer renderer;
-    SoundManager sound_manager;
-    AssetManager asset_manager;
-    InputManager input_manager;
-    DaScriptManager *da_script;
-    WrenManager *wren;
-    AppInfo info;
-} App;
+    typedef struct
+    {
+        SDL_Window *window;
+        Renderer renderer;
+        SoundManager sound_manager;
+        AssetManager asset_manager;
+        InputManager input_manager;
+        DaScriptManager *da_script;
+        WrenManager *wren;
+        AppInfo info;
+    } App;
 
-void EngineStart(const AppInfo *app);
-void EngineStop();
+    void EngineStart(const AppInfo *app);
+    void EngineStop();
 
-extern App g_app;
+    extern App g_app;
+
+#ifdef __cplusplus
+}
+#endif

@@ -133,6 +133,8 @@ target("App")
     set_kind("binary")
     set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "App"))
     add_files("app/main.c")
+    add_headerfiles("grngame/**.h")
+    add_headerfiles("grngame/**.hpp")
     add_deps("GrnGame")
 
 target("Editor")
@@ -140,6 +142,8 @@ target("Editor")
     set_kind("binary")
     set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "Editor"))
     add_files("editor/main.c")
+    add_headerfiles("grngame/**.h")
+    add_headerfiles("grngame/**.hpp")
     add_deps("GrnGame")
 
     after_build(function(target)
@@ -148,12 +152,34 @@ target("Editor")
         os.cp("editor/main.wren", path.join(scripts_dir, "main.wren"))
     end)
 
+target("Embedded")
+    set_languages("c17", "cxx17")
+    set_kind("binary")
+    add_files("embedded/main.c")
+    add_headerfiles("grngame/**.h")
+    add_headerfiles("grngame/**.hpp")
+    add_deps("GrnGame")
+
 target("WrenTest")    
     set_languages("c17", "cxx17")
     set_kind("binary")
     -- set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "Tests"))
     add_files("wren_test/main.c")
     add_deps("GrnGame")
+    add_deps("Embedded")
+    --add_defines("GRN_EMBED_ASSETS")
+
+    before_build(function(target)
+        local embedded_exe = target:dep("Embedded"):targetfile()
+        if os.isexec(embedded_exe) then
+            os.execv(embedded_exe, {
+                "build/generated/embedded_assets.h",
+                "test_game/scripts",
+                "test_game/assets",
+                "std"
+            })
+        end
+    end)
 
         after_build(function(target)
         os.execv("python3", {
@@ -163,12 +189,26 @@ target("WrenTest")
         })
     end)
 
-target("DascriptTest")    
+    target("DascriptTest")    
     set_languages("c17", "cxx17")
     set_kind("binary")
     -- set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "Tests"))
     add_files("dascript_test/main.c")
     add_deps("GrnGame")
+    add_deps("Embedded")
+    --add_defines("GRN_EMBED_ASSETS")
+
+    before_build(function(target)
+        local embedded_exe = target:dep("Embedded"):targetfile()
+        if os.isexec(embedded_exe) then
+            os.execv(embedded_exe, {
+                "build/generated/embedded_assets.h",
+                "test_game/scripts",
+                "test_game/assets",
+                "std"
+            })
+        end
+    end)
 
         after_build(function(target)
         os.execv("python3", {

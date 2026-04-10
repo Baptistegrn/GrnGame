@@ -1,4 +1,6 @@
+#include "controller.h"
 #include "../core/app.h"
+#include "SDL3/SDL_joystick.h"
 #include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
 #include <SDL3/SDL_events.h>
@@ -46,8 +48,19 @@ bool ControllerOpen(int16 index)
 {
     if (index >= MAX_CONTROLLERS)
         return false;
+    SDL_JoystickID *pads = NULL;
+    int count = ControllerConnectedCountptr(&pads);
 
-    SDL_Gamepad *gp = GamepadOpen(index);
+    if (UNLIKELY(count == 0))
+    {
+        return false;
+    }
+    index = (int16)count - 1;
+
+    SDL_Gamepad *gp = GamepadOpen(pads[index]);
+    if (LIKELY(pads))
+        SDL_free(pads);
+
     if (UNLIKELY(!gp))
         return false;
 
@@ -55,13 +68,30 @@ bool ControllerOpen(int16 index)
 
     g_app.input_manager.controllers[index].gamepad = gp;
     g_app.input_manager.controllers[index].joystick = joy;
+
     LOG_INFO("Gamepad %d opened: %s", index, GamepadGetName(gp));
     return true;
 }
 
+int ControllerConnectedCountptr(SDL_JoystickID **ptr)
+{
+    int count = 0;
+    *ptr = SDL_GetGamepads(&count);
+    return count;
+}
+
+int ControllerConnectedCount(void)
+{
+    int count = 0;
+    SDL_JoystickID *pads = SDL_GetGamepads(&count);
+    if (LIKELY(pads))
+        SDL_free(pads);
+    return count;
+}
+
 void ControllerClose(int16 index)
 {
-    if (index >= MAX_CONTROLLERS)
+    if (UNLIKELY(index >= MAX_CONTROLLERS))
     {
         LOG_WARNING("Invalid controller index for close: %d", index);
         return;
@@ -78,7 +108,7 @@ void ControllerClose(int16 index)
 
 bool PadPressed(int button, int16 index)
 {
-    if (index >= MAX_CONTROLLERS || button < 0 || button >= SDL_GAMEPAD_BUTTON_COUNT)
+    if (UNLIKELY(index >= MAX_CONTROLLERS || button < 0 || button >= SDL_GAMEPAD_BUTTON_COUNT))
     {
         LOG_WARNING("Invalid pad button %d or index %d", button, index);
         return false;
@@ -89,7 +119,7 @@ bool PadPressed(int button, int16 index)
 
 bool PadJustPressed(int button, int16 index)
 {
-    if (index >= MAX_CONTROLLERS || button < 0 || button >= SDL_GAMEPAD_BUTTON_COUNT)
+    if (UNLIKELY(index >= MAX_CONTROLLERS || button < 0 || button >= SDL_GAMEPAD_BUTTON_COUNT))
     {
         LOG_WARNING("Invalid pad button %d or index %d", button, index);
         return false;
@@ -118,45 +148,46 @@ int PadFirstPressedIndexForButton(int button)
     return -1;
 }
 
-void PadSticks(uint16 index, float32 dead_zone, float32 *RESTRICT out_lx, float32 *RESTRICT out_ly,
-               float32 *RESTRICT out_rx, float32 *RESTRICT out_ry)
+float32 compute_axis(Sint16 value, float32 dead_zone)
 {
-    if (index >= MAX_CONTROLLERS)
+    const float32 norm = 32767.0f;
+    float32 res = (float32)value / norm;
+    if (UNLIKELY(fabsf(res) < dead_zone))
+    {
+        return 0.0f;
+    }
+    return res;
+}
+
+void PadSticks(uint16 index, float32 *RESTRICT out_lx, float32 *RESTRICT out_ly, float32 *RESTRICT out_rx,
+               float32 *RESTRICT out_ry)
+{
+    if (UNLIKELY(index >= MAX_CONTROLLERS))
     {
         *out_lx = *out_ly = *out_rx = *out_ry = 0.0f;
         LOG_WARNING("Invalid controller index for sticks: %d", index);
         return;
     }
 
-    const float norm = 32767.0f;
     Controller *c = &g_app.input_manager.controllers[index];
 
-    float32 lx = (float32)c->stick_lx / norm;
-    float32 ly = (float32)c->stick_ly / norm;
-    float32 rx = (float32)c->stick_rx / norm;
-    float32 ry = (float32)c->stick_ry / norm;
-
-    *out_lx = fabsf(lx) < dead_zone ? 0.0f : lx;
-    *out_ly = fabsf(ly) < dead_zone ? 0.0f : ly;
-    *out_rx = fabsf(rx) < dead_zone ? 0.0f : rx;
-    *out_ry = fabsf(ry) < dead_zone ? 0.0f : ry;
+    *out_lx = c->stick_lx;
+    *out_ly = c->stick_ly;
+    *out_rx = c->stick_rx;
+    *out_ry = c->stick_ry;
 }
 
-void PadTriggers(uint8 index, float32 dead_zone, float32 *RESTRICT out_left, float32 *RESTRICT out_right)
+void PadTriggers(uint8 index, float32 *RESTRICT out_left, float32 *RESTRICT out_right)
 {
-    if (index >= MAX_CONTROLLERS)
+    if (UNLIKELY(index >= MAX_CONTROLLERS))
     {
         *out_left = *out_right = 0.0f;
         LOG_WARNING("Invalid controller index for triggers: %d", index);
         return;
     }
 
-    const float32 norm = 32767.0f;
     Controller *c = &g_app.input_manager.controllers[index];
 
-    float32 l = (float32)c->trigger_l / norm;
-    float32 r = (float)c->trigger_r / norm;
-
-    *out_left = fabsf(l) < dead_zone ? 0.0f : l;
-    *out_right = fabsf(r) < dead_zone ? 0.0f : r;
+    *out_left = c->trigger_l;
+    *out_right = c->trigger_r;
 }

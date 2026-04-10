@@ -2,11 +2,16 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
 
+#include "grngame/assets/asset_manager.h"
 #include "grngame/audio/sound.h"
 #include "grngame/audio/sound_info.h"
 #include "grngame/bindings/utils.hpp"
+#include "grngame/bindings/wren/controller_module.hpp"
 #include "grngame/bindings/wren/sound_module.hpp"
+#include "grngame/bindings/wren/utils.hpp"
+#include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 
 WrenEngine::WrenEngine() = default;
@@ -71,12 +76,42 @@ bool WrenEngine::Init(const char *main_script_name)
 bool WrenEngine::LoadMainScript(const char *main_script_name)
 {
     std::string main_source;
-    const std::filesystem::path path_of_script = BuildModulePath(main_script_name, ".wren");
 
-    if (!ReadTextFile(path_of_script, main_source))
+    // 1. Try to load from embedded assets first
+    const EmbeddedAsset *asset = nullptr;
+    if (g_app.info.embedded_assets)
     {
-        LOG_ERROR("Failed to read Wren script '%s'", path_of_script.string().c_str());
-        return false;
+        std::string name_with_ext = std::string(main_script_name) + ".wren";
+        for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
+        {
+            // First pass, exactly "main.wren", avoids matching "main.das" fallback
+            if (std::strcmp(g_app.info.embedded_assets[i].name, name_with_ext.c_str()) == 0)
+            {
+                asset = &g_app.info.embedded_assets[i];
+                break;
+            }
+            // Fallback match exactly "main"
+            if (std::strcmp(g_app.info.embedded_assets[i].name, main_script_name) == 0 && !asset)
+            {
+                asset = &g_app.info.embedded_assets[i];
+            }
+        }
+    }
+
+    if (asset)
+    {
+        main_source.assign((const char *)asset->data, asset->size);
+        LOG_INFO("[wren] Successfully loaded embedded main script: '%s'", main_script_name);
+    }
+    else
+    {
+        // 2. Try to load from disk
+        const std::filesystem::path path_of_script = BuildModulePath(main_script_name, ".wren");
+        if (!ReadTextFile(path_of_script, main_source))
+        {
+            LOG_ERROR("Failed to read Wren script '%s'", path_of_script.string().c_str());
+            return false;
+        }
     }
 
     const WrenInterpretResult result = wrenInterpret(vm, main_module.c_str(), main_source.c_str());
@@ -240,12 +275,24 @@ void WrenEngine::ErrorCallback(WrenVM *vm, WrenErrorType type, const char *modul
 WrenForeignMethodFn WrenEngine::BindForeignMethodCallback(WrenVM *vm, const char *module, const char *class_name,
                                                           bool is_static, const char *signature)
 {
-    return BindForeignMethodCallbackSound(vm, module, class_name, is_static, signature);
+    if (auto fn = BindForeignMethodCallbackSound(vm, module, class_name, is_static, signature))
+        return fn;
+    if (auto fn = BindForeignMethodCallbackController(vm, module, class_name, is_static, signature))
+        return fn;
+    if (auto fn = BindForeignMethodCallbackUtils(vm, module, class_name, is_static, signature))
+        return fn;
+    return nullptr;
 }
 
 WrenForeignClassMethods WrenEngine::BindForeignClassCallback(WrenVM *vm, const char *module, const char *class_name)
 {
-    return BindForeignClassCallbackSound(vm, module, class_name);
+    auto methods = BindForeignClassCallbackSound(vm, module, class_name);
+    if (methods.allocate || methods.finalize)
+        return methods;
+    methods = BindForeignClassCallbackController(vm, module, class_name);
+    if (methods.allocate || methods.finalize)
+        return methods;
+    return BindForeignClassCallbackUtils(vm, module, class_name);
 }
 
 WrenLoadModuleResult WrenEngine::LoadModuleCallback(WrenVM *vm, const char *module_name)
@@ -257,13 +304,39 @@ WrenLoadModuleResult WrenEngine::LoadModuleCallback(WrenVM *vm, const char *modu
     result.source = nullptr;
     result.userData = nullptr;
 
-    std::string source;
-    const std::filesystem::path path_of_module = BuildModulePath(module_name, ".wren");
-    if (!ReadTextFile(path_of_module, source))
+    const EmbeddedAsset *asset = nullptr;
+    if (g_app.info.embedded_assets)
     {
-        LOG_ERROR("[wren] Failed to load module '%s' from '%s'", module_name, path_of_module.string().c_str());
-        return result;
+        std::string name_with_ext = std::string(module_name) + ".wren";
+        for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
+        {
+            if (std::strcmp(g_app.info.embedded_assets[i].name, name_with_ext.c_str()) == 0)
+            {
+                asset = &g_app.info.embedded_assets[i];
+                break;
+            }
+            if (std::strcmp(g_app.info.embedded_assets[i].name, module_name) == 0 && !asset)
+            {
+                asset = &g_app.info.embedded_assets[i];
+            }
+        }
     }
+
+    std::string source;
+    if (asset)
+    {
+        source.assign((const char *)asset->data, asset->size);
+    }
+    else
+    {
+        const std::filesystem::path path_of_module = BuildModulePath(module_name, ".wren");
+        if (!ReadTextFile(path_of_module, source))
+        {
+            LOG_ERROR("[wren] Failed to load module '%s' from '%s'", module_name, path_of_module.string().c_str());
+            return result;
+        }
+    }
+
     // todo use bump allocator
     char *owned_source = (char *)std::malloc(source.size() + 1);
     if (!owned_source)

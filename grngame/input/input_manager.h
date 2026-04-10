@@ -15,6 +15,8 @@ typedef struct
 
     kvec_t(char) text_input;
 
+    
+
     bool key_pressed[SDL_SCANCODE_COUNT];
     bool key_just_pressed[SDL_SCANCODE_COUNT];
 

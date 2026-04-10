@@ -18,6 +18,9 @@ bool FileIsLoadableImage(const char *file);
 /// Returns true if the file is an image that COULd be loaded with Soloud's Wav_stream
 bool FileIsLoadableAudio(const char *file);
 
+/// Returns true if the file can be loaded as a script
+bool FileIsLoadableScript(const char *file);
+
 /// Returns the path starting from the path of the executable where we added relative. You must free it.
 /// For example , if your exe is in ~/chouffe and relative is assets/folder, it returns ~/chouffe/assets/folder
 char *PathFromExecutableDirectory(const char *relative);

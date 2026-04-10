@@ -1,71 +1,141 @@
-import "std/wren/utils" for Position
+import "std/wren/utils" for Position, Log
+
+class SoundInfo {
+    construct new() {
+        _name    = "default"
+        _volume  = 1.0
+        _pitch   = 1.0
+        _pan     = 0.0
+        _looping = false
+        _fade_in = 0.0
+        _position = Position.new(0.0, 0.0)
+        _filters = []
+    }
+
+    construct new(name) {
+        _name    = name
+        _volume  = 1.0
+        _pitch   = 1.0
+        _pan     = 0.0
+        _looping = false
+        _fade_in = 0.0
+        _position = Position.new(0.0, 0.0)
+        _filters = []
+    }
+
+    construct new(name, volume) {
+        _name    = name
+        _volume  = volume
+        _pitch   = 1.0
+        _pan     = 0.0
+        _looping = false
+        _fade_in = 0.0
+        _position = Position.new(0.0, 0.0)
+        _filters = []
+    }
+
+    construct new(name, volume, pitch) {
+        _name    = name
+        _volume  = volume
+        _pitch   = pitch
+        _pan     = 0.0
+        _looping = false
+        _fade_in = 0.0
+        _position = Position.new(0.0, 0.0)
+        _filters = []
+    }
+
+    construct new(name, volume, pitch, pan) {
+        _name    = name
+        _volume  = volume
+        _pitch   = pitch
+        _pan     = pan
+        _looping = false
+        _fade_in = 0.0
+        _position = Position.new(0.0, 0.0)
+        _filters = []
+    }
+
+    construct new(name, volume, pitch, pan, looping) {
+        _name    = name
+        _volume  = volume
+        _pitch   = pitch
+        _pan     = pan
+        _looping = looping
+        _fade_in = 0.0
+        _position = Position.new(0.0, 0.0)
+        _filters = []
+    }
+
+    construct new(name, volume, pitch, pan, looping, fade_in) {
+        _name    = name
+        _volume  = volume
+        _pitch   = pitch
+        _pan     = pan
+        _looping = looping
+        _fade_in = fade_in
+        _position = Position.new(0.0, 0.0)
+        _filters = []
+    }
+
+    construct new(name, volume, pitch, pan, looping, fade_in, position) {
+        _name    = name
+        _volume  = volume
+        _pitch   = pitch
+        _pan     = pan
+        _looping = looping
+        _fade_in = fade_in
+        _position = position
+        _filters = []
+    }
+
+    construct new(name, volume, pitch, pan, looping, fade_in, position, filters) {
+        _name    = name
+        _volume  = volume
+        _pitch   = pitch
+        _pan     = pan
+        _looping = looping
+        _fade_in = fade_in
+        _position = position
+        _filters = filters
+    }
+
+    name     { _name }
+    volume   { _volume }
+    pitch    { _pitch }
+    pan      { _pan }
+    looping  { _looping }
+    fade_in  { _fade_in }
+    position { _position }
+    filters  { _filters }
+
+    name=(v)     { _name = v }
+    volume=(v)   { _volume = v }
+    pitch=(v)    { _pitch = v }
+    pan=(v)      { _pan = v }
+    looping=(v)  { _looping = v }
+    fade_in=(v)  { _fade_in = v }
+    position=(v) { _position = v }
+    filters=(v)  { _filters = v }
+}
 
 class Sound {
-    //bind cpp
+    // bind cpp
     foreign static play(name, volume, pitch, pan, looping, fade_in, pos_x, pos_y, filters)
     foreign static stop(name)
     foreign static is_playing(name)
     foreign static info_at(x, y)
     foreign static speach_say(name, volume, pitch, pan, looping, fade_in, pos_x, pos_y, filters)
 
-    static play(name) {
-        play(name, 1.0, 1.0, 0.0, false, 0.0, 0.0, 0.0, [])
+    static play(info) {
+        Log.log_info("Playing sound: %(info.name) (vol: %(info.volume), pitch: %(info.pitch))")
+        play(info.name, info.volume, info.pitch, info.pan, info.looping, info.fade_in, info.position.x, info.position.y, info.filters)
     }
-
-    static play(name, volume) {
-        play(name, volume, 1.0, 0.0, false, 0.0, 0.0, 0.0, [])
-    }
-
-    static play(name, volume, pitch) {
-        play(name, volume, pitch, 0.0, false, 0.0, 0.0, 0.0, [])
-    }
-    
-    static play(name, volume, pitch, pan) {
-        play(name, volume, pitch, pan, false, 0.0, 0.0, 0.0, [])
-    }
-
-    static play(name, volume, pitch, pan, looping) {
-        play(name, volume, pitch, pan, looping, 0.0, 0.0, 0.0, [])
-    }
-
-    static play(name, volume, pitch, pan, looping, fade_in, position) {
-        play(name, volume, pitch, pan, looping, fade_in, position.x, position.y, [])
-    }
-
-    static play(name, volume, pitch, pan, looping, fade_in, position, filters) {
-        play(name, volume, pitch, pan, looping, fade_in, position.x, position.y, filters)
-    }
-
-
-    static speach_say(name) {
-        speach_say(name, 1.0, 1.0, 0.0, false, 0.0, 0.0, 0.0, [])
-    }
-
-    static speach_say(name, volume) {
-        speach_say(name, volume, 1.0, 0.0, false, 0.0, 0.0, 0.0, [])
-    }
-
-    static speach_say(name, volume, pitch) {
-        speach_say(name, volume, pitch, 0.0, false, 0.0, 0.0, 0.0, [])
-    }
-    
-    static speach_say(name, volume, pitch, pan) {
-        speach_say(name, volume, pitch, pan, false, 0.0, 0.0, 0.0, [])
-    }
-
-    static speach_say(name, volume, pitch, pan, looping) {
-        speach_say(name, volume, pitch, pan, looping, 0.0, 0.0, 0.0, [])
-    }
-
-    static speach_say(name, volume, pitch, pan, looping, fade_in, position) {
-        speach_say(name, volume, pitch, pan, looping, fade_in, position.x, position.y, [])
-    }
-
-    static speach_say(name, volume, pitch, pan, looping, fade_in, position, filters) {
-        speach_say(name, volume, pitch, pan, looping, fade_in, position.x, position.y, filters)
+    static speach_say(info) {
+        Log.log_info("Playing speech: %(info.name) (vol: %(info.volume))")
+        speach_say(info.name, info.volume, info.pitch, info.pan, info.looping, info.fade_in, info.position.x, info.position.y, info.filters)
     }
 }
-
 foreign class FilterDef {
     foreign construct new()
 
@@ -106,6 +176,7 @@ foreign class FilterDef {
     // static reverb()           { FilterDef.reverb(0.5,  0.5, 1.0, 0.5)  }
 
     static echo(delay, decay, wet) {
+        Log.log_debug("Creating Echo filter: delay=%(delay), decay=%(decay), wet=%(wet)")
         var f = FilterDef.new()
         f.type       = 1
         f.echo_delay = delay
@@ -119,6 +190,7 @@ foreign class FilterDef {
     static echo()             { FilterDef.echo(0.3,   0.5,   0.5) }
 
     static bassboost(boost) {
+        Log.log_debug("Creating Bassboost filter: boost=%(boost)")
         var f = FilterDef.new()
         f.type            = 2
         f.bassboost_boost = boost

@@ -2,6 +2,7 @@
 
 #include "SDL3/SDL_error.h"
 #include "grngame/assets/load.h"
+#include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/directories.h"
 #include "grngame/platform/paths.h"
@@ -17,7 +18,24 @@ AssetManager AssetManagerCreate()
 
 void AssetManagerLoadFolder(const char *folder)
 {
-    // warn the user if he tries to use an invalid asset folder
+
+    if (g_app.info.embedded_assets)
+    {
+        for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
+        {
+            const EmbeddedAsset *asset = &g_app.info.embedded_assets[i];
+            if (FileIsLoadableAudio(asset->name))
+            {
+                LoadSoundFile(asset->name);
+            }
+            else if (FileIsLoadableImage(asset->name))
+            {
+                LoadTextureFile(asset->name);
+            }
+        }
+        return;
+    }
+
     if (DirFileCount(folder) == 0)
     {
         LOG_WARNING("No files in asset folder '%s'", folder);

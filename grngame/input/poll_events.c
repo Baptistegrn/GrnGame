@@ -172,22 +172,22 @@ void PollEvents()
             switch (event.gaxis.axis)
             {
             case SDL_GAMEPAD_AXIS_LEFTX:
-                im->controllers[idx].stick_lx = event.gaxis.value;
+                im->controllers[idx].stick_lx = compute_axis(event.gaxis.value, DEFAULT_DEAD_ZONE);
                 break;
             case SDL_GAMEPAD_AXIS_LEFTY:
-                im->controllers[idx].stick_ly = event.gaxis.value;
+                im->controllers[idx].stick_ly = compute_axis(event.gaxis.value, DEFAULT_DEAD_ZONE);
                 break;
             case SDL_GAMEPAD_AXIS_RIGHTX:
-                im->controllers[idx].stick_rx = event.gaxis.value;
+                im->controllers[idx].stick_rx = compute_axis(event.gaxis.value, DEFAULT_DEAD_ZONE);
                 break;
             case SDL_GAMEPAD_AXIS_RIGHTY:
-                im->controllers[idx].stick_ry = event.gaxis.value;
+                im->controllers[idx].stick_ry = compute_axis(event.gaxis.value, DEFAULT_DEAD_ZONE);
                 break;
             case SDL_GAMEPAD_AXIS_LEFT_TRIGGER:
-                im->controllers[idx].trigger_l = event.gaxis.value;
+                im->controllers[idx].trigger_l = compute_axis(event.gaxis.value, DEFAULT_DEAD_ZONE);
                 break;
             case SDL_GAMEPAD_AXIS_RIGHT_TRIGGER:
-                im->controllers[idx].trigger_r = event.gaxis.value;
+                im->controllers[idx].trigger_r = compute_axis(event.gaxis.value, DEFAULT_DEAD_ZONE);
                 break;
             }
             break;

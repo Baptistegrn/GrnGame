@@ -49,6 +49,23 @@ bool FileIsLoadableImage(const char *file)
     return false;
 }
 
+bool FileIsLoadableScript(const char *file)
+{
+    const char *ext = FileExtension(file);
+    if (!*ext) // if the string is empty that means there is no extension and it cant be determined
+        return false;
+
+    // null terminated so we can loop on it in the following loop
+    static const char *exts[] = {"wren", "das", NULL};
+
+    // exts[i] will be false when it will reach NULL
+    for (int i = 0; exts[i]; ++i)
+        if (strcasecmp(ext, exts[i]) == 0)
+            return true;
+
+    return false;
+}
+
 bool FileIsLoadableAudio(const char *file)
 {
     const char *ext = FileExtension(file);
