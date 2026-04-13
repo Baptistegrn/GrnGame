@@ -1,5 +1,5 @@
 add_rules("mode.debug", "mode.release")
-
+set_policy("windows.console", true)
 local msvcRuntime = is_mode("debug") and "MTd" or "MT"
 set_runtimes(msvcRuntime)
 

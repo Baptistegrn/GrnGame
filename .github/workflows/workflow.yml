@@ -10,27 +10,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-22.04, macos-latest, windows-latest]
-        buildtype: [release]
-        arch: [x64] 
-        include:
-          - os: windows-latest
-            buildtype: release
-            arch: x86
-          - os: windows-latest
-            buildtype: release
-            arch: x86
-          - os: windows-latest
-            buildtype: release
-            arch: arm64
-          - os: windows-latest
-            buildtype: release
-            arch: arm64
-          - os: macos-latest
-            buildtype: release
-            arch: x86_64
-          - os: macos-latest
-            buildtype: release
-            arch: x86_64
+        buildtype: [debug, release]
+        arch: [x64, x86]
 
     runs-on: ${{ matrix.os }}
 
@@ -47,7 +28,16 @@ jobs:
           build-cache: true
 
       - name: Configure
-        run: xmake config -a ${{ matrix.arch }} -m ${{ matrix.buildtype }} -y -vv
+        if: matrix.os != 'windows-latest'
+        run: xmake config -m ${{ matrix.buildtype }} -a ${{ matrix.arch }} -y -vv
+
+      - name: Configure (MSVC)
+        if: matrix.os == 'windows-latest'
+        run: xmake config -m ${{ matrix.buildtype }} -a ${{ matrix.arch }} -y -vv
+        
+      - name: Configure (MinGW)
+        if: matrix.os == 'windows-latest'
+        run: xmake config --toolchain=mingw -m ${{ matrix.buildtype }} -a ${{ matrix.arch }} -y -vv
 
       - name: Build
         run: xmake build -y -vv
