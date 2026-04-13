@@ -77,20 +77,17 @@ bool WrenEngine::LoadMainScript(const char *main_script_name)
 {
     std::string main_source;
 
-    // 1. Try to load from embedded assets first
     const EmbeddedAsset *asset = nullptr;
     if (g_app.info.embedded_assets)
     {
         std::string name_with_ext = std::string(main_script_name) + ".wren";
         for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
         {
-            // First pass, exactly "main.wren", avoids matching "main.das" fallback
             if (std::strcmp(g_app.info.embedded_assets[i].name, name_with_ext.c_str()) == 0)
             {
                 asset = &g_app.info.embedded_assets[i];
                 break;
             }
-            // Fallback match exactly "main"
             if (std::strcmp(g_app.info.embedded_assets[i].name, main_script_name) == 0 && !asset)
             {
                 asset = &g_app.info.embedded_assets[i];
@@ -105,7 +102,6 @@ bool WrenEngine::LoadMainScript(const char *main_script_name)
     }
     else
     {
-        // 2. Try to load from disk
         const std::filesystem::path path_of_script = BuildModulePath(main_script_name, ".wren");
         if (!ReadTextFile(path_of_script, main_source))
         {

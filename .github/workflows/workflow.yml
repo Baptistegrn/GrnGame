@@ -10,7 +10,27 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-22.04, macos-latest, windows-latest]
-        buildtype: [debug, release]
+        buildtype: [release]
+        arch: [x64] 
+        include:
+          - os: windows-latest
+            buildtype: release
+            arch: x86
+          - os: windows-latest
+            buildtype: release
+            arch: x86
+          - os: windows-latest
+            buildtype: release
+            arch: arm64
+          - os: windows-latest
+            buildtype: release
+            arch: arm64
+          - os: macos-latest
+            buildtype: release
+            arch: x86_64
+          - os: macos-latest
+            buildtype: release
+            arch: x86_64
 
     runs-on: ${{ matrix.os }}
 
@@ -27,7 +47,7 @@ jobs:
           build-cache: true
 
       - name: Configure
-        run: xmake config -m ${{ matrix.buildtype }} -y -vv
+        run: xmake config -a ${{ matrix.arch }} -m ${{ matrix.buildtype }} -y -vv
 
       - name: Build
         run: xmake build -y -vv
@@ -35,5 +55,5 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os }}-${{ matrix.buildtype }}
+          name: ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.buildtype }}
           path: build/*/*/${{ matrix.buildtype }}/

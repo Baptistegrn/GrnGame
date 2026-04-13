@@ -81,50 +81,9 @@ static void embed_callback(const char *path, void *userdata)
     fprintf(ctx->out, "// asset: %s = %s\n\n", path, var_name);
 
     char entry[1024];
-    
-    // 1. Full path
     snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", path, var_name, var_name);
+
     strcat(ctx->registry, entry);
-
-    // 2. Base name (e.g. "music.wav")
-    snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", base, var_name, var_name);
-    if (!strstr(ctx->registry, entry)) {
-        strcat(ctx->registry, entry);
-    }
-
-    // 3. Stem for audio and images (e.g. "music")
-    if (FileIsLoadableAudio(path) || FileIsLoadableImage(path))
-    {
-        char *stem = FileStem(path);
-        if (stem)
-        {
-            snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", stem, var_name, var_name);
-            if (!strstr(ctx->registry, entry)) {
-                strcat(ctx->registry, entry);
-            }
-            free(stem);
-        }
-    }
-
-    // 4. Std paths directly
-    const char *std_pos = strstr(path, "std/");
-    if (std_pos)
-    {
-        snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", std_pos, var_name, var_name);
-        if (!strstr(ctx->registry, entry)) {
-            strcat(ctx->registry, entry);
-        }
-        
-        char no_ext[512];
-        snprintf(no_ext, sizeof(no_ext), "%s", std_pos);
-        char *ext_ptr = strrchr(no_ext, '.');
-        if (ext_ptr) *ext_ptr = '\0';
-        
-        snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", no_ext, var_name, var_name);
-        if (!strstr(ctx->registry, entry)) {
-            strcat(ctx->registry, entry);
-        }
-    }
 }
 
 void create_embedded_structure(int num_dirs, const char **dirs, const char *output_header)

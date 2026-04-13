@@ -167,7 +167,7 @@ target("WrenTest")
     add_files("wren_test/main.c")
     add_deps("GrnGame")
     add_deps("Embedded")
-    --add_defines("GRN_EMBED_ASSETS")
+    add_defines("GRN_EMBED_ASSETS")
 
     before_build(function(target)
         local embedded_exe = target:dep("Embedded"):targetfile()

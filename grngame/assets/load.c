@@ -53,6 +53,12 @@ bool LoadSoundFile(const char *file)
 
     int32 ret;
     khiter_t k = kh_put(SoundMap, sound_map, key, &ret);
+    if (UNLIKELY(ret == 0))
+    {
+        free((char *)kh_key(sound_map, k));
+        kh_key(sound_map, k) = key;
+        WavStream_destroy(kh_value(sound_map, k));
+    }
     kh_value(sound_map, k) = stream;
     return true;
 }
@@ -97,6 +103,12 @@ bool LoadTextureFile(const char *file)
 
     int32 ret;
     khiter_t k = kh_put(TextureMap, texture_map, key, &ret);
+    if (ret == 0)
+    {
+        free((char *)kh_key(texture_map, k));
+        kh_key(texture_map, k) = key;
+        SDL_DestroyTexture(kh_value(texture_map, k).texture);
+    }
     Texture tex = {.texture = texture, .w = (int16)w, .h = (int16)h};
     kh_value(texture_map, k) = tex;
     return true;
@@ -107,10 +119,12 @@ bool UnloadSoundFile(const char *file)
     khash_t(SoundMap) *sound_map = g_app.asset_manager.sound_map;
     char *key = FileStem(file);
     khiter_t k = kh_get(SoundMap, sound_map, key);
+    free(key);
     if (k == kh_end(sound_map))
         return false;
 
     WavStream_destroy(kh_value(sound_map, k));
+    free((char *)kh_key(sound_map, k));
     kh_del(SoundMap, sound_map, k);
     return true;
 }
@@ -120,10 +134,12 @@ bool UnloadTextureFile(const char *file)
     khash_t(TextureMap) *texture_map = g_app.asset_manager.texture_map;
     char *key = FileStem(file);
     khiter_t k = kh_get(TextureMap, texture_map, key);
+    free(key);
     if (k == kh_end(texture_map))
         return false;
 
     SDL_DestroyTexture(kh_value(texture_map, k).texture);
+    free((char *)kh_key(texture_map, k));
     kh_del(TextureMap, texture_map, k);
     return true;
 }
