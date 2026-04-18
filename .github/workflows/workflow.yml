@@ -11,7 +11,6 @@ jobs:
       matrix:
         os: [ubuntu-22.04, macos-latest, windows-latest]
         buildtype: [debug, release]
-        arch: [x64, x86]
 
     runs-on: ${{ matrix.os }}
 
@@ -28,16 +27,7 @@ jobs:
           build-cache: true
 
       - name: Configure
-        if: matrix.os != 'windows-latest'
-        run: xmake config -m ${{ matrix.buildtype }} -a ${{ matrix.arch }} -y -vv
-
-      - name: Configure (MSVC)
-        if: matrix.os == 'windows-latest'
-        run: xmake config -m ${{ matrix.buildtype }} -a ${{ matrix.arch }} -y -vv
-        
-      - name: Configure (MinGW)
-        if: matrix.os == 'windows-latest'
-        run: xmake config --toolchain=mingw -m ${{ matrix.buildtype }} -a ${{ matrix.arch }} -y -vv
+        run: xmake config -m ${{ matrix.buildtype }} -y -vv
 
       - name: Build
         run: xmake build -y -vv
@@ -45,5 +35,5 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.buildtype }}
+          name: ${{ matrix.os }}-${{ matrix.buildtype }}
           path: build/*/*/${{ matrix.buildtype }}/

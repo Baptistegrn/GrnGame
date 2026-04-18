@@ -7,7 +7,7 @@
 #include <stdbool.h>
 
 #define MAX_CONTROLLERS 8
-#define DEFAULT_DEAD_ZONE 1.0
+#define DEFAULT_DEAD_ZONE 0.1f
 
 typedef struct
 {
@@ -18,11 +18,13 @@ typedef struct
     float32 trigger_l, trigger_r;
     bool pressed[SDL_GAMEPAD_BUTTON_COUNT];
     bool just_pressed[SDL_GAMEPAD_BUTTON_COUNT];
+    const char *name;
+
 } Controller;
 
 BEGIN_DECLARATIONS;
 
-bool ControllerOpen(int16 index);
+bool ControllerOpen();
 void ControllerClose(int16 index);
 int ControllerConnectedCountptr(SDL_JoystickID **ptr);
 int ControllerConnectedCount(void);

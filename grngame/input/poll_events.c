@@ -2,6 +2,7 @@
 #include "cglm/types-struct.h"
 #include "controller.h"
 #include "grngame/core/window.h"
+#include "grngame/dev/logging.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/string_compat.h"
 #include "mouse.h"
@@ -193,7 +194,7 @@ void PollEvents()
             break;
         }
         case SDL_EVENT_GAMEPAD_ADDED:
-            ControllerOpen((int16)event.gdevice.which);
+            ControllerOpen();
             break;
 
         case SDL_EVENT_GAMEPAD_REMOVED: {

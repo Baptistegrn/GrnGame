@@ -135,6 +135,8 @@ void EngineStart(const AppInfo *app_info)
 
 void EngineStop()
 {
+    if (!s_is_running)
+        return;
     LOG_INFO("Engine stopping");
     s_is_running = false;
 }

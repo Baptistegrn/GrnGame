@@ -17,10 +17,7 @@ SDL_Gamepad *GamepadOpen(SDL_JoystickID id)
 
 SDL_Gamepad *GamepadFromID(SDL_JoystickID id)
 {
-    SDL_Gamepad *gp = SDL_GetGamepadFromID(id);
-    if (UNLIKELY(!gp))
-        LOG_WARNING("Failed to get gamepad from ID %d: %s", id, SDL_GetError());
-    return gp;
+    return SDL_GetGamepadFromID(id);
 }
 
 SDL_Joystick *GamepadGetJoystick(SDL_Gamepad *gp)
@@ -44,10 +41,9 @@ void GamepadClose(SDL_Gamepad *gp)
     SDL_CloseGamepad(gp);
 }
 
-bool ControllerOpen(int16 index)
+// todo : explain and link index with uniq id of controller not name
+bool ControllerOpen()
 {
-    if (index >= MAX_CONTROLLERS)
-        return false;
     SDL_JoystickID *pads = NULL;
     int count = ControllerConnectedCountptr(&pads);
 
@@ -55,21 +51,58 @@ bool ControllerOpen(int16 index)
     {
         return false;
     }
-    index = (int16)count - 1;
 
-    SDL_Gamepad *gp = GamepadOpen(pads[index]);
+    SDL_JoystickID new_pad_id = 0;
+    bool found = false;
+
+    for (int i = 0; i < count; i++)
+    {
+        SDL_Gamepad *temp_gp = GamepadFromID(pads[i]);
+        if (!temp_gp) // Not opened yet
+        {
+            new_pad_id = pads[i];
+            found = true;
+            break;
+        }
+    }
+
+    if (UNLIKELY(!found))
+    {
+        if (LIKELY(pads))
+            SDL_free(pads);
+        return false;
+    }
+
+    SDL_Gamepad *gp = GamepadOpen(new_pad_id);
     if (LIKELY(pads))
         SDL_free(pads);
 
     if (UNLIKELY(!gp))
         return false;
 
+    const char *name = GamepadGetName(gp);
+    if (UNLIKELY(!name))
+        name = "Unknown";
+
+    int16 index = ControllerMapGet(&g_app.input_manager.controller_map, name);
+    if (index == -1)
+    {
+        index = g_app.input_manager.controller_map.count;
+        if (UNLIKELY(index >= MAX_CONTROLLERS))
+        {
+            LOG_WARNING("Max controllers reached");
+            GamepadClose(gp);
+            return false;
+        }
+        ControllerMapAdd(&g_app.input_manager.controller_map, SDL_strdup(name), index);
+    }
+
     SDL_Joystick *joy = GamepadGetJoystick(gp);
 
     g_app.input_manager.controllers[index].gamepad = gp;
     g_app.input_manager.controllers[index].joystick = joy;
 
-    LOG_INFO("Gamepad %d opened: %s", index, GamepadGetName(gp));
+    LOG_INFO("Gamepad %d opened: %s", index, name);
     return true;
 }
 

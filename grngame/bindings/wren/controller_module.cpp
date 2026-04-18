@@ -67,7 +67,7 @@ WrenForeignClassMethods BindForeignClassCallbackController(WrenVM *vm, const cha
 static void controller_open(WrenVM *vm)
 {
     uint8 index = (uint8)wren_get<int>(vm, 1);
-    ControllerOpen(index);
+    ControllerOpen();
 }
 
 static void controller_connected_count(WrenVM *vm)
@@ -82,7 +82,7 @@ WrenForeignMethodFn BindForeignMethodCallbackController(WrenVM *vm, const char *
     if (UNLIKELY(!module || !class_name || !signature))
         return nullptr;
 
-    if (strcmp(module, "std/wren/input") == 0)
+    if (strcmp(module, "std/wren/input/pad_node") == 0)
     {
         if (strcmp(class_name, "PadNode") == 0 && is_static)
         {

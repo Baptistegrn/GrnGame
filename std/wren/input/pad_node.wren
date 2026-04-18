@@ -1,17 +1,12 @@
-import "std/wren/key_code_const" for KeyCode
-import "std/wren/pad_button_const" for PadButton
-import "std/wren/utils" for Log
-
-
-class InputEvent {
-    static just_pressed { 0 }
-    static pressed { 1 }
-}
+﻿import "std/wren/input/key_code" for KeyCode
+import "std/wren/input/pad_button" for PadButton
+import "std/wren/dev/log" for Log
+import "std/wren/input/input_event" for InputEvent
 
 class PadNode{
     //bind cpp
-    foreign static pressed(input,index)
-    foreign static just_pressed(input,index)
+    foreign static pressed(input, index)
+    foreign static just_pressed(input, index)
     foreign static first_pressed_index_for_button(input)
     foreign static sticks(index)
     foreign static triggers(index)
@@ -25,37 +20,32 @@ class PadNode{
         return current
     }
 
-    // auto-incrementing index controller
-    construct new(){
-        _index = PadNode.next_index
-        _stick_lx = 0.0
-        _stick_ly = 0.0
-        _stick_rx = 0.0
-        _stick_ry = 0.0
-        _trigger_l = 0
-        _trigger_r = 0
-        _just_pressed_events = {}
-        _pressed_events = {}
-        _aliases = {}
-        _button = 0
-        _has_pad = true
-        Log.log_debug("PadNode initialized with auto-increment index: %(_index)")
-    }
+    construct new() { init_(PadNode.next_index, 0, true) }
+    construct new(button) { init_(-1, button, false) }
 
-    construct new(button){
-        _index = -1
+    init_(index, button, has_pad) {
+        _index = index
+        _button = button
+        _has_pad = has_pad
+
         _stick_lx = 0.0
         _stick_ly = 0.0
         _stick_rx = 0.0
         _stick_ry = 0.0
-        _trigger_l = 0
-        _trigger_r = 0
+        _trigger_l = 0.0
+        _trigger_r = 0.0
+
         _just_pressed_events = {}
         _pressed_events = {}
+        _just_pressed_buttons = []
+        _pressed_buttons = []
         _aliases = {}
-        _button = button
-        _has_pad = false
-        Log.log_debug("PadNode created, waiting for button detection: %(button)")
+
+        if (_has_pad) {
+            Log.log_debug("PadNode initialized with auto-increment index: %(index)")
+        } else {
+            Log.log_debug("PadNode created, waiting for button detection: %(button)")
+        }
     }
 
     index { _index }
@@ -65,10 +55,8 @@ class PadNode{
     stick_ly { _stick_ly }
     stick_rx { _stick_rx }
     stick_ry { _stick_ry }
-    
     trigger_l { _trigger_l }
     trigger_r { _trigger_r }
-    
     has_pad { _has_pad }
 
     add_alias(name, button) {
@@ -76,9 +64,7 @@ class PadNode{
         Log.log_debug("Alias added: '%(name)' -> button %(button)")
     }
 
-    get_count(){
-        return connected_count()
-    }
+    get_count() { PadNode.connected_count() }
 
     set_id(button) {
         _index = PadNode.first_pressed_index_for_button(button)
@@ -90,16 +76,11 @@ class PadNode{
         }
     }
 
-    set_detect_button(button) {
-        _button = button
-    }
+    set_detect_button(button) { _button = button }
 
     add_callback(alias, input_type, callback) {
-        if (!_aliases.containsKey(alias)) {
-            return false
-        }
-        var aliased_pad = _aliases[alias]
-        add_callback_raw(aliased_pad, input_type, callback)
+        if (!_aliases.containsKey(alias)) return false
+        add_callback_raw(_aliases[alias], input_type, callback)
         return true
     }
 
@@ -107,11 +88,13 @@ class PadNode{
         if (input_type == InputEvent.just_pressed) {
             if (!_just_pressed_events.containsKey(button)) {
                 _just_pressed_events[button] = []
+                _just_pressed_buttons.add(button)
             }
             _just_pressed_events[button].add(callback)
         } else if (input_type == InputEvent.pressed) {
             if (!_pressed_events.containsKey(button)) {
                 _pressed_events[button] = []
+                _pressed_buttons.add(button)
             }
             _pressed_events[button].add(callback)
         }
@@ -123,19 +106,15 @@ class PadNode{
             return
         }
 
-        for (button in _just_pressed_events.keys) {
-            if (PadNode.just_pressed(button, _index)) {
-                for (cb in _just_pressed_events[button]) {
-                    cb.call()
-                }
+        for (btn in _just_pressed_buttons) {
+            if (PadNode.just_pressed(btn, _index)) {
+                for (cb in _just_pressed_events[btn]) cb.call()
             }
         }
 
-        for (button in _pressed_events.keys) {
-            if (PadNode.pressed(button, _index)) {
-                for (cb in _pressed_events[button]) {
-                    cb.call()
-                }
+        for (btn in _pressed_buttons) {
+            if (PadNode.pressed(btn, _index)) {
+                for (cb in _pressed_events[btn]) cb.call()
             }
         }
 
@@ -153,6 +132,4 @@ class PadNode{
             _trigger_r = tr[1]
         }
     }
-
-
 }

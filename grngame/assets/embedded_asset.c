@@ -74,16 +74,56 @@ static void embed_callback(const char *path, void *userdata)
             *c = '_';
     }
 
-    // serialize data
     serialize_file(ctx->out, path, var_name);
 
-    // add comment
     fprintf(ctx->out, "// asset: %s = %s\n\n", path, var_name);
 
     char entry[1024];
-    snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", path, var_name, var_name);
 
+    snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", path, var_name, var_name);
     strcat(ctx->registry, entry);
+
+    snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", base, var_name, var_name);
+    if (!strstr(ctx->registry, entry))
+    {
+        strcat(ctx->registry, entry);
+    }
+
+    if (FileIsLoadableAudio(path) || FileIsLoadableImage(path))
+    {
+        char *stem = FileStem(path);
+        if (stem)
+        {
+            snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", stem, var_name, var_name);
+            if (!strstr(ctx->registry, entry))
+            {
+                strcat(ctx->registry, entry);
+            }
+            free(stem);
+        }
+    }
+
+    const char *std_pos = strstr(path, "std/");
+    if (std_pos)
+    {
+        snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", std_pos, var_name, var_name);
+        if (!strstr(ctx->registry, entry))
+        {
+            strcat(ctx->registry, entry);
+        }
+
+        char no_ext[512];
+        snprintf(no_ext, sizeof(no_ext), "%s", std_pos);
+        char *ext_ptr = strrchr(no_ext, '.');
+        if (ext_ptr)
+            *ext_ptr = '\0';
+
+        snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", no_ext, var_name, var_name);
+        if (!strstr(ctx->registry, entry))
+        {
+            strcat(ctx->registry, entry);
+        }
+    }
 }
 
 void create_embedded_structure(int num_dirs, const char **dirs, const char *output_header)
@@ -109,6 +149,5 @@ void create_embedded_structure(int num_dirs, const char **dirs, const char *outp
     fprintf(out, "%s", registry);
     fprintf(out, "    {0, 0, 0}\n");
     fprintf(out, "};\n\n");
-
     fclose(out);
 }

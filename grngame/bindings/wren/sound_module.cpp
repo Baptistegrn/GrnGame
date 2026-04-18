@@ -207,7 +207,7 @@ static void sound_info_at(WrenVM *vm)
 WrenForeignClassMethods BindForeignClassCallbackSound(WrenVM *vm, const char *module, const char *class_name)
 {
     (void)vm;
-    if (strcmp(module, "std/wren/sound") == 0 && strcmp(class_name, "FilterDef") == 0)
+    if (strcmp(module, "std/wren/audio/filter_def") == 0 && strcmp(class_name, "FilterDef") == 0)
         return {filter_def_new, nullptr};
 
     return {nullptr, nullptr};
@@ -220,7 +220,7 @@ WrenForeignMethodFn BindForeignMethodCallbackSound(WrenVM *vm, const char *modul
     if (!module || !class_name || !signature)
         return nullptr;
 
-    if (strcmp(module, "std/wren/sound") == 0)
+    if (strcmp(module, "std/wren/audio/sound") == 0)
     {
         if (strcmp(class_name, "Sound") == 0 && is_static)
         {
@@ -235,7 +235,10 @@ WrenForeignMethodFn BindForeignMethodCallbackSound(WrenVM *vm, const char *modul
             if (strcmp(signature, "speach_say(_,_,_,_,_,_,_,_,_)") == 0)
                 return speach_say;
         }
+    }
 
+    if (strcmp(module, "std/wren/audio/filter_def") == 0)
+    {
         if (strcmp(class_name, "FilterDef") == 0 && !is_static)
         {
             if (strcmp(signature, "init new()") == 0)

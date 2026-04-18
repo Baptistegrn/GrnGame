@@ -243,6 +243,10 @@ void WrenEngine::ReleaseHandle(WrenHandle *&handle) const
 void WrenEngine::WriteCallback(WrenVM *vm, const char *text)
 {
     (void)vm;
+    if (strcmp(text, "\n") == 0 || strcmp(text, "") == 0)
+    {
+        return;
+    }
     LOG_INFO("[wren] %s", text);
 }
 

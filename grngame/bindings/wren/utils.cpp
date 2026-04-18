@@ -48,7 +48,7 @@ WrenForeignMethodFn BindForeignMethodCallbackUtils(WrenVM *vm, const char *modul
     if (UNLIKELY(!module || !class_name || !signature))
         return nullptr;
 
-    if (strcmp(module, "std/wren/utils") == 0)
+    if (strcmp(module, "std/wren/dev/log") == 0)
     {
         if (strcmp(class_name, "Log") == 0 && is_static)
         {

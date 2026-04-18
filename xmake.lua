@@ -1,5 +1,4 @@
 add_rules("mode.debug", "mode.release")
-set_policy("windows.console", true)
 local msvcRuntime = is_mode("debug") and "MTd" or "MT"
 set_runtimes(msvcRuntime)
 
@@ -70,7 +69,7 @@ add_requires("klib", {version = "2024.06.03"},{configs={shared=false}})
 add_requires("cglm", {version = "v0.9.6"},{configs={shared=false}})
 add_requires("soloud",{version = "2020.02.07", configs={shared=false}})
 add_requires("tinydir",{version = "1.2.6", configs={shared=false}})
-add_requires("wren",{configs = {shared=false}})
+add_requires("wren", {version = "0.4.0", configs = {shared=false}})
 
 set_warnings("all", "extra")
 target("GrnGame")
@@ -167,7 +166,7 @@ target("WrenTest")
     add_files("wren_test/main.c")
     add_deps("GrnGame")
     add_deps("Embedded")
-    add_defines("GRN_EMBED_ASSETS")
+    --add_defines("GRN_EMBED_ASSETS")
 
     before_build(function(target)
         local embedded_exe = target:dep("Embedded"):targetfile()

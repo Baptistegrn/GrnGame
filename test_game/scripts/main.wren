@@ -1,29 +1,36 @@
-import "std/wren/sound" for Sound,SoundInfo, FilterDef
-import "std/wren/utils" for Position,Log
-import "std/wren/input" for PadNode, PadButton, InputEvent
+﻿import "std/wren/all" for Sound, SoundInfo, FilterDef, Position, Log, PadNode, InputEvent, PadButton
 
 class Wren {
   static on_start() {
-    __pad = PadNode.new()
-    __pad.add_alias("jump", PadButton.PAD_SOUTH)
-    __pad.add_alias("music", PadButton.PAD_EAST)
-    __pad.add_callback("jump", InputEvent.just_pressed, Fn.new {
-        System.print("Jump! (Button South / A pressed)")
+    var boost = FilterDef.bassboost(10)
+    var echo = FilterDef.echo(100,0.3)
+
+    Sound.speach_say(SoundInfo.new("hello I am new here , what I need to do my friend ?",3.0, 4.0, 1.0, false, 1.0, Position.new(), [echo]))
+
+    __pad1 = PadNode.new()
+    __pad2 = PadNode.new()
+    System.print(__pad2.index)
+    __pad1.add_alias("jump", PadButton.PAD_SOUTH)
+    __pad1.add_alias("music", PadButton.PAD_EAST)
+        __pad2.add_alias("jump", PadButton.PAD_SOUTH)
+    __pad2.add_alias("music", PadButton.PAD_EAST)
+    __pad1.add_callback("jump", InputEvent.just_pressed, Fn.new {
         var echo = FilterDef.echo(100, 0.3)
         Sound.speach_say(SoundInfo.new("Jump!", 0.5, 1.0, 0.0, false, 0.0, Position.new(), [echo]))
     })
-    __pad.add_callback("music", InputEvent.just_pressed, Fn.new {
-        System.print("Play/Restart Music! (Button East / B pressed)")
+        __pad2.add_callback("jump", InputEvent.just_pressed, Fn.new {      
+        var echo = FilterDef.echo(100, 0.3)
+        Sound.speach_say(SoundInfo.new("Jump! bis", 0.5, 1.0, 0.0, false, 0.0, Position.new(), [echo]))
+    })
+    __pad1.add_callback("music", InputEvent.just_pressed, Fn.new {
         var boost = FilterDef.bassboost()
         Sound.play(SoundInfo.new("music", 1.0, 1.0, 0.0, false, 0.0, Position.new(), [boost]))
     })
   }
 
   static on_update(dt) {
-      if (__pad != null) {
-          __pad.update(dt)
-
-      }
+          __pad1.update(dt)
+          __pad2.update(dt)
   }
 
   static on_fixed_update(dt) {}
