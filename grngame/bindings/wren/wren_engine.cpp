@@ -11,6 +11,7 @@
 #include "grngame/bindings/wren/controller_module.hpp"
 #include "grngame/bindings/wren/sound_module.hpp"
 #include "grngame/bindings/wren/utils.hpp"
+#include "grngame/bindings/wren/window_module.hpp"
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 
@@ -281,12 +282,17 @@ WrenForeignMethodFn WrenEngine::BindForeignMethodCallback(WrenVM *vm, const char
         return fn;
     if (auto fn = BindForeignMethodCallbackUtils(vm, module, class_name, is_static, signature))
         return fn;
+    if (auto fn = BindForeignMethodCallbackWindow(vm, module, class_name, is_static, signature))
+        return fn;
     return nullptr;
 }
 
 WrenForeignClassMethods WrenEngine::BindForeignClassCallback(WrenVM *vm, const char *module, const char *class_name)
 {
     auto methods = BindForeignClassCallbackSound(vm, module, class_name);
+    if (methods.allocate || methods.finalize)
+        return methods;
+    methods = BindForeignClassCallbackWindow(vm, module, class_name);
     if (methods.allocate || methods.finalize)
         return methods;
     methods = BindForeignClassCallbackController(vm, module, class_name);

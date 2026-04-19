@@ -7,3 +7,4 @@ import "std/wren/input/key_code" for KeyCode
 import "std/wren/input/input_event" for InputEvent
 import "std/wren/math/position" for Position
 import "std/wren/dev/log" for Log
+import "std/wren/core/window" for Window

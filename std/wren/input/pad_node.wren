@@ -7,9 +7,19 @@ class PadNode{
     //bind cpp
     foreign static pressed(input, index)
     foreign static just_pressed(input, index)
+    foreign static just_released(input,index)
+
+    foreign static pad_rumble(index,left_rumble,right_rumble,time)
+
     foreign static first_pressed_index_for_button(input)
-    foreign static sticks(index)
-    foreign static triggers(index)
+
+    foreign static stick_lx(index)
+    foreign static stick_ly(index)
+    foreign static stick_rx(index)
+    foreign static stick_ry(index)
+    foreign static trigger_l(index)
+    foreign static trigger_r(index)
+
     foreign static controller_open(index)
     foreign static connected_count()
 
@@ -36,8 +46,11 @@ class PadNode{
         _trigger_r = 0.0
 
         _just_pressed_events = {}
+        _just_released_events = {}
         _pressed_events = {}
+
         _just_pressed_buttons = []
+        _just_released_buttons = []
         _pressed_buttons = []
         _aliases = {}
 
@@ -97,6 +110,12 @@ class PadNode{
                 _pressed_buttons.add(button)
             }
             _pressed_events[button].add(callback)
+        } else if (input_type == InputEvent.just_released) {
+            if (!_just_released_events.containsKey(button)) {
+                _just_released_events[button] = []
+                _just_released_buttons.add(button)
+            }
+            _just_released_events[button].add(callback)
         }
     }
 
@@ -112,24 +131,28 @@ class PadNode{
             }
         }
 
+        for (btn in _just_released_buttons) {
+            if (PadNode.just_released(btn, _index)) {
+                for (cb in _just_released_events[btn]) cb.call()
+            }
+        }
+
         for (btn in _pressed_buttons) {
             if (PadNode.pressed(btn, _index)) {
                 for (cb in _pressed_events[btn]) cb.call()
             }
         }
 
-        var st = PadNode.sticks(_index)
-        if (st != null && st.count >= 4) {
-            _stick_lx = st[0]
-            _stick_ly = st[1]
-            _stick_rx = st[2]
-            _stick_ry = st[3]
-        }
+        _stick_lx = PadNode.stick_lx(_index)
+        _stick_ly = PadNode.stick_ly(_index)
+        _stick_rx = PadNode.stick_rx(_index)
+        _stick_ry = PadNode.stick_ry(_index)
 
-        var tr = PadNode.triggers(_index)
-        if (tr != null && tr.count >= 2) {
-            _trigger_l = tr[0]
-            _trigger_r = tr[1]
-        }
+        _trigger_l = PadNode.trigger_l(_index)
+        _trigger_r = PadNode.trigger_r(_index)
+    }
+
+    rumble(left_rumble,right_rumble,time){
+        PadNode.pad_rumble(_index,left_rumble,right_rumble,time)
     }
 }

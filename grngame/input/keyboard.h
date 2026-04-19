@@ -6,5 +6,6 @@ BEGIN_DECLARATIONS;
 
 bool KeyPressed(int key);
 bool KeyJustPressed(int key);
+bool KeyJustReleased(int key);
 
 END_DECLARATIONS;

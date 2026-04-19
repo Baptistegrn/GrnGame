@@ -32,6 +32,7 @@ typedef struct
 
     bool key_pressed[SDL_SCANCODE_COUNT];
     bool key_just_pressed[SDL_SCANCODE_COUNT];
+    bool key_just_released[SDL_SCANCODE_COUNT];
 
     Controller controllers[MAX_CONTROLLERS];
 } InputManager;

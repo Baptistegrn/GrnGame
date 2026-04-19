@@ -3,6 +3,7 @@
 #include "controller.h"
 #include "grngame/core/window.h"
 #include "grngame/dev/logging.h"
+#include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/string_compat.h"
 #include "mouse.h"
@@ -30,8 +31,12 @@ static void ResetInputManagerKeys()
     im->mouse.scroll_x = 0;
     im->mouse.scroll_y = 0;
     CLEAR(im->key_just_pressed);
+    CLEAR(im->key_just_released);
     for (int i = 0; i < MAX_CONTROLLERS; i++)
+    {
         CLEAR(im->controllers[i].just_pressed);
+        CLEAR(im->controllers[i].just_released);
+    }
 }
 
 static void UpdateMousePosition()
@@ -45,6 +50,7 @@ static void UpdateMousePosition()
 static void AppendTextInput(const char *text)
 {
     InputManager *im = &g_app.input_manager;
+    // todo : o(n) -> o(1)
     while (*text)
     {
         kv_push(char, im->text_input, *text);
@@ -98,7 +104,7 @@ void PollEvents()
                 if (event.key.scancode == SDL_SCANCODE_BACKSPACE)
                     BackspaceTextInput();
 
-                if (event.key.scancode < SDL_SCANCODE_COUNT)
+                if (LIKELY(event.key.scancode < SDL_SCANCODE_COUNT))
                 {
                     im->key_pressed[event.key.scancode] = true;
                     im->key_just_pressed[event.key.scancode] = true;
@@ -107,8 +113,11 @@ void PollEvents()
             break;
 
         case SDL_EVENT_KEY_UP:
-            if (event.key.scancode < SDL_SCANCODE_COUNT)
+            if (LIKELY(event.key.scancode < SDL_SCANCODE_COUNT))
+            {
                 im->key_pressed[event.key.scancode] = false;
+                im->key_just_released[event.key.scancode] = true;
+            }
             break;
         case SDL_EVENT_TEXT_INPUT:
             AppendTextInput(event.text.text);
@@ -150,7 +159,7 @@ void PollEvents()
             break;
         case SDL_EVENT_GAMEPAD_BUTTON_DOWN: {
             int16 idx = FindControllerIndex(event.gbutton.which);
-            if (idx >= 0 && event.gbutton.button < SDL_GAMEPAD_BUTTON_COUNT)
+            if (LIKELY(idx >= 0 && event.gbutton.button < SDL_GAMEPAD_BUTTON_COUNT))
             {
                 bool *pressed = &im->controllers[idx].pressed[event.gbutton.button];
                 if (!*pressed)
@@ -161,14 +170,18 @@ void PollEvents()
         }
         case SDL_EVENT_GAMEPAD_BUTTON_UP: {
             int16 idx = FindControllerIndex(event.gbutton.which);
-            if (idx >= 0 && event.gbutton.button < SDL_GAMEPAD_BUTTON_COUNT)
+            if (LIKELY(idx >= 0 && event.gbutton.button < SDL_GAMEPAD_BUTTON_COUNT))
+            {
                 im->controllers[idx].pressed[event.gbutton.button] = false;
+                im->controllers[idx].just_released[event.gbutton.button] = true;
+            }
+
             break;
         }
 
         case SDL_EVENT_GAMEPAD_AXIS_MOTION: {
             int16 idx = FindControllerIndex(event.gaxis.which);
-            if (idx < 0)
+            if (UNLIKELY(idx < 0))
                 break;
             switch (event.gaxis.axis)
             {
@@ -199,7 +212,7 @@ void PollEvents()
 
         case SDL_EVENT_GAMEPAD_REMOVED: {
             int16 idx = FindControllerIndex(event.gdevice.which);
-            if (idx >= 0)
+            if (LIKELY(idx >= 0))
                 ControllerClose((int16)idx);
             break;
         }

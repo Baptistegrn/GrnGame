@@ -1,41 +1,53 @@
-﻿import "std/wren/all" for Sound, SoundInfo, FilterDef, Position, Log, PadNode, InputEvent, PadButton
+﻿import "std/wren/all" for Sound, SoundInfo, FilterDef, Position, Log, PadNode, InputEvent, PadButton, Window
 
 class Wren {
   static on_start() {
-    var boost = FilterDef.bassboost(10)
-    var echo = FilterDef.echo(100,0.3)
+    System.print("Game started!")
 
-    Sound.speach_say(SoundInfo.new("hello I am new here , what I need to do my friend ?",3.0, 4.0, 1.0, false, 1.0, Position.new(), [echo]))
+    // Add a simple bassboost filter
+    var boost = FilterDef.bassboost(5)
+
+    Window.apply_black_stripes()
+
+    // Test sound playback
+    // Sound.play(SoundInfo.new("init_sound", 1.0, 1.0, 0.0, false, 0.0, Position.new(), [boost]))
 
     __pad1 = PadNode.new()
-    __pad2 = PadNode.new()
-    System.print(__pad2.index)
     __pad1.add_alias("jump", PadButton.PAD_SOUTH)
-    __pad1.add_alias("music", PadButton.PAD_EAST)
-        __pad2.add_alias("jump", PadButton.PAD_SOUTH)
-    __pad2.add_alias("music", PadButton.PAD_EAST)
+    __pad1.add_alias("action", PadButton.PAD_EAST)
+    __pad1.add_alias("start", PadButton.PAD_START)
+    
     __pad1.add_callback("jump", InputEvent.just_pressed, Fn.new {
+        System.print("Jump Pressed!")
+    })
+
+    __pad1.add_callback("action", InputEvent.just_pressed, Fn.new {
+        System.print("Action Pressed!")
         var echo = FilterDef.echo(100, 0.3)
-        Sound.speach_say(SoundInfo.new("Jump!", 0.5, 1.0, 0.0, false, 0.0, Position.new(), [echo]))
+        Sound.speach_say(SoundInfo.new("Action!", 0.5, 1.0, 0.0, false, 0.0, Position.new(), [echo]))
     })
-        __pad2.add_callback("jump", InputEvent.just_pressed, Fn.new {      
-        var echo = FilterDef.echo(100, 0.3)
-        Sound.speach_say(SoundInfo.new("Jump! bis", 0.5, 1.0, 0.0, false, 0.0, Position.new(), [echo]))
+    
+    __pad1.add_callback("start", InputEvent.just_pressed, Fn.new {
+        var w = Window.offset_x
+        var h = Window.offset_y
+        System.print("Start Pressed! Window size => Width: %(w), Height: %(h)")
     })
-    __pad1.add_callback("music", InputEvent.just_pressed, Fn.new {
-        var boost = FilterDef.bassboost()
-        Sound.play(SoundInfo.new("music", 1.0, 1.0, 0.0, false, 0.0, Position.new(), [boost]))
-    })
+
+    __frame = 0
   }
 
   static on_update(dt) {
-          __pad1.update(dt)
-          __pad2.update(dt)
+    __pad1.update(dt)
+    __frame = __frame + 1
   }
 
   static on_fixed_update(dt) {}
-  static on_render() {}
-  static on_destroy() {}
+  
+  static on_render() {
+  }
+  
+  static on_destroy() {
+  }
 }
 
 var on_start        = Fn.new { Wren.on_start() }

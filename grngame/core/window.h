@@ -6,6 +6,8 @@
 #include "grngame/core/app.h"
 #include <stdbool.h>
 
+BEGIN_DECLARATIONS
+
 SDL_Window *WindowCreate(const AppInfo *app_info);
 ivec2s WindowDimensions(SDL_Window *window);
 bool WindowConfigureScale(uint8 scalex, uint8 scaley);
@@ -23,3 +25,5 @@ float32 WindowGetOffsetX();
 float32 WindowGetOffsetY();
 void ApplyBlackStripes();
 bool WindowGetChange();
+
+END_DECLARATIONS

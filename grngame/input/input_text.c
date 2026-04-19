@@ -17,10 +17,107 @@ const char *InputTextGet()
 void InputTextClear()
 {
     kv_size(g_app.input_manager.text_input) = 0;
-    LOG_INFO("text clear");
+    LOG_INFO("Text input clear");
+}
+
+void InputTextPutChar(const char text)
+{
+    InputManager *im = &g_app.input_manager;
+    kv_push(char, im->text_input, text);
+}
+
+// todo o(n) -> o(1)
+void InputTextPutText(const char *text)
+{
+    for (int i = 0; text[i] != '\0'; i++)
+    {
+        InputTextPutChar(text[i]);
+    }
 }
 
 const char *InputDropFile()
 {
     return g_app.input_manager.drop_file;
+}
+
+void InputTextRemoveTextInt(uint32 size)
+{
+    InputManager *im = &g_app.input_manager;
+    if ((size_t)size >= kv_size(im->text_input))
+    {
+        kv_size(im->text_input) = 0;
+    }
+    else
+    {
+        kv_size(im->text_input) -= size;
+    }
+}
+
+void InputTextRemoveTextChar(const char *pattern)
+{
+    InputManager *im = &g_app.input_manager;
+    if (kv_size(im->text_input) == 0 || pattern == NULL || pattern[0] == '\0')
+        return;
+
+    kv_push(char, im->text_input, '\0');
+    kv_size(im->text_input)--;
+
+    char *start = im->text_input.a;
+    size_t pat_len = strlen(pattern);
+    char *match;
+
+    while ((match = strstr(start, pattern)) != NULL)
+    {
+        size_t match_pos = match - im->text_input.a;
+        size_t rem_len = kv_size(im->text_input) - (match_pos + pat_len);
+
+        memmove(match, match + pat_len, rem_len);
+        kv_size(im->text_input) -= pat_len;
+
+        im->text_input.a[kv_size(im->text_input)] = '\0';
+        start = match;
+    }
+}
+
+void InputTextReplace(const char *pattern, const char *replace)
+{
+    InputManager *im = &g_app.input_manager;
+    if (kv_size(im->text_input) == 0 || pattern == NULL || pattern[0] == '\0' || replace == NULL)
+        return;
+
+    kv_push(char, im->text_input, '\0');
+    kv_size(im->text_input)--;
+
+    size_t pat_len = strlen(pattern);
+    size_t rep_len = strlen(replace);
+
+    char *match;
+    size_t search_pos = 0;
+
+    while ((match = strstr(im->text_input.a + search_pos, pattern)) != NULL)
+    {
+        size_t match_pos = match - im->text_input.a;
+
+        if (rep_len > pat_len)
+        {
+            size_t diff = rep_len - pat_len;
+            for (size_t i = 0; i < diff; i++)
+                kv_push(char, im->text_input, '\0');
+            kv_size(im->text_input) -= diff;
+
+            match = im->text_input.a + match_pos;
+            size_t rem_len = kv_size(im->text_input) - (match_pos + pat_len);
+            memmove(match + rep_len, match + pat_len, rem_len + 1);
+        }
+        else if (rep_len < pat_len)
+        {
+            size_t rem_len = kv_size(im->text_input) - (match_pos + pat_len);
+            memmove(match + rep_len, match + pat_len, rem_len + 1);
+        }
+
+        memcpy(match, replace, rep_len);
+        kv_size(im->text_input) = kv_size(im->text_input) - pat_len + rep_len;
+
+        search_pos = match_pos + rep_len;
+    }
 }

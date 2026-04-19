@@ -18,6 +18,7 @@ typedef struct
     float32 trigger_l, trigger_r;
     bool pressed[SDL_GAMEPAD_BUTTON_COUNT];
     bool just_pressed[SDL_GAMEPAD_BUTTON_COUNT];
+    bool just_released[SDL_GAMEPAD_BUTTON_COUNT];
     const char *name;
 
 } Controller;
@@ -31,6 +32,7 @@ int ControllerConnectedCount(void);
 
 bool PadPressed(int button, int16 index);
 bool PadJustPressed(int button, int16 index);
+bool PadJustReleased(int button, int16 index);
 
 int PadFirstPressedIndexForButton(int button);
 
@@ -40,9 +42,18 @@ SDL_Joystick *GamepadGetJoystick(SDL_Gamepad *gp);
 const char *GamepadGetName(SDL_Gamepad *gp);
 void GamepadClose(SDL_Gamepad *gp);
 
-void PadSticks(uint16 index, float32 *RESTRICT out_lx, float32 *RESTRICT out_ly, float32 *RESTRICT out_rx,
-               float32 *RESTRICT out_ry);
-void PadTriggers(uint8 index, float32 *RESTRICT out_left, float32 *RESTRICT out_right);
+float32 PadStickLX(uint16 index);
+float32 PadStickLY(uint16 index);
+float32 PadStickRX(uint16 index);
+float32 PadStickRY(uint16 index);
+
+float32 PadTriggerL(uint8 index);
+float32 PadTriggerR(uint8 index);
+
+bool PadRumble(int16 index, uint16 left_rumble, uint16 right_rumble, uint32 duration_ms);
+bool PadHasButton(int16 index, int button);
+bool PadHasAxis(int16 index, int axis);
+bool PadHasSensor(int16 index, int sensor_type);
 
 float32 compute_axis(Sint16 value, float32 dead_zone);
 
