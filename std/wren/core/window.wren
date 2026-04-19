@@ -6,6 +6,8 @@ foreign class Window {
     foreign static universe_height
     foreign static offset_x
     foreign static offset_y
+    foreign static change
+    foreign static force_universe_scale
 
     foreign static fullscreen()
     foreign static maximized()

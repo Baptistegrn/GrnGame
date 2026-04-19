@@ -64,6 +64,16 @@ static void window_apply_black_stripes(WrenVM *vm)
     ApplyBlackStripes();
 }
 
+static void window_get_change(WrenVM *vm)
+{
+    wren_set<bool>(vm, 0, WindowGetChange());
+}
+
+static void window_is_force_universe_scale(WrenVM *vm)
+{
+    wren_set<bool>(vm, 0, g_app.info.force_universe_scale);
+}
+
 WrenForeignClassMethods BindForeignClassCallbackWindow(WrenVM *vm, const char *module, const char *class_name)
 {
     (void)vm;
@@ -95,6 +105,10 @@ WrenForeignMethodFn BindForeignMethodCallbackWindow(WrenVM *vm, const char *modu
                 return window_get_offset_x;
             if (strcmp(signature, "offset_y") == 0)
                 return window_get_offset_y;
+            if (strcmp(signature, "change") == 0)
+                return window_get_change;
+            if (strcmp(signature, "force_universe_scale") == 0)
+                return window_is_force_universe_scale;
             if (strcmp(signature, "fullscreen()") == 0)
                 return window_fullscreen;
             if (strcmp(signature, "maximized()") == 0)

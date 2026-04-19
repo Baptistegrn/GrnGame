@@ -13,5 +13,9 @@ class Position{
     x=(v) { _x = v }
     y=(v) { _y = v }
 
+    +(other) {
+        return Position.new(_x + other.x, _y + other.y)
+    }
+
     toString { "Position(%(x), %(y))" }
 }

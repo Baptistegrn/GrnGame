@@ -9,6 +9,7 @@
 #include "grngame/audio/sound_info.h"
 #include "grngame/bindings/utils.hpp"
 #include "grngame/bindings/wren/controller_module.hpp"
+#include "grngame/bindings/wren/renderer_module.hpp"
 #include "grngame/bindings/wren/sound_module.hpp"
 #include "grngame/bindings/wren/utils.hpp"
 #include "grngame/bindings/wren/window_module.hpp"
@@ -21,13 +22,12 @@ WrenEngine::~WrenEngine()
 {
     CallOnDestroy();
 
+    ReleaseHandle(main_class);
     ReleaseHandle(on_start);
     ReleaseHandle(on_update);
     ReleaseHandle(on_fixed_update);
     ReleaseHandle(on_render);
     ReleaseHandle(on_destroy);
-    ReleaseHandle(call_zero_args);
-    ReleaseHandle(call_one_arg);
 
     if (vm)
     {
@@ -57,17 +57,25 @@ bool WrenEngine::Init(const char *main_script_name)
         return false;
     }
 
-    call_zero_args = wrenMakeCallHandle(vm, "call()");
-    call_one_arg = wrenMakeCallHandle(vm, "call(_)");
-
     if (!LoadMainScript(main_script_name))
         return false;
 
-    on_start = FindTopLevelFunction("on_start");
-    on_update = FindTopLevelFunction("on_update");
-    on_fixed_update = FindTopLevelFunction("on_fixed_update");
-    on_render = FindTopLevelFunction("on_render");
-    on_destroy = FindTopLevelFunction("on_destroy");
+    if (!wrenHasVariable(vm, main_module.c_str(), "Main"))
+    {
+        LOG_ERROR("Class 'Main' not found in script '%s.wren'", main_script_name);
+        return false;
+    }
+
+    wrenEnsureSlots(vm, 1);
+    wrenGetVariable(vm, main_module.c_str(), "Main", 0);
+
+    main_class = wrenGetSlotHandle(vm, 0);
+
+    on_start = wrenMakeCallHandle(vm, "on_start()");
+    on_update = wrenMakeCallHandle(vm, "on_update(_)");
+    on_fixed_update = wrenMakeCallHandle(vm, "on_fixed_update(_)");
+    on_render = wrenMakeCallHandle(vm, "on_render()");
+    on_destroy = wrenMakeCallHandle(vm, "on_destroy()");
 
     LOG_INFO("Successfully initialized Wren engine with script '%s.wren'", main_script_name);
     CallOnStart();
@@ -121,34 +129,15 @@ bool WrenEngine::LoadMainScript(const char *main_script_name)
     return true;
 }
 
-WrenHandle *WrenEngine::FindTopLevelFunction(const char *function_name) const
-{
-    if (!wrenHasVariable(vm, main_module.c_str(), function_name))
-        return nullptr;
-
-    wrenEnsureSlots(vm, 1);
-    wrenSetSlotNull(vm, 0);
-    wrenGetVariable(vm, main_module.c_str(), function_name, 0);
-
-    const WrenType slot_type = wrenGetSlotType(vm, 0);
-    if (slot_type == WREN_TYPE_NULL)
-        return nullptr;
-
-    if (slot_type == WREN_TYPE_NUM || slot_type == WREN_TYPE_BOOL || slot_type == WREN_TYPE_STRING)
-        return nullptr;
-
-    return wrenGetSlotHandle(vm, 0);
-}
-
 bool WrenEngine::CallOnStart() const
 {
-    if (!on_start)
+    if (!main_class || !on_start)
         return false;
 
     wrenEnsureSlots(vm, 1);
-    wrenSetSlotHandle(vm, 0, on_start);
+    wrenSetSlotHandle(vm, 0, main_class);
 
-    const WrenInterpretResult result = wrenCall(vm, call_zero_args);
+    const WrenInterpretResult result = wrenCall(vm, on_start);
     if (result != WREN_RESULT_SUCCESS)
     {
         LOG_ERROR("Error in on_start");
@@ -160,14 +149,14 @@ bool WrenEngine::CallOnStart() const
 
 bool WrenEngine::CallOnUpdate(float delta) const
 {
-    if (!on_update)
+    if (!main_class || !on_update)
         return false;
 
     wrenEnsureSlots(vm, 2);
-    wrenSetSlotHandle(vm, 0, on_update);
+    wrenSetSlotHandle(vm, 0, main_class);
     wrenSetSlotDouble(vm, 1, (double)delta);
 
-    const WrenInterpretResult result = wrenCall(vm, call_one_arg);
+    const WrenInterpretResult result = wrenCall(vm, on_update);
     if (result != WREN_RESULT_SUCCESS)
     {
         LOG_ERROR("Error in on_update");
@@ -179,14 +168,14 @@ bool WrenEngine::CallOnUpdate(float delta) const
 
 bool WrenEngine::CallOnFixedUpdate(float delta) const
 {
-    if (!on_fixed_update)
+    if (!main_class || !on_fixed_update)
         return false;
 
     wrenEnsureSlots(vm, 2);
-    wrenSetSlotHandle(vm, 0, on_fixed_update);
+    wrenSetSlotHandle(vm, 0, main_class);
     wrenSetSlotDouble(vm, 1, (double)delta);
 
-    const WrenInterpretResult result = wrenCall(vm, call_one_arg);
+    const WrenInterpretResult result = wrenCall(vm, on_fixed_update);
     if (result != WREN_RESULT_SUCCESS)
     {
         LOG_ERROR("Error in on_fixed_update");
@@ -198,13 +187,13 @@ bool WrenEngine::CallOnFixedUpdate(float delta) const
 
 bool WrenEngine::CallOnRender() const
 {
-    if (!on_render)
+    if (!main_class || !on_render)
         return false;
 
     wrenEnsureSlots(vm, 1);
-    wrenSetSlotHandle(vm, 0, on_render);
+    wrenSetSlotHandle(vm, 0, main_class);
 
-    const WrenInterpretResult result = wrenCall(vm, call_zero_args);
+    const WrenInterpretResult result = wrenCall(vm, on_render);
     if (result != WREN_RESULT_SUCCESS)
     {
         LOG_ERROR("Error in on_render");
@@ -216,13 +205,13 @@ bool WrenEngine::CallOnRender() const
 
 bool WrenEngine::CallOnDestroy() const
 {
-    if (!on_destroy)
+    if (!main_class || !on_destroy)
         return false;
 
     wrenEnsureSlots(vm, 1);
-    wrenSetSlotHandle(vm, 0, on_destroy);
+    wrenSetSlotHandle(vm, 0, main_class);
 
-    const WrenInterpretResult result = wrenCall(vm, call_zero_args);
+    const WrenInterpretResult result = wrenCall(vm, on_destroy);
     if (result != WREN_RESULT_SUCCESS)
     {
         LOG_ERROR("Error in on_destroy");
@@ -284,6 +273,8 @@ WrenForeignMethodFn WrenEngine::BindForeignMethodCallback(WrenVM *vm, const char
         return fn;
     if (auto fn = BindForeignMethodCallbackWindow(vm, module, class_name, is_static, signature))
         return fn;
+    if (auto fn = BindForeignMethodCallbackRenderer(vm, module, class_name, is_static, signature))
+        return fn;
     return nullptr;
 }
 
@@ -296,6 +287,9 @@ WrenForeignClassMethods WrenEngine::BindForeignClassCallback(WrenVM *vm, const c
     if (methods.allocate || methods.finalize)
         return methods;
     methods = BindForeignClassCallbackController(vm, module, class_name);
+    if (methods.allocate || methods.finalize)
+        return methods;
+    methods = BindForeignClassCallbackRenderer(vm, module, class_name);
     if (methods.allocate || methods.finalize)
         return methods;
     return BindForeignClassCallbackUtils(vm, module, class_name);

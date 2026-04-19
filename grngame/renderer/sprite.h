@@ -2,6 +2,9 @@
 
 #include "../assets/asset_manager.h"
 #include "../math/types.h"
+#include "grngame/utils/c_cpp.h"
+
+BEGIN_DECLARATIONS
 
 typedef struct
 {
@@ -12,3 +15,5 @@ typedef struct
 } Sprite;
 
 bool SpriteDraw(Sprite s, uint16 frame, float x, float y, uint8 c, bool f, int16 r, uint8 a);
+
+END_DECLARATIONS

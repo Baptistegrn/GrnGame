@@ -12,14 +12,13 @@ class WrenEngine
     WrenVM *vm = nullptr;
     std::string main_module;
 
+    WrenHandle *main_class = nullptr;
+
     WrenHandle *on_start = nullptr;
     WrenHandle *on_update = nullptr;
     WrenHandle *on_fixed_update = nullptr;
     WrenHandle *on_render = nullptr;
     WrenHandle *on_destroy = nullptr;
-
-    WrenHandle *call_zero_args = nullptr;
-    WrenHandle *call_one_arg = nullptr;
 
   public:
     WrenEngine();
@@ -35,7 +34,6 @@ class WrenEngine
 
   private:
     bool LoadMainScript(const char *main_script_name);
-    WrenHandle *FindTopLevelFunction(const char *function_name) const;
 
     void ReleaseHandle(WrenHandle *&handle) const;
 
