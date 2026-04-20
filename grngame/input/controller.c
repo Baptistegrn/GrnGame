@@ -180,6 +180,7 @@ bool PadJustReleased(int button, int16 index)
     return g_app.input_manager.controllers[index].just_released[button];
 }
 
+// todo test if function is call at frame 0 and call it at frame 1 and warn
 bool PadRumble(int16 index, uint16 left_rumble, uint16 right_rumble, uint32 time)
 {
     if (UNLIKELY(index < 0 || index >= MAX_CONTROLLERS))

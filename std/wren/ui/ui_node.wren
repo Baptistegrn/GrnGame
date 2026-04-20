@@ -7,6 +7,7 @@ import "std/wren/ui/centering" for Centering
 import "std/wren/renderer/alpha" for Alpha
 
 class UiNode is Node {
+    //todo make a ui info likes sound 
     construct new(name, ui_name) {
         super(name)
         init_(name, ui_name, 1, Centering.middle, Position.new(), false, Alpha.opaque, 0)
@@ -60,20 +61,49 @@ class UiNode is Node {
     }
 
     coeff { _coeff }
-    coeff=(v) { _coeff = v }
+    coeff=(v) {
+        _coeff = v
+        _w = Texture.width(_ui_name) * v
+        _h = Texture.height(_ui_name) * v
+        invalidate_layout_cache_()
+    }
     center { _center }
-    center=(v) { _center = v }
+    center=(v) {
+        _center = v
+        invalidate_layout_cache_()
+    }
     padding { _padding }
     padding=(v) { _padding = v }
+
+    //todo update childrens
     flip { _flip }
     flip=(v) { _flip = v }
     alpha { _alpha }
     alpha=(v) { _alpha = v }
     rotation { _rotation }
     rotation=(v) { _rotation = v }
+
     ui_name { _ui_name }
+    ui_name=(v) {
+        _ui_name = v
+        _w = Texture.width(v) * _coeff
+        _h = Texture.height(v) * _coeff
+        invalidate_layout_cache_()
+    }
     w { _w }
     h { _h }
+
+    invalidate_layout_cache_() {
+        _cached_draw_position = null
+        _has_cached = false
+
+        for (child in children) {
+            if (child is UiNode) {
+                child.invalidate_layout_cache_()
+            }
+        }
+    }
+
 
 
     get_offset_() {
