@@ -12,4 +12,5 @@ import "std/wren/core/node" for Node
 import "std/wren/renderer/texture" for Texture
 import "std/wren/renderer/sprite" for Sprite
 import "std/wren/renderer/sprite_node" for SpriteNode
-import "std/wren/ui/ui_node" for UiNode, Centering
+import "std/wren/ui/ui_node" for UiNode
+import "std/wren/ui/centering" for Centering
