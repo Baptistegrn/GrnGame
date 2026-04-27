@@ -1,7 +1,9 @@
 #include "input_manager.h"
 #include "controller.h"
 #include "grngame/dev/logging.h"
+#include "grngame/utils/attributes.h"
 #include <string.h>
+
 
 InputManager InputManagerCreate()
 {

@@ -2,7 +2,6 @@
 
 #include "controller.h"
 #include "input_text.h"
-#include "khash.h"
 #include "mouse.h"
 #include <SDL3/SDL_scancode.h>
 #include <kvec.h>

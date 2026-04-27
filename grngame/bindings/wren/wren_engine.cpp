@@ -15,6 +15,7 @@
 #include "grngame/bindings/wren/window_module.hpp"
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
+#include "grngame/dev/tracy.h"
 
 WrenEngine::WrenEngine() = default;
 
@@ -38,7 +39,7 @@ WrenEngine::~WrenEngine()
 
 bool WrenEngine::Init(const char *main_script_name)
 {
-
+    PROFILE_ZONE_START(initwren, "initialisation of wrenvm");
     main_module = main_script_name;
 
     WrenConfiguration config;
@@ -78,7 +79,10 @@ bool WrenEngine::Init(const char *main_script_name)
     on_destroy = wrenMakeCallHandle(vm, "on_destroy()");
 
     LOG_INFO("Successfully initialized Wren engine with script '%s.wren'", main_script_name);
+    PROFILE_ZONE_END(initwren);
+    PROFILE_ZONE_START(onstart, "start function");
     CallOnStart();
+    PROFILE_ZONE_END(onstart);
     return true;
 }
 

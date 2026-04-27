@@ -5,7 +5,6 @@
 #include "grngame/utils/attributes.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
-#include <stdio.h>
 
 // move to when you will eventually move controller mapping
 extern const uint8 _binary_gamecontrollerdb_txt_start[];
@@ -35,6 +34,8 @@ InitResult InitAll(const AppInfo *app_info)
         return INIT_SDL_FAILED;
     }
 
+    SDL_SetEventEnabled(SDL_EVENT_MOUSE_MOTION, false);
+
     if (UNLIKELY(!SDL_SetAppMetadata(app_info->name, app_info->version, app_info->name)))
     {
         LOG_ERROR("Failed to set app metadata: %s", SDL_GetError());
@@ -57,7 +58,6 @@ InitResult InitAll(const AppInfo *app_info)
     }
 
     SoundInit();
-
     initialized = true;
     LOG_INFO("All engine subsystems initialized");
     return INIT_OK;

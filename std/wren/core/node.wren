@@ -15,31 +15,32 @@ class Node {
     }
 
     get_world_position() {
-        if(_parent != null) {
-            return _parent.get_world_position() + _position
-        } else {
-            return _position
-        }
+        return _parent != null ? _parent.get_world_position() + _position : _position
     }
 
     get_node(name) {
-        for(child in _children) {
-            if(child.name == name) {
-                return child
-            }
+        for (child in _children) {
+            if (child.name == name) return child
         }
         return null
     }
 
-    name { _name }
+    update_children(callback) {
+        callback.call(this)
+        for (child in _children) {
+            if (child is Node) child.update_children(callback)
+        }
+    }
+
+    name     { _name }
     name=(v) { _name = v }
-    
-    parent { _parent }
+
+    parent     { _parent }
     parent=(v) { _parent = v }
-    
-    position { _position }
+
+    position     { _position }
     position=(v) { _position = v }
-    
+
     children { _children }
 
     start() {

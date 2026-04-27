@@ -2,10 +2,8 @@
 #include "cglm/types-struct.h"
 #include "controller.h"
 #include "grngame/core/window.h"
-#include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
-#include "grngame/utils/string_compat.h"
 #include "mouse.h"
 #include <SDL3/SDL_events.h>
 
@@ -45,17 +43,6 @@ static void UpdateMousePosition()
     uint8 coeff = WindowGetScale();
     g_app.input_manager.mouse.x = (int32)SDL_roundf(i.x / (float32)coeff - g_app.info.offset_x);
     g_app.input_manager.mouse.y = (int32)SDL_roundf(i.y / (float32)coeff - g_app.info.offset_y);
-}
-
-static void AppendTextInput(const char *text)
-{
-    InputManager *im = &g_app.input_manager;
-    // todo : o(n) -> o(1)
-    while (*text)
-    {
-        kv_push(char, im->text_input, *text);
-        text++;
-    }
 }
 
 static void BackspaceTextInput()
@@ -120,7 +107,7 @@ void PollEvents()
             }
             break;
         case SDL_EVENT_TEXT_INPUT:
-            AppendTextInput(event.text.text);
+            InputTextPutText(event.text.text);
             break;
         case SDL_EVENT_MOUSE_BUTTON_DOWN:
             if (event.button.button == SDL_BUTTON_LEFT)

@@ -130,7 +130,10 @@ void create_embedded_structure(int num_dirs, const char **dirs, const char *outp
 {
     FILE *out = fopen(output_header, "w");
     if (!out)
+    {
+        fprintf(stderr, "[EmbeddedAsset] Failed to open output header: %s\n", output_header);
         return;
+    }
 
     fprintf(out, "#pragma once\n\n");
     fprintf(out, "#include \"grngame/assets/asset_manager.h\"\n\n");
