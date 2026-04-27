@@ -4,6 +4,7 @@
 #include "grngame/core/window.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
+#include "grngame/utils/string_compat.h"
 #include "mouse.h"
 #include <SDL3/SDL_events.h>
 

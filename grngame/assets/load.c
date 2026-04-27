@@ -13,12 +13,16 @@ static const EmbeddedAsset *FindEmbeddedAsset(const char *name)
     if (UNLIKELY(!g_app.info.embedded_assets))
         return NULL;
 
+    // todo : o(n) -> o(1)
     for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
     {
-        if (strcmp(g_app.info.embedded_assets[i].name, name) == 0)
+        char *key = FileStem(g_app.info.embedded_assets[i].name);
+        if (strcmp(key, name) == 0)
         {
+            free(key);
             return &g_app.info.embedded_assets[i];
         }
+        free(key);
     }
     return NULL;
 }
@@ -46,7 +50,6 @@ bool LoadSoundFile(const char *file)
 
     if (WavStream_getLength(stream) <= 0)
     {
-        LOG_WARNING("Failed to load sound file: %s", file);
         WavStream_destroy(stream);
         return false;
     }

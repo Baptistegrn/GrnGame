@@ -73,6 +73,9 @@ target("GrnGame")
         { public = true }
     )
 
+    -- Force cglm struct aliases (.x/.y/.z/.w) across C and C++ translation units.
+    add_defines("CGLM_USE_ANONYMOUS_STRUCT=1", { public = true })
+
     if has_config("tracy") then
         add_defines("TRACY_ENABLE", { public = true })
     end

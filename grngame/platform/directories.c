@@ -1,5 +1,6 @@
 #include "directories.h"
 #include "SDL3/SDL_filesystem.h"
+#include "grngame/platform/paths.h"
 #include <tinydir.h>
 
 void DirWalk(const char *dir_path, FileCallback callback, void *userdata)
@@ -35,16 +36,32 @@ void DirWalk(const char *dir_path, FileCallback callback, void *userdata)
     tinydir_close(&dir);
 }
 
-static void count_callback(const char *path, void *userdata)
+static void count_file_callback(const char *path, void *userdata)
 {
     (void)path;
     (*(int *)userdata)++;
 }
 
+static void count_asset_file_callback(const char *path, void *userdata)
+{
+    (void)path;
+    if (FileIsLoadableImage(path) || FileIsLoadableAudio(path))
+    {
+        (*(int *)userdata)++;
+    }
+}
+
 int DirFileCount(const char *dir_path)
 {
     int count = 0;
-    DirWalk(dir_path, count_callback, &count);
+    DirWalk(dir_path, count_file_callback, &count);
+    return count;
+}
+
+int DirAssetFileCount(const char *dir_path)
+{
+    int count = 0;
+    DirWalk(dir_path, count_asset_file_callback, &count);
     return count;
 }
 

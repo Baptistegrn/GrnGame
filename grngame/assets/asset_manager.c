@@ -7,9 +7,12 @@
 #include "grngame/platform/directories.h"
 #include "grngame/platform/paths.h"
 #include "khash.h"
+#include "soloud_c.h"
 #include <stdlib.h>
 
 static void LoadFile(const char *file, void *user_data);
+static void LoadEmbeddedFiles(void);
+static int32 EmbeddedFileCount(void);
 
 AssetManager AssetManagerCreate()
 {
@@ -21,28 +24,24 @@ void AssetManagerLoadFolder(const char *folder)
 
     if (g_app.info.embedded_assets)
     {
-        for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
+        if (EmbeddedFileCount() == 0)
         {
-            const EmbeddedAsset *asset = &g_app.info.embedded_assets[i];
-            if (FileIsLoadableAudio(asset->name))
-            {
-                LoadSoundFile(asset->name);
-            }
-            else if (FileIsLoadableImage(asset->name))
-            {
-                LoadTextureFile(asset->name);
-            }
+            LOG_WARNING("No assets files in embedded assets folder '%s'", folder);
+            return;
         }
-        return;
+        LoadEmbeddedFiles();
     }
 
-    if (DirFileCount(folder) == 0)
+    else
     {
-        LOG_WARNING("No files in asset folder '%s'", folder);
-        return;
-    }
+        if (DirAssetFileCount(folder) == 0)
+        {
+            LOG_WARNING("No assets files in asset folder '%s'", folder);
+            return;
+        }
 
-    DirWalk(folder, LoadFile, NULL);
+        DirWalk(folder, LoadFile, NULL);
+    }
 }
 
 static void LoadFile(const char *file, void *user_data)
@@ -54,18 +53,70 @@ static void LoadFile(const char *file, void *user_data)
     if (FileIsLoadableAudio(file))
     {
         load_result = LoadSoundFile(file);
+        if (!load_result)
+            LOG_WARNING("Failed to load asset file '%s'", file);
+        else
+            LOG_DEBUG("Loaded asset file '%s'", file);
     }
     else if (FileIsLoadableImage(file))
     {
         load_result = LoadTextureFile(file);
+        if (!load_result)
+            LOG_WARNING("Failed to load asset file '%s', SDL error: '%s'", file, SDL_GetError());
+        else
+            LOG_DEBUG("Loaded asset file '%s'", file);
     }
     else
     {
         LOG_WARNING("Unknown file type in asset folder: '%s'", FileExtension(file));
     }
+}
 
-    if (!load_result)
-        LOG_WARNING("Failed to load file '%s', SDL error: '%s'", file, SDL_GetError());
-    else
-        LOG_DEBUG("Loaded asset file '%s'", file);
+static int32 EmbeddedFileCount()
+{
+    int32 count = 0;
+    for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
+    {
+        const EmbeddedAsset *asset = &g_app.info.embedded_assets[i];
+        if (FileIsLoadableAudio(asset->name) || FileIsLoadableImage(asset->name))
+            count++;
+    }
+    return count;
+}
+
+static bool LoadEmbeddedAsset(const EmbeddedAsset *asset)
+{
+    if (!asset)
+        return false;
+
+    if (FileIsLoadableAudio(asset->name))
+    {
+        bool result = LoadSoundFile(asset->name);
+        if (result)
+            LOG_DEBUG("Loaded asset file '%s' (embedded)", asset->name);
+        else
+            LOG_WARNING("Failed to load asset file '%s' (embedded)", asset->name);
+        return result;
+    }
+    else if (FileIsLoadableImage(asset->name))
+    {
+        bool result = LoadTextureFile(asset->name);
+        if (result)
+            LOG_DEBUG("Loaded asset file '%s' (embedded)", asset->name);
+        else
+            LOG_WARNING("Failed to load asset file '%s' (embedded), SDL error: '%s'", asset->name, SDL_GetError());
+        return result;
+    }
+    return false;
+}
+
+static void LoadEmbeddedFiles()
+{
+    if (!g_app.info.embedded_assets)
+        return;
+
+    for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
+    {
+        LoadEmbeddedAsset(&g_app.info.embedded_assets[i]);
+    }
 }

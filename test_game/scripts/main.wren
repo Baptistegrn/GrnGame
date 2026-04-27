@@ -11,6 +11,7 @@ import "std/wren/audio/sound_info" for SoundInfo
 
 class Main {
   static on_start() {
+    __button = UiNode.new("button",UiInfo.new("1"))
   }
 
   static on_update(dt) {
@@ -19,6 +20,7 @@ class Main {
   static on_fixed_update(dt) {}
   
   static on_render() {
+    __button.render()
   }
   
   static on_destroy() {
