@@ -30,7 +30,7 @@ local function add_steam_support()
         add_links("steam_api", { public = true })
     elseif is_plat("windows") then 
         add_links("steam_api64", { public = true })
-    elseif is_plat("macos") then 
+    elseif is_plat("macosx") then 
         add_links("steam_api", { public = true }) 
     end
 end
@@ -64,7 +64,7 @@ target("GrnGame")
         add_cxxflags("-frtti", "-fexceptions")
     elseif is_plat("windows") then
         add_defines("GRNGAME_WINDOWS", { public = true })
-    elseif is_plat("macos") then
+    elseif is_plat("macosx") then
         add_defines("GRNGAME_MACOS", { public = true })
     end
 
@@ -75,7 +75,7 @@ target("GrnGame")
         set_policy("build.optimization.lto", true)
     end
 
-    if is_plat("macos") then
+    if is_plat("macosx") then
         add_packages("freetype", { public = true })
     end
 
