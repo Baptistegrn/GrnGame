@@ -24,10 +24,22 @@ add_requires("wren", {version = "0.4.0", configs = {shared=false}})
 
 local asset_pipeline_python = is_plat("windows") and "python" or "python3"
 
+local function add_steam_support()
+    add_linkdirs("plugins", { public = true })
+    if is_plat("linux") then
+        add_links("libsteam_api.so", { public = true })
+    elseif is_plat("windows") then 
+        add_links("steam_api64", { public = true })
+    elseif is_plat("macos") then 
+        add_links("libsteam_api.dylib", { public = true }) 
+    end
+end
+
 set_warnings("all", "extra")
 target("GrnGame")
     set_languages("c17", "cxx20")
     set_kind("static")
+    add_steam_support()
 
     add_rules("utils.bin2obj", {extensions = ".txt"})
     add_files("grngame/input/gamecontrollerdb.txt")
@@ -96,7 +108,6 @@ target("Editor")
     add_headerfiles("grngame/**.h")
     add_headerfiles("grngame/**.hpp")
     add_deps("GrnGame")
-
     after_build(function(target)
         local scripts_dir = path.join(target:targetdir(), "scripts")
         os.mkdir(scripts_dir)
@@ -117,20 +128,20 @@ target("WrenTest")
     add_files("test_game/scripts/main.c")
     add_deps("GrnGame")
     add_deps("Embedded")
-    add_defines("GRN_EMBED_ASSETS")
+    --add_defines("GRN_EMBED_ASSETS")
 
-    before_build(function(target)
-        local embedded_exe = target:dep("Embedded"):targetfile()
-        if os.isexec(embedded_exe) then
-            os.mkdir("build/generated")
-            os.execv(embedded_exe, {
-                "build/generated/embedded_assets.h",
-                "test_game/scripts",
-                "test_game/assets",
-                "std"
-            })
-        end
-    end)
+    -- before_build(function(target)
+    --     local embedded_exe = target:dep("Embedded"):targetfile()
+    --     if os.isexec(embedded_exe) then
+    --         os.mkdir("build/generated")
+    --         os.execv(embedded_exe, {
+    --             "build/generated/embedded_assets.h",
+    --             "test_game/scripts",
+    --             "test_game/assets",
+    --             "std"
+    --         })
+    --     end
+    -- end)
 
         after_build(function(target)
         os.execv(asset_pipeline_python, {

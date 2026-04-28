@@ -6,6 +6,16 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
 
+/* todo : move in correct file */
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+    bool SteamInternal_SteamAPI_Init(void);
+#ifdef __cplusplus
+}
+#endif
+
 // move to when you will eventually move controller mapping
 extern const uint8 _binary_gamecontrollerdb_txt_start[];
 extern const uint8 _binary_gamecontrollerdb_txt_end[];
@@ -55,6 +65,12 @@ InitResult InitAll(const AppInfo *app_info)
             LOG_WARNING("Failed to load controller mappings: %s", SDL_GetError());
         else
             LOG_INFO("Successfully mapped %d controller entries", map);
+    }
+
+    // test
+    if (!SteamInternal_SteamAPI_Init())
+    {
+        LOG_ERROR("error steam api init");
     }
 
     SoundInit();
