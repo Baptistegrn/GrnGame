@@ -8,10 +8,6 @@ option("tracy")
     set_description("Enable Tracy profiler instrumentation")
 option_end()
 
-if is_plat("macos") then
-    add_requires("freetype", {configs={shared=false}, system=false})
-    add_requireconfs("**.freetype", {system=false, configs={shared=false}})
-end
 add_requires("libsdl3", {version = "3.4.0"},{configs={shared=false}})
 add_requires("libsdl3_image", {version = "3.2.0"},{configs={shared=false}})
 add_requires("libsdl3_ttf", {version = "3.2.2"}, {configs={shared=false, freetype=false}, system=false})
@@ -73,10 +69,6 @@ target("GrnGame")
     elseif is_mode("release") then 
         add_defines("GRNGAME_RELEASE" , { public = true })
         set_policy("build.optimization.lto", true)
-    end
-
-    if is_plat("macosx") then
-        add_packages("freetype", { public = true })
     end
 
     add_packages(
