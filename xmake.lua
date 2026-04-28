@@ -11,7 +11,7 @@ option_end()
 
 add_requires("libsdl3", {version = "3.4.0"},{configs={shared=false}})
 add_requires("libsdl3_image", {version = "3.2.0"},{configs={shared=false}})
-add_requires("libsdl3_ttf", {version = "3.2.2"},{configs={shared=false}})
+add_requires("libsdl3_ttf", {version = "3.2.2"},{configs={shared=false},system=false})
 add_requires("quill", {version = "v11.0.2"},{configs={shared=false}})
 add_requires("klib", {version = "2024.06.03"},{configs={shared=false}})
 add_requires("cglm", {version = "v0.9.6"},{configs={shared=false}})
