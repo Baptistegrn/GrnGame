@@ -26,6 +26,10 @@ jobs:
           package-cache: true
           build-cache: true
 
+      - name: Remove homebrew freetype
+        if: runner.os == 'macOS'
+        run: brew uninstall --ignore-dependencies freetype
+
       - name: Clean packages
         run: xmake require --clean -y
 
