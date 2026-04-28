@@ -22,10 +22,12 @@ jobs:
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
-          actions-cache-folder: '.xmake-cache-0.0.1'
-          actions-cache-key: '0.0.1'
+          actions-cache-folder: '.xmake-cache-v2'
           package-cache: true
           build-cache: true
+
+      - name: Clean packages
+        run: xmake require --clean
 
       - name: Configure
         run: xmake config -m ${{ matrix.buildtype }} -y -vv
