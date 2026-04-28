@@ -27,7 +27,7 @@ jobs:
           build-cache: true
 
       - name: Clean packages
-        run: xmake require --clean
+        run: xmake require --clean -y
 
       - name: Configure
         run: xmake config -m ${{ matrix.buildtype }} -y -vv
