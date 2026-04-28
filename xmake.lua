@@ -27,11 +27,11 @@ local asset_pipeline_python = is_plat("windows") and "python" or "python3"
 local function add_steam_support()
     add_linkdirs("plugins", { public = true })
     if is_plat("linux") then
-        add_links("libsteam_api.so", { public = true })
+        add_links("steam_api", { public = true })
     elseif is_plat("windows") then 
         add_links("steam_api64", { public = true })
     elseif is_plat("macos") then 
-        add_links("libsteam_api.dylib", { public = true }) 
+        add_links("steam_api", { public = true }) 
     end
 end
 
