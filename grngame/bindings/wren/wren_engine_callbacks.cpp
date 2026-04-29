@@ -3,6 +3,7 @@
 #include <cstring>
 
 #include "grngame/bindings/wren/controller_module.hpp"
+#include "grngame/bindings/wren/mouse_module.hpp"
 #include "grngame/bindings/wren/renderer_module.hpp"
 #include "grngame/bindings/wren/sound_module.hpp"
 #include "grngame/bindings/wren/utils.hpp"
@@ -47,6 +48,8 @@ WrenForeignMethodFn WrenEngine::BindForeignMethodCallback(WrenVM *vm, const char
         return fn;
     if (auto fn = BindForeignMethodCallbackController(vm, module, class_name, is_static, signature))
         return fn;
+    if (auto fn = BindForeignMethodCallbackMouse(vm, module, class_name, is_static, signature))
+        return fn;
     if (auto fn = BindForeignMethodCallbackUtils(vm, module, class_name, is_static, signature))
         return fn;
     if (auto fn = BindForeignMethodCallbackWindow(vm, module, class_name, is_static, signature))
@@ -65,6 +68,9 @@ WrenForeignClassMethods WrenEngine::BindForeignClassCallback(WrenVM *vm, const c
     if (methods.allocate || methods.finalize)
         return methods;
     methods = BindForeignClassCallbackController(vm, module, class_name);
+    if (methods.allocate || methods.finalize)
+        return methods;
+    methods = BindForeignClassCallbackMouse(vm, module, class_name);
     if (methods.allocate || methods.finalize)
         return methods;
     methods = BindForeignClassCallbackRenderer(vm, module, class_name);
