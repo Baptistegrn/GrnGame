@@ -35,14 +35,22 @@ void DbClose(sqlite3 *db)
 
 static bool DbExec(sqlite3 *db, const char *sql)
 {
-    char *err = NULL;
-    if (sqlite3_exec(db, sql, NULL, NULL, &err) != SQLITE_OK)
+    sqlite3_stmt *stmt = NULL;
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK)
     {
-        LOG_ERROR("SQL error: %s", err ? err : sqlite3_errmsg(db));
-        sqlite3_free(err);
+        LOG_ERROR("SQL prepare error: %s", sqlite3_errmsg(db));
         return false;
     }
 
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE && rc != SQLITE_ROW)
+    {
+        LOG_ERROR("SQL execution error: %s", sqlite3_errmsg(db));
+        sqlite3_finalize(stmt);
+        return false;
+    }
+
+    sqlite3_finalize(stmt);
     return true;
 }
 
