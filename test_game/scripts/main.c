@@ -30,5 +30,6 @@ int main()
     app.log_destination = LOG_TO_CONSOLE;
     app.force_universe_scale = true;
     EngineStart(&app);
+
     return 0;
 }

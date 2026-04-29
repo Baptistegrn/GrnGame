@@ -8,6 +8,12 @@ option("tracy")
     set_description("Enable Tracy profiler instrumentation")
 option_end()
 
+option("embed_assets")
+    set_default(false)
+    set_showmenu(true)
+    set_description("Generate embedded assets before building WrenTest")
+option_end()
+
 add_requires("libsdl3", {version = "3.4.0"},{configs={shared=false}})
 add_requires("libsdl3_image", {version = "3.2.0"},{configs={shared=false}})
 add_requires("libsdl3_ttf", {version = "3.2.2"}, {configs={shared=false, freetype=false}, system=false})
@@ -16,7 +22,8 @@ add_requires("klib", {version = "2024.06.03"},{configs={shared=false}})
 add_requires("cglm", {version = "v0.9.6"},{configs={shared=false}})
 add_requires("soloud",{version = "2020.02.07", configs={shared=false}})
 add_requires("tinydir",{version = "1.2.6", configs={shared=false}})
-add_requires("wren", {version = "0.4.0", configs = {shared=false}})
+add_requires("wren", {version = "0.4.0", configs={shared=false}})
+add_requires("sqlite3",{version = "3-3.53.0+0"},{configs={shared=false}})
 
 local asset_pipeline_python = is_plat("windows") and "python" or "python3"
 
@@ -82,6 +89,7 @@ target("GrnGame")
         "tinydir",
         "wren",
         "freetype",
+        "sqlite3",
         { public = true }
     )
 
@@ -120,25 +128,37 @@ target("WrenTest")
     add_files("test_game/scripts/main.c")
     add_deps("GrnGame")
     add_deps("Embedded")
-    --add_defines("GRN_EMBED_ASSETS")
 
-    -- before_build(function(target)
-    --     local embedded_exe = target:dep("Embedded"):targetfile()
-    --     if os.isexec(embedded_exe) then
-    --         os.mkdir("build/generated")
-    --         os.execv(embedded_exe, {
-    --             "build/generated/embedded_assets.h",
-    --             "test_game/scripts",
-    --             "test_game/assets",
-    --             "std"
-    --         })
-    --     end
-    -- end)
+    if has_config("embed_assets") then
+        add_defines("GRN_EMBED_ASSETS")
+        before_build(function(target)
+            local embedded_exe = target:dep("Embedded"):targetfile()
+            if os.isexec(embedded_exe) then
+                os.mkdir("build/generated")
+                os.execv(embedded_exe, {
+                    "build/generated/embedded_assets.h",
+                    "test_game/scripts",
+                    "test_game/assets",
+                    "std"
+                })
+            end
+        end)
+    end
 
-        after_build(function(target)
+    after_build(function(target)
         os.execv(asset_pipeline_python, {
             "scripts/asset_pipeline.py",
             "test_game",
             target:targetdir()
         })
     end)
+
+
+target("SqlTest")
+    set_languages("c17", "cxx17")
+    set_kind("binary")
+    add_deps("GrnGame")
+    add_files("test_sql/main.c")
+
+
+

@@ -6,6 +6,7 @@
 #include "grngame/core/app.h"
 #include "grngame/core/init.h"
 #include "grngame/core/window.h"
+#include "grngame/data/data.h"
 #include "grngame/dev/logging.h"
 #include "grngame/dev/tracy.h"
 #include "grngame/input/input_data.h"
