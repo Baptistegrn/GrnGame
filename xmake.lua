@@ -75,7 +75,9 @@ target("GrnGame")
         add_defines("GRNGAME_DEBUG", { public = true })
     elseif is_mode("release") then 
         add_defines("GRNGAME_RELEASE" , { public = true })
-        set_policy("build.optimization.lto", true)
+        if not is_plat("macosx") then
+            set_policy("build.optimization.lto", true)
+        end
     end
 
     add_packages(
