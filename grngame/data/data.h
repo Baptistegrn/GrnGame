@@ -48,3 +48,8 @@ void DbResultFree(DbResult *res);
 
 bool DataWrite(sqlite3 *db, const char *sql);
 DbResult DataFetch(sqlite3 *db, const char *sql);
+
+// before long insert
+void DbBegin(sqlite3 *db);
+void DbCommit(sqlite3 *db);
+void DbRollback(sqlite3 *db);

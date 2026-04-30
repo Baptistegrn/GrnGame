@@ -1,6 +1,7 @@
 #include "data.h"
 #include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
+#include "grngame/utils/file.h"
 #include "kvec.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,11 +9,7 @@
 
 bool DbExists(const char *name)
 {
-    FILE *file = fopen(name, "rb");
-    if (!file)
-        return false;
-    fclose(file);
-    return true;
+    return FileExist(name);
 }
 
 sqlite3 *DbCreate(const char *name)
@@ -229,4 +226,19 @@ DbResult DataFetch(sqlite3 *db, const char *sql)
 bool DataWrite(sqlite3 *db, const char *sql)
 {
     return DbExec(db, sql);
+}
+
+void DbBegin(sqlite3 *db)
+{
+    DataWrite(db, "BEGIN TRANSACTION;");
+}
+
+void DbCommit(sqlite3 *db)
+{
+    DataWrite(db, "COMMIT;");
+}
+
+void DbRollback(sqlite3 *db)
+{
+    DataWrite(db, "ROLLBACK;");
 }

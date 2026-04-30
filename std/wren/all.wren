@@ -7,6 +7,8 @@ import "std/wren/input/key_code" for KeyCode
 import "std/wren/input/input_event" for InputEvent
 import "std/wren/math/vec2" for Vec2
 import "std/wren/dev/log" for Log
+import "std/wren/utils/file" for File
+import "std/wren/utils/json_file" for JSONFile
 import "std/wren/core/window" for Window
 import "std/wren/core/node" for Node
 import "std/wren/renderer/texture" for Texture
