@@ -50,21 +50,9 @@ class Main {
     var filePath = "hey.txt"
     var writeContent = "hello from Wren"
     var appendContent = "appended line"
-    Log.log_info("File exists before write: %(File.exists(filePath))")
-    Log.log_info("File write result: %(File.write(filePath, writeContent))")
-    Log.log_info("File append result: %(File.append(filePath, appendContent))")
-    Log.log_info("File exists after write: %(File.exists(filePath))")
+    File.write(filePath, writeContent)
+    File.append(filePath, appendContent)
     Log.log_info("File content: %(File.read(filePath))")
-
-    var jsonPath = "hey.json"
-    var jsonData = {
-      "name": "GrnGame",
-      "version": 1,
-      "features": ["file", "json"]
-    }
-    Log.log_info("JSON save result: %(JSONFile.save(jsonPath, jsonData))")
-    Log.log_info("JSON exists after save: %(JSONFile.exists(jsonPath))")
-    Log.log_info("JSON load result: %(JSONFile.load(jsonPath))")
   }
 
   static on_update(dt) {

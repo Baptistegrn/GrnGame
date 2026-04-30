@@ -1,9 +1,21 @@
 #include "grngame/bindings/wren/file_module.hpp"
 #include "grngame/bindings/wren/wren_engine.hpp"
+#include "grngame/dev/logging.h"
 #include "grngame/utils/file.h"
 
 #include <cstdlib>
 #include <cstring>
+
+static bool warning = true;
+
+static void warn_file_io()
+{
+    if (warning)
+    {
+        LOG_WARNING("FileSystem I/O is expensive, avoid using File methods in update() or draw().");
+        warning = false;
+    }
+}
 
 static void file_exists(WrenVM *vm)
 {
@@ -13,6 +25,7 @@ static void file_exists(WrenVM *vm)
 
 static void file_read(WrenVM *vm)
 {
+    warn_file_io();
     const char *path = wren_get<const char *>(vm, 1);
     char *content = ReturnFileString(path);
 
@@ -28,6 +41,7 @@ static void file_read(WrenVM *vm)
 
 static void file_write(WrenVM *vm)
 {
+    warn_file_io();
     const char *path = wren_get<const char *>(vm, 1);
     const char *content = wren_get<const char *>(vm, 2);
     wren_set<bool>(vm, 0, WriteFileString(path, content, false));
@@ -35,6 +49,7 @@ static void file_write(WrenVM *vm)
 
 static void file_append(WrenVM *vm)
 {
+    warn_file_io();
     const char *path = wren_get<const char *>(vm, 1);
     const char *content = wren_get<const char *>(vm, 2);
     wren_set<bool>(vm, 0, WriteFileString(path, content, true));

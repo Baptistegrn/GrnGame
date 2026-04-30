@@ -16,12 +16,12 @@ bool FileExist(const char *name)
 
 char *ReturnFileString(const char *name)
 {
-    if (!FileExist(name))
+    FILE *file = fopen(name, "rb");
+    if (!file)
     {
         LOG_WARNING("Impossible to get string from file %s", name);
         return NULL;
     }
-    FILE *file = fopen(name, "rb");
 
     fseek(file, 0, SEEK_END);
     uint64 size = ftell(file);
