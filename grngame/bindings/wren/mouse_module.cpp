@@ -5,19 +5,6 @@
 #include <cstring>
 #include <wren.h>
 
-// todo create 2 c function for mouse position
-static void get_mouse_position_x(WrenVM *vm)
-{
-    vec2s res = GetMousePosition();
-    wren_set<double>(vm, 0, res.x);
-}
-
-static void get_mouse_position_y(WrenVM *vm)
-{
-    vec2s res = GetMousePosition();
-    wren_set<double>(vm, 0, res.y);
-}
-
 static void mouse_left_pressed(WrenVM *vm)
 {
     wren_set<bool>(vm, 0, MouseLeftPressed());
@@ -28,6 +15,11 @@ static void mouse_left_just_pressed(WrenVM *vm)
     wren_set<bool>(vm, 0, MouseLeftJustPressed());
 }
 
+static void mouse_left_just_released(WrenVM *vm)
+{
+    wren_set<bool>(vm, 0, MouseLeftJustReleased());
+}
+
 static void mouse_right_pressed(WrenVM *vm)
 {
     wren_set<bool>(vm, 0, MouseRightPressed());
@@ -36,6 +28,11 @@ static void mouse_right_pressed(WrenVM *vm)
 static void mouse_right_just_pressed(WrenVM *vm)
 {
     wren_set<bool>(vm, 0, MouseRightJustPressed());
+}
+
+static void mouse_right_just_released(WrenVM *vm)
+{
+    wren_set<bool>(vm, 0, MouseRightJustReleased());
 }
 
 static void mouse_x(WrenVM *vm)
@@ -98,10 +95,14 @@ WrenForeignMethodFn BindForeignMethodCallbackMouse(WrenVM *vm, const char *modul
                 return mouse_left_pressed;
             if (std::strcmp(signature, "left_just_pressed()") == 0)
                 return mouse_left_just_pressed;
+            if (std::strcmp(signature, "left_just_released()") == 0)
+                return mouse_left_just_released;
             if (std::strcmp(signature, "right_pressed()") == 0)
                 return mouse_right_pressed;
             if (std::strcmp(signature, "right_just_pressed()") == 0)
                 return mouse_right_just_pressed;
+            if (std::strcmp(signature, "right_just_released()") == 0)
+                return mouse_right_just_released;
             if (std::strcmp(signature, "x()") == 0)
                 return mouse_x;
             if (std::strcmp(signature, "y()") == 0)
@@ -116,10 +117,6 @@ WrenForeignMethodFn BindForeignMethodCallbackMouse(WrenVM *vm, const char *modul
                 return show_cursor;
             if (std::strcmp(signature, "hide_cursor()") == 0)
                 return hide_cursor;
-            if (std::strcmp(signature, "get_mouse_position_x()") == 0)
-                return get_mouse_position_x;
-            if (std::strcmp(signature, "get_mouse_position_y()") == 0)
-                return get_mouse_position_y;
         }
     }
 

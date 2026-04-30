@@ -2,6 +2,7 @@
 #include "cglm/types-struct.h"
 #include "controller.h"
 #include "grngame/core/window.h"
+#include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/string_compat.h"
@@ -27,6 +28,8 @@ static void ResetInputManagerKeys()
 
     im->mouse.left_just_pressed = false;
     im->mouse.right_just_pressed = false;
+    im->mouse.left_just_released = false;
+    im->mouse.right_just_released = false;
     im->mouse.scroll_x = 0;
     im->mouse.scroll_y = 0;
     CLEAR(im->key_just_pressed);
@@ -124,19 +127,19 @@ void PollEvents()
             break;
         case SDL_EVENT_MOUSE_BUTTON_UP:
             if (event.button.button == SDL_BUTTON_LEFT)
+            {
                 im->mouse.left_pressed = false;
+                im->mouse.left_just_released = true;
+            }
             else if (event.button.button == SDL_BUTTON_RIGHT)
+            {
                 im->mouse.right_pressed = false;
+                im->mouse.right_just_released = true;
+            }
             break;
         case SDL_EVENT_MOUSE_WHEEL:
-            if (event.wheel.y > 0)
-                im->mouse.scroll_y = 1;
-            else if (event.wheel.y < 0)
-                im->mouse.scroll_y = -1;
-            if (event.wheel.x > 0)
-                im->mouse.scroll_x = 1;
-            else if (event.wheel.x < 0)
-                im->mouse.scroll_x = -1;
+            im->mouse.scroll_y = event.wheel.y;
+            im->mouse.scroll_x = event.wheel.x;
             break;
         case SDL_EVENT_DROP_FILE:
             if (event.drop.data)

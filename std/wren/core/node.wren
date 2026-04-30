@@ -1,10 +1,10 @@
-import "std/wren/math/position" for Position
+import "std/wren/math/vec2" for Vec2
 
 class Node {
     construct new(name) {
         _name = name
         _parent = null
-        _position = Position.new()
+        _position = Vec2.new(0.0, 0.0)
         _children = []
     }
 

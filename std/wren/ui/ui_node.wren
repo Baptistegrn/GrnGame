@@ -1,7 +1,7 @@
 import "std/wren/core/node" for Node
 import "std/wren/renderer/texture" for Texture
 import "std/wren/core/window" for Window
-import "std/wren/math/position" for Position
+import "std/wren/math/vec2" for Vec2
 import "std/wren/dev/log" for Log
 import "std/wren/ui/centering" for Centering
 import "std/wren/renderer/alpha" for Alpha
@@ -114,21 +114,21 @@ class UiNode is Node {
         var force_scale = Window.force_universe_scale
         var ox = force_scale ? 0.0 : Window.offset_x
         var oy = force_scale ? 0.0 : Window.offset_y
-        return Position.new(ox, oy)
+        return Vec2.new(ox, oy)
     }
 
     get_target_position_() {
         var pos = get_offset_()
         if (parent != null) {
-            return Position.new(parent.position.x - pos.x, parent.position.y - pos.y)
+            return Vec2.new(parent.position.x - pos.x, parent.position.y - pos.y)
         }
-        return Position.new(-pos.x, -pos.y)
+        return Vec2.new(-pos.x, -pos.y)
     }
 
     get_target_size_() {
-        if (parent != null) return Position.new(parent.w, parent.h)
+        if (parent != null) return Vec2.new(parent.w, parent.h)
         var offset = get_offset_()
-        return Position.new(
+        return Vec2.new(
             Window.universe_width  + (offset.x * 2.0),
             Window.universe_height + (offset.y * 2.0)
         )
@@ -153,14 +153,14 @@ class UiNode is Node {
         var top_y    = cy + py
         var bottom_y = cy + ch - fh - py
 
-        if (_center == Centering.left_up)     return Position.new(left_x,  top_y)
-        if (_center == Centering.right_up)    return Position.new(right_x, top_y)
-        if (_center == Centering.middle_down) return Position.new(mid_x,   bottom_y)
-        if (_center == Centering.middle_up)   return Position.new(mid_x,   top_y)
-        if (_center == Centering.left)        return Position.new(left_x,  mid_y)
-        if (_center == Centering.left_down)   return Position.new(left_x,  bottom_y)
-        if (_center == Centering.right_down)  return Position.new(right_x, bottom_y)
-        return Position.new(mid_x, mid_y) 
+        if (_center == Centering.left_up)     return Vec2.new(left_x,  top_y)
+        if (_center == Centering.right_up)    return Vec2.new(right_x, top_y)
+        if (_center == Centering.middle_down) return Vec2.new(mid_x,   bottom_y)
+        if (_center == Centering.middle_up)   return Vec2.new(mid_x,   top_y)
+        if (_center == Centering.left)        return Vec2.new(left_x,  mid_y)
+        if (_center == Centering.left_down)   return Vec2.new(left_x,  bottom_y)
+        if (_center == Centering.right_down)  return Vec2.new(right_x, bottom_y)
+        return Vec2.new(mid_x, mid_y) 
     }
 
     get_draw_position_() {

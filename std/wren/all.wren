@@ -5,7 +5,7 @@ import "std/wren/input/pad_node" for PadNode
 import "std/wren/input/pad_button" for PadButton
 import "std/wren/input/key_code" for KeyCode
 import "std/wren/input/input_event" for InputEvent
-import "std/wren/math/position" for Position
+import "std/wren/math/vec2" for Vec2
 import "std/wren/dev/log" for Log
 import "std/wren/core/window" for Window
 import "std/wren/core/node" for Node

@@ -1,8 +1,10 @@
+#include "mouse.h"
 #include "../core/app.h"
 #include "SDL3/SDL_error.h"
 #include "cglm/types-struct.h"
 #include "grngame/core/window.h"
 #include "grngame/dev/logging.h"
+#include "grngame/math/types.h"
 #include <SDL3/SDL_mouse.h>
 
 vec2s GetMousePosition()
@@ -20,6 +22,10 @@ bool MouseLeftJustPressed()
 {
     return g_app.input_manager.mouse.left_just_pressed;
 }
+bool MouseLeftJustReleased()
+{
+    return g_app.input_manager.mouse.left_just_released;
+}
 bool MouseRightPressed()
 {
     return g_app.input_manager.mouse.right_pressed;
@@ -27,6 +33,10 @@ bool MouseRightPressed()
 bool MouseRightJustPressed()
 {
     return g_app.input_manager.mouse.right_just_pressed;
+}
+bool MouseRightJustReleased()
+{
+    return g_app.input_manager.mouse.right_just_released;
 }
 int32 MouseX()
 {
@@ -36,11 +46,11 @@ int32 MouseY()
 {
     return g_app.input_manager.mouse.y;
 }
-int8 MouseScrollX()
+float32 MouseScrollX()
 {
     return g_app.input_manager.mouse.scroll_x;
 }
-int8 MouseScrollY()
+float32 MouseScrollY()
 {
     return g_app.input_manager.mouse.scroll_y;
 }

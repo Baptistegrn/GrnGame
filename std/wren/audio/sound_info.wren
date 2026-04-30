@@ -1,13 +1,13 @@
-﻿import "std/wren/math/position" for Position
+﻿import "std/wren/math/vec2" for Vec2
 
 class SoundInfo {
-    construct new() { init_("default", 1.0, 1.0, 0.0, false, 0.0, Position.new(0.0, 0.0), []) }
-    construct new(name) { init_(name, 1.0, 1.0, 0.0, false, 0.0, Position.new(0.0, 0.0), []) }
-    construct new(name, volume) { init_(name, volume, 1.0, 0.0, false, 0.0, Position.new(0.0, 0.0), []) }
-    construct new(name, volume, pitch) { init_(name, volume, pitch, 0.0, false, 0.0, Position.new(0.0, 0.0), []) }
-    construct new(name, volume, pitch, pan) { init_(name, volume, pitch, pan, false, 0.0, Position.new(0.0, 0.0), []) }
-    construct new(name, volume, pitch, pan, looping) { init_(name, volume, pitch, pan, looping, 0.0, Position.new(0.0, 0.0), []) }
-    construct new(name, volume, pitch, pan, looping, fade_in) { init_(name, volume, pitch, pan, looping, fade_in, Position.new(0.0, 0.0), []) }
+    construct new() { init_("default", 1.0, 1.0, 0.0, false, 0.0, Vec2.new(0.0, 0.0), []) }
+    construct new(name) { init_(name, 1.0, 1.0, 0.0, false, 0.0, Vec2.new(0.0, 0.0), []) }
+    construct new(name, volume) { init_(name, volume, 1.0, 0.0, false, 0.0, Vec2.new(0.0, 0.0), []) }
+    construct new(name, volume, pitch) { init_(name, volume, pitch, 0.0, false, 0.0, Vec2.new(0.0, 0.0), []) }
+    construct new(name, volume, pitch, pan) { init_(name, volume, pitch, pan, false, 0.0, Vec2.new(0.0, 0.0), []) }
+    construct new(name, volume, pitch, pan, looping) { init_(name, volume, pitch, pan, looping, 0.0, Vec2.new(0.0, 0.0), []) }
+    construct new(name, volume, pitch, pan, looping, fade_in) { init_(name, volume, pitch, pan, looping, fade_in, Vec2.new(0.0, 0.0), []) }
     construct new(name, volume, pitch, pan, looping, fade_in, position) { init_(name, volume, pitch, pan, looping, fade_in, position, []) }
     construct new(name, volume, pitch, pan, looping, fade_in, position, filters) { init_(name, volume, pitch, pan, looping, fade_in, position, filters) }
 

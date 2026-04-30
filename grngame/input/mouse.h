@@ -13,21 +13,26 @@ typedef struct
     bool left_just_pressed;
     bool right_pressed;
     bool right_just_pressed;
-    int8 scroll_x;
-    int8 scroll_y;
+    bool left_just_released;
+    bool right_just_released;
+    float32 scroll_x;
+    float32 scroll_y;
 } Mouse;
 
-// intern
 vec2s GetMousePosition();
 
 bool MouseLeftPressed();
 bool MouseLeftJustPressed();
+bool MouseLeftJustReleased();
+
 bool MouseRightPressed();
 bool MouseRightJustPressed();
+bool MouseRightJustReleased();
+
 int32 MouseX();
 int32 MouseY();
-int8 MouseScrollX();
-int8 MouseScrollY();
+float32 MouseScrollX();
+float32 MouseScrollY();
 void MoveMouse(int16 x, int16 y);
 bool ShowCursor();
 bool HideCursor();

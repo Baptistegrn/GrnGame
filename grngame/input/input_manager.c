@@ -4,7 +4,6 @@
 #include "grngame/utils/attributes.h"
 #include <string.h>
 
-
 InputManager InputManagerCreate()
 {
     InputManager m = {
@@ -12,8 +11,10 @@ InputManager InputManagerCreate()
                   .y = 0,
                   .left_pressed = false,
                   .left_just_pressed = false,
+                  .left_just_released = false,
                   .right_pressed = false,
                   .right_just_pressed = false,
+                  .right_just_released = false,
                   .scroll_x = 0,
                   .scroll_y = 0},
         .drop_file = {0},

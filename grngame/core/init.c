@@ -68,10 +68,6 @@ InitResult InitAll(const AppInfo *app_info)
     }
 
     // test
-    if (!SteamInternal_SteamAPI_Init())
-    {
-        LOG_ERROR("error steam api init");
-    }
 
     SoundInit();
     initialized = true;

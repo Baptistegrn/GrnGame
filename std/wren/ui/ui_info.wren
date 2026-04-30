@@ -1,12 +1,12 @@
-import "std/wren/math/position" for Position
+import "std/wren/math/vec2" for Vec2
 import "std/wren/ui/centering" for Centering
 import "std/wren/renderer/alpha" for Alpha
 
 class UiInfo {
-    construct new() { init_("default", 1, Centering.middle, Position.new(), false, Alpha.opaque, 0) }
-    construct new(ui_name) { init_(ui_name, 1, Centering.middle, Position.new(), false, Alpha.opaque, 0) }
-    construct new(ui_name, coeff) { init_(ui_name, coeff, Centering.middle, Position.new(), false, Alpha.opaque, 0) }
-    construct new(ui_name, coeff, center) { init_(ui_name, coeff, center, Position.new(), false, Alpha.opaque, 0) }
+    construct new() { init_("default", 1, Centering.middle, Vec2.new(0.0, 0.0), false, Alpha.opaque, 0) }
+    construct new(ui_name) { init_(ui_name, 1, Centering.middle, Vec2.new(0.0, 0.0), false, Alpha.opaque, 0) }
+    construct new(ui_name, coeff) { init_(ui_name, coeff, Centering.middle, Vec2.new(0.0, 0.0), false, Alpha.opaque, 0) }
+    construct new(ui_name, coeff, center) { init_(ui_name, coeff, center, Vec2.new(0.0, 0.0), false, Alpha.opaque, 0) }
     construct new(ui_name, coeff, center, padding) { init_(ui_name, coeff, center, padding, false, Alpha.opaque, 0) }
     construct new(ui_name, coeff, center, padding, flip) { init_(ui_name, coeff, center, padding, flip, Alpha.opaque, 0) }
     construct new(ui_name, coeff, center, padding, flip, alpha) { init_(ui_name, coeff, center, padding, flip, alpha, 0) }

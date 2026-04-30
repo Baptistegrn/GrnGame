@@ -1,3 +1,4 @@
+#include "cglm/types-struct.h"
 #include "grngame/bindings/wren/controller_module.hpp"
 #include "grngame/bindings/wren/wren_engine.hpp"
 #include "grngame/dev/logging.h"
