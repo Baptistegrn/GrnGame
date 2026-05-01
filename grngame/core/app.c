@@ -118,7 +118,7 @@ static void MainLoop()
 {
     s_is_running = true;
     SDL_ShowWindow(g_app.window);
-
+    g_app.info.frame_count = 0;
     float64 target_frame_ms = 1000.0 / (float64)g_app.info.fps;
     float64 fixed_dt = 0.016;
     float64 fixed_accumulator = 0.0;
@@ -131,6 +131,11 @@ static void MainLoop()
         uint64 frame_start = SDL_GetTicks();
         g_app.info.dt = (float64)(frame_start - previous_ticks) / 1000.0;
         previous_ticks = frame_start;
+
+        if (UNLIKELY(g_app.info.frame_count % g_app.info.fps * GARBAGE_COLLECTOR_TIME_TO_REFRESH == 0))
+        {
+            WrenManagerCollectGarbage(g_app.wren);
+        }
 
         PROFILE_ZONE_START(poll_events_zone, "PollEvents");
         PollEvents();
@@ -166,6 +171,8 @@ static void MainLoop()
 
         if (frame_ms < target_frame_ms)
             SDL_Delay((uint32)(target_frame_ms - frame_ms));
+
+        g_app.info.frame_count++;
     }
 }
 

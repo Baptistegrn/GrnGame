@@ -32,6 +32,11 @@ class WrenEngine
     bool CallOnRender() const;
     bool CallOnDestroy() const;
 
+    WrenVM *GetVM() const
+    {
+        return vm;
+    }
+
   private:
     bool LoadMainScript(const char *main_script_name);
 

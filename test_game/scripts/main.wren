@@ -1,71 +1,42 @@
-﻿import "std/wren/ui/ui_node" for UiNode
-import "std/wren/ui/ui_info" for UiInfo
-import "std/wren/ui/centering" for Centering
-import "std/wren/math/vec2" for Vec2
-import "std/wren/renderer/alpha" for Alpha
-import "std/wren/input/pad_node" for PadNode
-import "std/wren/input/pad_button" for PadButton
+﻿import "std/wren/data/db" for Db,DbStmt
 import "std/wren/dev/log" for Log
-import "std/wren/audio/sound" for Sound
-import "std/wren/audio/sound_info" for SoundInfo
-import "std/wren/input/mouse" for Mouse
-import "std/wren/input/mouse_button" for MouseButton
-import "std/wren/input/input_event" for InputEvent
-import "std/wren/utils/file" for File
-import "std/wren/utils/json_file" for JSONFile
 
 class Main {
   static on_start() {
-    __button = UiNode.new("button",UiInfo.new("1"))
-    
-    // Test Mouse callbacks
-    __mouse = Mouse.new()
-    
-    Log.log_info("=== Testing Mouse Callbacks ===")
-    
-    // Left button callbacks
-    __mouse.add_callback(MouseButton.LEFT, InputEvent.just_pressed, Fn.new {
-      Log.log_info("Left click PRESSED at x=%(Mouse.x()), y=%(Mouse.y())")
-    })
-    
-    __mouse.add_callback(MouseButton.LEFT, InputEvent.pressed, Fn.new {
-      Log.log_debug("Left click HELD")
-    })
-    
-    __mouse.add_callback(MouseButton.LEFT, InputEvent.just_released, Fn.new {
-      Log.log_info("Left click RELEASED")
-    })
-    
-    // Right button callbacks
-    __mouse.add_callback(MouseButton.RIGHT, InputEvent.just_pressed, Fn.new {
-      Log.log_info("Right click PRESSED at x=%(Mouse.x()), y=%(Mouse.y())")
-    })
-    
-    __mouse.add_callback(MouseButton.RIGHT, InputEvent.just_released, Fn.new {
-      Log.log_info("Right click RELEASED")
-    })
-    
-    Log.log_info("Mouse callbacks registered. Try clicking!")
+    __db = Db.new()
 
-    var filePath = "hey.txt"
-    var writeContent = "hello from Wren"
-    var appendContent = "appended line"
-    File.write(filePath, writeContent)
-    File.append(filePath, appendContent)
-    Log.log_info("File content: %(File.read(filePath))")
+    __db.open("test.db")
+    __db.begin()
+    for (t in 0...10) {
+      var table = "table_%(t)"
+      __db.write("CREATE TABLE IF NOT EXISTS %(table) (id INTEGER PRIMARY KEY, value TEXT);")
+      for (i in 1..100) {
+        __db.write("INSERT INTO %(table) (id, value) VALUES (%(i), 'item_%(i)');")
+      }
+    }
+    __db.commit()
+
+    __stmt = __db.prepare("UPDATE table_0 SET value = ? WHERE id = ?")
   }
 
   static on_update(dt) {
-    __mouse.update(dt)
-    //System.print(__mouse.scroll)
+    __db.begin()
+    for (i in 1..100) {
+        __db.write("UPDATE table_0 SET value = 'updated_%(i)' WHERE id = %(i);")
+    }
+    __db.commit()
   }
 
-  static on_fixed_update(dt) {}
-  
-  static on_render() {
-    __button.render()
+  static on_fixed_update(dt) {    
   }
-  
+
+  static on_render() {}
+
   static on_destroy() {
+    if (__stmt != null) {
+      __stmt.free()
+      __stmt = null
+    }
+    __db.close()
   }
 }

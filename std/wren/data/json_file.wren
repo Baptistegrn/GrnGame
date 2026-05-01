@@ -1,5 +1,5 @@
-import "std/wren/utils/file" for File
-import "std/wren/json" for JSON
+import "std/wren/data/file" for File
+import "std/wren/data/json" for JSON
 import "std/wren/dev/log" for Log
 
 class JSONFile {

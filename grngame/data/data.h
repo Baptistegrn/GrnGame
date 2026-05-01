@@ -1,31 +1,35 @@
 #pragma once
 
+#include "grngame/utils/c_cpp.h"
+#include "wren.h"
 #include <kvec.h>
 #include <sqlite3.h>
 #include <stdbool.h>
+
+BEGIN_DECLARATIONS
 
 typedef enum
 {
     INTEGER = 0,
     FLOAT = 1,
     TEXT = 2,
-    DATA = 3
-} Type;
+    DATA = 3,
+    VOID = 4
+} DbType;
 
 typedef struct
 {
-    const char *name;
-    Type type;
+    const char *name; // null for DbArg
+    DbType type;
     union {
         int i;
         double f;
         const char *s;
-        // for data (not use in wren and cant be use in sql)
         struct
         {
             void *data;
             int size;
-        } blob;
+        } blob; // not usable in wren / sql
     } value;
 } DbValue;
 
@@ -39,6 +43,13 @@ typedef struct
     kvec_t(DbRow) rows;
 } DbResult;
 
+typedef struct
+{
+    sqlite3_stmt *stmt;
+} DbStmt;
+
+typedef DbValue DbArg;
+
 sqlite3 *DbCreate(const char *name);
 void DbClose(sqlite3 *db);
 bool DbExists(const char *name);
@@ -49,7 +60,16 @@ void DbResultFree(DbResult *res);
 bool DataWrite(sqlite3 *db, const char *sql);
 DbResult DataFetch(sqlite3 *db, const char *sql);
 
-// before long insert
+// wrap in begin/commit for bulk writes
 void DbBegin(sqlite3 *db);
 void DbCommit(sqlite3 *db);
 void DbRollback(sqlite3 *db);
+
+DbStmt DbStmtPrepare(sqlite3 *db, const char *sql);
+bool DbStmtRun(DbStmt *s, DbArg *args, int argc);
+void DbStmtFree(DbStmt *s);
+
+// bypass DbResult to populate Wren list directly in one pass
+void DataFetchWren(sqlite3 *db, const char *sql, WrenVM *vm);
+
+END_DECLARATIONS

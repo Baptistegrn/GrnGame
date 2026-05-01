@@ -43,4 +43,11 @@ extern "C"
     {
         return reinterpret_cast<WrenEngine *>(manager)->CallOnDestroy();
     }
+
+    void WrenManagerCollectGarbage(WrenManager *manager)
+    {
+        WrenVM *vm = reinterpret_cast<WrenEngine *>(manager)->GetVM();
+        if (vm)
+            wrenCollectGarbage(vm);
+    }
 }

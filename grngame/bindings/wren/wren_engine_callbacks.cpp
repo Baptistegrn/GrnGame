@@ -3,6 +3,7 @@
 #include <cstring>
 
 #include "grngame/bindings/wren/controller_module.hpp"
+#include "grngame/bindings/wren/db_module.hpp"
 #include "grngame/bindings/wren/file_module.hpp"
 #include "grngame/bindings/wren/mouse_module.hpp"
 #include "grngame/bindings/wren/renderer_module.hpp"
@@ -10,6 +11,7 @@
 #include "grngame/bindings/wren/utils.hpp"
 #include "grngame/bindings/wren/window_module.hpp"
 #include "grngame/dev/logging.h"
+
 
 void WrenEngine::WriteCallback(WrenVM *vm, const char *text)
 {
@@ -45,6 +47,8 @@ void WrenEngine::ErrorCallback(WrenVM *vm, WrenErrorType type, const char *modul
 WrenForeignMethodFn WrenEngine::BindForeignMethodCallback(WrenVM *vm, const char *module, const char *class_name,
                                                           bool is_static, const char *signature)
 {
+    if (auto fn = BindForeignMethodCallbackDb(vm, module, class_name, is_static, signature))
+        return fn;
     if (auto fn = BindForeignMethodCallbackSound(vm, module, class_name, is_static, signature))
         return fn;
     if (auto fn = BindForeignMethodCallbackController(vm, module, class_name, is_static, signature))
@@ -64,7 +68,10 @@ WrenForeignMethodFn WrenEngine::BindForeignMethodCallback(WrenVM *vm, const char
 
 WrenForeignClassMethods WrenEngine::BindForeignClassCallback(WrenVM *vm, const char *module, const char *class_name)
 {
-    auto methods = BindForeignClassCallbackSound(vm, module, class_name);
+    auto methods = BindForeignClassCallbackDb(vm, module, class_name);
+    if (methods.allocate || methods.finalize)
+        return methods;
+    methods = BindForeignClassCallbackSound(vm, module, class_name);
     if (methods.allocate || methods.finalize)
         return methods;
     methods = BindForeignClassCallbackWindow(vm, module, class_name);

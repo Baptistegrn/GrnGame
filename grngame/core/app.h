@@ -9,6 +9,8 @@
 
 BEGIN_DECLARATIONS
 
+#define GARBAGE_COLLECTOR_TIME_TO_REFRESH 60
+
 typedef struct
 {
     const EmbeddedAsset *embedded_assets;
@@ -17,6 +19,7 @@ typedef struct
     const char *asset_folder;
     uint16 fps;
     float64 dt;
+    uint64 frame_count;
 
     uint16 window_universe_width;
     uint16 window_universe_height;

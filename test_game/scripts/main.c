@@ -11,7 +11,7 @@ int main()
     AppInfo app;
     app.name = "Tests";
     app.version = "1.0.1";
-    app.fps = 50;
+    app.fps = 60;
     app.window_width = 500;
     app.window_height = 500;
     app.window_universe_height = 500;

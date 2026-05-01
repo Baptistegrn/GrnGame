@@ -17,4 +17,6 @@ bool WrenManagerCallOnFixedUpdate(WrenManager *manager, float delta);
 bool WrenManagerCallOnRender(WrenManager *manager);
 bool WrenManagerCallOnDestroy(WrenManager *manager);
 
+void WrenManagerCollectGarbage(WrenManager *manager);
+
 END_DECLARATIONS
