@@ -38,4 +38,13 @@ class SoundInfo {
     position=(v) { _position = v }
     filters { _filters }
     filters=(v) { _filters = v }
+
+    toString {
+        var filter_str = ""
+        for (f in _filters) {
+            if (filter_str != "") filter_str = filter_str + ", "
+            filter_str = filter_str + f.toString()
+        }
+        return "SoundInfo(name=%(name), volume=%(volume), pitch=%(pitch), pan=%(pan), looping=%(looping), fade_in=%(fade_in), position=%(position.toString), filters=[%(filter_str)])"
+    }
 }

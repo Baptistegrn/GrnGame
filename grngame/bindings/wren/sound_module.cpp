@@ -204,6 +204,13 @@ static void sound_info_at(WrenVM *vm)
     SoundInfoAt(x, y);
 }
 
+static void set_listener_position(WrenVM *vm)
+{
+    float x = wren_get<float>(vm, 1);
+    float y = wren_get<float>(vm, 2);
+    SetListenerPosition(x, y);
+}
+
 WrenForeignClassMethods BindForeignClassCallbackSound(WrenVM *vm, const char *module, const char *class_name)
 {
     (void)vm;
@@ -232,6 +239,8 @@ WrenForeignMethodFn BindForeignMethodCallbackSound(WrenVM *vm, const char *modul
                 return sound_is_playing;
             if (strcmp(signature, "info_at(_,_)") == 0)
                 return sound_info_at;
+            if (strcmp(signature, "set_listener_position(_,_)") == 0)
+                return set_listener_position;
             if (strcmp(signature, "speach_say(_,_,_,_,_,_,_,_,_)") == 0)
                 return speach_say;
         }

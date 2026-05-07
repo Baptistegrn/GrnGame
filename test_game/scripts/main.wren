@@ -1,42 +1,25 @@
 ﻿import "std/wren/data/db" for Db,DbStmt
 import "std/wren/dev/log" for Log
+import "std/wren/audio/sound" for Sound
+import "std/wren/audio/sound_info" for SoundInfo
+import "std/wren/math/vec2" for Vec2
+import "std/wren/audio/filter_def" for FilterDef
 
 class Main {
   static on_start() {
-    __db = Db.new()
-
-    __db.open("test.db")
-    __db.begin()
-    for (t in 0...10) {
-      var table = "table_%(t)"
-      __db.write("CREATE TABLE IF NOT EXISTS %(table) (id INTEGER PRIMARY KEY, value TEXT);")
-      for (i in 1..100) {
-        __db.write("INSERT INTO %(table) (id, value) VALUES (%(i), 'item_%(i)');")
-      }
-    }
-    __db.commit()
-
-    __stmt = __db.prepare("UPDATE table_0 SET value = ? WHERE id = ?")
+    __x = 0
+        Sound.play(SoundInfo.new("music", 1, 1.0, 0.0, false, 0.0, Vec2.new(100.0, 0.0)))
   }
 
   static on_update(dt) {
-    __db.begin()
-    for (i in 1..100) {
-        __db.write("UPDATE table_0 SET value = 'updated_%(i)' WHERE id = %(i);")
-    }
-    __db.commit()
+    __x= __x+1
+  Sound.set_listener_position(__x,0)
   }
 
-  static on_fixed_update(dt) {    
-  }
+  static on_fixed_update(dt) {}
 
   static on_render() {}
 
-  static on_destroy() {
-    if (__stmt != null) {
-      __stmt.free()
-      __stmt = null
-    }
-    __db.close()
-  }
+  static on_destroy() {}
 }
+

@@ -1,6 +1,5 @@
 #include "init.h"
 
-#include "grngame/audio/sound.h"
 #include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
 #include <SDL3/SDL.h>
@@ -69,7 +68,6 @@ InitResult InitAll(const AppInfo *app_info)
 
     // test
 
-    SoundInit();
     initialized = true;
     LOG_INFO("All engine subsystems initialized");
     return INIT_OK;

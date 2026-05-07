@@ -2,6 +2,7 @@
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 #include "grngame/utils/string_compat.h"
+#include <cglm/types-struct.h>
 #include <khash.h>
 #include <kvec.h>
 #include <math.h>
@@ -24,20 +25,29 @@ typedef struct
     kvec_t(FilterHandle) active_filters;
     unsigned int handle;
     bool playing;
+    vec2s position;
+    float volume;
 } SoundState;
 
 KHASH_MAP_INIT_STR(SoundStateMap, SoundState)
 
 static khash_t(SoundStateMap) *s_sound_states = NULL;
+static vec2s s_listener_pos = {0.f, 0.f};
+static float32 s_max_distance = 0.f;
 
 // either get the state of a sound or create an empty one
 static SoundState *GetOrCreateState(const char *name);
 static void ClearFilters(SoundState *state, WavStream *stream);
 static void ApplyFilters(SoundState *state, WavStream *stream, const SoundInfo *info);
 
+// soloud doesn't update volume sound
+static float GetAttenuatedVolume(float base_volume, vec2s sound_pos);
+
 void SoundInit()
 {
     s_sound_states = kh_init(SoundStateMap);
+    s_max_distance = sqrtf((float)g_app.info.window_universe_width * g_app.info.window_universe_width +
+                           (float)g_app.info.window_universe_height * g_app.info.window_universe_height);
 }
 
 static SoundState *GetOrCreateState(const char *name)
@@ -89,6 +99,14 @@ bool SoundPlay(const char *name, const SoundInfo *info)
     Soloud_setRelativePlaySpeed(soloud, handle, info->pitch);
     Soloud_setPan(soloud, handle, info->pan);
     Soloud_setLooping(soloud, handle, info->looping);
+
+    if (positional)
+    {
+        float32 attenuated_volume = GetAttenuatedVolume(info->volume, info->position);
+        Soloud_setVolume(soloud, handle, attenuated_volume);
+        state->position = info->position;
+        state->volume = info->volume;
+    }
 
     if (info->fade_in > 0.0f)
         Soloud_fadeVolume(soloud, handle, info->volume, info->fade_in);
@@ -175,5 +193,34 @@ static void ApplyFilters(SoundState *state, WavStream *stream, const SoundInfo *
             WavStream_setFilter(stream, i, filter);
             kv_push(FilterHandle, state->active_filters, ((FilterHandle){filter, destroy}));
         }
+    }
+}
+
+static float32 GetAttenuatedVolume(float32 base_volume, vec2s sound_pos)
+{
+    float32 dx = sound_pos.x - s_listener_pos.x;
+    float32 dy = sound_pos.y - s_listener_pos.y;
+    float32 distance = sqrtf(dx * dx + dy * dy);
+    float32 attenuated_volume = base_volume * fmaxf(0.f, 1.f - distance / s_max_distance);
+    return attenuated_volume;
+}
+
+void SetListenerPosition(float32 x, float32 y)
+{
+    s_listener_pos.x = x;
+    s_listener_pos.y = y;
+    Soloud_set3dListenerPosition(g_app.sound_manager.soloud, x, y, 0.f);
+    Soloud_update3dAudio(g_app.sound_manager.soloud);
+
+    for (khiter_t k = kh_begin(s_sound_states); k != kh_end(s_sound_states); ++k)
+    {
+        if (!kh_exist(s_sound_states, k))
+            continue;
+
+        SoundState *state = &kh_value(s_sound_states, k);
+        if (!state->playing)
+            continue;
+        float32 attenuated_volume = GetAttenuatedVolume(state->volume, state->position);
+        Soloud_setVolume(g_app.sound_manager.soloud, state->handle, attenuated_volume);
     }
 }

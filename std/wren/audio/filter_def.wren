@@ -62,4 +62,15 @@ foreign class FilterDef {
     }
 
     static bassboost() { FilterDef.bassboost(1.5) }
+
+    toString() {
+        if (this.type == 0) {
+            return "FilterDef(reverb room=%(this.reverb_room), damp=%(this.reverb_damp), width=%(this.reverb_width), wet=%(this.reverb_wet))"
+        } else if (this.type == 1) {
+            return "FilterDef(echo delay=%(this.echo_delay), decay=%(this.echo_decay), wet=%(this.echo_wet))"
+        } else if (this.type == 2) {
+            return "FilterDef(bassboost boost=%(this.bassboost_boost))"
+        }
+        return "FilterDef(unknown)"
+    }
 }

@@ -1,6 +1,7 @@
 #include "app.h"
 #include "SDL3/SDL_timer.h"
 #include "SDL3/SDL_video.h"
+#include "grngame/audio/sound.h"
 #include "grngame/audio/sound_manager.h"
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/core/app.h"
@@ -100,8 +101,8 @@ void EngineStart(const AppInfo *app_info)
     EnsureInitSucceeded(res);
     InitializeAppState(app_info);
     InitializeManagers();
+    SoundInit();
     InitializeAssetsAndScripts(app_info);
-
     MainLoop();
     ShutdownScripts();
 }
