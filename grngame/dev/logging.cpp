@@ -1,3 +1,5 @@
+#ifndef __EMSCRIPTEN__
+
 #include "logging.h"
 #include "grngame/dev/logging.h"
 #define QUILL_DISABLE_NON_PREFIXED_MACROS
@@ -108,3 +110,62 @@ static LogSeverity LogSeverityForBuildType()
     return LOG_SEVERITY_DEBUG;
 #endif
 }
+
+#endif
+
+#ifdef __EMSCRIPTEN__
+
+#include "logging.h"
+
+#include <emscripten/emscripten.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <vector>
+
+bool LogInit(LogDestination log_destination)
+{
+    return true;
+}
+
+void Log(LogSeverity log_severity, const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    int size = vsnprintf(nullptr, 0, format, args);
+
+    va_end(args);
+
+    if (size < 0)
+        return;
+
+    std::vector<char> buf(size + 1);
+
+    va_start(args, format);
+
+    vsnprintf(buf.data(), buf.size(), format, args);
+
+    va_end(args);
+
+    switch (log_severity)
+    {
+    case LOG_SEVERITY_DEBUG:
+        EM_ASM({ console.debug(UTF8ToString($0)); }, buf.data());
+        break;
+
+    case LOG_SEVERITY_INFO:
+        EM_ASM({ console.info(UTF8ToString($0)); }, buf.data());
+        break;
+
+    case LOG_SEVERITY_WARNING:
+        EM_ASM({ console.warn(UTF8ToString($0)); }, buf.data());
+        break;
+
+    case LOG_SEVERITY_ERROR:
+    case LOG_SEVERITY_CRITICAL:
+        EM_ASM({ console.error(UTF8ToString($0)); }, buf.data());
+        break;
+    }
+}
+
+#endif

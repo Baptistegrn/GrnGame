@@ -39,8 +39,17 @@ jobs:
       - name: Build
         run: xmake build -y -vv
 
-      - name: Upload artifacts
+      - name: Build embedded-asset tool
+        run: xmake build -C embedded embedded-asset -y -vv
+
+      - name: Upload main artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-${{ matrix.buildtype }}
           path: build/*/*/${{ matrix.buildtype }}/
+
+      - name: Upload embedded-asset tool
+        uses: actions/upload-artifact@v4
+        with:
+          name: embedded-asset-${{ matrix.os }}-${{ matrix.buildtype }}
+          path: embedded/*/Embedded*

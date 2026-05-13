@@ -55,7 +55,8 @@ static void embed_callback(const char *path, void *userdata)
 {
     EmbedContext *ctx = (EmbedContext *)userdata;
 
-    if (!FileIsLoadableScript(path) && !FileIsLoadableAudio(path) && !FileIsLoadableImage(path))
+    if (!FileIsLoadableScript(path) && !FileIsLoadableAudio(path) && !FileIsLoadableImage(path) &&
+        !FileIsLoadableText(path))
         return;
 
     const char *base = strrchr(path, '/');

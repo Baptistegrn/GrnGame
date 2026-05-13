@@ -26,3 +26,18 @@
 #include <stddef.h>
 int strncpy_s(char *dst, size_t dst_size, const char *src, size_t count);
 #endif
+
+// Provide an internal-linkage fallback for platforms where strdup
+// may not be available or to avoid multiply-defined symbols when
+// this header is included in many translation units (Emscripten).
+#ifdef __EMSCRIPTEN__
+
+static inline char *strdup(const char *s)
+{
+    size_t len = strlen(s) + 1;
+    char *p = (char *)malloc(len);
+    memcpy(p, s, len);
+    return p;
+}
+
+#endif

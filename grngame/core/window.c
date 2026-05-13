@@ -42,8 +42,10 @@ static void SetSize(SDL_Window *window, uint16 width, uint16 height)
 
 static void SetPosition(SDL_Window *window, int32 x, int32 y)
 {
+#ifndef __EMSCRIPTEN__
     if (UNLIKELY(!SDL_SetWindowPosition(window, x, y)))
         LOG_ERROR("Failed to set window position: %s", SDL_GetError());
+#endif
 }
 
 SDL_Window *WindowCreate(const AppInfo *app_info)

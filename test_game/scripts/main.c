@@ -14,8 +14,8 @@ int main()
     app.fps = 60;
     app.window_width = 500;
     app.window_height = 500;
-    app.window_universe_height = 500;
-    app.window_universe_width = 500;
+    app.window_universe_height = 100;
+    app.window_universe_width = 100;
     app.asset_folder = "assets"; // need to load at the origin for embedding use "assets" for not embedding option
 #ifndef GRN_EMBED_ASSETS_MISSING
     app.embedded_assets = g_embedded_assets;

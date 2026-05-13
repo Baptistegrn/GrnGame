@@ -82,6 +82,22 @@ bool FileIsLoadableAudio(const char *file)
     return false;
 }
 
+bool FileIsLoadableText(const char *file)
+{
+    const char *ext = FileExtension(file);
+    if (!*ext) // same
+        return false;
+
+    // same
+    static const char *exts[] = {"txt", NULL};
+
+    for (int i = 0; exts[i]; ++i)
+        if (strcasecmp(ext, exts[i]) == 0)
+            return true;
+
+    return false;
+}
+
 char *PathFromExecutableDirectory(const char *relative)
 {
     const char *exe_dir = DirOfExecutable();

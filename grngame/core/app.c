@@ -7,7 +7,6 @@
 #include "grngame/core/app.h"
 #include "grngame/core/init.h"
 #include "grngame/core/window.h"
-#include "grngame/data/data.h"
 #include "grngame/dev/logging.h"
 #include "grngame/dev/tracy.h"
 #include "grngame/input/input_data.h"
@@ -17,11 +16,17 @@
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/random.h"
+#ifdef __EMSCRIPTEN__
+#include "grngame/utils/web.h"
+#endif
 #include <stdbool.h>
 #include <stdlib.h>
 
 static bool s_is_running = false;
+static uint64 s_previous_ticks = 0;
+static float64 s_fixed_accumulator = 0.0;
 
+static void MainLoopIteration(void *arg);
 static void MainLoop();
 static void EnsureInitSucceeded(InitResult res);
 static void InitializeAppState(const AppInfo *app_info);
@@ -101,6 +106,9 @@ void EngineStart(const AppInfo *app_info)
     EnsureInitSucceeded(res);
     InitializeAppState(app_info);
     InitializeManagers();
+#ifdef __EMSCRIPTEN__
+    WebInstallAudioUnlock();
+#endif
     SoundInit();
     InitializeAssetsAndScripts(app_info);
     MainLoop();
@@ -115,66 +123,81 @@ void EngineStop()
     s_is_running = false;
 }
 
+static void MainLoopIteration(void *arg)
+{
+    (void)arg;
+
+    if (!s_is_running)
+        return;
+
+    PROFILE_FRAME_MARK();
+
+    uint64 frame_start = SDL_GetTicks();
+    g_app.info.dt = (float64)(frame_start - s_previous_ticks) / 1000.0;
+    s_previous_ticks = frame_start;
+
+    if (UNLIKELY(g_app.info.frame_count % g_app.info.fps * GARBAGE_COLLECTOR_TIME_TO_REFRESH == 0))
+    {
+        WrenManagerCollectGarbage(g_app.wren);
+    }
+
+    PROFILE_ZONE_START(poll_events_zone, "PollEvents");
+    PollEvents();
+    PROFILE_ZONE_END(poll_events_zone);
+
+    PROFILE_ZONE_START(wren_update_zone, "Wren.OnUpdate");
+    WrenManagerCallOnUpdate(g_app.wren, (float32)g_app.info.dt);
+    PROFILE_ZONE_END(wren_update_zone);
+
+    s_fixed_accumulator += g_app.info.dt;
+    while (s_fixed_accumulator >= 0.016)
+    {
+        PROFILE_ZONE_START(wren_fixed_zone, "Wren.OnFixedUpdate");
+        WrenManagerCallOnFixedUpdate(g_app.wren, 0.016f);
+        s_fixed_accumulator -= 0.016;
+        PROFILE_ZONE_END(wren_fixed_zone);
+    }
+
+    if (!g_app.info.window_occlusion_culled)
+    {
+        PROFILE_ZONE_START(render_zone, "Render");
+        RendererClear(&g_app.renderer);
+
+        WrenManagerCallOnRender(g_app.wren);
+        ApplyBlackStripes();
+
+        RendererPresent(&g_app.renderer);
+        PROFILE_ZONE_END(render_zone);
+    }
+    ClearAll();
+    uint64 frame_end = SDL_GetTicks();
+    float64 frame_ms = (float64)(frame_end - frame_start);
+    float64 target_frame_ms = 1000.0 / (float64)g_app.info.fps;
+
+#ifndef __EMSCRIPTEN__
+    if (frame_ms < target_frame_ms)
+        SDL_Delay((uint32)(target_frame_ms - frame_ms));
+#endif
+
+    g_app.info.frame_count++;
+}
+
 static void MainLoop()
 {
     s_is_running = true;
     SDL_ShowWindow(g_app.window);
     g_app.info.frame_count = 0;
-    float64 target_frame_ms = 1000.0 / (float64)g_app.info.fps;
-    float64 fixed_dt = 0.016;
-    float64 fixed_accumulator = 0.0;
-    uint64 previous_ticks = SDL_GetTicks();
+    s_previous_ticks = SDL_GetTicks();
+    s_fixed_accumulator = 0.0;
 
+#ifdef __EMSCRIPTEN__
+    WEB_LOOP(MainLoopIteration);
+#else
     while (LIKELY(s_is_running))
     {
-        PROFILE_FRAME_MARK();
-
-        uint64 frame_start = SDL_GetTicks();
-        g_app.info.dt = (float64)(frame_start - previous_ticks) / 1000.0;
-        previous_ticks = frame_start;
-
-        if (UNLIKELY(g_app.info.frame_count % g_app.info.fps * GARBAGE_COLLECTOR_TIME_TO_REFRESH == 0))
-        {
-            WrenManagerCollectGarbage(g_app.wren);
-        }
-
-        PROFILE_ZONE_START(poll_events_zone, "PollEvents");
-        PollEvents();
-        PROFILE_ZONE_END(poll_events_zone);
-
-        PROFILE_ZONE_START(wren_update_zone, "Wren.OnUpdate");
-        WrenManagerCallOnUpdate(g_app.wren, (float32)g_app.info.dt);
-        PROFILE_ZONE_END(wren_update_zone);
-
-        fixed_accumulator += g_app.info.dt;
-        while (fixed_accumulator >= fixed_dt)
-        {
-            PROFILE_ZONE_START(wren_fixed_zone, "Wren.OnFixedUpdate");
-            WrenManagerCallOnFixedUpdate(g_app.wren, (float32)fixed_dt);
-            fixed_accumulator -= fixed_dt;
-            PROFILE_ZONE_END(wren_fixed_zone);
-        }
-
-        if (!g_app.info.window_occlusion_culled)
-        {
-            PROFILE_ZONE_START(render_zone, "Render");
-            RendererClear(&g_app.renderer);
-
-            WrenManagerCallOnRender(g_app.wren);
-            ApplyBlackStripes();
-
-            RendererPresent(&g_app.renderer);
-            PROFILE_ZONE_END(render_zone);
-        }
-        ClearAll();
-        uint64 frame_end = SDL_GetTicks();
-        float64 frame_ms = (float64)(frame_end - frame_start);
-
-        if (frame_ms < target_frame_ms)
-            SDL_Delay((uint32)(target_frame_ms - frame_ms));
-
-        g_app.info.frame_count++;
+        MainLoopIteration(NULL);
     }
+#endif
 }
 
 App g_app;
