@@ -9,8 +9,6 @@
 
 BEGIN_DECLARATIONS
 
-#define GARBAGE_COLLECTOR_TIME_TO_REFRESH 60
-
 typedef struct
 {
     const EmbeddedAsset *embedded_assets;

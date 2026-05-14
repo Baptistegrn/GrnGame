@@ -1,6 +1,10 @@
 #pragma once
 
 #ifdef __EMSCRIPTEN__
+#define __EMSCRIPTEN__ WASM
+#endif
+
+#ifdef WASM
 
 #include <emscripten.h>
 #include <emscripten/html5.h>
@@ -69,7 +73,12 @@ static inline void WebInstallAudioUnlock()
     emscripten_set_touchstart_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, WebResumeAudioTouchCallback);
 }
 
-#define WEB_LOOP(func) emscripten_set_main_loop_arg(func, NULL, 0, 1)
+#define WEB_LOOP(func)                                                                                                 \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        emscripten_set_main_loop_timing(EM_TIMING_RAF, 1);                                                             \
+        emscripten_set_main_loop_arg(func, NULL, 0, 1);                                                                \
+    } while (0)
 
 #else
 

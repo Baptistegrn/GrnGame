@@ -11,10 +11,9 @@ static void texture_draw_inner(WrenVM *vm)
     double x = wren_get<double>(vm, 2);
     double y = wren_get<double>(vm, 3);
     uint8_t scale = (uint8_t)wren_get<double>(vm, 4);
-    bool flip = wren_get<bool>(vm, 5);
-    int16_t rot = (int16_t)wren_get<double>(vm, 6);
-    uint8_t alpha = (uint8_t)wren_get<double>(vm, 7);
-    wren_set<bool>(vm, 0, TextureDraw(name, (float)x, (float)y, scale, flip, rot, alpha));
+    int16_t rot = (int16_t)wren_get<double>(vm, 5);
+    uint8_t alpha = (uint8_t)wren_get<double>(vm, 6);
+    wren_set<bool>(vm, 0, TextureDraw(name, (float)x, (float)y, scale, rot, alpha));
 }
 
 static void texture_width(WrenVM *vm)
@@ -109,10 +108,9 @@ static void sprite_draw_inner(WrenVM *vm)
     double x = wren_get<double>(vm, 2);
     double y = wren_get<double>(vm, 3);
     uint8_t scale = (uint8_t)wren_get<double>(vm, 4);
-    bool flip = wren_get<bool>(vm, 5);
-    int16_t rot = (int16_t)wren_get<double>(vm, 6);
-    uint8_t alpha = (uint8_t)wren_get<double>(vm, 7);
-    wren_set<bool>(vm, 0, SpriteDraw(s->sprite, frame, (float)x, (float)y, scale, flip, rot, alpha));
+    int16_t rot = (int16_t)wren_get<double>(vm, 5);
+    uint8_t alpha = (uint8_t)wren_get<double>(vm, 6);
+    wren_set<bool>(vm, 0, SpriteDraw(s->sprite, frame, (float)x, (float)y, scale, rot, alpha));
 }
 
 WrenForeignClassMethods BindForeignClassCallbackRenderer(WrenVM *vm, const char *module, const char *class_name)
@@ -134,7 +132,7 @@ WrenForeignMethodFn BindForeignMethodCallbackRenderer(WrenVM *vm, const char *mo
 
     if (strcmp(module, "std/wren/renderer/texture") == 0 && strcmp(class_name, "Texture") == 0 && is_static)
     {
-        if (strcmp(signature, "draw_inner(_,_,_,_,_,_,_)") == 0)
+        if (strcmp(signature, "draw_inner(_,_,_,_,_,_)") == 0)
             return texture_draw_inner;
         if (strcmp(signature, "width(_)") == 0)
             return texture_width;
@@ -157,7 +155,7 @@ WrenForeignMethodFn BindForeignMethodCallbackRenderer(WrenVM *vm, const char *mo
         if (strcmp(signature, "h=(_)") == 0)
             return sprite_set_h;
 
-        if (strcmp(signature, "draw_inner(_,_,_,_,_,_,_)") == 0)
+        if (strcmp(signature, "draw_inner(_,_,_,_,_,_)") == 0)
             return sprite_draw_inner;
     }
 

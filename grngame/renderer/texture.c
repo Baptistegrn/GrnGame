@@ -1,9 +1,14 @@
 #include "texture.h"
+#include "SDL3/SDL_surface.h"
 #include "cglm/types-struct.h"
 #include "grngame/assets/asset_manager.h"
 #include "grngame/core/app.h"
+#include "grngame/core/param.h"
 #include "grngame/dev/logging.h"
+#include "grngame/math/types.h"
 #include "renderer.h"
+#include <math.h>
+
 
 Texture *TextureGet(const char *name)
 {
@@ -16,7 +21,7 @@ Texture *TextureGet(const char *name)
     return &kh_value(texture_map, k);
 }
 
-bool TextureDraw(const char *name, float x, float y, uint8 c, bool f, int16 r, uint8 a)
+bool TextureDraw(const char *name, float x, float y, uint8 c, int16 r, uint8 a)
 {
     Texture *tex = TextureGet(name);
     if (!tex)
@@ -25,20 +30,27 @@ bool TextureDraw(const char *name, float x, float y, uint8 c, bool f, int16 r, u
         return false;
     }
 
-    if (OffScreen(x, y, tex->w, tex->h))
+    if (OffScreen(x, y, (float32)(tex->w * c), (float32)(tex->h * c)))
     {
         // todo log
         return false;
     }
 
-    SDL_FRect dst = {x + g_app.info.offset_x, y + g_app.info.offset_y, (float)(tex->w * c), (float)(tex->h * c)};
+    SDL_FRect dst = {PIXEL_ALIGN(x + g_app.info.offset_x), PIXEL_ALIGN(y + g_app.info.offset_y), (float)(tex->w * c),
+                     (float)(tex->h * c)};
 
     SDL_FPoint center = {dst.w / 2.0f, dst.h / 2.0f};
 
     RendererSetTextureAlpha(tex->texture, a);
+    if (r == 0)
+    {
 
-    SDL_FlipMode flip_mode = f ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-    RendererTextureRotated(tex->texture, NULL, &dst, (float64)r, &center, flip_mode);
+        SDL_RenderTexture(g_app.renderer.renderer, tex->texture, NULL, &dst);
+    }
+    else
+    {
+        RendererTextureRotated(tex->texture, NULL, &dst, (float64)r, &center, SDL_FLIP_NONE);
+    }
 
     return true;
 }

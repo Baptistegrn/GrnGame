@@ -1,10 +1,8 @@
 #include "window.h"
 #include "../math/types.h"
-#include "SDL3/SDL_hints.h"
 #include "SDL3/SDL_video.h"
 #include "app.h"
 #include "cglm/types-struct.h"
-#include "grngame/dev/logging.h"
 #include "grngame/renderer/renderer.h"
 #include "grngame/utils/attributes.h"
 
@@ -73,7 +71,7 @@ ivec2s WindowDimensions(SDL_Window *window)
 
 bool WindowConfigureScale(uint8 scalex, uint8 scaley)
 {
-    return SDL_SetRenderScale(g_app.renderer.renderer, scalex, scaley);
+    return SDL_SetRenderScale(g_app.renderer.renderer, (float32)scalex, (float32)scaley);
 }
 
 uint8 WindowGetScale()

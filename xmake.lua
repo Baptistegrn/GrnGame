@@ -28,6 +28,10 @@ if not is_plat("wasm") then
     add_requires("quill", {version = "v11.0.2"}, {configs = {shared = false}})
 end
 
+if is_plat("wasm") then 
+add_ldflags("-sEXPORTED_RUNTIME_METHODS=['ccall']", "--shell-file grngame/web/shell.html", {force=true})
+end
+
 local asset_pipeline_python = is_host("windows") and "python" or "python3"
 
 local function get_embedded_exe()

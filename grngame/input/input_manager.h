@@ -1,11 +1,13 @@
 ﻿#pragma once
 
 #include "controller.h"
+#include "grngame/core/param.h"
 #include "input_text.h"
 #include "mouse.h"
 #include <SDL3/SDL_scancode.h>
 #include <kvec.h>
 #include <stdbool.h>
+
 
 typedef struct
 {

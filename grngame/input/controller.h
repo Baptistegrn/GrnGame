@@ -5,9 +5,6 @@
 #include "grngame/utils/c_cpp.h"
 #include <stdbool.h>
 
-#define MAX_CONTROLLERS 6
-#define DEFAULT_DEAD_ZONE 0.1f
-
 typedef struct
 {
     SDL_Gamepad *gamepad;

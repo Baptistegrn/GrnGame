@@ -77,6 +77,8 @@ static void window_is_force_universe_scale(WrenVM *vm)
 WrenForeignClassMethods BindForeignClassCallbackWindow(WrenVM *vm, const char *module, const char *class_name)
 {
     (void)vm;
+    (void)module;
+    (void)class_name;
     return {nullptr, nullptr};
 }
 

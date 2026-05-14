@@ -1,13 +1,15 @@
 #include "primitive.h"
 #include "../utils/attributes.h"
 #include "grngame/core/app.h"
+#include "grngame/core/param.h"
 #include "grngame/math/types.h"
 #include "renderer.h"
 #include <math.h>
 
 static inline SDL_FRect make_rect(float32 x, float32 y, float32 w, float32 h)
 {
-    return (SDL_FRect){x + g_app.info.offset_x, y + g_app.info.offset_y, w, h};
+    return (SDL_FRect){PIXEL_ALIGN(x + g_app.info.offset_x), PIXEL_ALIGN(y + g_app.info.offset_y), PIXEL_ALIGN(w),
+                       PIXEL_ALIGN(h)};
 }
 
 void PixelDraw(float32 x, float32 y, uint8 r, uint8 g, uint8 b, uint8 a)

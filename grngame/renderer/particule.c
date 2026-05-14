@@ -1,7 +1,7 @@
 #include "particule.h"
 #include "SDL3/SDL_stdinc.h"
-
 #include "grngame/core/app.h"
+#include "grngame/core/param.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/random.h"
 #include <math.h>
@@ -253,10 +253,14 @@ void RenderEmitter(ParticleEmitter *emit)
 
         int32 base = vcount;
 
-        verts[vcount++] = (SDL_Vertex){.position = {x, y}, .color = color, .tex_coord = {0, 0}};
-        verts[vcount++] = (SDL_Vertex){.position = {x + w, y}, .color = color, .tex_coord = {0, 0}};
-        verts[vcount++] = (SDL_Vertex){.position = {x + w, y + h}, .color = color, .tex_coord = {0, 0}};
-        verts[vcount++] = (SDL_Vertex){.position = {x, y + h}, .color = color, .tex_coord = {0, 0}};
+        verts[vcount++] =
+            (SDL_Vertex){.position = {PIXEL_ALIGN(x), PIXEL_ALIGN(y)}, .color = color, .tex_coord = {0, 0}};
+        verts[vcount++] =
+            (SDL_Vertex){.position = {PIXEL_ALIGN(x + w), PIXEL_ALIGN(y)}, .color = color, .tex_coord = {0, 0}};
+        verts[vcount++] =
+            (SDL_Vertex){.position = {PIXEL_ALIGN(x + w), PIXEL_ALIGN(y + h)}, .color = color, .tex_coord = {0, 0}};
+        verts[vcount++] =
+            (SDL_Vertex){.position = {PIXEL_ALIGN(x), PIXEL_ALIGN(y + h)}, .color = color, .tex_coord = {0, 0}};
 
         indices[icount++] = base + base_indices[0];
         indices[icount++] = base + base_indices[1];

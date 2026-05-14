@@ -1,9 +1,10 @@
 #include "init.h"
-
 #include "grngame/assets/asset_manager.h"
+#include "grngame/core/window.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
 #include "grngame/utils/attributes.h"
+#include "param.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
 #include <string.h>
@@ -78,9 +79,52 @@ InitResult InitAll(const AppInfo *app_info)
     }
 #endif
 
-    // test
-
     initialized = true;
     LOG_INFO("All engine subsystems initialized");
     return INIT_OK;
+}
+
+void InitializeAppState(const AppInfo *app_info)
+{
+    g_app.info = *app_info;
+    g_app.info.offset_x = 0;
+    g_app.info.offset_y = 0;
+    g_app.info.window_occlusion_culled = false;
+
+    g_app.window = WindowCreate(&g_app.info);
+    if (UNLIKELY(!g_app.window))
+        exit(3);
+
+    if (UNLIKELY(!RendererTryCreate(g_app.window, &g_app.renderer)))
+        exit(4);
+
+    WindowApplyInitialMode(&g_app.info);
+}
+
+void InitializeManagers()
+{
+    g_app.asset_manager = AssetManagerCreate();
+    g_app.input_manager = InputManagerCreate();
+
+    if (UNLIKELY(!SoundManagerTryCreate(&g_app.sound_manager)))
+        exit(5);
+}
+
+void InitializeAssetsAndScripts(const AppInfo *app_info)
+{
+    g_app.wren = NULL;
+
+    char *relative_asset_folder = PathFromExecutableDirectory(app_info->asset_folder);
+    AssetManagerLoadFolder(relative_asset_folder);
+    free(relative_asset_folder);
+
+    g_app.wren = WrenManagerNew();
+    if (!g_app.wren || !WrenManagerInitialize(g_app.wren, "main"))
+    {
+        SetRenderColor(WREN_INTERPRET_FAILED);
+        LOG_ERROR("Failed to initialize Wren runtime");
+        return;
+    }
+    LOG_INFO("Wren runtime initialized with script 'main.wren'");
+    return;
 }

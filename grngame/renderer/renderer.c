@@ -13,7 +13,12 @@ bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
         LOG_ERROR("Failed to create renderer: %s", SDL_GetError());
         return false;
     }
-
+    SDL_SetRenderVSync(renderer->renderer, 1);
+    int vsync_val = 0;
+    SDL_GetRenderVSync(renderer->renderer, &vsync_val);
+    LOG_INFO("VSync: %d", vsync_val); // doit afficher 1
+    LOG_INFO(SDL_GetCurrentVideoDriver());
+    LOG_INFO(SDL_GetRendererName(renderer->renderer));
     return true;
 }
 

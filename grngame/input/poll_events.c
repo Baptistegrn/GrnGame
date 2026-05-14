@@ -1,10 +1,11 @@
 #include "../core/app.h"
 #include "cglm/types-struct.h"
 #include "controller.h"
+#include "grngame/core/param.h"
 #include "grngame/core/window.h"
-#include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
+// dont moove string compat
 #include "grngame/utils/string_compat.h"
 #include "mouse.h"
 #include <SDL3/SDL_events.h>

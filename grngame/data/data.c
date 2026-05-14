@@ -2,22 +2,13 @@
 #include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/file.h"
+#include "grngame/utils/strdup.c"
 #include "kvec.h"
 #include "wren.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-// todo move in correct file
-static char *StrDupSafe(const char *s)
-{
-    if (!s)
-        return NULL;
-    size_t len = strlen(s) + 1;
-    char *copy = malloc(len);
-    memcpy(copy, s, len);
-    return copy;
-}
 
 static sqlite3_stmt *DbPrepareInternal(sqlite3 *db, const char *sql)
 {

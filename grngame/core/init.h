@@ -15,3 +15,6 @@ typedef enum
 } InitResult;
 
 InitResult InitAll(const AppInfo *app_info);
+void InitializeAppState(const AppInfo *app_info);
+void InitializeManagers();
+void InitializeAssetsAndScripts(const AppInfo *app_info);
