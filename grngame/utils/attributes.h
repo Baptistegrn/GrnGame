@@ -94,14 +94,3 @@
 #include <alloca.h>
 #define STACK_ALLOC(type, n) ((type *)alloca(sizeof(type) * (n)))
 #endif
-
-static inline void *malloc_print(size_t size)
-{
-    void *ptr = malloc(size);
-    LOG_DEBUG("malloc(%zu) = %p\n", size, ptr);
-    return ptr;
-}
-
-#ifndef __cplusplus
-#define malloc malloc_print
-#endif

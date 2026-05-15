@@ -2,6 +2,7 @@
 
 #ifdef WASM
 
+#include "grngame/core/param.h"
 #include <emscripten.h>
 #include <emscripten/html5.h>
 
@@ -72,7 +73,8 @@ static inline void WebInstallAudioUnlock()
 #define WEB_LOOP(func)                                                                                                 \
     do                                                                                                                 \
     {                                                                                                                  \
-        emscripten_set_main_loop_timing(EM_TIMING_RAF, 1);                                                             \
+        /* on web loop render is set to fixed fps not vsync */                                                         \
+        emscripten_set_main_loop_timing(EM_TIMING_SETTIMEOUT, (int)(1000 / RENDER_UPDATE_WEB));                        \
         emscripten_set_main_loop_arg(func, NULL, 0, 1);                                                                \
     } while (0)
 

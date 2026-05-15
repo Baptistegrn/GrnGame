@@ -40,3 +40,6 @@
 // Keep this reasonably high to avoid frequent pauses; 60 means roughly once
 // per minute at 60 FPS.
 #define GARBAGE_COLLECTOR_TIME_TO_REFRESH 60
+
+// fps on web for rendering (because vsync doesnt work on web)
+#define RENDER_UPDATE_WEB

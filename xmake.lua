@@ -32,16 +32,7 @@ end
 
 if is_plat("wasm") then
     add_defines("WASM")
-    set_optimize("fastest")
-    set_symbols("none")
-    add_cxflags("-O3", "-flto", "-fno-exceptions", "-fno-rtti", {force = true})
     add_ldflags(
-        "-O3",
-        "-flto",
-        "-sWASM=1",
-        "-sALLOW_MEMORY_GROWTH=1",
-        "-sASSERTIONS=0",
-        "-sEXPORTED_RUNTIME_METHODS=['ccall']",
         "--shell-file",
         "grngame/web/shell.html",
         {force = true}
@@ -107,20 +98,6 @@ target("GrnGame")
     set_languages("c17", "cxx20")
     set_kind("static")
     add_steam_support()
-    if is_plat("windows") then
-        add_cxflags(
-            "/O2",
-            "/Oi",
-            "/Ot",
-            "/GL",
-            "/fp:fast",
-            "/arch:AVX2",
-            "/GS-",
-            "/Gy",
-            "/Qpar"
-        )
-        add_ldflags("/LTCG")
-    end
     
     add_files("grngame/**.c", "grngame/**.cpp")
     add_headerfiles("grngame/**.h", "grngame/**.hpp")

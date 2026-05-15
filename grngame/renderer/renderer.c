@@ -14,7 +14,12 @@ COLD bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
         LOG_ERROR("Failed to create renderer: %s", SDL_GetError());
         return false;
     }
+// disable vsync on web
+#ifdef WASM
+    SDL_SetRenderVSync(renderer->renderer, 0);
+#else
     SDL_SetRenderVSync(renderer->renderer, 1);
+#endif
     int vsync_val = 0;
     SDL_GetRenderVSync(renderer->renderer, &vsync_val);
 
