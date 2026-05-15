@@ -84,7 +84,11 @@ static HOT void MainLoopIteration(void *arg)
     PROFILE_FRAME_MARK();
 
     uint64 now = SDL_GetPerformanceCounter();
-    uint64 freq = SDL_GetPerformanceFrequency();
+    static uint64 freq = 0;
+    if (freq == 0)
+    {
+        freq = SDL_GetPerformanceFrequency();
+    }
     float64 frame_dt = (float64)(now - s_previous_counter) / (float64)freq;
 
     if (frame_dt > FRAME_DT_MAX)
