@@ -98,7 +98,11 @@ target("GrnGame")
     set_languages("c17", "cxx20")
     set_kind("static")
     add_steam_support()
-    
+    if is_plat("macosx")then
+        add_links("sqlite3")
+        add_ldflags("-Wl,-search_paths_first")
+    end
+
     add_files("grngame/**.c", "grngame/**.cpp")
     add_headerfiles("grngame/**.h", "grngame/**.hpp")
     add_includedirs(".", {public = true})
