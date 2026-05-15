@@ -32,6 +32,12 @@ jobs:
 
       - name: Clean packages
         run: xmake require --clean -y
+      - name: Clean build cache
+        run: xmake clean --all
+
+      - name: Clean build cache  
+        run: rm -rf build
+        shell: bash
 
       - name: Configure
         run: xmake config --clean -m ${{ matrix.buildtype }} -y -vv --embed_assets=true
