@@ -34,10 +34,9 @@ jobs:
         run: xmake require --clean -y
 
       - name: Configure
-        run: xmake config -m ${{ matrix.buildtype }} -y -vv 
-      
-      - name: embedded
-        run: xmake f --embed_assets=y
+        run: |
+         xmake config --clean
+         xmake config -m ${{ matrix.buildtype }} -y -vv --embed_assets=true
 
       - name: Build
         run: xmake build -y -vv
