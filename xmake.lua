@@ -61,11 +61,10 @@ local function add_grngame_packages(with_quill)
     add_packages(
         "libsdl3", "libsdl3_image", "libsdl3_ttf",
         "klib", "cglm", "soloud", "tinydir",
-        "wren", "freetype", "sqlite3",
-        {public = true}
+        "wren", "freetype", "sqlite3"
     )
     if with_quill then
-        add_packages("quill", {public = true})
+        add_packages("quill")
     end
 end
 
@@ -98,10 +97,6 @@ target("GrnGame")
     set_languages("c17", "cxx20")
     set_kind("static")
     add_steam_support()
-    if is_plat("macosx")then
-        add_links("sqlite3")
-        add_ldflags("-Wl,-search_paths_first")
-    end
 
     add_files("grngame/**.c", "grngame/**.cpp")
     add_headerfiles("grngame/**.h", "grngame/**.hpp")
