@@ -1,6 +1,8 @@
 add_rules("mode.debug", "mode.release")
-local msvcRuntime = is_mode("debug") and "MTd" or "MT"
-set_runtimes(msvcRuntime)
+if is_plat("windows") then
+    local msvcRuntime = is_mode("debug") and "MTd" or "MT"
+    set_runtimes(msvcRuntime)
+end
 
 option("tracy")
     set_default(false)
@@ -28,8 +30,22 @@ if not is_plat("wasm") then
     add_requires("quill", {version = "v11.0.2"}, {configs = {shared = false}})
 end
 
-if is_plat("wasm") then 
-add_ldflags("-sEXPORTED_RUNTIME_METHODS=['ccall']", "--shell-file grngame/web/shell.html", {force=true})
+if is_plat("wasm") then
+    add_defines("WASM")
+    set_optimize("fastest")
+    set_symbols("none")
+    add_cxflags("-O3", "-flto", "-fno-exceptions", "-fno-rtti", {force = true})
+    add_ldflags(
+        "-O3",
+        "-flto",
+        "-sWASM=1",
+        "-sALLOW_MEMORY_GROWTH=1",
+        "-sASSERTIONS=0",
+        "-sEXPORTED_RUNTIME_METHODS=['ccall']",
+        "--shell-file",
+        "grngame/web/shell.html",
+        {force = true}
+    )
 end
 
 local asset_pipeline_python = is_host("windows") and "python" or "python3"
@@ -91,6 +107,7 @@ target("GrnGame")
     set_languages("c17", "cxx20")
     set_kind("static")
     add_steam_support()
+    if is_plat("windows") then
         add_cxflags(
             "/O2",
             "/Oi",
@@ -102,7 +119,8 @@ target("GrnGame")
             "/Gy",
             "/Qpar"
         )
-    add_ldflags("/LTCG")
+        add_ldflags("/LTCG")
+    end
     
     add_files("grngame/**.c", "grngame/**.cpp")
     add_headerfiles("grngame/**.h", "grngame/**.hpp")

@@ -45,9 +45,11 @@ static float GetAttenuatedVolume(float base_volume, vec2s sound_pos);
 
 COLD void SoundInit()
 {
+#ifndef WASM
     s_sound_states = kh_init(SoundStateMap);
     s_max_distance = sqrtf((float)g_app.info.window_universe_width * g_app.info.window_universe_width +
                            (float)g_app.info.window_universe_height * g_app.info.window_universe_height);
+#endif
 }
 
 static SoundState *GetOrCreateState(const char *name)
@@ -68,6 +70,7 @@ static SoundState *GetOrCreateState(const char *name)
 }
 bool SoundPlay(const char *name, const SoundInfo *info)
 {
+#ifndef WASM
     khash_t(SoundMap) *sound_map = g_app.asset_manager.sound_map;
     Soloud *soloud = g_app.sound_manager.soloud;
 
@@ -112,12 +115,13 @@ bool SoundPlay(const char *name, const SoundInfo *info)
 
     state->handle = handle;
     state->playing = true;
-
+#endif
     return true;
 }
 
 bool SoundIsPlaying(const char *name)
 {
+#ifndef WASM
     khiter_t k = kh_get(SoundStateMap, s_sound_states, name);
     if (k == kh_end(s_sound_states))
         return false;
@@ -126,10 +130,16 @@ bool SoundIsPlaying(const char *name)
     // sync with state in soloud
     state->playing = Soloud_isValidVoiceHandle(g_app.sound_manager.soloud, state->handle);
     return state->playing;
+
+#else
+    (void)name;
+    return false;
+#endif
 }
 
 void SoundStop(const char *name)
 {
+#ifndef WASM
     khiter_t k = kh_get(SoundStateMap, s_sound_states, name);
     if (k == kh_end(s_sound_states))
         return;
@@ -137,10 +147,12 @@ void SoundStop(const char *name)
     SoundState *state = &kh_value(s_sound_states, k);
     Soloud_stop(g_app.sound_manager.soloud, state->handle);
     state->playing = false;
+#endif
 }
 
 static void ClearFilters(SoundState *state, WavStream *stream)
 {
+#ifndef WASM
     for (int i = 0; i < (int)kv_size(state->active_filters); i++)
     {
         FilterHandle *fh = &kv_A(state->active_filters, i);
@@ -151,10 +163,12 @@ static void ClearFilters(SoundState *state, WavStream *stream)
         }
     }
     kv_size(state->active_filters) = 0;
+#endif
 }
 
 static void ApplyFilters(SoundState *state, WavStream *stream, const SoundInfo *info)
 {
+#ifndef WASM
     ClearFilters(state, stream);
     for (int i = 0; i < info->filter_count && i < MAX_FILTERS; i++)
     {
@@ -193,19 +207,26 @@ static void ApplyFilters(SoundState *state, WavStream *stream, const SoundInfo *
             kv_push(FilterHandle, state->active_filters, ((FilterHandle){filter, destroy}));
         }
     }
+#endif
 }
 
 static float32 GetAttenuatedVolume(float32 base_volume, vec2s sound_pos)
 {
+#ifndef WASM
     float32 dx = sound_pos.x - s_listener_pos.x;
     float32 dy = sound_pos.y - s_listener_pos.y;
     float32 distance = sqrtf(dx * dx + dy * dy);
     float32 attenuated_volume = base_volume * fmaxf(0.f, 1.f - distance / s_max_distance);
     return attenuated_volume;
+#else
+    (void)sound_pos;
+    return base_volume;
+#endif
 }
 
 void SetListenerPosition(float32 x, float32 y)
 {
+#ifndef WASM
     s_listener_pos.x = x;
     s_listener_pos.y = y;
     Soloud_set3dListenerPosition(g_app.sound_manager.soloud, x, y, 0.f);
@@ -222,4 +243,5 @@ void SetListenerPosition(float32 x, float32 y)
         float32 attenuated_volume = GetAttenuatedVolume(state->volume, state->position);
         Soloud_setVolume(g_app.sound_manager.soloud, state->handle, attenuated_volume);
     }
+#endif
 }

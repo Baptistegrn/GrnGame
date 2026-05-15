@@ -1,9 +1,5 @@
 #pragma once
 
-#ifdef __EMSCRIPTEN__
-#define __EMSCRIPTEN__ WASM
-#endif
-
 #ifdef WASM
 
 #include <emscripten.h>

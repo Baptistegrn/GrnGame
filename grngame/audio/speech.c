@@ -6,6 +6,7 @@
 
 void SpeechSay(const char *text, const SoundInfo *sound_info)
 {
+#ifndef WASM
     // TODO have it work with filters like sound
 
     Speech *speech = g_app.sound_manager.speech;
@@ -23,4 +24,5 @@ void SpeechSay(const char *text, const SoundInfo *sound_info)
     {
         Soloud_play(soloud, speech);
     }
+#endif
 }

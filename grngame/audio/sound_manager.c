@@ -5,6 +5,10 @@
 
 COLD bool SoundManagerTryCreate(SoundManager *result)
 {
+    result->soloud = NULL;
+    result->speech = NULL;
+
+#ifndef WASM
     result->soloud = Soloud_create();
     if (!result->soloud)
         return false;
@@ -27,13 +31,17 @@ COLD bool SoundManagerTryCreate(SoundManager *result)
         result->soloud = NULL;
         return false;
     }
-
+#endif
     return true;
 }
 
 COLD void SoundManagerDestroy(const SoundManager *sound_manager)
 {
+#ifndef WASM
     Soloud_deinit(sound_manager->soloud);
     Soloud_destroy(sound_manager->soloud);
     Speech_destroy(sound_manager->speech);
+#else
+    (void)sound_manager;
+#endif
 }
