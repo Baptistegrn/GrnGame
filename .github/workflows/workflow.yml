@@ -30,15 +30,11 @@ jobs:
         if: runner.os == 'macOS'
         run: brew uninstall --ignore-dependencies freetype
 
-      - name: Remove homebrew sqlite
-        if: runner.os == 'macOS'
-        run: brew uninstall --ignore-dependencies sqlite
-
       - name: Clean packages
         run: xmake require --clean -y
 
       - name: Configure
-        run: xmake config -m ${{ matrix.buildtype }} -y -vv
+        run: xmake config -m ${{ matrix.buildtype }} -y -vv --embed_assets=y
 
       - name: Build
         run: xmake build -y -vv
