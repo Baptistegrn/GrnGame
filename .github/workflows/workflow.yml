@@ -24,7 +24,7 @@ jobs:
           xmake-version: latest
           actions-cache-folder: '.xmake-cache-v2'
           package-cache: true
-          build-cache: true
+          build-cache: false
 
       - name: Remove homebrew freetype
         if: runner.os == 'macOS'
@@ -36,7 +36,7 @@ jobs:
       - name: Configure
         run: |
          xmake config --clean -y
-         xmake config -m ${{ matrix.buildtype }} -y -vv --embed_assets=true
+         xmake config -m ${{ matrix.buildtype }} -y -vv --embed_assets=y
 
       - name: Build
         run: xmake build -y -vv
