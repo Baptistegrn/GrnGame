@@ -145,24 +145,7 @@ target("WrenTest")
 
     if has_config("embed_assets") then
         add_defines("GRN_EMBED_ASSETS")
-        before_build(function(target)
-            local embedded_exe
-            if is_plat("wasm") then
-                embedded_exe = get_embedded_exe()
-            else
-                embedded_exe = target:dep("Embedded"):targetfile()
-            end
-            if os.isexec(embedded_exe) then
-                os.mkdir("build/generated")
-                os.execv(embedded_exe, {
-                    "build/generated/embedded_assets.h",
-                    "test_game/scripts",
-                    "test_game/assets",
-                    "std",
-                    "grngame/input"
-                })
-            end
-        end)
+        add_includedirs("resources")
     end
 
     after_build(function(target)
