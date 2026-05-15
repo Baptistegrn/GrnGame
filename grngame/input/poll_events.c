@@ -57,7 +57,7 @@ static void BackspaceTextInput()
         kv_size(im->text_input)--;
 }
 
-void PollEvents()
+HOT void PollEvents()
 {
     InputManager *im = &g_app.input_manager;
     ResetInputManagerKeys();

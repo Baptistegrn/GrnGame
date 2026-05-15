@@ -6,20 +6,21 @@
 #include "grngame/dev/logging.h"
 #include "grngame/platform/directories.h"
 #include "grngame/platform/paths.h"
+#include "grngame/utils/attributes.h"
 #include "khash.h"
 #include "soloud_c.h"
 #include <stdlib.h>
 
-static void LoadFile(const char *file, void *user_data);
-static void LoadEmbeddedFiles(void);
-static int32 EmbeddedFileCount(void);
+static COLD void LoadFile(const char *file, void *user_data);
+static COLD void LoadEmbeddedFiles(void);
+static COLD int32 EmbeddedFileCount(void);
 
-AssetManager AssetManagerCreate()
+COLD AssetManager AssetManagerCreate()
 {
     return (AssetManager){.sound_map = kh_init(SoundMap), .texture_map = kh_init(TextureMap)};
 }
 
-void AssetManagerLoadFolder(const char *folder)
+COLD void AssetManagerLoadFolder(const char *folder)
 {
 
     if (g_app.info.embedded_assets)
@@ -44,7 +45,7 @@ void AssetManagerLoadFolder(const char *folder)
     }
 }
 
-static void LoadFile(const char *file, void *user_data)
+static COLD void LoadFile(const char *file, void *user_data)
 {
     (void)user_data;
 
@@ -72,7 +73,7 @@ static void LoadFile(const char *file, void *user_data)
     }
 }
 
-static int32 EmbeddedFileCount()
+static COLD int32 EmbeddedFileCount()
 {
     int32 count = 0;
     for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
@@ -84,7 +85,7 @@ static int32 EmbeddedFileCount()
     return count;
 }
 
-static bool LoadEmbeddedAsset(const EmbeddedAsset *asset)
+static COLD bool LoadEmbeddedAsset(const EmbeddedAsset *asset)
 {
     if (!asset)
         return false;
@@ -110,7 +111,7 @@ static bool LoadEmbeddedAsset(const EmbeddedAsset *asset)
     return false;
 }
 
-static void LoadEmbeddedFiles()
+static COLD void LoadEmbeddedFiles()
 {
     if (!g_app.info.embedded_assets)
         return;

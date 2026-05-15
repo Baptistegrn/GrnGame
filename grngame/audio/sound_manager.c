@@ -1,10 +1,9 @@
 #include "sound_manager.h"
 #include "grngame/dev/logging.h"
+#include "grngame/utils/attributes.h"
 #include "soloud_c.h"
 
-#include <string.h>
-
-bool SoundManagerTryCreate(SoundManager *result)
+COLD bool SoundManagerTryCreate(SoundManager *result)
 {
     result->soloud = Soloud_create();
     if (!result->soloud)
@@ -32,7 +31,7 @@ bool SoundManagerTryCreate(SoundManager *result)
     return true;
 }
 
-void SoundManagerDestroy(const SoundManager *sound_manager)
+COLD void SoundManagerDestroy(const SoundManager *sound_manager)
 {
     Soloud_deinit(sound_manager->soloud);
     Soloud_destroy(sound_manager->soloud);

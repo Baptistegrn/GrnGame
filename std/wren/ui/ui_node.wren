@@ -174,7 +174,7 @@ class UiNode is Node {
 
     render() {
         var pos = get_draw_position_()
-        Texture.draw(_ui_name, pos.x, pos.y, _coeff, _flip, _rotation, _alpha)
+        Texture.draw(_ui_name, pos.x, pos.y, _coeff, _rotation, _alpha)
         super.render()
     }
 }

@@ -5,7 +5,6 @@
 #include "grngame/audio/speech.h"
 #include "grngame/bindings/wren/wren_engine.hpp"
 #include "grngame/utils/attributes.h"
-#include <cstdlib>
 #include <cstring>
 
 static void filter_def_new(WrenVM *vm)
@@ -13,7 +12,7 @@ static void filter_def_new(WrenVM *vm)
     FilterDef *f = (FilterDef *)wrenSetSlotNewForeign(vm, 0, 0, sizeof(FilterDef));
     memset(f, 0, sizeof(FilterDef));
 }
-static void filter_def_init(WrenVM *vm)
+COLD static void filter_def_init(WrenVM *vm)
 {
     // Wren has already allocated foreign memory in allocate callback.
     (void)vm;
@@ -133,7 +132,7 @@ static void sound_play(WrenVM *vm)
         .pan = pan,
         .looping = looping,
         .fade_in = fade_in,
-        .position = {pos_x, pos_y},
+        .position = {{pos_x, pos_y}},
         .filters = static_filters,
         .filter_count = filter_count,
     };
@@ -177,7 +176,7 @@ static void speach_say(WrenVM *vm)
         .pan = pan,
         .looping = looping,
         .fade_in = fade_in,
-        .position = {pos_x, pos_y},
+        .position = {{pos_x, pos_y}},
         .filters = static_filters,
         .filter_count = filter_count,
     };

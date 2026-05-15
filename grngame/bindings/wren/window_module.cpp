@@ -1,6 +1,7 @@
 #include "grngame/bindings/wren/window_module.hpp"
 #include "grngame/bindings/wren/wren_engine.hpp"
 #include "grngame/core/window.h"
+#include "grngame/utils/attributes.h"
 #include <cstring>
 #include <wren.h>
 

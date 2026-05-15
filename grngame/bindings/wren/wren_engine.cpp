@@ -1,8 +1,8 @@
 #include "grngame/bindings/wren/wren_engine.hpp"
 
-#include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 #include "grngame/dev/tracy.h"
+#include "grngame/utils/attributes.h"
 
 namespace
 {
@@ -34,7 +34,7 @@ WrenEngine::~WrenEngine()
     }
 }
 
-bool WrenEngine::Init(const char *main_script_name)
+COLD bool WrenEngine::Init(const char *main_script_name)
 {
     PROFILE_ZONE_START(initwren, "initialisation of wrenvm");
     main_module = main_script_name;
@@ -83,7 +83,7 @@ bool WrenEngine::Init(const char *main_script_name)
     return true;
 }
 
-bool WrenEngine::CallOnStart() const
+COLD bool WrenEngine::CallOnStart() const
 {
     if (!main_class || !on_start)
         return false;
@@ -94,7 +94,7 @@ bool WrenEngine::CallOnStart() const
     return CheckWrenCallResult(wrenCall(vm, on_start), "on_start");
 }
 
-bool WrenEngine::CallOnUpdate(float delta) const
+HOT bool WrenEngine::CallOnUpdate(float delta) const
 {
     if (!main_class || !on_update)
         return false;
@@ -106,7 +106,7 @@ bool WrenEngine::CallOnUpdate(float delta) const
     return CheckWrenCallResult(wrenCall(vm, on_update), "on_update");
 }
 
-bool WrenEngine::CallOnFixedUpdate(float delta) const
+HOT bool WrenEngine::CallOnFixedUpdate(float delta) const
 {
     if (!main_class || !on_fixed_update)
         return false;
@@ -118,7 +118,7 @@ bool WrenEngine::CallOnFixedUpdate(float delta) const
     return CheckWrenCallResult(wrenCall(vm, on_fixed_update), "on_fixed_update");
 }
 
-bool WrenEngine::CallOnRender() const
+HOT bool WrenEngine::CallOnRender() const
 {
     if (!main_class || !on_render)
         return false;
@@ -129,7 +129,7 @@ bool WrenEngine::CallOnRender() const
     return CheckWrenCallResult(wrenCall(vm, on_render), "on_render");
 }
 
-bool WrenEngine::CallOnDestroy() const
+COLD bool WrenEngine::CallOnDestroy() const
 {
     if (!main_class || !on_destroy)
         return false;
@@ -140,7 +140,7 @@ bool WrenEngine::CallOnDestroy() const
     return CheckWrenCallResult(wrenCall(vm, on_destroy), "on_destroy");
 }
 
-void WrenEngine::ReleaseHandle(WrenHandle *&handle) const
+COLD void WrenEngine::ReleaseHandle(WrenHandle *&handle) const
 {
     if (vm && handle)
     {

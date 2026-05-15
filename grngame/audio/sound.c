@@ -1,12 +1,12 @@
 #include "sound.h"
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
+#include "grngame/utils/attributes.h"
 #include "grngame/utils/string_compat.h"
 #include <cglm/types-struct.h>
 #include <khash.h>
 #include <kvec.h>
 #include <math.h>
-#include <stdio.h>
 
 typedef struct
 {
@@ -32,7 +32,7 @@ typedef struct
 KHASH_MAP_INIT_STR(SoundStateMap, SoundState)
 
 static khash_t(SoundStateMap) *s_sound_states = NULL;
-static vec2s s_listener_pos = {0.f, 0.f};
+static vec2s s_listener_pos = {{0.f, 0.f}};
 static float32 s_max_distance = 0.f;
 
 // either get the state of a sound or create an empty one
@@ -43,7 +43,7 @@ static void ApplyFilters(SoundState *state, WavStream *stream, const SoundInfo *
 // soloud doesn't update volume sound
 static float GetAttenuatedVolume(float base_volume, vec2s sound_pos);
 
-void SoundInit()
+COLD void SoundInit()
 {
     s_sound_states = kh_init(SoundStateMap);
     s_max_distance = sqrtf((float)g_app.info.window_universe_width * g_app.info.window_universe_width +
@@ -66,7 +66,6 @@ static SoundState *GetOrCreateState(const char *name)
     kh_value(s_sound_states, k) = state;
     return &kh_value(s_sound_states, k);
 }
-
 bool SoundPlay(const char *name, const SoundInfo *info)
 {
     khash_t(SoundMap) *sound_map = g_app.asset_manager.sound_map;

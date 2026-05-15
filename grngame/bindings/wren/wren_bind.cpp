@@ -1,6 +1,8 @@
 #include "grngame/bindings/wren/wren_bind.h"
 
 #include "grngame/bindings/wren/wren_engine.hpp"
+#include "grngame/utils/attributes.h"
+
 
 extern "C"
 {
@@ -24,17 +26,17 @@ extern "C"
         return reinterpret_cast<WrenEngine *>(manager)->CallOnStart();
     }
 
-    bool WrenManagerCallOnUpdate(WrenManager *manager, float delta)
+    HOT bool WrenManagerCallOnUpdate(WrenManager *manager, float delta)
     {
         return reinterpret_cast<WrenEngine *>(manager)->CallOnUpdate(delta);
     }
 
-    bool WrenManagerCallOnFixedUpdate(WrenManager *manager, float delta)
+    HOT bool WrenManagerCallOnFixedUpdate(WrenManager *manager, float delta)
     {
         return reinterpret_cast<WrenEngine *>(manager)->CallOnFixedUpdate(delta);
     }
 
-    bool WrenManagerCallOnRender(WrenManager *manager)
+    HOT bool WrenManagerCallOnRender(WrenManager *manager)
     {
         return reinterpret_cast<WrenEngine *>(manager)->CallOnRender();
     }

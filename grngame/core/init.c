@@ -9,7 +9,7 @@
 #include <SDL3/SDL_init.h>
 #include <string.h>
 
-InitResult InitAll(const AppInfo *app_info)
+COLD InitResult InitAll(const AppInfo *app_info)
 {
     static bool initialized = false;
     if (initialized)
@@ -84,7 +84,7 @@ InitResult InitAll(const AppInfo *app_info)
     return INIT_OK;
 }
 
-void InitializeAppState(const AppInfo *app_info)
+COLD void InitializeAppState(const AppInfo *app_info)
 {
     g_app.info = *app_info;
     g_app.info.offset_x = 0;
@@ -101,7 +101,7 @@ void InitializeAppState(const AppInfo *app_info)
     WindowApplyInitialMode(&g_app.info);
 }
 
-void InitializeManagers()
+COLD void InitializeManagers()
 {
     g_app.asset_manager = AssetManagerCreate();
     g_app.input_manager = InputManagerCreate();
@@ -110,7 +110,7 @@ void InitializeManagers()
         exit(5);
 }
 
-void InitializeAssetsAndScripts(const AppInfo *app_info)
+COLD void InitializeAssetsAndScripts(const AppInfo *app_info)
 {
     g_app.wren = NULL;
 

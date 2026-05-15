@@ -2,7 +2,6 @@
 #include "grngame/bindings/wren/controller_module.hpp"
 #include "grngame/bindings/wren/wren_engine.hpp"
 #include "grngame/dev/logging.h"
-#include "grngame/input/controller.h"
 #include "grngame/utils/attributes.h"
 #include <cstring>
 
@@ -39,6 +38,8 @@ static void log_critical(WrenVM *vm)
 WrenForeignClassMethods BindForeignClassCallbackUtils(WrenVM *vm, const char *module, const char *class_name)
 {
     (void)vm;
+    (void)module;
+    (void)class_name;
     return {nullptr, nullptr};
 }
 

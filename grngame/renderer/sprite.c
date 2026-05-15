@@ -3,11 +3,12 @@
 #include "grngame/core/app.h"
 #include "grngame/core/param.h"
 #include "grngame/dev/logging.h"
+#include "grngame/utils/attributes.h"
 #include "renderer.h"
 #include "texture.h"
 #include <math.h>
 
-bool SpriteDraw(Sprite s, uint16 frame, float x, float y, uint8 c, int16 r, uint8 a)
+HOT bool SpriteDraw(Sprite s, uint16 frame, float x, float y, uint8 c, int16 r, uint8 a)
 {
     if (s.tex == NULL)
         s.tex = TextureGet(s.name);

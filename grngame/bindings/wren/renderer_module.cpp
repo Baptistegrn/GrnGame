@@ -2,6 +2,7 @@
 #include "grngame/bindings/wren/wren_engine.hpp"
 #include "grngame/renderer/sprite.h"
 #include "grngame/renderer/texture.h"
+#include "grngame/utils/attributes.h"
 #include <cstdlib>
 #include <cstring>
 
@@ -36,7 +37,7 @@ struct WrenSprite
     char *name_buf;
 };
 
-static void sprite_allocate(WrenVM *vm)
+HOT static void sprite_allocate(WrenVM *vm)
 {
     WrenSprite *s = (WrenSprite *)wrenSetSlotNewForeign(vm, 0, 0, sizeof(WrenSprite));
     const char *name = wren_get<const char *>(vm, 1);
@@ -50,7 +51,7 @@ static void sprite_allocate(WrenVM *vm)
     s->sprite.name = s->name_buf;
 }
 
-static void sprite_finalize(void *data)
+COLD static void sprite_finalize(void *data)
 {
     WrenSprite *s = (WrenSprite *)data;
     if (s && s->name_buf)

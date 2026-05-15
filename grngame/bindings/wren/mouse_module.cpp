@@ -1,7 +1,7 @@
 #include "grngame/bindings/wren/mouse_module.hpp"
-#include "cglm/types-struct.h"
 #include "grngame/bindings/wren/wren_engine.hpp"
 #include "grngame/input/mouse.h"
+#include "grngame/utils/attributes.h"
 #include <cstring>
 #include <wren.h>
 

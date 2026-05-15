@@ -1,11 +1,12 @@
 #include "renderer.h"
 #include "../math/types.h"
+#include "SDL3/SDL_error.h"
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
 #include <math.h>
 
-bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
+COLD bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
 {
     renderer->renderer = SDL_CreateRenderer(window, NULL);
     if (UNLIKELY(!renderer->renderer))
@@ -16,20 +17,28 @@ bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
     SDL_SetRenderVSync(renderer->renderer, 1);
     int vsync_val = 0;
     SDL_GetRenderVSync(renderer->renderer, &vsync_val);
-    LOG_INFO("VSync: %d", vsync_val); // doit afficher 1
-    LOG_INFO(SDL_GetCurrentVideoDriver());
-    LOG_INFO(SDL_GetRendererName(renderer->renderer));
+
+    if (vsync_val == 1)
+    {
+        LOG_INFO("Renderer initialized: VSync enabled. Driver=\"%s\" Renderer=\"%s\"", SDL_GetCurrentVideoDriver(),
+                 SDL_GetRendererName(renderer->renderer));
+    }
+    else
+    {
+        LOG_WARNING("Renderer initialized: VSync disabled. SDL_Error=\"%s\". Driver=\"%s\" Renderer=\"%s\"",
+                    SDL_GetError(), SDL_GetCurrentVideoDriver(), SDL_GetRendererName(renderer->renderer));
+    }
     return true;
 }
 
-void RendererClear(const Renderer *renderer)
+HOT void RendererClear(const Renderer *renderer)
 {
     RendererSetColor(g_app.info.r, g_app.info.g, g_app.info.b, 255);
     if (UNLIKELY(!SDL_RenderClear(renderer->renderer)))
         LOG_ERROR("Failed to clear renderer: %s", SDL_GetError());
 }
 
-void RendererPresent(const Renderer *renderer)
+HOT void RendererPresent(const Renderer *renderer)
 {
     if (UNLIKELY(!SDL_RenderPresent(renderer->renderer)))
         LOG_ERROR("Failed to present renderer: %s", SDL_GetError());
@@ -42,32 +51,28 @@ void RendererSetColor(uint8 r, uint8 g, uint8 b, uint8 a)
     if (UNLIKELY(!SDL_SetRenderDrawColor(g_app.renderer.renderer, r, g, b, a)))
         LOG_ERROR("Failed to set draw color: %s", SDL_GetError());
 }
-
 void RendererFillRect(const SDL_FRect *restrict rect)
 {
     if (UNLIKELY(!SDL_RenderFillRect(g_app.renderer.renderer, rect)))
         LOG_ERROR("Failed to fill rect: %s", SDL_GetError());
 }
 
-void RendererFillRects(const SDL_FRect *restrict rects, int count)
+HOT void RendererFillRects(const SDL_FRect *restrict rects, int count)
 {
     if (UNLIKELY(!SDL_RenderFillRects(g_app.renderer.renderer, rects, count)))
         LOG_ERROR("Failed to fill rects: %s", SDL_GetError());
 }
-
 void RendererRect(const SDL_FRect *restrict rect)
 {
     if (UNLIKELY(!SDL_RenderRect(g_app.renderer.renderer, rect)))
         LOG_ERROR("Failed to draw rect: %s", SDL_GetError());
 }
-
 void RendererTextureRotated(SDL_Texture *restrict texture, const SDL_FRect *restrict src, const SDL_FRect *restrict dst,
                             float64 angle, const SDL_FPoint *restrict center, SDL_FlipMode flip)
 {
     if (UNLIKELY(!SDL_RenderTextureRotated(g_app.renderer.renderer, texture, src, dst, angle, center, flip)))
         LOG_ERROR("Failed to render texture: %s", SDL_GetError());
 }
-
 void RendererSetTextureAlpha(SDL_Texture *restrict texture, uint8 a)
 {
     if (UNLIKELY(!SDL_SetTextureAlphaMod(texture, a)))
@@ -86,7 +91,6 @@ bool OffScreen(float32 x, float32 y, float32 w, float32 h)
     float32 off_y = g_app.info.offset_y;
     return (x + w <= -off_x) || (x >= view_w + off_x) || (y + h <= -off_y) || (y >= view_h + off_y);
 }
-
 void SetRenderColor(uint8 r, uint8 g, uint8 b)
 {
     g_app.info.r = r;

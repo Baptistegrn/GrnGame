@@ -91,7 +91,19 @@ target("GrnGame")
     set_languages("c17", "cxx20")
     set_kind("static")
     add_steam_support()
-
+        add_cxflags(
+            "/O2",
+            "/Oi",
+            "/Ot",
+            "/GL",
+            "/fp:fast",
+            "/arch:AVX2",
+            "/GS-",
+            "/Gy",
+            "/Qpar"
+        )
+    add_ldflags("/LTCG")
+    
     add_files("grngame/**.c", "grngame/**.cpp")
     add_headerfiles("grngame/**.h", "grngame/**.hpp")
     add_includedirs(".", {public = true})

@@ -72,12 +72,15 @@ static void controller_pad_trigger_r(WrenVM *vm)
 WrenForeignClassMethods BindForeignClassCallbackController(WrenVM *vm, const char *module, const char *class_name)
 {
     (void)vm;
+    (void)module;
+    (void)class_name;
     return {nullptr, nullptr};
 }
 
 static void controller_open(WrenVM *vm)
 {
     uint8 index = (uint8)wren_get<int>(vm, 1);
+    (void)index;
     ControllerOpen();
 }
 

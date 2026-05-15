@@ -1,5 +1,9 @@
 #pragma once
 
+#include "grngame/dev/logging.h"
+#include <stdio.h>
+#include <stdlib.h>
+
 /**
  * LIKELY: This branch is likely to happen
  * UNLIKELY: This branch is unlikely to happen
@@ -58,12 +62,12 @@
 #define LIKELY(x) (x)
 #define UNLIKELY(x) (x)
 #define UNREACHABLE() __assume(0)
-#define HOT
-#define COLD
+#define HOT __pragma(optimize("gt", on))
+#define COLD __pragma(optimize("s", on))
 #define FORCE_INLINE __forceinline
 #define NO_INLINE __declspec(noinline)
-#define PREFETCH(ptr) ((void)(ptr))
-#define PREFETCH_WRITE(ptr) ((void)(ptr))
+#define PREFETCH(ptr) _mm_prefetch((const char *)(ptr), _MM_HINT_T0)
+#define PREFETCH_WRITE(ptr) _mm_prefetch((const char *)(ptr), _MM_HINT_T1)
 #define ASSUME(x) __assume(x)
 #define FLATTEN
 
@@ -89,4 +93,15 @@
 #else
 #include <alloca.h>
 #define STACK_ALLOC(type, n) ((type *)alloca(sizeof(type) * (n)))
+#endif
+
+static inline void *malloc_print(size_t size)
+{
+    void *ptr = malloc(size);
+    LOG_DEBUG("malloc(%zu) = %p\n", size, ptr);
+    return ptr;
+}
+
+#ifndef __cplusplus
+#define malloc malloc_print
 #endif

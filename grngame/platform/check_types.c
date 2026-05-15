@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-static bool CheckFloat()
+static COLD bool CheckFloat()
 {
     if (UNLIKELY(sizeof(float) != 4))
         return false;
@@ -19,7 +19,7 @@ static bool CheckFloat()
     return true;
 }
 
-static bool CheckDouble()
+static COLD bool CheckDouble()
 {
     if (UNLIKELY(sizeof(double) != 8))
         return false;
@@ -35,12 +35,12 @@ static bool CheckDouble()
     return true;
 }
 
-bool CheckInt()
+COLD bool CheckInt()
 {
     return sizeof(int) >= 4;
 }
 
-void CheckAllTypes()
+COLD void CheckAllTypes()
 {
     bool f = CheckFloat();
     if (UNLIKELY(!f))

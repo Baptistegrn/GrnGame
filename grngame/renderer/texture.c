@@ -6,9 +6,9 @@
 #include "grngame/core/param.h"
 #include "grngame/dev/logging.h"
 #include "grngame/math/types.h"
+#include "grngame/utils/attributes.h"
 #include "renderer.h"
 #include <math.h>
-
 
 Texture *TextureGet(const char *name)
 {
@@ -21,7 +21,7 @@ Texture *TextureGet(const char *name)
     return &kh_value(texture_map, k);
 }
 
-bool TextureDraw(const char *name, float x, float y, uint8 c, int16 r, uint8 a)
+HOT bool TextureDraw(const char *name, float x, float y, uint8 c, int16 r, uint8 a)
 {
     Texture *tex = TextureGet(name);
     if (!tex)
@@ -55,7 +55,7 @@ bool TextureDraw(const char *name, float x, float y, uint8 c, int16 r, uint8 a)
     return true;
 }
 
-ivec2s TextureGetSize(const char *name)
+HOT ivec2s TextureGetSize(const char *name)
 {
     Texture *tex = TextureGet(name);
     if (!tex)

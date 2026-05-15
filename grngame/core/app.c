@@ -26,12 +26,12 @@ static uint64 s_previous_counter = 0;
 static float64 s_fixed_accumulator = 0.0;
 static float64 s_update_accumulator = 0.0;
 
-static void MainLoopIteration(void *arg);
-static void MainLoop(void);
-static void EnsureInitSucceeded(InitResult res);
-static void ShutdownScripts(void);
+static HOT void MainLoopIteration(void *arg);
+static COLD void MainLoop(void);
+static COLD void EnsureInitSucceeded(InitResult res);
+static COLD void ShutdownScripts(void);
 
-static void EnsureInitSucceeded(InitResult res)
+static COLD void EnsureInitSucceeded(InitResult res)
 {
     if (UNLIKELY(res == INIT_SDL_FAILED))
         exit(1);
@@ -39,7 +39,7 @@ static void EnsureInitSucceeded(InitResult res)
         exit(2);
 }
 
-static void ShutdownScripts(void)
+static COLD void ShutdownScripts(void)
 {
     if (g_app.wren)
     {
@@ -74,7 +74,7 @@ void EngineStop(void)
     s_is_running = false;
 }
 
-static void MainLoopIteration(void *arg)
+static HOT void MainLoopIteration(void *arg)
 {
     (void)arg;
 
@@ -137,8 +137,7 @@ static void MainLoopIteration(void *arg)
     ClearAll();
     g_app.info.frame_count++;
 }
-
-static void MainLoop(void)
+static COLD void MainLoop(void)
 {
     s_is_running = true;
     g_app.info.frame_count = 0;

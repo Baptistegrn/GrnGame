@@ -7,6 +7,18 @@
 
 #define REGISTRY_MAX 200000
 
+static char hex_table[256][5];
+static int hex_init = 0;
+
+static void init_hex_table(void)
+{
+    if (hex_init)
+        return;
+    for (int i = 0; i < 256; i++)
+        snprintf(hex_table[i], 5, "0x%02X", i);
+    hex_init = 1;
+}
+
 static void serialize_file(FILE *out, const char *path, const char *var_name)
 {
     FILE *fs = fopen(path, "rb");
@@ -26,31 +38,48 @@ static void serialize_file(FILE *out, const char *path, const char *var_name)
         return;
     }
 
-    unsigned char buffer[16];
-    long index = 0;
+    unsigned char *data = malloc(size);
+    fread(data, 1, size, fs);
+    fclose(fs);
 
-    while (index < size)
+    size_t buf_size = size * 7 + (size / 16) * 8 + 256;
+    char *buf = malloc(buf_size);
+    char *p = buf;
+
+    for (long i = 0; i < size; i++)
     {
-        size_t read = fread(buffer, 1, 16, fs);
-
-        fprintf(out, "    ");
-
-        for (size_t i = 0; i < read; i++)
+        if (i % 16 == 0)
         {
-            fprintf(out, "0x%02X", buffer[i]);
-            index++;
-
-            if (index < size)
-                fprintf(out, ", ");
+            *p++ = ' ';
+            *p++ = ' ';
+            *p++ = ' ';
+            *p++ = ' ';
         }
 
-        fprintf(out, "\n");
-    }
+        const char *h = hex_table[data[i]];
+        *p++ = h[0];
+        *p++ = h[1];
+        *p++ = h[2];
+        *p++ = h[3];
 
+        if (i < size - 1)
+        {
+            *p++ = ',';
+            *p++ = ' ';
+        }
+
+        if (i % 16 == 15)
+            *p++ = '\n';
+    }
+    *p++ = '\n';
+
+    fwrite(buf, 1, p - buf, out);
     fprintf(out, "};\n#define %s_size %ld\n\n", var_name, size);
 
-    fclose(fs);
+    free(buf);
+    free(data);
 }
+
 static void embed_callback(const char *path, void *userdata)
 {
     EmbedContext *ctx = (EmbedContext *)userdata;
@@ -77,14 +106,20 @@ static void embed_callback(const char *path, void *userdata)
 
     char entry[1024];
     snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", base, var_name, var_name);
-    if (!strstr(ctx->registry, entry))
+
+    size_t entry_len = strlen(entry);
+    if (ctx->registry_len + entry_len + 1 < REGISTRY_MAX)
     {
-        strcat(ctx->registry, entry);
+        memcpy(ctx->registry + ctx->registry_len, entry, entry_len);
+        ctx->registry_len += entry_len;
+        ctx->registry[ctx->registry_len] = '\0';
     }
 }
 
 void create_embedded_structure(int num_dirs, const char **dirs, const char *output_header)
 {
+    init_hex_table();
+
     FILE *out = fopen(output_header, "w");
     if (!out)
     {
@@ -98,7 +133,7 @@ void create_embedded_structure(int num_dirs, const char **dirs, const char *outp
     char registry[REGISTRY_MAX];
     registry[0] = '\0';
 
-    EmbedContext ctx = {.out = out, .registry = registry};
+    EmbedContext ctx = {.out = out, .registry = registry, .registry_len = 0};
 
     for (int i = 0; i < num_dirs; i++)
     {
