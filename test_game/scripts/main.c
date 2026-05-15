@@ -1,7 +1,7 @@
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
-#if defined(GRN_EMBED_ASSETS) && __has_include("../../build/generated/embedded_assets.h")
-#include "../../build/generated/embedded_assets.h"
+#if defined(GRN_EMBED_ASSETS) && __has_include("resources/embedded_assets.h")
+#include "resources/embedded_assets.h"
 #else
 #define GRN_EMBED_ASSETS_MISSING
 #endif
