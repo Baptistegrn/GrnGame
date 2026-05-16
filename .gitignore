@@ -8,4 +8,4 @@ vsxmake*/
 .idea/
 .DS_Store
 cmake*/
-external
+external/

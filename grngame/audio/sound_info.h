@@ -19,6 +19,7 @@ typedef struct
 } SoundInfo;
 
 SoundInfo SoundInfoDefault();
-SoundInfo SoundInfoAt(float x, float y);
+SoundInfo SoundInfoPositional(float x, float y);
+SoundInfo SoundInfoMusic();
 
 END_DECLARATIONS

@@ -5,14 +5,21 @@
 #include "sound_info.h"
 #include <stdbool.h>
 
-#define MAX_FILTERS 4
-
 BEGIN_DECLARATIONS
 
-bool SoundPlay(const char *name, const SoundInfo *sound_info);
-void SoundStop(const char *name);
-bool SoundIsPlaying(const char *name);
 void SoundInit();
 void SetListenerPosition(float32 x, float32 y);
 
+// SFX
+bool SoundPlaySFX(const char *name, const SoundInfo *info);
+bool SFXIsPlaying(const char *name);
+bool SFXIsPlayingAt(const char *name, float x, float y);
+
+// Music
+bool SoundPlayMusic(const char *name, const SoundInfo *info);
+void MusicStop(const char *name);
+bool MusicIsPlaying(const char *name);
+bool MusicIsPlayingAt(const char *name, float x, float y);
+
+void SoundUpdate();
 END_DECLARATIONS

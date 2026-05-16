@@ -1,6 +1,10 @@
 #include "sound_info.h"
-
+#include "grngame/core/app.h"
+#include "sound.c"
+#include <cglm/types-struct.h>
 #include <float.h>
+#include <khash.h>
+#include <kvec.h>
 #include <math.h>
 #include <stddef.h>
 
@@ -18,8 +22,4 @@ SoundInfo SoundInfoDefault()
 
 SoundInfo SoundInfoAt(float x, float y)
 {
-    SoundInfo info = SoundInfoDefault();
-    info.position.x = x;
-    info.position.y = y;
-    return info;
 }

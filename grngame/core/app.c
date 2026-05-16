@@ -102,16 +102,16 @@ static HOT void MainLoopIteration(void *arg)
         WrenManagerCollectGarbage(g_app.wren);
     }
 
-    PROFILE_ZONE_START(poll_events_zone, "PollEvents");
-    PollEvents();
-    PROFILE_ZONE_END(poll_events_zone);
-
     const float64 update_target = 1.0 / (float64)g_app.info.fps;
     s_update_accumulator += frame_dt;
 
     while (s_update_accumulator >= update_target)
     {
         g_app.info.dt = update_target;
+        PROFILE_ZONE_START(poll_events_zone, "PollEvents");
+        PollEvents();
+        SoundUpdate();
+        PROFILE_ZONE_END(poll_events_zone);
         PROFILE_ZONE_START(wren_update_zone, "Wren.OnUpdate");
         WrenManagerCallOnUpdate(g_app.wren, (float32)update_target);
         PROFILE_ZONE_END(wren_update_zone);

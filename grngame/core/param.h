@@ -42,4 +42,10 @@
 #define GARBAGE_COLLECTOR_TIME_TO_REFRESH 60
 
 // fps on web for rendering (because vsync doesnt work on web)
-#define RENDER_UPDATE_WEB
+#define RENDER_UPDATE_WEB 60
+
+// max filters can be use for sounds
+#define MAX_FILTERS 4
+
+// when you want to get a sound at specific position this is the tolerence
+#define SOUND_POSITION_EPSILON 1.0f
