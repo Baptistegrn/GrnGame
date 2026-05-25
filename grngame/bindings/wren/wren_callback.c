@@ -3,6 +3,7 @@
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
 #include "grngame/utils/file.h"
+#include "grngame/utils/string_compat.h"
 #include "khash.h"
 #include "wren.h"
 #include <stdio.h>
@@ -133,24 +134,31 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
     result.onComplete = LoadModuleComplete;
     result.source = NULL;
 
-    char filename[MODULE_SIZE_MAX_NAME];
-    snprintf(filename, sizeof(filename), "%s.wren", name);
-
     if (g_app.info.embedded_assets)
     {
-        // TODO: O(n) -> O(1)
+        char *module = FileStem(name);
+        char module_filename[MODULE_SIZE_MAX_NAME];
+        snprintf(module_filename, sizeof(module_filename), "%s.wren", module);
+        free(module);
+
         for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
         {
-            if (strcmp(filename, g_app.info.embedded_assets[i].name) == 0)
+            const char *asset_name = g_app.info.embedded_assets[i].name;
+            const char *base = strrchr(asset_name, '/');
+            base = base ? base + 1 : asset_name;
+
+            if (strcmp(base, module_filename) == 0)
             {
                 result.source = strdup((const char *)g_app.info.embedded_assets[i].data);
                 return result;
             }
         }
-        LOG_ERROR("Wren Import Error: Failed to find module '%s'", filename);
+        LOG_ERROR("Wren Import Error: Failed to find module '%s'", module_filename);
     }
     else
     {
+        char filename[MODULE_SIZE_MAX_NAME];
+        snprintf(filename, sizeof(filename), "%s.wren", name);
         char *file_full_link = FindFilePathFromName(filename);
         if (file_full_link)
         {

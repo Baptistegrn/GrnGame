@@ -3,6 +3,7 @@
 #include "grngame/renderer/sprite.h"
 #include "grngame/renderer/texture.h"
 #include "grngame/utils/attributes.h"
+#include "grngame/utils/string_compat.h"
 #include "wren.h"
 #include <stdlib.h>
 #include <string.h>

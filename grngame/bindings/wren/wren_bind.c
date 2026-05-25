@@ -60,15 +60,23 @@ bool WrenInterpret(const char *filename)
         {
             if (strcmp(filename, g_app.info.embedded_assets[i].name) == 0)
             {
-                wrenInterpret(g_app.wren->vm, MODULE_WREN_NAME, (const char *)g_app.info.embedded_assets[i].data);
+                WrenInterpretResult result =
+                    wrenInterpret(g_app.wren->vm, MODULE_WREN_NAME, (const char *)g_app.info.embedded_assets[i].data);
+                if (result != WREN_RESULT_SUCCESS)
+                {
+                    LOG_ERROR("wrenInterpret failed for embedded '%s'", filename);
+                    return false;
+                }
                 main_init = true;
+                break;
             }
         }
         if (!main_init)
         {
-            LOG_ERROR("Failed to find script Main.wren in embedded files");
+            LOG_ERROR("Failed to find script %s in embedded files", filename);
             return false;
         }
+        return true;
     }
     else
     {
@@ -87,6 +95,7 @@ bool WrenInterpret(const char *filename)
             LOG_ERROR("Failed to read script '%s'", filename);
             return false;
         }
+
         WrenInterpretResult result = wrenInterpret(g_app.wren->vm, MODULE_WREN_NAME, file_content);
         free(file_content);
 
@@ -98,5 +107,4 @@ bool WrenInterpret(const char *filename)
 
         return true;
     }
-    return false;
 }

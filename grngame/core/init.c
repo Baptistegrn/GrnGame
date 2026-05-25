@@ -1,7 +1,7 @@
 #include "init.h"
 #include "grngame/assets/asset_manager.h"
-#include "grngame/bindings/wren/Utils.h"
 #include "grngame/bindings/wren/sound_module.h"
+#include "grngame/bindings/wren/utils.h"
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/bindings/wren/wren_callback.h"
 #include "grngame/bindings/wren/wren_handle.h"
@@ -15,7 +15,6 @@
 #include <SDL3/SDL_init.h>
 #include <stdlib.h>
 #include <string.h>
-
 
 COLD InitResult InitAll(const AppInfo *app_info)
 {
@@ -34,7 +33,17 @@ COLD InitResult InitAll(const AppInfo *app_info)
             return INIT_LOG_FAILED;
         }
     }
-    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "vulkan");
+
+#if defined(_WIN32)
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d12,vulkan");
+#elif defined(WASM)
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengles3,opengles2");
+#elif defined(__APPLE__)
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "metal");
+#elif defined(__linux__)
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "vulkan,opengl");
+#endif
+
     if (UNLIKELY(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS | SDL_INIT_GAMEPAD)))
     {
         LOG_ERROR("Failed to init SDL: %s", SDL_GetError());
@@ -49,7 +58,7 @@ COLD InitResult InitAll(const AppInfo *app_info)
         return INIT_SDL_FAILED;
     }
 
-#ifndef __EMSCRIPTEN__
+#ifndef WASM
     SDL_IOStream *rw = NULL;
     if (app_info->embedded_assets)
     {
