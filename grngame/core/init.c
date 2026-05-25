@@ -1,13 +1,21 @@
 #include "init.h"
 #include "grngame/assets/asset_manager.h"
+#include "grngame/bindings/wren/Utils.h"
+#include "grngame/bindings/wren/sound_module.h"
+#include "grngame/bindings/wren/wren_bind.h"
+#include "grngame/bindings/wren/wren_callback.h"
+#include "grngame/bindings/wren/wren_handle.h"
 #include "grngame/core/window.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
 #include "grngame/utils/attributes.h"
+#include "grngame/utils/clear.h"
 #include "param.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
+#include <stdlib.h>
 #include <string.h>
+
 
 COLD InitResult InitAll(const AppInfo *app_info)
 {
@@ -26,7 +34,7 @@ COLD InitResult InitAll(const AppInfo *app_info)
             return INIT_LOG_FAILED;
         }
     }
-
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "vulkan");
     if (UNLIKELY(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS | SDL_INIT_GAMEPAD)))
     {
         LOG_ERROR("Failed to init SDL: %s", SDL_GetError());
@@ -112,19 +120,33 @@ COLD void InitializeManagers()
 
 COLD void InitializeAssetsAndScripts(const AppInfo *app_info)
 {
-    g_app.wren = NULL;
-
     char *relative_asset_folder = PathFromExecutableDirectory(app_info->asset_folder);
     AssetManagerLoadFolder(relative_asset_folder);
     free(relative_asset_folder);
-
-    g_app.wren = WrenManagerNew();
-    if (!g_app.wren || !WrenManagerInitialize(g_app.wren, "main"))
+    g_app.wren = (WrenManager *)malloc(sizeof(WrenManager));
+    memset(g_app.wren, 0, sizeof(WrenManager));
+    InitBindingSystem();
+    RegisterSoundModule();
+    RegisterUtilsModule();
+    WrenInit();
+    if (!WrenInterpret("main.wren"))
     {
         SetRenderColor(WREN_INTERPRET_FAILED);
-        LOG_ERROR("Failed to initialize Wren runtime");
+        LOG_ERROR("Failed to load and interpret Wren script 'main.wren'");
         return;
     }
-    LOG_INFO("Wren runtime initialized with script 'main.wren'");
-    return;
+    if (!WrenLoadMainHandles(MODULE_WREN_NAME))
+    {
+        SetRenderColor(WREN_INTERPRET_FAILED);
+        LOG_ERROR("Failed to load Wren handles from 'main' module");
+        return;
+    }
+
+    if (!WrenCallOnStart())
+    {
+        SetRenderColor(WREN_INTERPRET_FAILED);
+        LOG_ERROR("Failed to run Wren on_start");
+        return;
+    }
+    LOG_INFO("Wren runtime initialized successfully with script 'main.wren'");
 }

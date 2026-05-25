@@ -1,22 +1,31 @@
 #pragma once
 
-#include "grngame/utils/c_cpp.h"
-#include <stdbool.h>
+#include "wren.h"
 
-BEGIN_DECLARATIONS
+typedef struct
+{
+    WrenConfiguration config;
+    WrenVM *vm;
+    WrenHandle *main_class;
+    WrenHandle *on_start;
+    WrenHandle *on_update;
+    WrenHandle *on_fixed_update;
+    WrenHandle *on_render;
+    WrenHandle *on_destroy;
+} WrenManager;
 
-typedef struct WrenManager WrenManager;
+void WrenInit();
 
-WrenManager *WrenManagerNew();
-void WrenManagerDelete(WrenManager *manager);
-bool WrenManagerInitialize(WrenManager *manager, const char *main_script_name);
+void WrenSetWriteFn(WrenWriteFn writeFn);
 
-bool WrenManagerCallOnStart(WrenManager *manager);
-bool WrenManagerCallOnUpdate(WrenManager *manager, float delta);
-bool WrenManagerCallOnFixedUpdate(WrenManager *manager, float delta);
-bool WrenManagerCallOnRender(WrenManager *manager);
-bool WrenManagerCallOnDestroy(WrenManager *manager);
+void WrenSetErrorFn(WrenErrorFn errorFn);
 
-void WrenManagerCollectGarbage(WrenManager *manager);
+void WrenSetBindMethodFn(WrenBindForeignMethodFn bindMethodFn);
 
-END_DECLARATIONS
+void WrenSetBindClassFn(WrenBindForeignClassFn bindClassFn);
+
+void WrenSetLoadModuleFn(WrenLoadModuleFn loadModuleFn);
+
+void WrenStartVM();
+
+bool WrenInterpret(const char *filename);

@@ -49,3 +49,6 @@
 
 // when you want to get a sound at specific position this is the tolerence
 #define SOUND_POSITION_EPSILON 1.0f
+
+// name of the module of the programm
+#define MODULE_WREN_NAME "Main"

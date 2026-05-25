@@ -38,30 +38,16 @@ KHASH_MAP_INIT_STR(MusicStateMap, MusicState)
 static khash_t(MusicStateMap) *s_music_states = NULL;
 
 static vec2s s_listener_pos = {{0.f, 0.f}};
-static float32 s_max_distance = 0.f;
+static float32 s_max_distance = 1000.f;
 
 static MusicState *GetOrCreateMusicState(const char *name);
 static void ClearFilters(MusicState *state, WavStream *stream);
 static void ApplyFilters(MusicState *state, WavStream *stream, const SoundInfo *info);
-HOT static float32 GetAttenuatedVolume(float32 base_volume, vec2s sound_pos);
 static bool IsPositional(vec2s pos);
 
 static bool IsPositional(vec2s pos)
 {
     return !isnan(pos.x) && !isnan(pos.y);
-}
-
-HOT static float32 GetAttenuatedVolume(float32 base_volume, vec2s sound_pos)
-{
-#ifndef WASM
-    float32 dx = sound_pos.x - s_listener_pos.x;
-    float32 dy = sound_pos.y - s_listener_pos.y;
-    float32 distance = sqrtf(dx * dx + dy * dy);
-    return base_volume * fmaxf(0.f, 1.f - distance / s_max_distance);
-#else
-    (void)sound_pos;
-    return base_volume;
-#endif
 }
 
 static bool PositionMatch(vec2s a, float x, float y)
@@ -71,13 +57,21 @@ static bool PositionMatch(vec2s a, float x, float y)
     return (dx * dx + dy * dy) < (SOUND_POSITION_EPSILON * SOUND_POSITION_EPSILON);
 }
 
+static void Apply3dSource(Soloud *soloud, unsigned int handle, float x, float y)
+{
+    Soloud_set3dSourceMinMaxDistance(soloud, handle, 1.f, s_max_distance);
+    Soloud_set3dSourceAttenuation(soloud, handle, 1 /* LINEAR_DISTANCE */, 1.f);
+    Soloud_set3dSourcePosition(soloud, handle, x, y, 0.f);
+}
+
 COLD void SoundInit()
 {
 #ifndef WASM
     kv_init(s_active_sfx);
     s_music_states = kh_init(MusicStateMap);
-    s_max_distance = sqrtf((float)g_app.info.window_universe_width * g_app.info.window_universe_width +
-                           (float)g_app.info.window_universe_height * g_app.info.window_universe_height);
+    float w = (float)g_app.info.window_universe_width;
+    float h = (float)g_app.info.window_universe_height;
+    s_max_distance = sqrtf(w * w + h * h);
 #endif
 }
 
@@ -95,24 +89,34 @@ bool SoundPlaySFX(const char *name, const SoundInfo *info)
     }
 
     WavStream *stream = kh_value(sound_map, k);
-
     bool positional = IsPositional(info->position);
+
     unsigned int handle;
     if (positional)
     {
-        handle = Soloud_play3d(soloud, stream, info->position.x, info->position.y, 0.f);
-        Soloud_set3dSourceMinMaxDistance(soloud, handle, 0.f, s_max_distance);
-        Soloud_set3dSourceAttenuation(soloud, handle, 1 /* LINEAR_DISTANCE */, 1.f);
+        handle = Soloud_play3dEx(soloud, stream, info->position.x, info->position.y, 0.f, 0.f, 0.f, 0.f, info->volume,
+                                 1 /* paused */, 0);
+        Apply3dSource(soloud, handle, info->position.x, info->position.y);
+        Soloud_update3dAudio(soloud);
+        Soloud_setRelativePlaySpeed(soloud, handle, info->pitch);
+        Soloud_setPan(soloud, handle, info->pan);
+        Soloud_setLooping(soloud, handle, info->looping);
+        if (info->fade_in > 0.f)
+            Soloud_fadeVolume(soloud, handle, info->volume, info->fade_in);
+        else
+            Soloud_setVolume(soloud, handle, info->volume);
+        Soloud_setPause(soloud, handle, 0);
     }
     else
     {
         handle = Soloud_play(soloud, stream);
+        Soloud_setVolume(soloud, handle, info->volume);
+        Soloud_setRelativePlaySpeed(soloud, handle, info->pitch);
+        Soloud_setPan(soloud, handle, info->pan);
+        Soloud_setLooping(soloud, handle, info->looping);
+        if (info->fade_in > 0.f)
+            Soloud_fadeVolume(soloud, handle, info->volume, info->fade_in);
     }
-
-    Soloud_setVolume(soloud, handle, info->volume);
-    Soloud_setRelativePlaySpeed(soloud, handle, info->pitch);
-    Soloud_setPan(soloud, handle, info->pan);
-    Soloud_setLooping(soloud, handle, false);
 
     SFXInstance instance = {
         .handle = handle,
@@ -128,7 +132,6 @@ bool SoundPlaySFX(const char *name, const SoundInfo *info)
 bool SFXIsPlaying(const char *name)
 {
 #ifndef WASM
-    // todo o(n) -> o(1)
     Soloud *soloud = g_app.sound_manager.soloud;
     for (int i = 0; i < (int)kv_size(s_active_sfx); i++)
     {
@@ -143,7 +146,6 @@ bool SFXIsPlaying(const char *name)
 bool SFXIsPlayingAt(const char *name, float x, float y)
 {
 #ifndef WASM
-    // todo o(n) -> o(1)
     Soloud *soloud = g_app.sound_manager.soloud;
     for (int i = 0; i < (int)kv_size(s_active_sfx); i++)
     {
@@ -274,24 +276,31 @@ bool SoundPlayMusic(const char *name, const SoundInfo *info)
     unsigned int handle;
     if (positional)
     {
-        handle = Soloud_play3d(soloud, stream, info->position.x, info->position.y, 0.f);
-        Soloud_set3dSourceMinMaxDistance(soloud, handle, 0.f, s_max_distance);
-        Soloud_set3dSourceAttenuation(soloud, handle, 1 /* LINEAR_DISTANCE */, 1.f);
+        handle = Soloud_play3dEx(soloud, stream, info->position.x, info->position.y, 0.f, 0.f, 0.f, 0.f, info->volume,
+                                 1 /* paused */, 0);
+        Apply3dSource(soloud, handle, info->position.x, info->position.y);
+        Soloud_update3dAudio(soloud);
+        Soloud_setRelativePlaySpeed(soloud, handle, info->pitch);
+        Soloud_setPan(soloud, handle, info->pan);
+        Soloud_setLooping(soloud, handle, info->looping);
+        if (info->fade_in > 0.f)
+            Soloud_fadeVolume(soloud, handle, info->volume, info->fade_in);
+        else
+            Soloud_setVolume(soloud, handle, info->volume);
+        Soloud_setPause(soloud, handle, 0);
         state->position = info->position;
     }
     else
     {
         handle = Soloud_play(soloud, stream);
+        Soloud_setVolume(soloud, handle, info->volume);
+        Soloud_setRelativePlaySpeed(soloud, handle, info->pitch);
+        Soloud_setPan(soloud, handle, info->pan);
+        Soloud_setLooping(soloud, handle, info->looping);
+        if (info->fade_in > 0.f)
+            Soloud_fadeVolume(soloud, handle, info->volume, info->fade_in);
         state->position = (vec2s){{NAN, NAN}};
     }
-
-    Soloud_setVolume(soloud, handle, info->volume);
-    Soloud_setRelativePlaySpeed(soloud, handle, info->pitch);
-    Soloud_setPan(soloud, handle, info->pan);
-    Soloud_setLooping(soloud, handle, info->looping);
-
-    if (info->fade_in > 0.f)
-        Soloud_fadeVolume(soloud, handle, info->volume, info->fade_in);
 
     state->handle = handle;
     state->volume = info->volume;

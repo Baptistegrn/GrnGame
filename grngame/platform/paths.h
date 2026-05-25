@@ -27,4 +27,8 @@ bool FileIsLoadableText(const char *file);
 /// For example , if your exe is in ~/chouffe and relative is assets/folder, it returns ~/chouffe/assets/folder
 char *PathFromExecutableDirectory(const char *relative);
 
+/// Recursively searches for a file by name from the executable's folder and returns its full path.
+// The returned string must be freed. Returns NULL if not found.
+char *FindFilePathFromName(const char *filename);
+
 END_DECLARATIONS

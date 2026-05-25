@@ -118,3 +118,47 @@ char *PathFromExecutableDirectory(const char *relative)
 
     return buf;
 }
+
+struct FindFileContext
+{
+    const char *target_filename;
+    char *result_path;
+};
+
+static void FindFileCallback(const char *path, void *userdata)
+{
+    struct FindFileContext *ctx = (struct FindFileContext *)userdata;
+    if (ctx->result_path)
+        return;
+
+    size_t path_len = strlen(path);
+    size_t target_len = strlen(ctx->target_filename);
+
+    if (path_len < target_len)
+        return;
+
+    const char *suffix = path + path_len - target_len;
+
+    if (suffix != path && *(suffix - 1) != '/' && *(suffix - 1) != '\\')
+        return;
+
+    for (size_t i = 0; i < target_len; i++)
+    {
+        char pc = suffix[i];
+        char tc = ctx->target_filename[i];
+        if (pc == '\\')
+            pc = '/';
+        if (tc == '\\')
+            tc = '/';
+        if (pc != tc)
+            return;
+    }
+
+    ctx->result_path = strdup(path);
+}
+char *FindFilePathFromName(const char *filename)
+{
+    struct FindFileContext ctx = {filename, NULL};
+    DirWalk(DirOfExecutable(), FindFileCallback, &ctx);
+    return ctx.result_path;
+}

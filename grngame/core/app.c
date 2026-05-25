@@ -3,6 +3,7 @@
 #include "SDL3/SDL_video.h"
 #include "grngame/audio/sound.h"
 #include "grngame/bindings/wren/wren_bind.h"
+#include "grngame/bindings/wren/wren_handle.h"
 #include "grngame/core/app.h"
 #include "grngame/core/init.h"
 #include "grngame/core/window.h"
@@ -14,6 +15,7 @@
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/random.h"
+
 #ifdef WASM
 #include "grngame/web/web.h"
 #endif
@@ -43,7 +45,8 @@ static COLD void ShutdownScripts(void)
 {
     if (g_app.wren)
     {
-        WrenManagerDelete(g_app.wren);
+        WrenCallOnDestroy();
+        WrenFree();
         LOG_INFO("Wren runtime shut down successfully");
         g_app.wren = NULL;
     }
@@ -99,7 +102,10 @@ static HOT void MainLoopIteration(void *arg)
 
     if (UNLIKELY(g_app.info.frame_count % ((uint64)g_app.info.fps * GARBAGE_COLLECTOR_TIME_TO_REFRESH) == 0))
     {
-        WrenManagerCollectGarbage(g_app.wren);
+        if (g_app.wren && g_app.wren->vm)
+        {
+            wrenCollectGarbage(g_app.wren->vm);
+        }
     }
 
     const float64 update_target = 1.0 / (float64)g_app.info.fps;
@@ -108,12 +114,14 @@ static HOT void MainLoopIteration(void *arg)
     while (s_update_accumulator >= update_target)
     {
         g_app.info.dt = update_target;
+
         PROFILE_ZONE_START(poll_events_zone, "PollEvents");
         PollEvents();
         SoundUpdate();
         PROFILE_ZONE_END(poll_events_zone);
+
         PROFILE_ZONE_START(wren_update_zone, "Wren.OnUpdate");
-        WrenManagerCallOnUpdate(g_app.wren, (float32)update_target);
+        WrenCallOnUpdate((float32)update_target);
         PROFILE_ZONE_END(wren_update_zone);
 
         s_update_accumulator -= update_target;
@@ -123,7 +131,7 @@ static HOT void MainLoopIteration(void *arg)
     while (s_fixed_accumulator >= FIXED_DT)
     {
         PROFILE_ZONE_START(wren_fixed_zone, "Wren.OnFixedUpdate");
-        WrenManagerCallOnFixedUpdate(g_app.wren, (float32)FIXED_DT);
+        WrenCallOnFixedUpdate((float32)FIXED_DT);
         s_fixed_accumulator -= FIXED_DT;
         PROFILE_ZONE_END(wren_fixed_zone);
     }
@@ -132,15 +140,19 @@ static HOT void MainLoopIteration(void *arg)
     {
         PROFILE_ZONE_START(render_zone, "Render");
         RendererClear(&g_app.renderer);
-        WrenManagerCallOnRender(g_app.wren);
+
+        WrenCallOnRender();
+
         ApplyBlackStripes();
         RendererPresent(&g_app.renderer);
         PROFILE_ZONE_END(render_zone);
     }
+
     s_previous_counter = now;
     ClearAll();
     g_app.info.frame_count++;
 }
+
 static COLD void MainLoop(void)
 {
     s_is_running = true;
@@ -148,6 +160,7 @@ static COLD void MainLoop(void)
     s_previous_counter = SDL_GetPerformanceCounter();
     s_fixed_accumulator = 0.0;
     s_update_accumulator = 0.0;
+
     // todo create a function
     SDL_ShowWindow(g_app.window);
 
