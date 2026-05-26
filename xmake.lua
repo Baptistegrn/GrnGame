@@ -28,6 +28,7 @@ add_requires("sqlite3", {version = "3-3.53.0+0"}, {configs = {shared = false}, s
 
 if not is_plat("wasm") then
     add_requires("quill", {version = "v11.0.2"}, {configs = {shared = false}})
+    add_requires("efsw",{configs = {shared = false}, system = false})
 end
 if is_plat("wasm") then
     add_defines("WASM")
@@ -56,15 +57,15 @@ local function add_steam_support()
     end
 end
 
-local function add_grngame_packages(with_quill)
+local function add_grngame_packages(with_quill_and_efsw)
     add_packages(
         "libsdl3", "libsdl3_image", "libsdl3_ttf",
         "klib", "cglm", "soloud", "tinydir",
         "wren", "freetype", "sqlite3",
         {public = true}
     )
-    if with_quill then
-        add_packages("quill", {public = true})
+    if with_quill_and_efsw then
+        add_packages("quill","efsw", {public = true})
     end
 end
 
@@ -91,6 +92,10 @@ local function add_grngame_defines()
     end
 end
 
+local function set_binary_targetdir(target_name)
+    set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", target_name))
+end
+
 set_warnings("all", "extra")
 
 target("GrnGame")
@@ -99,7 +104,7 @@ target("GrnGame")
     add_steam_support()
 
     add_files("grngame/**.c", "grngame/**.cpp")
-    add_headerfiles("grngame/**.h", "grngame/**.hpp")
+    add_headerfiles("grngame/**.h")
     add_includedirs(".", {public = true})
     if has_config("tracy") then
         add_files("external/tracy/public/TracyClient.cpp")
@@ -112,9 +117,9 @@ target("GrnGame")
 target("Editor")
     set_languages("c17", "cxx17")
     set_kind("binary")
-    set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "Editor"))
+    set_binary_targetdir("Editor")
     add_files("editor/main.c")
-    add_headerfiles("grngame/**.h", "grngame/**.hpp")
+    add_headerfiles("grngame/**.h")
     add_deps("GrnGame")
     after_build(function(target)
         local scripts_dir = path.join(target:targetdir(), "scripts")
@@ -127,14 +132,16 @@ if not is_plat("wasm") then
     target("Embedded")
         set_languages("c17", "cxx17")
         set_kind("binary")
+        set_binary_targetdir("Embedded")
         add_files("embedded/main.c")
-        add_headerfiles("grngame/**.h", "grngame/**.hpp")
+        add_headerfiles("grngame/**.h")
         add_deps("GrnGame")
 end
 
 target("WrenTest")
     set_languages("c17", "cxx17")
     set_kind("binary")
+    set_binary_targetdir("WrenTest")
     add_files("test_game/scripts/main.c")
     add_deps("GrnGame")
 
@@ -160,5 +167,6 @@ target("WrenTest")
 target("SqlTest")
     set_languages("c17", "cxx17")
     set_kind("binary")
+    set_binary_targetdir("SqlTest")
     add_deps("GrnGame")
     add_files("test_sql/main.c")

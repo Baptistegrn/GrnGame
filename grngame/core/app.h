@@ -55,7 +55,7 @@ typedef struct
 
 void EngineStart(const AppInfo *app);
 void EngineStop();
-
+COLD void ShutdownScripts(void);
 extern App g_app;
 
 END_DECLARATIONS

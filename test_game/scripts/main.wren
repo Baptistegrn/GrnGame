@@ -11,7 +11,7 @@ class Main {
     Sound.set_listener_position(0.0, 0.0)
 
     var myFilter = FilterDef.new()
-    myFilter.type = 2 
+    myFilter.type = 1
     myFilter.echo_delay = 0.3
     myFilter.echo_decay = 0.5
     myFilter.echo_wet = 0.8
@@ -23,11 +23,11 @@ class Main {
     info.fade_in = 1.5 
     info.position = Vec2.new(0.0,0.0)
     info.filters = [myFilter]
-    Sound.sfx_play(info)
+    Sound.music_play(info)
   }
 
   static on_update(dt) {
-    __x = __x + (3.0 * dt)
+    __x = __x + (0.5 * dt)
     Sound.set_listener_position(__x, 0.0)
   }
 
@@ -37,5 +37,6 @@ class Main {
 
   static on_destroy() {
     Sound.stop("music")
+    System.print("hey")
   }
 }

@@ -1,4 +1,4 @@
-#ifndef __EMSCRIPTEN__
+#ifndef WASM
 
 #include "logging.h"
 #include "grngame/dev/logging.h"
@@ -113,7 +113,7 @@ static LogSeverity LogSeverityForBuildType()
 
 #endif
 
-#ifdef __EMSCRIPTEN__
+#ifdef WASM
 
 #include "logging.h"
 

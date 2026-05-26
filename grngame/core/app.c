@@ -7,16 +7,17 @@
 #include "grngame/core/app.h"
 #include "grngame/core/init.h"
 #include "grngame/core/window.h"
+#include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
 #include "grngame/dev/tracy.h"
 #include "grngame/input/input_data.h"
-#include "grngame/input/mouse.h"
 #include "grngame/input/poll_events.h"
 #include "grngame/platform/check_type.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/random.h"
 #include "grngame/utils/taskbar_icon.h"
+
 #ifdef WASM
 #include "grngame/web/web.h"
 #endif
@@ -34,7 +35,6 @@ static bool is_lagging = false;
 static HOT void MainLoopIteration(void *arg);
 static COLD void MainLoop(void);
 static COLD void EnsureInitSucceeded(InitResult res);
-static COLD void ShutdownScripts(void);
 
 static COLD void EnsureInitSucceeded(InitResult res)
 {
@@ -44,13 +44,14 @@ static COLD void EnsureInitSucceeded(InitResult res)
         exit(2);
 }
 
-static COLD void ShutdownScripts(void)
+COLD void ShutdownScripts(void)
 {
     if (g_app.wren)
     {
         WrenCallOnDestroy();
         WrenFree();
         LOG_INFO("Wren runtime shut down successfully");
+        free(g_app.wren);
         g_app.wren = NULL;
     }
 }
@@ -68,6 +69,11 @@ void EngineStart(const AppInfo *app_info)
 #endif
     SoundInit();
     InitializeAssetsAndScripts(app_info);
+
+#if !defined(WASM) && !defined(GRN_EMBED_ASSETS)
+    StartAssetHotReload(".", true);
+#endif
+
     MainLoop();
     ShutdownScripts();
 }

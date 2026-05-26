@@ -1,9 +1,12 @@
 #pragma once
 
+#include "grngame/utils/c_cpp.h"
 #include "wren.h"
 
 #define KEY_SIZE 1024
 #define MODULE_SIZE_MAX_NAME 512
+
+BEGIN_DECLARATIONS
 
 void WriteFn(WrenVM *vm, const char *text);
 
@@ -25,3 +28,5 @@ void RegisterClass(const char *module, const char *className, WrenForeignMethodF
 
 void RegisterMethod(const char *module, const char *className, bool isStatic, const char *signature,
                     WrenForeignMethodFn fn);
+
+END_DECLARATIONS

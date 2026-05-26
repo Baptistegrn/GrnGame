@@ -14,7 +14,6 @@
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
 #include "grngame/utils/attributes.h"
-#include "grngame/utils/clear.h"
 #include "grngame/utils/taskbar_icon.h"
 #include "param.h"
 #include <SDL3/SDL.h>
@@ -142,8 +141,12 @@ COLD void InitializeAssetsAndScripts(const AppInfo *app_info)
     AssetManagerLoadFolder(relative_asset_folder);
     free(relative_asset_folder);
 
-    g_app.wren = malloc(sizeof(WrenManager));
-    CLEAR_PTR(g_app.wren);
+    g_app.wren = calloc(1, sizeof(WrenManager));
+    if (!g_app.wren)
+    {
+        LOG_ERROR("Failed to allocate Wren manager");
+        exit(6);
+    }
 
     InitBindingSystem();
     RegisterSoundModule();

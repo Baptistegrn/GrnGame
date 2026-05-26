@@ -95,7 +95,6 @@ bool WrenInterpret(const char *filename)
             LOG_ERROR("Failed to read script '%s'", filename);
             return false;
         }
-
         WrenInterpretResult result = wrenInterpret(g_app.wren->vm, MODULE_WREN_NAME, file_content);
         free(file_content);
 

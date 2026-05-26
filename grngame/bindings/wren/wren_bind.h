@@ -1,6 +1,9 @@
 #pragma once
 
+#include "grngame/utils/c_cpp.h"
 #include "wren.h"
+
+BEGIN_DECLARATIONS
 
 typedef struct
 {
@@ -29,3 +32,5 @@ void WrenSetLoadModuleFn(WrenLoadModuleFn loadModuleFn);
 void WrenStartVM();
 
 bool WrenInterpret(const char *filename);
+
+END_DECLARATIONS
