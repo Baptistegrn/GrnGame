@@ -1,7 +1,12 @@
 #include "init.h"
 #include "grngame/assets/asset_manager.h"
+#include "grngame/bindings/wren/controller_module.h"
+#include "grngame/bindings/wren/db_module.h"
+#include "grngame/bindings/wren/file_module.h"
+#include "grngame/bindings/wren/mouse_module.h"
 #include "grngame/bindings/wren/sound_module.h"
 #include "grngame/bindings/wren/utils.h"
+#include "grngame/bindings/wren/window_module.h"
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/bindings/wren/wren_callback.h"
 #include "grngame/bindings/wren/wren_handle.h"
@@ -10,6 +15,7 @@
 #include "grngame/platform/paths.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
+#include "grngame/utils/taskbar_icon.h"
 #include "param.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
@@ -34,9 +40,12 @@ COLD InitResult InitAll(const AppInfo *app_info)
         }
     }
 
+    SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "1");
+
 #if defined(_WIN32)
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d12,vulkan");
 #elif defined(WASM)
+    SDL_SetHint(SDL_HINT_EMSCRIPTEN_KEYBOARD_ELEMENT, "#canvas");
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengles3,opengles2");
 #elif defined(__APPLE__)
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "metal");
@@ -132,21 +141,31 @@ COLD void InitializeAssetsAndScripts(const AppInfo *app_info)
     char *relative_asset_folder = PathFromExecutableDirectory(app_info->asset_folder);
     AssetManagerLoadFolder(relative_asset_folder);
     free(relative_asset_folder);
-    g_app.wren = (WrenManager *)malloc(sizeof(WrenManager));
-    memset(g_app.wren, 0, sizeof(WrenManager));
+
+    g_app.wren = malloc(sizeof(WrenManager));
+    CLEAR_PTR(g_app.wren);
+
     InitBindingSystem();
     RegisterSoundModule();
     RegisterUtilsModule();
+    RegisterControllerModule();
+    RegisterFileModule();
+    RegisterWindowModule();
+    RegisterDbModule();
+    RegisterMouseModule();
+
     WrenInit();
     if (!WrenInterpret("main.wren"))
     {
         SetRenderColor(WREN_INTERPRET_FAILED);
+        SetTaskBarIconErrorProgress(100.0);
         LOG_ERROR("Failed to load and interpret Wren script 'main.wren'");
         return;
     }
     if (!WrenLoadMainHandles(MODULE_WREN_NAME))
     {
         SetRenderColor(WREN_INTERPRET_FAILED);
+        SetTaskBarIconErrorProgress(100.0);
         LOG_ERROR("Failed to load Wren handles from 'main' module");
         return;
     }
@@ -154,6 +173,7 @@ COLD void InitializeAssetsAndScripts(const AppInfo *app_info)
     if (!WrenCallOnStart())
     {
         SetRenderColor(WREN_INTERPRET_FAILED);
+        SetTaskBarIconErrorProgress(100.0);
         LOG_ERROR("Failed to run Wren on_start");
         return;
     }

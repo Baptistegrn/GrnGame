@@ -10,12 +10,13 @@
 #include "grngame/dev/logging.h"
 #include "grngame/dev/tracy.h"
 #include "grngame/input/input_data.h"
+#include "grngame/input/mouse.h"
 #include "grngame/input/poll_events.h"
 #include "grngame/platform/check_type.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/random.h"
-
+#include "grngame/utils/taskbar_icon.h"
 #ifdef WASM
 #include "grngame/web/web.h"
 #endif
@@ -27,6 +28,8 @@ static bool s_is_running = false;
 static uint64 s_previous_counter = 0;
 static float64 s_fixed_accumulator = 0.0;
 static float64 s_update_accumulator = 0.0;
+static int16 lagging_start = 0;
+static bool is_lagging = false;
 
 static HOT void MainLoopIteration(void *arg);
 static COLD void MainLoop(void);
@@ -85,18 +88,27 @@ static HOT void MainLoopIteration(void *arg)
         return;
 
     PROFILE_FRAME_MARK();
-
     uint64 now = SDL_GetPerformanceCounter();
     static uint64 freq = 0;
     if (freq == 0)
     {
         freq = SDL_GetPerformanceFrequency();
     }
+
+    if ((g_app.info.frame_count - lagging_start) % g_app.info.fps == 0 && is_lagging)
+    {
+        RemoveTaskBarIconColor();
+        lagging_start = 0;
+        is_lagging = false;
+    }
     float64 frame_dt = (float64)(now - s_previous_counter) / (float64)freq;
 
     if (frame_dt > FRAME_DT_MAX)
     {
         LOG_WARNING("Game is lagging reached %f delta time", frame_dt);
+        SetTaskBarIconPausedProgress(100.0);
+        lagging_start = g_app.info.frame_count;
+        is_lagging = true;
         frame_dt = FRAME_DT_MAX;
     }
 
