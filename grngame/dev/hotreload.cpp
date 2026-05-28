@@ -4,6 +4,7 @@
 #include "grngame/bindings/wren/db_module.h"
 #include "grngame/bindings/wren/file_module.h"
 #include "grngame/bindings/wren/mouse_module.h"
+#include "grngame/bindings/wren/renderer_module.h"
 #include "grngame/bindings/wren/sound_module.h"
 #include "grngame/bindings/wren/utils.h"
 #include "grngame/bindings/wren/window_module.h"
@@ -18,7 +19,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
 #include <efsw/efsw.hpp>
-
 
 #include <filesystem>
 #include <memory>
@@ -45,6 +45,7 @@ void ReloadWrenScript(const char *path)
     RegisterUtilsModule();
     RegisterControllerModule();
     RegisterFileModule();
+    RegisterRendererModule();
     RegisterWindowModule();
     RegisterDbModule();
     RegisterMouseModule();

@@ -26,8 +26,8 @@
 // Fixed-update timestep in seconds (derived from FIXED_UPDATE_LOOP).
 #define FIXED_DT (1.0 / FIXED_UPDATE_LOOP)
 
-// RGB color used to clear the screen when a Wren script interpretation fails.
-#define WREN_INTERPRET_FAILED 255, 0, 0
+// index color used to clear the screen when a Wren script interpretation fails.
+#define WREN_INTERPRET_FAILED 7
 
 // Maximum number of simultaneously supported controllers/gamepads
 #define MAX_CONTROLLERS 6

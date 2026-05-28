@@ -1,137 +1,130 @@
 #include "particule.h"
+#include "SDL3/SDL_oldnames.h"
 #include "SDL3/SDL_stdinc.h"
 #include "grngame/core/app.h"
 #include "grngame/core/param.h"
+#include "grngame/math/math.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/random.h"
+#include "kvec.h"
 #include <math.h>
 
-static void EnsureParticleCapacity(ParticleEmitter *emit)
+static bool IsAlive(const Particle *p)
 {
-    int32 wanted = emit->amount;
-    if (wanted < 0)
-        wanted = 0;
-
-    if (emit->capacity == wanted)
-        return;
-
-    Particle *new_particles = NULL;
-    if (wanted > 0)
-        new_particles = (Particle *)SDL_calloc((size_t)wanted, sizeof(Particle));
-
-    if (wanted > 0 && !new_particles)
-        return;
-
-    if (new_particles && emit->particles && emit->capacity > 0)
-    {
-        int32 copy_count = emit->capacity < wanted ? emit->capacity : wanted;
-        SDL_memcpy(new_particles, emit->particles, (size_t)copy_count * sizeof(Particle));
-    }
-
-    SDL_free(emit->particles);
-    emit->particles = new_particles;
-    emit->capacity = wanted;
+    return p->lifetime > 0.0f && p->age < p->lifetime;
 }
 
-static int32 CountAliveParticles(const ParticleEmitter *emit)
+ParticleEmitter ParticleEmitterCreate(int32 capacity)
 {
-    int32 alive = 0;
-    for (int32 i = 0; i < emit->capacity; i++)
-    {
-        const Particle *p = &emit->particles[i];
-        if (p->lifetime > 0.0f && p->age < p->lifetime)
-            alive++;
-    }
-    return alive;
-}
+    ParticleEmitter emit = {0};
 
-ParticleEmitter ParticleEmitterCreate()
-{
-    return (ParticleEmitter){
-        .position = (vec2s){{0.0f, 0.0f}},
-        .amount = 128,
-        .lifetime = 1.0f,
-        .explosiveness = 0.0f,
-        .one_shot = false,
-        .local_coords = false,
-        .direction = 0.0f,
-        .spread = 2.0f * (float32)pi,
-        .initial_velocity = 120.0f,
-        .gravity = 0.0f,
-        .damping = 1.0f,
-        .scale_start = 8.0f,
-        .scale_end = 2.0f,
-        .scale_amount_curve = 1.0f,
-        .red_start = 255,
-        .green_start = 255,
-        .blue_start = 255,
-        .alpha_start = 255,
-        .red_end = 255,
-        .green_end = 255,
-        .blue_end = 255,
-        .alpha_end = 255,
-        .emit_accumulator = 0.0f,
-        .emit_cycle_time = 0.0f,
-        .previous_position = (vec2s){{0.0f, 0.0f}},
-        .one_shot_done = false,
-        .capacity = 0,
-        .particles = NULL,
-    };
+    if (capacity <= 0)
+        capacity = 128;
+    emit.capacity = capacity;
+
+    emit.particles = malloc((size_t)capacity * sizeof(Particle));
+    memset(emit.particles, 0, (size_t)capacity * sizeof(Particle));
+
+    emit.lifetime = 1.0f;
+    emit.direction = 0.0f;
+    emit.spread = 2.0f * (float32)pi;
+    emit.initial_velocity = 60.0f;
+    emit.damping = 1.0f;
+    emit.scale_start = 4.0f;
+    emit.scale_end = 1.0f;
+    emit.scale_amount_curve = 1.0f;
+
+    emit.color_start = 0;
+    emit.color_end = 0;
+    emit.alpha_start = 0;
+    emit.alpha_end = 0;
+
+    return emit;
 }
 
 void ParticleEmitterDestroy(ParticleEmitter *emit)
 {
     if (!emit)
         return;
-    SDL_free(emit->particles);
+
+    free(emit->particles);
     emit->particles = NULL;
     emit->capacity = 0;
+    emit->alive_count = 0;
 }
 
-void SpawnParticle(ParticleEmitter *emit)
+static void SpawnParticle(ParticleEmitter *emit)
 {
+    if (emit->alive_count >= emit->capacity)
+        return;
+
     for (int32 i = 0; i < emit->capacity; i++)
     {
-        if (emit->particles[i].lifetime > 0 && emit->particles[i].age < emit->particles[i].lifetime)
+        Particle *p = &emit->particles[i];
+        if (IsAlive(p))
             continue;
 
-        Particle *p = &emit->particles[i];
-        p->position = emit->position;
+        float32 off_x = 0.0f;
+        float32 off_y = 0.0f;
+
+        if (emit->spawn_radius > 0.0f)
+        {
+            float32 r = emit->spawn_radius * sqrtf(Random(0.0f, 1.0f));
+            float32 theta = Random(0.0f, 2.0f * (float32)SDL_PI_F);
+            off_x = cosf(theta) * r;
+            off_y = sinf(theta) * r;
+        }
+        else if (emit->spawn_rect_w > 0.0f || emit->spawn_rect_h > 0.0f)
+        {
+            off_x = Random(-emit->spawn_rect_w * 0.5f, emit->spawn_rect_w * 0.5f);
+            off_y = Random(-emit->spawn_rect_h * 0.5f, emit->spawn_rect_h * 0.5f);
+        }
+
+        p->position.x = emit->position.x + off_x;
+        p->position.y = emit->position.y + off_y;
 
         float32 half_spread = emit->spread * 0.5f;
         float32 angle = emit->direction + Random(-half_spread, half_spread);
-        float32 speed = emit->initial_velocity;
+        float32 speed = emit->initial_velocity + Random(-emit->velocity_variation, emit->velocity_variation);
+        if (speed < 0.0f)
+            speed = 0.0f;
+
         p->velocity.x = cosf(angle) * speed;
         p->velocity.y = sinf(angle) * speed;
 
-        p->lifetime = emit->lifetime;
-        p->age = 0;
+        p->lifetime = emit->lifetime + Random(-emit->lifetime_variation, emit->lifetime_variation);
+        if (p->lifetime <= 0.05f)
+            p->lifetime = 0.05f;
+        p->age = 0.0f;
 
         p->size = emit->scale_start;
-        p->r = emit->red_start;
-        p->g = emit->green_start;
-        p->b = emit->blue_start;
-        p->a = emit->alpha_start;
+        p->seed = Random(0.0f, 100.0f);
+
+        p->current_color_idx = emit->color_start;
+        p->current_alpha_idx = emit->alpha_start;
+
+        emit->alive_count++;
         return;
     }
 }
 
-static uint8 LerpU8(uint8 a, uint8 b, float32 t)
-{
-    return (uint8)(SDL_roundf((float32)(a + (b - a)) * t));
-}
-
 static void UpdateParticle(ParticleEmitter *restrict emit, Particle *restrict p, float32 dt)
 {
-    if (p->lifetime <= 0)
+    if (!IsAlive(p))
         return;
 
     p->age += dt;
 
     if (p->age >= p->lifetime)
     {
-        p->lifetime = 0;
+        p->lifetime = 0.0f;
+        emit->alive_count--;
         return;
+    }
+    if (emit->turbulence > 0.0f)
+    {
+        float32 wave = sinf(p->age * emit->turbulence_freq + p->seed);
+        p->velocity.x += wave * emit->turbulence * dt;
     }
 
     p->velocity.y += emit->gravity * dt;
@@ -143,44 +136,38 @@ static void UpdateParticle(ParticleEmitter *restrict emit, Particle *restrict p,
     float32 t = p->age / p->lifetime;
     float32 curve = emit->scale_amount_curve;
     float32 shaped_t = curve > 0.0f ? powf(t, curve) : t;
-
-    p->size = emit->scale_start + (emit->scale_end - emit->scale_start) * shaped_t;
+    p->size = Math_Lerp(emit->scale_start, emit->scale_end, shaped_t);
     if (p->size < 1.0f)
         p->size = 1.0f;
 
-    p->r = LerpU8(emit->red_start, emit->red_end, t);
-    p->g = LerpU8(emit->green_start, emit->green_end, t);
-    p->b = LerpU8(emit->blue_start, emit->blue_end, t);
-    p->a = LerpU8(emit->alpha_start, emit->alpha_end, t);
+    p->current_color_idx = Math_LerpInt(emit->color_start, emit->color_end, t);
+    p->current_alpha_idx = Math_LerpInt(emit->alpha_start, emit->alpha_end, shaped_t);
 }
 
 void UpdateEmitter(ParticleEmitter *emit, float32 dt)
 {
-    EnsureParticleCapacity(emit);
-
-    if (UNLIKELY(emit->capacity <= 0 || !emit->particles))
-        return;
-
-    if (dt <= 0.0f)
+    if (emit->capacity <= 0 || !emit->particles || dt <= 0.0f)
         return;
 
     if (emit->local_coords)
     {
         vec2s delta = {{emit->position.x - emit->previous_position.x, emit->position.y - emit->previous_position.y}};
-        for (int32 i = 0; i < emit->capacity; i++)
+        if (delta.x != 0.0f || delta.y != 0.0f)
         {
-            Particle *p = &emit->particles[i];
-            if (p->lifetime > 0.0f && p->age < p->lifetime)
+            for (int32 i = 0; i < emit->capacity; i++)
             {
-                p->position.x += delta.x;
-                p->position.y += delta.y;
+                Particle *p = &emit->particles[i];
+                if (IsAlive(p))
+                {
+                    p->position.x += delta.x;
+                    p->position.y += delta.y;
+                }
             }
         }
     }
     emit->previous_position = emit->position;
 
     int32 spawn_count = 0;
-    int32 wanted = emit->capacity;
     float32 life = emit->lifetime > 0.0001f ? emit->lifetime : 0.0001f;
     float32 explosiveness = SDL_clamp(emit->explosiveness, 0.0f, 1.0f);
 
@@ -188,19 +175,19 @@ void UpdateEmitter(ParticleEmitter *emit, float32 dt)
     {
         if (!emit->one_shot_done)
         {
-            spawn_count = wanted;
+            spawn_count = emit->capacity;
             emit->one_shot_done = true;
         }
     }
     else
     {
-        float32 stream_rate = ((float32)wanted / life) * (1.0f - explosiveness);
+        float32 stream_rate = ((float32)emit->capacity / life) * (1.0f - explosiveness);
         emit->emit_accumulator += stream_rate * dt;
         spawn_count += (int32)emit->emit_accumulator;
         emit->emit_accumulator -= (float32)((int32)emit->emit_accumulator);
 
         emit->emit_cycle_time += dt;
-        int32 burst_size = (int32)((float32)wanted * explosiveness);
+        int32 burst_size = (int32)((float32)emit->capacity * explosiveness);
         while (emit->emit_cycle_time >= life)
         {
             emit->emit_cycle_time -= life;
@@ -208,8 +195,7 @@ void UpdateEmitter(ParticleEmitter *emit, float32 dt)
         }
     }
 
-    int32 alive = CountAliveParticles(emit);
-    int32 available = emit->capacity - alive;
+    int32 available = emit->capacity - emit->alive_count;
     if (spawn_count > available)
         spawn_count = available;
 
@@ -222,34 +208,49 @@ void UpdateEmitter(ParticleEmitter *emit, float32 dt)
 
 void RenderEmitter(ParticleEmitter *emit)
 {
-    if (emit->capacity <= 0 || !emit->particles)
+    if (emit->capacity <= 0 || !emit->particles || emit->alive_count == 0)
         return;
 
     SDL_Renderer *renderer = g_app.renderer.renderer;
-    int32 max_particles = emit->capacity;
-    SDL_Vertex *verts = STACK_ALLOC(SDL_Vertex, max_particles * 4);
-    int32 *indices = STACK_ALLOC(int32, max_particles * 6);
+
+    int32 palette_size = kv_size(g_app.info.palette_elements);
+    int32 alpha_size = kv_size(g_app.info.palette_alpha);
+
+    SDL_Vertex *verts = STACK_ALLOC(SDL_Vertex, emit->alive_count * 4);
+    int32 *indices = STACK_ALLOC(int32, emit->alive_count * 6);
     if (UNLIKELY(!verts || !indices))
-    {
         return;
-    }
 
     int32 vcount = 0;
     int32 icount = 0;
-    int32 base_indices[6] = {0, 1, 2, 2, 3, 0};
+    const int32 base_indices[6] = {0, 1, 2, 2, 3, 0};
 
-    for (int32 i = 0; i < max_particles; i++)
+    for (int32 i = 0; i < emit->capacity; i++)
     {
         Particle *p = &emit->particles[i];
-        if (p->lifetime <= 0)
+        if (!IsAlive(p))
             continue;
-        // window offset on particle
+
         float32 x = p->position.x + g_app.info.offset_x;
         float32 y = p->position.y + g_app.info.offset_y;
         float32 w = p->size;
         float32 h = p->size;
 
-        SDL_FColor color = {p->r / 255.0f, p->g / 255.0f, p->b / 255.0f, p->a / 255.0f};
+        SDL_Color base_color = {COLOR_DEFAULT_PARTICLE_PALETTE_EMPTY, 255};
+        if (LIKELY(palette_size > 0))
+        {
+            int32 safe_idx = Math_ClampInt(p->current_color_idx, 0, palette_size - 1);
+            base_color = kv_A(g_app.info.palette_elements, safe_idx);
+        }
+
+        int32 alpha_val = 255;
+        if (LIKELY(alpha_size > 0))
+        {
+            int32 safe_alpha_idx = Math_ClampInt(p->current_alpha_idx, 0, alpha_size - 1);
+            alpha_val = kv_A(g_app.info.palette_alpha, safe_alpha_idx);
+        }
+
+        SDL_FColor color = {base_color.r / 255.0f, base_color.g / 255.0f, base_color.b / 255.0f, alpha_val / 255.0f};
 
         int32 base = vcount;
 
@@ -262,15 +263,8 @@ void RenderEmitter(ParticleEmitter *emit)
         verts[vcount++] =
             (SDL_Vertex){.position = {PIXEL_ALIGN(x), PIXEL_ALIGN(y + h)}, .color = color, .tex_coord = {0, 0}};
 
-        indices[icount++] = base + base_indices[0];
-        indices[icount++] = base + base_indices[1];
-        indices[icount++] = base + base_indices[2];
-        indices[icount++] = base + base_indices[3];
-        indices[icount++] = base + base_indices[4];
-        indices[icount++] = base + base_indices[5];
-
-        if (vcount >= max_particles * 4)
-            break;
+        for (int32 j = 0; j < 6; j++)
+            indices[icount++] = base + base_indices[j];
     }
 
     if (LIKELY(vcount > 0 && icount > 0))

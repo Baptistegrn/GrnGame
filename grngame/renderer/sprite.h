@@ -14,6 +14,6 @@ typedef struct
     const char *name;
 } Sprite;
 
-bool SpriteDraw(Sprite s, uint16 frame, float x, float y, uint8 c, int16 r, uint8 a);
+bool SpriteDraw(Sprite s, uint16 frame, float x, float y, uint8 c, int16 r, int a);
 
 END_DECLARATIONS

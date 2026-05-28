@@ -5,6 +5,7 @@
 #include "grngame/core/app.h"
 #include "grngame/core/param.h"
 #include "grngame/dev/logging.h"
+#include "grngame/math/math.h"
 #include "grngame/math/types.h"
 #include "grngame/utils/attributes.h"
 #include "renderer.h"
@@ -21,7 +22,7 @@ Texture *TextureGet(const char *name)
     return &kh_value(texture_map, k);
 }
 
-HOT bool TextureDraw(const char *name, float x, float y, uint8 c, int16 r, uint8 a)
+HOT bool TextureDraw(const char *name, float x, float y, uint8 c, int16 r, int a)
 {
     Texture *tex = TextureGet(name);
     if (!tex)
@@ -40,8 +41,14 @@ HOT bool TextureDraw(const char *name, float x, float y, uint8 c, int16 r, uint8
                      (float)(tex->h * c)};
 
     SDL_FPoint center = {dst.w / 2.0f, dst.h / 2.0f};
-
-    RendererSetTextureAlpha(tex->texture, a);
+    int32 alpha_size = kv_size(g_app.info.palette_alpha);
+    uint8 actual_alpha = 255;
+    if (LIKELY(alpha_size > 0))
+    {
+        int32 safe_alpha_idx = Math_ClampInt(a, 0, alpha_size - 1);
+        actual_alpha = (uint8)kv_A(g_app.info.palette_alpha, safe_alpha_idx);
+    }
+    RendererSetTextureAlpha(tex->texture, actual_alpha);
     if (r == 0)
     {
 

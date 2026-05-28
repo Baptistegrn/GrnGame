@@ -2,9 +2,33 @@
 #include "../utils/attributes.h"
 #include "grngame/core/app.h"
 #include "grngame/core/param.h"
+#include "grngame/math/math.h"
 #include "grngame/math/types.h"
+#include "kvec.h"
 #include "renderer.h"
 #include <math.h>
+
+static inline void SetColorFromPalette(int c_idx, int a_idx)
+{
+    int32 palette_size = kv_size(g_app.info.palette_elements);
+    int32 alpha_size = kv_size(g_app.info.palette_alpha);
+
+    SDL_Color base_color = {COLOR_DEFAULT_PRIMITIVE_PALETTE_EMPTY, 255};
+    if (LIKELY(palette_size > 0))
+    {
+        int32 safe_c = Math_ClampInt(c_idx, 0, palette_size - 1);
+        base_color = kv_A(g_app.info.palette_elements, safe_c);
+    }
+
+    uint8 final_alpha = 255;
+    if (LIKELY(alpha_size > 0))
+    {
+        int32 safe_a = Math_ClampInt(a_idx, 0, alpha_size - 1);
+        final_alpha = (uint8)kv_A(g_app.info.palette_alpha, safe_a);
+    }
+
+    RendererSetColor(base_color.r, base_color.g, base_color.b, final_alpha);
+}
 
 static inline SDL_FRect make_rect(float32 x, float32 y, float32 w, float32 h)
 {
@@ -12,16 +36,16 @@ static inline SDL_FRect make_rect(float32 x, float32 y, float32 w, float32 h)
                        PIXEL_ALIGN(h)};
 }
 
-void PixelDraw(float32 x, float32 y, uint8 r, uint8 g, uint8 b, uint8 a)
+void PixelDraw(float32 x, float32 y, int c_idx, int a_idx)
 {
-    RendererSetColor(r, g, b, a);
+    SetColorFromPalette(c_idx, a_idx);
     SDL_FRect rect = make_rect(x, y, 1.0f, 1.0f);
     RendererFillRect(&rect);
 }
 
-void LineDraw(float32 x0, float32 y0, float32 x1, float32 y1, uint8 r, uint8 g, uint8 b, uint8 a)
+void LineDraw(float32 x0, float32 y0, float32 x1, float32 y1, int c_idx, int a_idx)
 {
-    RendererSetColor(r, g, b, a);
+    SetColorFromPalette(c_idx, a_idx);
 
     float32 dx = fabsf(x1 - x0);
     float32 dy = fabsf(y1 - y0);
@@ -54,23 +78,23 @@ void LineDraw(float32 x0, float32 y0, float32 x1, float32 y1, uint8 r, uint8 g, 
     RendererFillRects(rects, n);
 }
 
-void RectDraw(float32 x, float32 y, float32 w, float32 h, uint8 r, uint8 g, uint8 b, uint8 a)
+void RectDraw(float32 x, float32 y, float32 w, float32 h, int c_idx, int a_idx)
 {
-    RendererSetColor(r, g, b, a);
+    SetColorFromPalette(c_idx, a_idx);
     SDL_FRect rect = make_rect(x, y, w, h);
     RendererRect(&rect);
 }
 
-void RectDrawFill(float32 x, float32 y, float32 w, float32 h, uint8 r, uint8 g, uint8 b, uint8 a)
+void RectDrawFill(float32 x, float32 y, float32 w, float32 h, int c_idx, int a_idx)
 {
-    RendererSetColor(r, g, b, a);
+    SetColorFromPalette(c_idx, a_idx);
     SDL_FRect rect = make_rect(x, y, w, h);
     RendererFillRect(&rect);
 }
 
-void CircleDraw(float32 xc, float32 yc, float32 radius, uint8 r, uint8 g, uint8 b, uint8 a)
+void CircleDraw(float32 xc, float32 yc, float32 radius, int c_idx, int a_idx)
 {
-    RendererSetColor(r, g, b, a);
+    SetColorFromPalette(c_idx, a_idx);
 
     int32 rad = (int32)radius;
     int32 n = 2 + (rad * 4);
@@ -112,9 +136,9 @@ void CircleDraw(float32 xc, float32 yc, float32 radius, uint8 r, uint8 g, uint8 
     RendererFillRects(rects, count);
 }
 
-void CircleDrawFill(float32 xc, float32 yc, float32 radius, uint8 r, uint8 g, uint8 b, uint8 a)
+void CircleDrawFill(float32 xc, float32 yc, float32 radius, int c_idx, int a_idx)
 {
-    RendererSetColor(r, g, b, a);
+    SetColorFromPalette(c_idx, a_idx);
 
     int32 rad = (int32)radius;
     int32 n = 1 + (rad * 2);

@@ -1,9 +1,14 @@
 #include "renderer.h"
 #include "../math/types.h"
 #include "SDL3/SDL_error.h"
+#include "SDL3/SDL_pixels.h"
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
+#include "grngame/math/math.h"
+#include "grngame/platform/paths.h"
 #include "grngame/utils/attributes.h"
+#include "grngame/utils/file.h"
+#include "kvec.h"
 #include <math.h>
 
 COLD bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
@@ -38,7 +43,13 @@ COLD bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
 
 HOT void RendererClear(const Renderer *renderer)
 {
-    RendererSetColor(g_app.info.r, g_app.info.g, g_app.info.b, 255);
+    SDL_Color color = {COLOR_DEFAULT_RENDER_CLEAR_PALETTE_EMPTY, 255};
+    if (kv_size(g_app.info.palette_elements) > 0)
+    {
+        color = kv_A(g_app.info.palette_elements,
+                     Math_ClampInt(g_app.info.render_clear, 0, kv_size(g_app.info.palette_elements)));
+    }
+    RendererSetColor(color.r, color.g, color.b, 255);
     if (UNLIKELY(!SDL_RenderClear(renderer->renderer)))
         LOG_ERROR("Failed to clear renderer: %s", SDL_GetError());
 }
@@ -96,9 +107,30 @@ bool OffScreen(float32 x, float32 y, float32 w, float32 h)
     float32 off_y = g_app.info.offset_y;
     return (x + w <= -off_x) || (x >= view_w + off_x) || (y + h <= -off_y) || (y >= view_h + off_y);
 }
-void SetRenderColor(uint8 r, uint8 g, uint8 b)
+void SetRenderColor(int index)
 {
-    g_app.info.r = r;
-    g_app.info.g = g;
-    g_app.info.b = b;
+    g_app.info.render_clear = index;
+}
+
+int SetCorrectAlpha(int alpha)
+{
+    if (kv_size(g_app.info.palette_alpha) == 0)
+        return 255;
+
+    int closest = kv_A(g_app.info.palette_alpha, 0);
+    int best_diff = SDL_abs(alpha - closest);
+
+    for (size_t i = 1; i < kv_size(g_app.info.palette_alpha); i++)
+    {
+        int current = kv_A(g_app.info.palette_alpha, i);
+        int diff = SDL_abs(alpha - current);
+
+        if (diff < best_diff)
+        {
+            best_diff = diff;
+            closest = current;
+        }
+    }
+
+    return closest;
 }

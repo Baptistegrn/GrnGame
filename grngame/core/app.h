@@ -1,11 +1,13 @@
 #pragma once
 #include "../input/input_manager.h"
 #include "../math/types.h"
+#include "SDL3/SDL_pixels.h"
 #include "grngame/assets/asset_manager.h"
 #include "grngame/audio/sound_manager.h"
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/dev/logging.h"
 #include "grngame/renderer/renderer.h"
+#include "kvec.h"
 
 BEGIN_DECLARATIONS
 
@@ -38,8 +40,11 @@ typedef struct
 
     bool force_universe_scale; // apply black stripes to the window
 
-    // for draw render
-    uint8 r, g, b;
+    int render_clear;
+
+    kvec_t(SDL_Color) palette_elements;
+    kvec_t(int) palette_alpha;
+
 } AppInfo;
 
 typedef struct
@@ -51,6 +56,7 @@ typedef struct
     InputManager input_manager;
     WrenManager *wren;
     AppInfo info;
+
 } App;
 
 void EngineStart(const AppInfo *app);

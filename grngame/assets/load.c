@@ -4,6 +4,7 @@
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
+#include "grngame/renderer/renderer.h"
 #include "grngame/utils/attributes.h"
 #include <string.h>
 
@@ -66,6 +67,36 @@ bool LoadSoundFile(const char *file)
     return true;
 }
 
+static SDL_Color FindClosestPaletteColor(uint8 r, uint8 g, uint8 b)
+{
+    if (kv_size(g_app.info.palette_elements) == 0)
+    {
+        return (SDL_Color){COLOR_DEFAULT_TEXTURE_PALETTE_EMPTY, 255};
+    }
+
+    SDL_Color closest = kv_A(g_app.info.palette_elements, 0);
+
+    int best_diff =
+        (r - closest.r) * (r - closest.r) + (g - closest.g) * (g - closest.g) + (b - closest.b) * (b - closest.b);
+
+    for (size_t i = 1; i < kv_size(g_app.info.palette_elements); i++)
+    {
+        SDL_Color current = kv_A(g_app.info.palette_elements, i);
+
+        int diff =
+            (r - current.r) * (r - current.r) + (g - current.g) * (g - current.g) + (b - current.b) * (b - current.b);
+
+        if (diff < best_diff)
+        {
+            best_diff = diff;
+            closest = current;
+        }
+    }
+
+    closest.a = 255;
+    return closest;
+}
+
 bool LoadTextureFile(const char *file)
 {
     khash_t(TextureMap) *texture_map = g_app.asset_manager.texture_map;
@@ -89,13 +120,47 @@ bool LoadTextureFile(const char *file)
     if (!surface)
         return false;
 
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(g_app.renderer.renderer, surface);
+    SDL_Surface *rgba_surface = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32);
     SDL_DestroySurface(surface);
+
+    if (!rgba_surface)
+        return false;
+
+    uint8 *pixels = (uint8 *)rgba_surface->pixels;
+    int32 pitch = rgba_surface->pitch;
+    int32 w = rgba_surface->w;
+    int32 h = rgba_surface->h;
+
+    // cache
+    uint8 alpha_lut[256];
+    for (int i = 0; i < 256; i++)
+    {
+        alpha_lut[i] = (uint8)SetCorrectAlpha(i);
+    }
+
+    for (int32 y = 0; y < h; y++)
+    {
+        uint8 *row = pixels + y * pitch;
+        for (int32 x = 0; x < w; x++)
+        {
+            uint8 *pixel = row + x * 4;
+
+            SDL_Color closest = FindClosestPaletteColor(pixel[0], pixel[1], pixel[2]);
+            pixel[0] = closest.r;
+            pixel[1] = closest.g;
+            pixel[2] = closest.b;
+            pixel[3] = alpha_lut[pixel[3]];
+        }
+    }
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(g_app.renderer.renderer, rgba_surface);
+    SDL_DestroySurface(rgba_surface);
+
     if (!texture)
         return false;
 
-    float32 w, h;
-    if (!SDL_GetTextureSize(texture, &w, &h))
+    float32 tex_w, tex_h;
+    if (!SDL_GetTextureSize(texture, &tex_w, &tex_h))
     {
         SDL_DestroyTexture(texture);
         return false;
@@ -112,8 +177,10 @@ bool LoadTextureFile(const char *file)
         kh_key(texture_map, k) = key;
         SDL_DestroyTexture(kh_value(texture_map, k).texture);
     }
-    Texture tex = {.texture = texture, .w = (int16)w, .h = (int16)h};
+
+    Texture tex = {.texture = texture, .w = (int16)tex_w, .h = (int16)tex_h};
     kh_value(texture_map, k) = tex;
+
     return true;
 }
 
