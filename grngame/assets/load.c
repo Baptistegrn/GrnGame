@@ -4,6 +4,7 @@
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
+#include "grngame/utils/simd.h"
 #include "grngame/renderer/renderer.h"
 #include "grngame/utils/attributes.h"
 #include <string.h>
@@ -131,27 +132,13 @@ bool LoadTextureFile(const char *file)
     int32 w = rgba_surface->w;
     int32 h = rgba_surface->h;
 
-    // cache
     uint8 alpha_lut[256];
     for (int i = 0; i < 256; i++)
-    {
         alpha_lut[i] = (uint8)SetCorrectAlpha(i);
-    }
 
-    for (int32 y = 0; y < h; y++)
-    {
-        uint8 *row = pixels + y * pitch;
-        for (int32 x = 0; x < w; x++)
-        {
-            uint8 *pixel = row + x * 4;
-
-            SDL_Color closest = FindClosestPaletteColor(pixel[0], pixel[1], pixel[2]);
-            pixel[0] = closest.r;
-            pixel[1] = closest.g;
-            pixel[2] = closest.b;
-            pixel[3] = alpha_lut[pixel[3]];
-        }
-    }
+    PaletteSIMD palSimd;
+    BuildPaletteSIMD(&palSimd, g_app.info.palette_elements.a, (int)kv_size(g_app.info.palette_elements));
+    RemapImagePalette(pixels, w, h, pitch, &palSimd, alpha_lut);
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(g_app.renderer.renderer, rgba_surface);
     SDL_DestroySurface(rgba_surface);

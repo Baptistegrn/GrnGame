@@ -24,13 +24,13 @@ add_requires("cglm",          {version = "v0.9.6"},     {configs = {shared = fal
 add_requires("soloud",        {version = "2020.02.07"}, {configs = {shared = false}})
 add_requires("tinydir",       {version = "1.2.6"},      {configs = {shared = false}})
 add_requires("wren",          {version = "0.4.0"},      {configs = {shared = false}})
-add_requires("sqlite3", {version = "3-3.53.0+0"}, {configs = {shared = false}, system = false})
+add_requires("highway",       {version = "1.3.0"},      {configs = {shared = false}})
+add_requires("sqlite3",       {version = "3-3.53.0+0"}, {configs = {shared = false}, system = false})
 
 if not is_plat("wasm") then
     add_requires("quill", {version = "v11.0.2"}, {configs = {shared = false}})
-    add_requires("efsw",{configs = {shared = false}, system = false})
-end
-if is_plat("wasm") then
+    add_requires("efsw",  {configs = {shared = false}, system = false})
+else
     add_defines("WASM")
     add_ldflags(
         "--shell-file",
@@ -61,7 +61,7 @@ local function add_grngame_packages(with_quill_and_efsw)
     add_packages(
         "libsdl3", "libsdl3_image", "libsdl3_ttf",
         "klib", "cglm", "soloud", "tinydir",
-        "wren", "freetype", "sqlite3",
+        "wren", "freetype", "sqlite3", "highway",
         {public = true}
     )
     if with_quill_and_efsw then
