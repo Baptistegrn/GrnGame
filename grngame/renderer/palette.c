@@ -1,5 +1,6 @@
 #include "palette.h"
 #include "SDL3/SDL_pixels.h"
+#include "grngame/assets/load.h"
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
@@ -12,31 +13,34 @@
 
 static char *FetchPaletteContent(const char *filename)
 {
-    if (g_app.info.embedded_assets)
+    if (g_app.info.embedded_assets_data)
     {
-        for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
-        {
-            if (strcmp(filename, g_app.info.embedded_assets[i].name) == 0)
-            {
-                const char *data = (const char *)g_app.info.embedded_assets[i].data;
-                size_t len = strlen(data);
+        char *stem = FileStem(filename);
+        const EmbeddedAsset *asset = GetEmbeddedAssetByStem(stem);
+        free(stem);
 
-                char *copy = (char *)malloc(len + 1);
-                if (copy)
-                {
-                    strcpy(copy, data);
-                    return copy;
-                }
+        if (asset)
+        {
+            const char *data = (const char *)asset->data;
+            size_t len = strlen(data);
+
+            char *copy = (char *)malloc(len + 1);
+            if (copy)
+            {
+                strcpy(copy, data);
+                return copy;
             }
         }
     }
-
-    char *path = FindFilePathFromName(filename);
-    if (path)
+    else
     {
-        char *content = ReturnFileString(path);
-        free(path);
-        return content;
+        char *path = FindFilePathFromName(filename);
+        if (path)
+        {
+            char *content = ReturnFileString(path);
+            free(path);
+            return content;
+        }
     }
 
     return NULL;

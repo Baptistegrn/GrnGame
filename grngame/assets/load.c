@@ -4,30 +4,10 @@
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
-#include "grngame/utils/simd.h"
 #include "grngame/renderer/renderer.h"
 #include "grngame/utils/attributes.h"
+#include "grngame/utils/simd.h"
 #include <string.h>
-
-static const EmbeddedAsset *FindEmbeddedAsset(const char *name)
-{
-
-    if (UNLIKELY(!g_app.info.embedded_assets))
-        return NULL;
-
-    // todo : o(n) -> o(1)
-    for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
-    {
-        char *key = FileStem(g_app.info.embedded_assets[i].name);
-        if (strcmp(key, name) == 0)
-        {
-            free(key);
-            return &g_app.info.embedded_assets[i];
-        }
-        free(key);
-    }
-    return NULL;
-}
 
 bool LoadSoundFile(const char *file)
 {
@@ -39,11 +19,21 @@ bool LoadSoundFile(const char *file)
     }
 
     char *key = FileStem(file);
-    const EmbeddedAsset *asset = FindEmbeddedAsset(key);
 
-    if (asset)
+    if (g_app.info.embedded_assets_data)
     {
-        WavStream_loadMemEx(stream, (const unsigned char *)asset->data, asset->size, 0, 0);
+        const EmbeddedAsset *asset = GetEmbeddedAssetByStem(key);
+        if (asset)
+        {
+            WavStream_loadMemEx(stream, (const unsigned char *)asset->data, asset->size, 0, 0);
+        }
+        else
+        {
+            LOG_ERROR("Failed to find embedded sound '%s'", key);
+            free(key);
+            WavStream_destroy(stream);
+            return false;
+        }
     }
     else
     {
@@ -52,6 +42,8 @@ bool LoadSoundFile(const char *file)
 
     if (WavStream_getLength(stream) <= 0)
     {
+        LOG_ERROR("Failed to load sound '%s'", file);
+        free(key);
         WavStream_destroy(stream);
         return false;
     }
@@ -104,28 +96,44 @@ bool LoadTextureFile(const char *file)
     SDL_Surface *surface = NULL;
     char *key = FileStem(file);
 
-    const EmbeddedAsset *asset = FindEmbeddedAsset(key);
-    if (asset)
+    if (g_app.info.embedded_assets_data)
     {
-        SDL_IOStream *io = SDL_IOFromConstMem(asset->data, asset->size);
-        if (io)
+        const EmbeddedAsset *asset = GetEmbeddedAssetByStem(key);
+        if (asset)
         {
-            surface = IMG_Load_IO(io, true);
+            SDL_IOStream *io = SDL_IOFromConstMem(asset->data, asset->size);
+            if (io)
+            {
+                surface = IMG_Load_IO(io, true);
+            }
+        }
+
+        if (!surface)
+        {
+            LOG_ERROR("Failed to load embedded texture '%s'", key);
+            free(key);
+            return false;
         }
     }
     else
     {
         surface = IMG_Load(file);
+        if (!surface)
+        {
+            LOG_ERROR("Failed to load texture '%s'", file);
+            free(key);
+            return false;
+        }
     }
-
-    if (!surface)
-        return false;
 
     SDL_Surface *rgba_surface = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32);
     SDL_DestroySurface(surface);
 
     if (!rgba_surface)
+    {
+        free(key);
         return false;
+    }
 
     uint8 *pixels = (uint8 *)rgba_surface->pixels;
     int32 pitch = rgba_surface->pitch;
@@ -144,12 +152,16 @@ bool LoadTextureFile(const char *file)
     SDL_DestroySurface(rgba_surface);
 
     if (!texture)
+    {
+        free(key);
         return false;
+    }
 
     float32 tex_w, tex_h;
     if (!SDL_GetTextureSize(texture, &tex_w, &tex_h))
     {
         SDL_DestroyTexture(texture);
+        free(key);
         return false;
     }
 
@@ -199,4 +211,16 @@ bool UnloadTextureFile(const char *file)
     free((char *)kh_key(texture_map, k));
     kh_del(TextureMap, texture_map, k);
     return true;
+}
+
+EmbeddedAsset *GetEmbeddedAssetByStem(const char *name)
+{
+    khint_t k = kh_get(EmbeddedAssetHash, &g_app.embedded_assets_hash, name);
+
+    if (k == kh_end(&g_app.embedded_assets_hash))
+    {
+        return NULL;
+    }
+
+    return &kh_val(&g_app.embedded_assets_hash, k);
 }

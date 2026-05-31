@@ -1,5 +1,7 @@
 #include "grngame/core/app.h"
+#include "grngame/core/init.h"
 #include "grngame/dev/logging.h"
+
 #if defined(GRN_EMBED_ASSETS) && __has_include("resources/embedded_assets.h")
 #include "resources/embedded_assets.h"
 #else
@@ -19,9 +21,9 @@ int main()
     app.asset_folder = "assets"; // need to load at the origin for embedding use "assets" for not embedding option
     app.render_clear = 12;
 #ifndef GRN_EMBED_ASSETS_MISSING
-    app.embedded_assets = g_embedded_assets;
+    app.embedded_assets_data = g_embedded_assets;
 #else
-    app.embedded_assets = NULL;
+    app.embedded_assets_data = NULL;
 #endif
     app.window_resizable = true;
     app.window_fullscreen = false;

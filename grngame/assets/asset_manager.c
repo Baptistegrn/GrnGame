@@ -13,7 +13,6 @@
 
 static COLD void LoadFile(const char *file, void *user_data);
 static COLD void LoadEmbeddedFiles(void);
-static COLD int32 EmbeddedFileCount(void);
 
 COLD AssetManager AssetManagerCreate()
 {
@@ -23,9 +22,9 @@ COLD AssetManager AssetManagerCreate()
 COLD void AssetManagerLoadFolder(const char *folder)
 {
 
-    if (g_app.info.embedded_assets)
+    if (g_app.info.embedded_assets_data)
     {
-        if (EmbeddedFileCount() == 0)
+        if (g_app.embedded_assets_count == 0)
         {
             LOG_WARNING("No assets files in embedded assets folder '%s'", folder);
             return;
@@ -73,18 +72,6 @@ static COLD void LoadFile(const char *file, void *user_data)
     }
 }
 
-static COLD int32 EmbeddedFileCount()
-{
-    int32 count = 0;
-    for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
-    {
-        const EmbeddedAsset *asset = &g_app.info.embedded_assets[i];
-        if (FileIsLoadableAudio(asset->name) || FileIsLoadableImage(asset->name))
-            count++;
-    }
-    return count;
-}
-
 static COLD bool LoadEmbeddedAsset(const EmbeddedAsset *asset)
 {
     if (!asset)
@@ -113,11 +100,11 @@ static COLD bool LoadEmbeddedAsset(const EmbeddedAsset *asset)
 
 static COLD void LoadEmbeddedFiles()
 {
-    if (!g_app.info.embedded_assets)
+    if (!g_app.info.embedded_assets_data)
         return;
 
-    for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
+    for (int i = 0; g_app.info.embedded_assets_data[i].name != NULL; i++)
     {
-        LoadEmbeddedAsset(&g_app.info.embedded_assets[i]);
+        LoadEmbeddedAsset(&g_app.info.embedded_assets_data[i]);
     }
 }

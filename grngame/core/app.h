@@ -11,12 +11,16 @@
 
 BEGIN_DECLARATIONS
 
+KHASH_MAP_INIT_STR(EmbeddedAssetHash, EmbeddedAsset);
+
 typedef struct
 {
-    const EmbeddedAsset *embedded_assets;
+    const EmbeddedAsset *embedded_assets_data;
+
     const char *name;
     const char *version;
     const char *asset_folder;
+
     uint16 fps;
     float64 dt;
     uint64 frame_count;
@@ -51,9 +55,15 @@ typedef struct
 {
     SDL_Window *window;
     Renderer renderer;
+
     SoundManager sound_manager;
     AssetManager asset_manager;
     InputManager input_manager;
+
+    khash_t(EmbeddedAssetHash) embedded_assets_hash;
+    int embedded_assets_count;
+    int embedded_count;
+
     WrenManager *wren;
     AppInfo info;
 

@@ -1,4 +1,5 @@
 #include "wren_callback.h"
+#include "grngame/assets/load.h"
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
@@ -134,32 +135,46 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
     result.onComplete = LoadModuleComplete;
     result.source = NULL;
 
-    if (g_app.info.embedded_assets)
+    if (g_app.info.embedded_assets_data)
     {
         char *module = FileStem(name);
-        char module_filename[MODULE_SIZE_MAX_NAME];
-        snprintf(module_filename, sizeof(module_filename), "%s.wren", module);
+        EmbeddedAsset *asset = GetEmbeddedAssetByStem(module);
         free(module);
 
-        for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
+        if (asset)
         {
-            const char *asset_name = g_app.info.embedded_assets[i].name;
-            const char *base = strrchr(asset_name, '/');
-            base = base ? base + 1 : asset_name;
-
-            if (strcmp(base, module_filename) == 0)
+            size_t sz = asset->size;
+            char *buf = malloc(sz + 1);
+            if (!buf)
             {
-                result.source = strdup((const char *)g_app.info.embedded_assets[i].data);
-                return result;
+                LOG_ERROR("Wren Import Error: Out of memory while loading module '%s'", name);
+            }
+            else
+            {
+                memcpy(buf, asset->data, sz);
+                buf[sz] = '\0';
+
+                /* strip UTF-8 BOM if present */
+                if (sz >= 3 && (unsigned char)buf[0] == 0xEF && (unsigned char)buf[1] == 0xBB &&
+                    (unsigned char)buf[2] == 0xBF)
+                {
+                    memmove(buf, buf + 3, sz - 3 + 1); /* include terminating NUL */
+                }
+
+                result.source = buf;
             }
         }
-        LOG_ERROR("Wren Import Error: Failed to find module '%s'", module_filename);
+        else
+        {
+            LOG_ERROR("Wren Import Error: Failed to find module '%s'", name);
+        }
     }
     else
     {
         char filename[MODULE_SIZE_MAX_NAME];
         snprintf(filename, sizeof(filename), "%s.wren", name);
         char *file_full_link = FindFilePathFromName(filename);
+
         if (file_full_link)
         {
             result.source = ReturnFileString(file_full_link);
@@ -169,7 +184,6 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
         {
             LOG_ERROR("Wren Import Error: Failed to find module '%s'", filename);
         }
-        return result;
     }
 
     return result;

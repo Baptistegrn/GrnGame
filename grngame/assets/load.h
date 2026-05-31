@@ -1,6 +1,8 @@
 #pragma once
+#include "asset_manager.h"
 #include "grngame/utils/c_cpp.h"
 #include <stdbool.h>
+
 
 BEGIN_DECLARATIONS
 
@@ -11,5 +13,7 @@ bool LoadTextureFile(const char *file);
 
 bool UnloadSoundFile(const char *file);
 bool UnloadTextureFile(const char *file);
+
+EmbeddedAsset *GetEmbeddedAssetByStem(const char *name);
 
 END_DECLARATIONS

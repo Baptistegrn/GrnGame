@@ -1,4 +1,5 @@
 #include "grngame/bindings/wren/wren_bind.h"
+#include "grngame/assets/load.h"
 #include "grngame/bindings/wren/wren_callback.h"
 #include "grngame/core/app.h"
 #include "grngame/core/param.h"
@@ -8,6 +9,7 @@
 #include "wren.h"
 #include <stdlib.h>
 #include <string.h>
+
 
 void WrenInit()
 {
@@ -52,30 +54,24 @@ void WrenStartVM()
 
 bool WrenInterpret(const char *filename)
 {
-    if (g_app.info.embedded_assets)
+    if (g_app.info.embedded_assets_data)
     {
-        bool main_init = false;
-        // todo o(n) -> o(1)
-        for (int i = 0; g_app.info.embedded_assets[i].name != NULL; i++)
+        char *key = FileStem(filename);
+        EmbeddedAsset *asset = GetEmbeddedAssetByStem(key);
+        free(key);
+        if (!asset)
         {
-            if (strcmp(filename, g_app.info.embedded_assets[i].name) == 0)
-            {
-                WrenInterpretResult result =
-                    wrenInterpret(g_app.wren->vm, MODULE_WREN_NAME, (const char *)g_app.info.embedded_assets[i].data);
-                if (result != WREN_RESULT_SUCCESS)
-                {
-                    LOG_ERROR("wrenInterpret failed for embedded '%s'", filename);
-                    return false;
-                }
-                main_init = true;
-                break;
-            }
-        }
-        if (!main_init)
-        {
-            LOG_ERROR("Failed to find script %s in embedded files", filename);
+            LOG_ERROR("Failed to find script '%s' in embedded files", filename);
             return false;
         }
+
+        WrenInterpretResult result = wrenInterpret(g_app.wren->vm, MODULE_WREN_NAME, (const char *)asset->data);
+        if (result != WREN_RESULT_SUCCESS)
+        {
+            LOG_ERROR("wrenInterpret failed for embedded '%s'", filename);
+            return false;
+        }
+
         return true;
     }
     else
@@ -95,6 +91,7 @@ bool WrenInterpret(const char *filename)
             LOG_ERROR("Failed to read script '%s'", filename);
             return false;
         }
+
         WrenInterpretResult result = wrenInterpret(g_app.wren->vm, MODULE_WREN_NAME, file_content);
         free(file_content);
 

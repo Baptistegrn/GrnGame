@@ -88,15 +88,11 @@ static void embed_callback(const char *path, void *userdata)
         !FileIsLoadableText(path))
         return;
 
-    const char *base = strrchr(path, '/');
-    base = base ? base + 1 : path;
-
-    char var_name[256];
-    snprintf(var_name, sizeof(var_name), "embedded_%s", base);
-
+    char var_name[2048];
+    snprintf(var_name, sizeof(var_name), "embedded_%s", path);
     for (char *c = var_name; *c; c++)
     {
-        if (*c == '.' || *c == '-' || *c == ' ')
+        if (*c == '.' || *c == '-' || *c == ' ' || *c == '/' || *c == '\\')
             *c = '_';
     }
 
@@ -104,8 +100,8 @@ static void embed_callback(const char *path, void *userdata)
 
     fprintf(ctx->out, "// asset: %s = %s\n\n", path, var_name);
 
-    char entry[1024];
-    snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", base, var_name, var_name);
+    char entry[2048];
+    snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", path, var_name, var_name);
 
     size_t entry_len = strlen(entry);
     if (ctx->registry_len + entry_len + 1 < REGISTRY_MAX)

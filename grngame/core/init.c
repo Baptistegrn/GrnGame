@@ -1,5 +1,6 @@
 #include "init.h"
 #include "grngame/assets/asset_manager.h"
+#include "grngame/assets/load.h"
 #include "grngame/bindings/wren/controller_module.h"
 #include "grngame/bindings/wren/db_module.h"
 #include "grngame/bindings/wren/file_module.h"
@@ -26,24 +27,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-COLD InitResult InitAll(const AppInfo *app_info)
+static InitResult InitializeLogging(const AppInfo *app_info)
 {
-    static bool initialized = false;
-    if (initialized)
+    if (!app_info->enable_logs)
+        return INIT_OK;
+
+    if (!LogInit(app_info->log_destination))
     {
-        LOG_INFO("Engine already initialized");
-        return INIT_ALREADY;
+        LOG_ERROR("Failed to init logging");
+        return INIT_LOG_FAILED;
     }
 
-    if (LIKELY(app_info->enable_logs))
-    {
-        if (UNLIKELY(!LogInit(app_info->log_destination)))
-        {
-            LOG_ERROR("Failed to init logging\n");
-            return INIT_LOG_FAILED;
-        }
-    }
+    return INIT_OK;
+}
 
+static void ConfigureSDLHints(void)
+{
     SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "1");
 
 #if defined(_WIN32)
@@ -56,8 +55,11 @@ COLD InitResult InitAll(const AppInfo *app_info)
 #elif defined(__linux__)
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "vulkan,opengl");
 #endif
+}
 
-    if (UNLIKELY(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS | SDL_INIT_GAMEPAD)))
+static InitResult InitializeSDL(void)
+{
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS | SDL_INIT_GAMEPAD))
     {
         LOG_ERROR("Failed to init SDL: %s", SDL_GetError());
         return INIT_SDL_FAILED;
@@ -65,52 +67,206 @@ COLD InitResult InitAll(const AppInfo *app_info)
 
     SDL_SetEventEnabled(SDL_EVENT_MOUSE_MOTION, false);
 
-    if (UNLIKELY(!SDL_SetAppMetadata(app_info->name, app_info->version, app_info->name)))
+    return INIT_OK;
+}
+
+static InitResult SetSDLMetadata(const AppInfo *app_info)
+{
+    if (!SDL_SetAppMetadata(app_info->name, app_info->version, app_info->name))
     {
         LOG_ERROR("Failed to set app metadata: %s", SDL_GetError());
         return INIT_SDL_FAILED;
     }
 
+    return INIT_OK;
+}
+
 #ifndef WASM
+
+static SDL_IOStream *FindEmbeddedControllerDatabase(const AppInfo *app_info)
+{
+    if (!app_info->embedded_assets_data)
+        return NULL;
+
+    const EmbeddedAsset *asset = GetEmbeddedAssetByStem("gamecontrollerdb");
+
+    if (asset)
+        return SDL_IOFromConstMem(asset->data, asset->size);
+
+    return NULL;
+}
+
+static SDL_IOStream *LoadControllerDatabaseFromDisk(void)
+{
+    char *path = PathFromExecutableDirectory("gamecontrollerdb.txt");
+    SDL_IOStream *rw = SDL_IOFromFile(path, "rb");
+    free(path);
+
+    return rw;
+}
+
+static void LoadControllerMappings(const AppInfo *app_info)
+{
     SDL_IOStream *rw = NULL;
-    if (app_info->embedded_assets)
+
+    if (app_info->embedded_assets_data)
     {
-        for (int i = 0; app_info->embedded_assets[i].name != NULL; ++i)
+        rw = FindEmbeddedControllerDatabase(app_info);
+
+        if (!rw)
         {
-            const EmbeddedAsset *asset = &app_info->embedded_assets[i];
-            const char *base = strrchr(asset->name, '/');
-            base = base ? base + 1 : asset->name;
-            if (strcmp(base, "gamecontrollerdb.txt") == 0)
-            {
-                rw = SDL_IOFromConstMem(asset->data, asset->size);
-                break;
-            }
+            LOG_ERROR("Failed to find embedded controller database 'gamecontrollerdb'");
+            return;
         }
-    }
-
-    if (!rw)
-    {
-        char *path = PathFromExecutableDirectory("gamecontrollerdb.txt");
-        rw = SDL_IOFromFile(path, "rb");
-        free(path);
-    }
-
-    if (UNLIKELY(!rw))
-    {
-        LOG_WARNING("Failed to create IO stream for controller mappings: %s", SDL_GetError());
     }
     else
     {
-        int map = SDL_AddGamepadMappingsFromIO(rw, true);
-        if (map < 0)
-            LOG_WARNING("Failed to load controller mappings: %s", SDL_GetError());
-        else
-            LOG_INFO("Successfully mapped %d controller entries", map);
+        rw = LoadControllerDatabaseFromDisk();
+
+        if (!rw)
+        {
+            LOG_WARNING("Failed to create IO stream for controller mappings from disk: %s", SDL_GetError());
+            return;
+        }
     }
+
+    int mapped = SDL_AddGamepadMappingsFromIO(rw, true);
+
+    if (mapped < 0)
+    {
+        LOG_WARNING("Failed to load controller mappings: %s", SDL_GetError());
+    }
+    else
+    {
+        LOG_INFO("Successfully mapped %d controller entries", mapped);
+    }
+}
+
 #endif
 
+static COLD int32 EmbeddedFileCountAssets()
+{
+    int32 count = 0;
+    for (int i = 0; g_app.info.embedded_assets_data[i].name != NULL; i++)
+    {
+        const EmbeddedAsset *asset = &g_app.info.embedded_assets_data[i];
+        if (FileIsLoadableAudio(asset->name) || FileIsLoadableImage(asset->name))
+            count++;
+    }
+    return count;
+}
+static COLD int32 EmbeddedFileCount()
+{
+    int32 count = 0;
+    for (int i = 0; g_app.info.embedded_assets_data[i].name != NULL; i++)
+    {
+        const EmbeddedAsset *asset = &g_app.info.embedded_assets_data[i];
+        if (FileIsLoadableAudio(asset->name) || FileIsLoadableImage(asset->name) || FileIsLoadableScript(asset->name) ||
+            FileIsLoadableText(asset->name))
+            count++;
+    }
+    return count;
+}
+
+COLD void CreateHashFromEmbeddedAssets(const AppInfo *app_info)
+{
+    if (!app_info->embedded_assets_data)
+        return;
+    g_app.embedded_count = EmbeddedFileCount();
+    g_app.embedded_assets_count = EmbeddedFileCountAssets();
+    khash_t(EmbeddedAssetHash) *hash = &g_app.embedded_assets_hash;
+
+    for (int i = 0; i < g_app.embedded_count; ++i)
+    {
+        const EmbeddedAsset asset = app_info->embedded_assets_data[i];
+        char *key = FileStem(asset.name);
+        LOG_INFO("key :%s", key);
+        int32 ret;
+        khiter_t k = kh_put(EmbeddedAssetHash, hash, key, &ret);
+        if (UNLIKELY(ret == 0))
+        {
+            free((char *)kh_key(hash, k));
+            kh_key(hash, k) = key;
+        }
+        kh_value(hash, k) = asset;
+    }
+}
+
+static void RegisterWrenModules(void)
+{
+    InitBindingSystem();
+
+    RegisterSoundModule();
+    RegisterUtilsModule();
+    RegisterControllerModule();
+    RegisterFileModule();
+    RegisterRendererModule();
+    RegisterWindowModule();
+    RegisterDbModule();
+    RegisterMouseModule();
+}
+
+static void HandleWrenFailure(void)
+{
+    SetRenderColor(WREN_INTERPRET_FAILED);
+    SetTaskBarIconErrorProgress(100.0);
+}
+
+static bool InitializeWrenRuntime(void)
+{
+    WrenInit();
+
+    if (!WrenInterpret("main.wren"))
+    {
+        LOG_ERROR("Failed to load and interpret Wren script 'main.wren'");
+        return false;
+    }
+
+    if (!WrenLoadMainHandles(MODULE_WREN_NAME))
+    {
+        LOG_ERROR("Failed to load Wren handles from 'main' module");
+        return false;
+    }
+
+    if (!WrenCallOnStart())
+    {
+        LOG_ERROR("Failed to run Wren on_start");
+        return false;
+    }
+
+    return true;
+}
+
+COLD InitResult InitAll(const AppInfo *app_info)
+{
+    static bool initialized = false;
+
+    if (initialized)
+    {
+        LOG_INFO("Engine already initialized");
+        return INIT_ALREADY;
+    }
+
+    InitResult result;
+
+    result = InitializeLogging(app_info);
+    if (result != INIT_OK)
+        return result;
+
+    ConfigureSDLHints();
+
+    result = InitializeSDL();
+    if (result != INIT_OK)
+        return result;
+
+    result = SetSDLMetadata(app_info);
+    if (result != INIT_OK)
+        return result;
+
     initialized = true;
+
     LOG_INFO("All engine subsystems initialized");
+
     return INIT_OK;
 }
 
@@ -131,7 +287,7 @@ COLD void InitializeAppState(const AppInfo *app_info)
     WindowApplyInitialMode(&g_app.info);
 }
 
-COLD void InitializeManagers()
+COLD void InitializeManagers(void)
 {
     g_app.asset_manager = AssetManagerCreate();
     g_app.input_manager = InputManagerCreate();
@@ -142,46 +298,28 @@ COLD void InitializeManagers()
 
 COLD void InitializeAssetsAndScripts(const AppInfo *app_info)
 {
+#ifndef WASM
+    LoadControllerMappings(app_info);
+#endif
     LoadAllPalettes();
-    char *relative_asset_folder = PathFromExecutableDirectory(app_info->asset_folder);
-    AssetManagerLoadFolder(relative_asset_folder);
-    free(relative_asset_folder);
+
+    char *asset_path = PathFromExecutableDirectory(app_info->asset_folder);
+
+    AssetManagerLoadFolder(asset_path);
+
+    free(asset_path);
 
     g_app.wren = malloc(sizeof(WrenManager));
     CLEAR_PTR(g_app.wren);
 
-    InitBindingSystem();
-    RegisterSoundModule();
-    RegisterUtilsModule();
-    RegisterControllerModule();
-    RegisterFileModule();
-    RegisterRendererModule();
-    RegisterWindowModule();
-    RegisterDbModule();
-    RegisterMouseModule();
+    RegisterWrenModules();
 
-    WrenInit();
-    if (!WrenInterpret("main.wren"))
+    if (!InitializeWrenRuntime())
     {
-        SetRenderColor(WREN_INTERPRET_FAILED);
-        SetTaskBarIconErrorProgress(100.0);
-        LOG_ERROR("Failed to load and interpret Wren script 'main.wren'");
-        return;
-    }
-    if (!WrenLoadMainHandles(MODULE_WREN_NAME))
-    {
-        SetRenderColor(WREN_INTERPRET_FAILED);
-        SetTaskBarIconErrorProgress(100.0);
-        LOG_ERROR("Failed to load Wren handles from 'main' module");
+        HandleWrenFailure();
         return;
     }
 
-    if (!WrenCallOnStart())
-    {
-        SetRenderColor(WREN_INTERPRET_FAILED);
-        SetTaskBarIconErrorProgress(100.0);
-        LOG_ERROR("Failed to run Wren on_start");
-        return;
-    }
-    LOG_INFO("Wren runtime initialized successfully with script 'main.wren'");
+    LOG_INFO("Wren runtime initialized successfully "
+             "with script 'main.wren'");
 }
