@@ -1,122 +1,165 @@
 #include "embedded_asset.h"
+
 #include "grngame/platform/directories.h"
 #include "grngame/platform/paths.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #define REGISTRY_MAX 200000
+#define VAR_NAME_MAX 2048
 
-static char hex_table[256][5];
-static int hex_init = 0;
+static char g_hex_table[256][5];
+static int g_hex_initialized = 0;
 
-static void init_hex_table(void)
+static void InitHexTable(void)
 {
-    if (hex_init)
+    if (g_hex_initialized)
         return;
-    for (int i = 0; i < 256; i++)
-        snprintf(hex_table[i], 5, "0x%02X", i);
-    hex_init = 1;
+
+    for (int i = 0; i < 256; ++i)
+        snprintf(g_hex_table[i], sizeof(g_hex_table[i]), "0x%02X", i);
+
+    g_hex_initialized = 1;
 }
 
-static void serialize_file(FILE *out, const char *path, const char *var_name)
+static int IsEmbeddableFile(const char *path)
 {
-    FILE *fs = fopen(path, "rb");
-    if (!fs)
-        return;
+    return FileIsLoadableScript(path) || FileIsLoadableAudio(path) || FileIsLoadableImage(path) ||
+           FileIsLoadableText(path);
+}
 
-    fseek(fs, 0, SEEK_END);
-    long size = ftell(fs);
-    fseek(fs, 0, SEEK_SET);
+static void MakeVariableName(char *dst, uint64 dst_size, const char *path)
+{
+    snprintf(dst, dst_size, "embedded_%s", path);
 
+    for (char *c = dst; *c; ++c)
+    {
+        switch (*c)
+        {
+        case '.':
+        case '-':
+        case ' ':
+        case '/':
+        case '\\':
+            *c = '_';
+            break;
+        }
+    }
+}
+
+static unsigned char *LoadFile(const char *path, long *out_size)
+{
+    FILE *file = fopen(path, "rb");
+    if (!file)
+        return NULL;
+
+    fseek(file, 0, SEEK_END);
+    *out_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    if (*out_size <= 0)
+    {
+        fclose(file);
+        return NULL;
+    }
+
+    unsigned char *data = malloc(*out_size);
+
+    if (!data)
+    {
+        fclose(file);
+        return NULL;
+    }
+
+    fread(data, 1, *out_size, file);
+    fclose(file);
+
+    return data;
+}
+
+static void WriteEmbeddedArray(FILE *out, const unsigned char *data, long size, const char *var_name)
+{
     fprintf(out, "static const unsigned char %s[] = {\n", var_name);
 
-    if (size == 0)
+    for (long i = 0; i < size; ++i)
     {
-        fprintf(out, "0\n};\n#define %s_size 0\n\n", var_name);
-        fclose(fs);
+        if ((i % 16) == 0)
+            fprintf(out, "    ");
+
+        fprintf(out, "%s", g_hex_table[data[i]]);
+
+        if (i < size - 1)
+            fprintf(out, ", ");
+
+        if ((i % 16) == 15)
+            fprintf(out, "\n");
+    }
+
+    fprintf(out, "\n};\n");
+    fprintf(out, "#define %s_size %ld\n\n", var_name, size);
+}
+
+static void SerializeFile(FILE *out, const char *path, const char *var_name)
+{
+    long size = 0;
+    unsigned char *data = LoadFile(path, &size);
+
+    if (!data)
+    {
+        fprintf(out, "static const unsigned char %s[] = {\n", var_name);
+        fprintf(out, "0\n};\n");
+        fprintf(out, "#define %s_size 0\n\n", var_name);
         return;
     }
 
-    unsigned char *data = malloc(size);
-    fread(data, 1, size, fs);
-    fclose(fs);
+    WriteEmbeddedArray(out, data, size, var_name);
 
-    size_t buf_size = size * 7 + (size / 16) * 8 + 256;
-    char *buf = malloc(buf_size);
-    char *p = buf;
-
-    for (long i = 0; i < size; i++)
-    {
-        if (i % 16 == 0)
-        {
-            *p++ = ' ';
-            *p++ = ' ';
-            *p++ = ' ';
-            *p++ = ' ';
-        }
-
-        const char *h = hex_table[data[i]];
-        *p++ = h[0];
-        *p++ = h[1];
-        *p++ = h[2];
-        *p++ = h[3];
-
-        if (i < size - 1)
-        {
-            *p++ = ',';
-            *p++ = ' ';
-        }
-
-        if (i % 16 == 15)
-            *p++ = '\n';
-    }
-    *p++ = '\n';
-
-    fwrite(buf, 1, p - buf, out);
-    fprintf(out, "};\n#define %s_size %ld\n\n", var_name, size);
-
-    free(buf);
     free(data);
 }
 
-static void embed_callback(const char *path, void *userdata)
+static void AppendRegistryEntry(EmbedContext *ctx, const char *path, const char *var_name)
 {
-    EmbedContext *ctx = (EmbedContext *)userdata;
+    char entry[VAR_NAME_MAX];
 
-    if (!FileIsLoadableScript(path) && !FileIsLoadableAudio(path) && !FileIsLoadableImage(path) &&
-        !FileIsLoadableText(path))
+    snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", path, var_name, var_name);
+
+    uint64 len = strlen(entry);
+
+    if (ctx->registry_len + len + 1 >= REGISTRY_MAX)
         return;
 
-    char var_name[2048];
-    snprintf(var_name, sizeof(var_name), "embedded_%s", path);
-    for (char *c = var_name; *c; c++)
-    {
-        if (*c == '.' || *c == '-' || *c == ' ' || *c == '/' || *c == '\\')
-            *c = '_';
-    }
+    memcpy(ctx->registry + ctx->registry_len, entry, len);
 
-    serialize_file(ctx->out, path, var_name);
+    ctx->registry_len += len;
+    ctx->registry[ctx->registry_len] = '\0';
+}
+
+static void EmbedCallback(const char *path, void *userdata)
+{
+    EmbedContext *ctx = userdata;
+
+    if (!IsEmbeddableFile(path))
+        return;
+
+    char var_name[VAR_NAME_MAX];
+
+    MakeVariableName(var_name, sizeof(var_name), path);
+
+    SerializeFile(ctx->out, path, var_name);
 
     fprintf(ctx->out, "// asset: %s = %s\n\n", path, var_name);
 
-    char entry[2048];
-    snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", path, var_name, var_name);
-
-    size_t entry_len = strlen(entry);
-    if (ctx->registry_len + entry_len + 1 < REGISTRY_MAX)
-    {
-        memcpy(ctx->registry + ctx->registry_len, entry, entry_len);
-        ctx->registry_len += entry_len;
-        ctx->registry[ctx->registry_len] = '\0';
-    }
+    AppendRegistryEntry(ctx, path, var_name);
 }
 
 void create_embedded_structure(int num_dirs, const char **dirs, const char *output_header)
 {
-    init_hex_table();
+    InitHexTable();
 
     FILE *out = fopen(output_header, "w");
+
     if (!out)
     {
         fprintf(stderr, "[EmbeddedAsset] Failed to open output header: %s\n", output_header);
@@ -126,19 +169,19 @@ void create_embedded_structure(int num_dirs, const char **dirs, const char *outp
     fprintf(out, "#pragma once\n\n");
     fprintf(out, "#include \"grngame/assets/asset_manager.h\"\n\n");
 
-    char registry[REGISTRY_MAX];
-    registry[0] = '\0';
+    char registry[REGISTRY_MAX] = {0};
 
     EmbedContext ctx = {.out = out, .registry = registry, .registry_len = 0};
 
-    for (int i = 0; i < num_dirs; i++)
-    {
-        DirWalk(dirs[i], embed_callback, &ctx);
-    }
+    for (int i = 0; i < num_dirs; ++i)
+        DirWalk(dirs[i], EmbedCallback, &ctx);
 
     fprintf(out, "static const EmbeddedAsset g_embedded_assets[] = {\n");
+
     fprintf(out, "%s", registry);
-    fprintf(out, "    {0, 0, 0}\n");
-    fprintf(out, "};\n\n");
+
+    fprintf(out, "    {0, 0, 0}\n"
+                 "};\n\n");
+
     fclose(out);
 }

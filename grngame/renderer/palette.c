@@ -15,9 +15,7 @@ static char *FetchPaletteContent(const char *filename)
 {
     if (g_app.info.embedded_assets_data)
     {
-        char *stem = FileStem(filename);
-        const EmbeddedAsset *asset = GetEmbeddedAssetByStem(stem);
-        free(stem);
+        const EmbeddedAsset *asset = GetEmbeddedAsset(filename);
 
         if (asset)
         {
@@ -34,7 +32,7 @@ static char *FetchPaletteContent(const char *filename)
     }
     else
     {
-        char *path = FindFilePathFromName(filename);
+        char *path = PathFromExecutableDirectory(filename);
         if (path)
         {
             char *content = ReturnFileString(path);
@@ -161,11 +159,84 @@ void LoadPaletteAlpha()
     SortPaletteAlphas();
 }
 
-void LoadAllPalettes()
+void InitPalettesArrays()
 {
     kv_init(g_app.info.palette_elements);
     kv_init(g_app.info.palette_alpha);
+}
 
+void LoadAllPalettes()
+{
     LoadPaletteColor();
     LoadPaletteAlpha();
+}
+
+void RemoveAllPalettes()
+{
+    kv_destroy(g_app.info.palette_elements);
+    kv_destroy(g_app.info.palette_alpha);
+}
+
+SDL_Color FindClosestPaletteColor(uint8 r, uint8 g, uint8 b, uint8 rb, uint8 gb, uint8 bb)
+{
+    uint64 size = kv_size(g_app.info.palette_elements);
+
+    if (size == 0)
+    {
+        return (SDL_Color){rb, gb, bb, 255};
+    }
+
+    SDL_Color closest = kv_A(g_app.info.palette_elements, 0);
+
+    int best_diff =
+        (r - closest.r) * (r - closest.r) + (g - closest.g) * (g - closest.g) + (b - closest.b) * (b - closest.b);
+
+    for (uint64 i = 1; i < size; i++)
+    {
+        SDL_Color current = kv_A(g_app.info.palette_elements, i);
+
+        int diff =
+            (r - current.r) * (r - current.r) + (g - current.g) * (g - current.g) + (b - current.b) * (b - current.b);
+
+        if (diff < best_diff)
+        {
+            best_diff = diff;
+            closest = current;
+        }
+    }
+
+    closest.a = 255;
+    return closest;
+}
+
+int FindClosestPaletteColorIndex(uint8 r, uint8 g, uint8 b)
+{
+    uint64 count = kv_size(g_app.info.palette_elements);
+
+    if (count == 0)
+    {
+        return -1;
+    }
+
+    SDL_Color closest = kv_A(g_app.info.palette_elements, 0);
+    int closest_index = 0;
+
+    int best_diff =
+        (r - closest.r) * (r - closest.r) + (g - closest.g) * (g - closest.g) + (b - closest.b) * (b - closest.b);
+
+    for (uint64 i = 1; i < count; i++)
+    {
+        SDL_Color current = kv_A(g_app.info.palette_elements, i);
+
+        int diff =
+            (r - current.r) * (r - current.r) + (g - current.g) * (g - current.g) + (b - current.b) * (b - current.b);
+
+        if (diff < best_diff)
+        {
+            best_diff = diff;
+            closest_index = (int)i;
+        }
+    }
+
+    return closest_index;
 }

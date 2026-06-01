@@ -17,20 +17,8 @@ typedef struct
     WrenHandle *on_destroy;
 } WrenManager;
 
-void WrenInit();
+bool ReloadWrenScript(void);
 
-void WrenSetWriteFn(WrenWriteFn writeFn);
-
-void WrenSetErrorFn(WrenErrorFn errorFn);
-
-void WrenSetBindMethodFn(WrenBindForeignMethodFn bindMethodFn);
-
-void WrenSetBindClassFn(WrenBindForeignClassFn bindClassFn);
-
-void WrenSetLoadModuleFn(WrenLoadModuleFn loadModuleFn);
-
-void WrenStartVM();
-
-bool WrenInterpret(const char *filename);
+bool InitializeWrenScript(void);
 
 END_DECLARATIONS

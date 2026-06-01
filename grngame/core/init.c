@@ -1,31 +1,17 @@
 #include "init.h"
 #include "grngame/assets/asset_manager.h"
 #include "grngame/assets/load.h"
-#include "grngame/bindings/wren/controller_module.h"
-#include "grngame/bindings/wren/db_module.h"
-#include "grngame/bindings/wren/file_module.h"
-#include "grngame/bindings/wren/mouse_module.h"
-#include "grngame/bindings/wren/renderer_module.h"
-#include "grngame/bindings/wren/sound_module.h"
-#include "grngame/bindings/wren/utils.h"
-#include "grngame/bindings/wren/window_module.h"
 #include "grngame/bindings/wren/wren_bind.h"
-#include "grngame/bindings/wren/wren_callback.h"
-#include "grngame/bindings/wren/wren_handle.h"
 #include "grngame/core/window.h"
 #include "grngame/dev/logging.h"
-#include "grngame/math/types.h"
 #include "grngame/platform/paths.h"
 #include "grngame/renderer/palette.h"
 #include "grngame/utils/attributes.h"
-#include "grngame/utils/clear.h"
 #include "grngame/utils/taskbar_icon.h"
 #include "kvec.h"
-#include "param.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
 #include <stdlib.h>
-#include <string.h>
 
 static InitResult InitializeLogging(const AppInfo *app_info)
 {
@@ -88,11 +74,9 @@ static SDL_IOStream *FindEmbeddedControllerDatabase(const AppInfo *app_info)
     if (!app_info->embedded_assets_data)
         return NULL;
 
-    const EmbeddedAsset *asset = GetEmbeddedAssetByStem("gamecontrollerdb");
-
+    const EmbeddedAsset *asset = GetEmbeddedAsset("grngame/input/gamecontrollerdb.txt");
     if (asset)
         return SDL_IOFromConstMem(asset->data, asset->size);
-
     return NULL;
 }
 
@@ -112,7 +96,6 @@ static void LoadControllerMappings(const AppInfo *app_info)
     if (app_info->embedded_assets_data)
     {
         rw = FindEmbeddedControllerDatabase(app_info);
-
         if (!rw)
         {
             LOG_ERROR("Failed to find embedded controller database 'gamecontrollerdb'");
@@ -144,97 +127,10 @@ static void LoadControllerMappings(const AppInfo *app_info)
 
 #endif
 
-static COLD int32 EmbeddedFileCountAssets()
-{
-    int32 count = 0;
-    for (int i = 0; g_app.info.embedded_assets_data[i].name != NULL; i++)
-    {
-        const EmbeddedAsset *asset = &g_app.info.embedded_assets_data[i];
-        if (FileIsLoadableAudio(asset->name) || FileIsLoadableImage(asset->name))
-            count++;
-    }
-    return count;
-}
-static COLD int32 EmbeddedFileCount()
-{
-    int32 count = 0;
-    for (int i = 0; g_app.info.embedded_assets_data[i].name != NULL; i++)
-    {
-        const EmbeddedAsset *asset = &g_app.info.embedded_assets_data[i];
-        if (FileIsLoadableAudio(asset->name) || FileIsLoadableImage(asset->name) || FileIsLoadableScript(asset->name) ||
-            FileIsLoadableText(asset->name))
-            count++;
-    }
-    return count;
-}
-
-COLD void CreateHashFromEmbeddedAssets(const AppInfo *app_info)
-{
-    if (!app_info->embedded_assets_data)
-        return;
-    g_app.embedded_count = EmbeddedFileCount();
-    g_app.embedded_assets_count = EmbeddedFileCountAssets();
-    khash_t(EmbeddedAssetHash) *hash = &g_app.embedded_assets_hash;
-
-    for (int i = 0; i < g_app.embedded_count; ++i)
-    {
-        const EmbeddedAsset asset = app_info->embedded_assets_data[i];
-        char *key = FileStem(asset.name);
-        LOG_INFO("key :%s", key);
-        int32 ret;
-        khiter_t k = kh_put(EmbeddedAssetHash, hash, key, &ret);
-        if (UNLIKELY(ret == 0))
-        {
-            free((char *)kh_key(hash, k));
-            kh_key(hash, k) = key;
-        }
-        kh_value(hash, k) = asset;
-    }
-}
-
-static void RegisterWrenModules(void)
-{
-    InitBindingSystem();
-
-    RegisterSoundModule();
-    RegisterUtilsModule();
-    RegisterControllerModule();
-    RegisterFileModule();
-    RegisterRendererModule();
-    RegisterWindowModule();
-    RegisterDbModule();
-    RegisterMouseModule();
-}
-
 static void HandleWrenFailure(void)
 {
-    SetRenderColor(WREN_INTERPRET_FAILED);
+    SetRenderColor(FindClosestPaletteColorIndex(255, 0, 0));
     SetTaskBarIconErrorProgress(100.0);
-}
-
-static bool InitializeWrenRuntime(void)
-{
-    WrenInit();
-
-    if (!WrenInterpret("main.wren"))
-    {
-        LOG_ERROR("Failed to load and interpret Wren script 'main.wren'");
-        return false;
-    }
-
-    if (!WrenLoadMainHandles(MODULE_WREN_NAME))
-    {
-        LOG_ERROR("Failed to load Wren handles from 'main' module");
-        return false;
-    }
-
-    if (!WrenCallOnStart())
-    {
-        LOG_ERROR("Failed to run Wren on_start");
-        return false;
-    }
-
-    return true;
 }
 
 COLD InitResult InitAll(const AppInfo *app_info)
@@ -276,7 +172,7 @@ COLD void InitializeAppState(const AppInfo *app_info)
     g_app.info.offset_x = 0;
     g_app.info.offset_y = 0;
     g_app.info.window_occlusion_culled = false;
-
+    HotReloadInitQueue();
     g_app.window = WindowCreate(&g_app.info);
     if (UNLIKELY(!g_app.window))
         exit(3);
@@ -301,6 +197,7 @@ COLD void InitializeAssetsAndScripts(const AppInfo *app_info)
 #ifndef WASM
     LoadControllerMappings(app_info);
 #endif
+    InitPalettesArrays();
     LoadAllPalettes();
 
     char *asset_path = PathFromExecutableDirectory(app_info->asset_folder);
@@ -309,12 +206,7 @@ COLD void InitializeAssetsAndScripts(const AppInfo *app_info)
 
     free(asset_path);
 
-    g_app.wren = malloc(sizeof(WrenManager));
-    CLEAR_PTR(g_app.wren);
-
-    RegisterWrenModules();
-
-    if (!InitializeWrenRuntime())
+    if (!InitializeWrenScript())
     {
         HandleWrenFailure();
         return;

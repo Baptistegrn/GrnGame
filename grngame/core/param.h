@@ -9,13 +9,13 @@
 // - 0: allow floating-point positions
 #define PIXEL_INT_ONLY 1
 
-#if PIXEL_INT_ONLY 
+#if PIXEL_INT_ONLY
 #define PIXEL_ALIGN(x) floor(x)
 #else
 #define PIXEL_ALIGN(x) (x)
 #endif
 
-// Fixed-update loop frequency 
+// Fixed-update loop frequency
 #define FIXED_UPDATE_LOOP 60.0
 
 #define FIXED_DT (1.0 / FIXED_UPDATE_LOOP)
@@ -43,3 +43,6 @@
 
 // name of the module of the programm
 #define MODULE_WREN_NAME "Main"
+
+// path of the main entry of the script
+#define WREN_SCRIPT "test_game/scripts/main.wren"

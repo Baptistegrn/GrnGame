@@ -16,7 +16,6 @@
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/random.h"
-
 #ifdef WASM
 #include "grngame/web/web.h"
 #endif
@@ -29,8 +28,6 @@ static bool s_is_running = false;
 static uint64 s_previous_counter = 0;
 static float64 s_fixed_accumulator = 0.0;
 static float64 s_update_accumulator = 0.0;
-static int16 lagging_start = 0;
-static bool is_lagging = false;
 
 static HOT void MainLoopIteration(void *arg);
 static COLD void MainLoop(void);
@@ -86,7 +83,7 @@ void EngineStart(const AppInfo *app_info)
 
     InitializeAssetsAndScripts(app_info);
 
-#if !defined(WASM) && !defined(GRN_EMBED_ASSETS)
+#if HOT_RELOAD_ENABLE
     StartAssetHotReload(".", true);
 #endif
 
@@ -140,6 +137,7 @@ static HOT void RunUpdates(float64 frame_dt)
         g_app.info.dt = update_target;
 
         PROFILE_ZONE_START(poll_events_zone, "PollEvents");
+        ProcessHotreloadQueue();
         PollEvents();
         SoundUpdate();
         PROFILE_ZONE_END(poll_events_zone);
@@ -222,9 +220,6 @@ static COLD void InitializeLoopState(void)
 
     s_fixed_accumulator = 0.0;
     s_update_accumulator = 0.0;
-
-    lagging_start = 0;
-    is_lagging = false;
 }
 
 static COLD void MainLoop(void)

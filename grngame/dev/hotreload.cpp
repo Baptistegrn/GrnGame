@@ -1,77 +1,22 @@
 #include "grngame/dev/hotreload.h"
 #include "grngame/assets/load.h"
-#include "grngame/bindings/wren/controller_module.h"
-#include "grngame/bindings/wren/db_module.h"
-#include "grngame/bindings/wren/file_module.h"
-#include "grngame/bindings/wren/mouse_module.h"
-#include "grngame/bindings/wren/renderer_module.h"
-#include "grngame/bindings/wren/sound_module.h"
-#include "grngame/bindings/wren/utils.h"
-#include "grngame/bindings/wren/window_module.h"
 #include "grngame/bindings/wren/wren_bind.h"
-#include "grngame/bindings/wren/wren_callback.h"
-#include "grngame/bindings/wren/wren_handle.h"
 #include "grngame/core/app.h"
-#include "grngame/core/param.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
-#include "grngame/utils/clear.h"
+#include "grngame/renderer/palette.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
+#include <cstring>
 #include <efsw/efsw.hpp>
-
 #include <filesystem>
 #include <memory>
-#include <stdlib.h>
 #include <string>
 
+// note : we use mutex and queue because somes functions of sdl dosn't work on another thread
+
 static std::unique_ptr<efsw::FileWatcher> g_fileWatcher;
-
-void ReloadWrenScript(const char *path)
-{
-    if (!g_app.wren)
-        return;
-
-    LOG_INFO("Script change detected, reloading Wren runtime (%s)", path ? path : "unknown");
-
-    if (g_app.wren->vm)
-    {
-        ShutdownScripts();
-    }
-    g_app.wren = (WrenManager *)malloc(sizeof(WrenManager));
-    CLEAR_PTR(g_app.wren);
-    InitBindingSystem();
-    RegisterSoundModule();
-    RegisterUtilsModule();
-    RegisterControllerModule();
-    RegisterFileModule();
-    RegisterRendererModule();
-    RegisterWindowModule();
-    RegisterDbModule();
-    RegisterMouseModule();
-
-    WrenInit();
-
-    if (!WrenInterpret("main.wren"))
-    {
-        LOG_ERROR("Hot-reload failed: cannot interpret 'main.wren'");
-        return;
-    }
-
-    if (!WrenLoadMainHandles(MODULE_WREN_NAME))
-    {
-        LOG_ERROR("Hot-reload failed: cannot load handles from module '%s'", MODULE_WREN_NAME);
-        return;
-    }
-
-    if (!WrenCallOnStart())
-    {
-        LOG_ERROR("Hot-reload failed: on_start returned an error");
-        return;
-    }
-
-    LOG_INFO("Wren hot-reload completed successfully");
-}
+static SDL_Mutex *g_queueMutex = nullptr;
 
 class UpdateListener : public efsw::FileWatchListener
 {
@@ -82,20 +27,89 @@ class UpdateListener : public efsw::FileWatchListener
         (void)watchid;
 
         std::filesystem::path fullPath = std::filesystem::path(dir) / filename;
-
         std::string path = fullPath.lexically_normal().string();
 
-        const char *cpath = path.c_str();
+        HotreloadQueueElement elem = {0};
+        elem.new_file = strdup(path.c_str());
+        elem.old_file = nullptr;
 
         switch (action)
         {
-        case efsw::Actions::Add: {
+        case efsw::Actions::Add:
+            elem.action = ADD;
+            break;
+
+        case efsw::Actions::Delete:
+            elem.action = DELETE;
+            break;
+
+        case efsw::Actions::Modified:
+            elem.action = MODIFIED;
+            break;
+
+        case efsw::Actions::Moved:
+            elem.action = MOVED;
+            {
+                std::filesystem::path oldPath = std::filesystem::path(dir) / oldFilename;
+                elem.old_file = strdup(oldPath.lexically_normal().string().c_str());
+            }
+            break;
+
+        default:
+            free((void *)elem.new_file);
+            return;
+        }
+
+        if (g_queueMutex)
+            SDL_LockMutex(g_queueMutex);
+
+        kv_push(HotreloadQueueElement, g_app.queue, elem);
+
+        if (g_queueMutex)
+            SDL_UnlockMutex(g_queueMutex);
+    }
+};
+
+static UpdateListener g_updateListener;
+
+void StartAssetHotReload(const char *directory, bool recursive)
+{
+    if (g_fileWatcher)
+        return;
+
+    if (!g_queueMutex)
+        g_queueMutex = SDL_CreateMutex();
+
+    g_fileWatcher = std::make_unique<efsw::FileWatcher>();
+
+    g_fileWatcher->addWatch(directory, &g_updateListener, recursive);
+
+    g_fileWatcher->watch();
+}
+
+void ProcessHotreloadQueue(void)
+{
+    if (g_queueMutex)
+        SDL_LockMutex(g_queueMutex);
+
+    size_t count = kv_size(g_app.queue);
+
+    for (size_t i = 0; i < count; ++i)
+    {
+        HotreloadQueueElement elem = kv_A(g_app.queue, i);
+        const char *cpath = elem.new_file;
+        const char *oldCPath = elem.old_file;
+
+        switch (elem.action)
+        {
+        case ADD: {
             LOG_DEBUG("Asset added '%s'", cpath);
 
             if (FileIsLoadableScript(cpath))
             {
                 LOG_INFO("Detected new script '%s'", cpath);
-                ReloadWrenScript(cpath);
+                if (!ReloadWrenScript())
+                    LOG_WARNING("Failed to reload script '%s'", cpath);
             }
 
             if (FileIsLoadableAudio(cpath))
@@ -117,17 +131,17 @@ class UpdateListener : public efsw::FileWatchListener
                 else
                     LOG_DEBUG("Loaded texture file '%s'", cpath);
             }
-
             break;
         }
 
-        case efsw::Actions::Delete: {
+        case DELETE: {
             LOG_DEBUG("Asset deleted '%s'", cpath);
 
             if (FileIsLoadableScript(cpath))
             {
                 LOG_INFO("Detected deleted script '%s'", cpath);
-                ReloadWrenScript(cpath);
+                if (!ReloadWrenScript())
+                    LOG_WARNING("Failed to reload script '%s'", cpath);
             }
 
             if (FileIsLoadableAudio(cpath))
@@ -149,17 +163,17 @@ class UpdateListener : public efsw::FileWatchListener
                 else
                     LOG_DEBUG("Unloaded texture file '%s'", cpath);
             }
-
             break;
         }
 
-        case efsw::Actions::Modified: {
+        case MODIFIED: {
             LOG_DEBUG("Asset modified '%s'", cpath);
 
             if (FileIsLoadableScript(cpath))
             {
                 LOG_INFO("Detected modified script '%s'", cpath);
-                ReloadWrenScript(cpath);
+                if (!ReloadWrenScript())
+                    LOG_WARNING("Failed to reload script '%s'", cpath);
             }
 
             if (FileIsLoadableAudio(cpath))
@@ -191,17 +205,10 @@ class UpdateListener : public efsw::FileWatchListener
                 else
                     LOG_DEBUG("Reloaded texture file '%s'", cpath);
             }
-
             break;
         }
 
-        case efsw::Actions::Moved: {
-            std::filesystem::path oldPath = std::filesystem::path(dir) / oldFilename;
-
-            std::string oldFullPath = oldPath.lexically_normal().string();
-
-            const char *oldCPath = oldFullPath.c_str();
-
+        case MOVED: {
             LOG_DEBUG("Asset moved '%s' -> '%s'", oldCPath, cpath);
 
             if (FileIsLoadableAudio(oldCPath))
@@ -223,7 +230,8 @@ class UpdateListener : public efsw::FileWatchListener
             if (FileIsLoadableScript(cpath))
             {
                 LOG_INFO("Detected moved script '%s'", cpath);
-                ReloadWrenScript(cpath);
+                if (!ReloadWrenScript())
+                    LOG_WARNING("Failed to reload script '%s'", cpath);
             }
 
             if (FileIsLoadableAudio(cpath))
@@ -245,26 +253,23 @@ class UpdateListener : public efsw::FileWatchListener
                 else
                     LOG_DEBUG("Loaded moved texture file '%s'", cpath);
             }
-
             break;
         }
-
-        default:
-            break;
         }
+
+        if (elem.new_file)
+            free((void *)elem.new_file);
+        if (elem.old_file)
+            free((void *)elem.old_file);
     }
-};
 
-static UpdateListener g_updateListener;
+    kv_size(g_app.queue) = 0;
 
-void StartAssetHotReload(const char *directory, bool recursive)
+    if (g_queueMutex)
+        SDL_UnlockMutex(g_queueMutex);
+}
+
+void HotReloadInitQueue()
 {
-    if (g_fileWatcher)
-        return;
-
-    g_fileWatcher = std::make_unique<efsw::FileWatcher>();
-
-    g_fileWatcher->addWatch(directory, &g_updateListener, recursive);
-
-    g_fileWatcher->watch();
+    kv_init(g_app.queue);
 }

@@ -4,8 +4,8 @@
 #include "grngame/utils/attributes.h"
 #include <SDL3/SDL_render.h>
 
-#define PALETTE_COLOR_FILE "PaletteColor.txt"
-#define PALETTE_ALPHA_FILE "PaletteAlpha.txt"
+#define PALETTE_COLOR_FILE "test_game/scripts/PaletteColor.txt"
+#define PALETTE_ALPHA_FILE "test_game/scripts/PaletteAlpha.txt"
 
 static const SDL_Color default_colors[] = { // Grayscale
     {0, 0, 0, 255},
@@ -50,4 +50,8 @@ static const SDL_Color default_colors[] = { // Grayscale
 
 static const int default_alphas[] = {0, 64, 128, 192, 255};
 
+void InitPalettesArrays();
 void LoadAllPalettes();
+
+SDL_Color FindClosestPaletteColor(uint8 r, uint8 g, uint8 b, uint8 rb, uint8 gb, uint8 bb);
+int FindClosestPaletteColorIndex(uint8 r, uint8 g, uint8 b);

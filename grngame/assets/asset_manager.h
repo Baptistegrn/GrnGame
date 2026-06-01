@@ -1,6 +1,7 @@
 #pragma once
 #include "../math/types.h"
 #include "SDL3/SDL_render.h"
+#include "grngame/utils/attributes.h"
 #include <khash.h>
 #include <soloud_c.h>
 
@@ -19,7 +20,9 @@ typedef struct
 } Texture;
 
 KHASH_MAP_INIT_STR(SoundMap, WavStream);
-KHASH_MAP_INIT_STR(TextureMap, Texture)
+KHASH_MAP_INIT_STR(TextureMap, Texture);
+
+struct AppInfo;
 
 typedef struct
 {
@@ -28,5 +31,5 @@ typedef struct
 } AssetManager;
 
 AssetManager AssetManagerCreate();
-
+COLD void CreateHashFromEmbeddedAssets(const struct AppInfo *app_info);
 void AssetManagerLoadFolder(const char *folder);

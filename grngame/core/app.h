@@ -5,6 +5,7 @@
 #include "grngame/assets/asset_manager.h"
 #include "grngame/audio/sound_manager.h"
 #include "grngame/bindings/wren/wren_bind.h"
+#include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
 #include "grngame/renderer/renderer.h"
 #include "kvec.h"
@@ -13,7 +14,14 @@ BEGIN_DECLARATIONS
 
 KHASH_MAP_INIT_STR(EmbeddedAssetHash, EmbeddedAsset);
 
-typedef struct
+#if !defined(WASM) && !defined(GRN_EMBED_ASSETS)
+
+#define HOT_RELOAD_ENABLE 1
+#else
+#define HOT_RELOAD_ENABLE 0
+#endif
+
+typedef struct AppInfo
 {
     const EmbeddedAsset *embedded_assets_data;
 
@@ -63,6 +71,10 @@ typedef struct
     khash_t(EmbeddedAssetHash) embedded_assets_hash;
     int embedded_assets_count;
     int embedded_count;
+
+#if HOT_RELOAD_ENABLE
+    kvec_t(HotreloadQueueElement) queue;
+#endif
 
     WrenManager *wren;
     AppInfo info;

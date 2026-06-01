@@ -135,11 +135,12 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
     result.onComplete = LoadModuleComplete;
     result.source = NULL;
 
+    char filename[MODULE_SIZE_MAX_NAME];
+    snprintf(filename, sizeof(filename), "%s.wren", name);
+
     if (g_app.info.embedded_assets_data)
     {
-        char *module = FileStem(name);
-        EmbeddedAsset *asset = GetEmbeddedAssetByStem(module);
-        free(module);
+        EmbeddedAsset *asset = GetEmbeddedAsset(filename);
 
         if (asset)
         {
@@ -166,23 +167,24 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
         }
         else
         {
-            LOG_ERROR("Wren Import Error: Failed to find module '%s'", name);
+            LOG_ERROR("Wren Import Error: Failed to find module '%s' in embedded files", name);
         }
     }
     else
     {
-        char filename[MODULE_SIZE_MAX_NAME];
-        snprintf(filename, sizeof(filename), "%s.wren", name);
-        char *file_full_link = FindFilePathFromName(filename);
+        char script_path[MODULE_SIZE_MAX_NAME + 15];
+        snprintf(script_path, sizeof(script_path), "scripts/%s", filename);
 
-        if (file_full_link)
+        char *path = PathFromExecutableDirectory(script_path);
+        if (path)
         {
-            result.source = ReturnFileString(file_full_link);
-            free(file_full_link);
+            result.source = ReturnFileString(path);
+            free(path);
         }
-        else
+
+        if (!result.source)
         {
-            LOG_ERROR("Wren Import Error: Failed to find module '%s'", filename);
+            LOG_ERROR("Wren Import Error: Failed to find module '%s'", script_path);
         }
     }
 
