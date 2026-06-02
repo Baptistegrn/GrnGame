@@ -29,7 +29,7 @@ add_requires("sqlite3",       {version = "3-3.53.0+0"}, {configs = {shared = fal
 
 if not is_plat("wasm") then
     add_requires("quill", {version = "v11.0.2"}, {configs = {shared = false}})
-    add_requires("efsw",  {version = "1.5.1"},{configs = {shared = false}, system = false})
+    add_requires("efsw",  {version = "1.6.2"},{configs = {shared = false}, system = false})
 else
     add_defines("WASM")
     add_ldflags(
