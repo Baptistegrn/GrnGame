@@ -184,7 +184,7 @@ int32 FindBestPaletteColorCIEDE2000(ColorLAB *target_pixel)
         if (current_score < best_score)
         {
             best_score = current_score;
-            best_index = (uint8_t)i;
+            best_index = (int32)i;
         }
     }
 
