@@ -61,7 +61,7 @@ local function add_grngame_packages(with_quill_and_efsw)
     add_packages(
         "libsdl3", "libsdl3_image", "libsdl3_ttf",
         "klib", "cglm", "soloud", "tinydir",
-        "wren", "freetype", "sqlite3", "highway",
+        "wren", "freetype", "sqlite3", "highway","Libimagequant",
         {public = true}
     )
     if with_quill_and_efsw then

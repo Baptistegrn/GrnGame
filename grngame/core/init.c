@@ -5,6 +5,7 @@
 #include "grngame/core/window.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
+#include "grngame/renderer/cielab.h"
 #include "grngame/renderer/palette.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/taskbar_icon.h"
@@ -12,6 +13,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
 #include <stdlib.h>
+
 
 static InitResult InitializeLogging(const AppInfo *app_info)
 {
@@ -197,6 +199,7 @@ COLD void InitializeAssetsAndScripts(const AppInfo *app_info)
 #ifndef WASM
     LoadControllerMappings(app_info);
 #endif
+    InitLinearLut();
     InitPalettesArrays();
     LoadAllPalettes();
 

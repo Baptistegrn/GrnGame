@@ -1,9 +1,11 @@
 #include "palette.h"
 #include "SDL3/SDL_pixels.h"
+#include "cielab.h"
 #include "grngame/assets/load.h"
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
+#include "grngame/renderer/cielab.h"
 #include "grngame/utils/file.h"
 #include "grngame/utils/string_compat.h"
 #include "kvec.h"
@@ -159,15 +161,26 @@ void LoadPaletteAlpha()
     SortPaletteAlphas();
 }
 
+static void LoadPaletteColorLab()
+{
+    for (uint64 i = 0; i < kv_size(g_app.info.palette_elements); i++)
+    {
+        SDL_Color color = kv_A(g_app.info.palette_elements, i);
+        kv_push(ColorLAB, g_app.info.palette_elements_lab, RgbToLab(&color));
+    }
+}
+
 void InitPalettesArrays()
 {
     kv_init(g_app.info.palette_elements);
     kv_init(g_app.info.palette_alpha);
+    kv_init(g_app.info.palette_elements_lab);
 }
 
 void LoadAllPalettes()
 {
     LoadPaletteColor();
+    LoadPaletteColorLab();
     LoadPaletteAlpha();
 }
 
@@ -175,6 +188,7 @@ void RemoveAllPalettes()
 {
     kv_destroy(g_app.info.palette_elements);
     kv_destroy(g_app.info.palette_alpha);
+    kv_destroy(g_app.info.palette_elements_lab);
 }
 
 SDL_Color FindClosestPaletteColor(uint8 r, uint8 g, uint8 b, uint8 rb, uint8 gb, uint8 bb)

@@ -4,10 +4,11 @@
 #include "grngame/utils/attributes.h"
 #include <SDL3/SDL_render.h>
 
-#define PALETTE_COLOR_FILE "test_game/scripts/PaletteColor.txt"
-#define PALETTE_ALPHA_FILE "test_game/scripts/PaletteAlpha.txt"
+#define PALETTE_COLOR_FILE "scripts/PaletteColor.txt"
+#define PALETTE_ALPHA_FILE "scripts/PaletteAlpha.txt"
 
-static const SDL_Color default_colors[] = { // Grayscale
+static const SDL_Color default_colors[] = {
+    // Grayscale
     {0, 0, 0, 255},
     {255, 255, 255, 255},
     {128, 128, 128, 255},

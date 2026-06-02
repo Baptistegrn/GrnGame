@@ -19,3 +19,6 @@ static inline int32 Math_ClampInt(int32 val, int32 min_val, int32 max_val)
         return max_val;
     return val;
 }
+
+#define DEG2RAD(x) ((x) * pi / 180.0)
+#define RAD2DEG(x) ((x) * 180.0 / pi)

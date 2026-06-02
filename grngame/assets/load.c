@@ -6,7 +6,6 @@
 #include "grngame/platform/paths.h"
 #include "grngame/renderer/renderer.h"
 #include "grngame/utils/attributes.h"
-#include "grngame/utils/simd.h"
 
 EmbeddedAsset *GetEmbeddedAsset(const char *name)
 {
@@ -38,21 +37,34 @@ static SDL_Surface *LoadTextureSurface(const char *file)
     return IMG_Load(file);
 }
 
-// cache system
 static void ApplyPaletteRemap(SDL_Surface *surface)
 {
-    uint8 alpha_lut[256];
+    for (int y = 0; y < surface->h; ++y)
+    {
+        SDL_Color *row = (SDL_Color *)((uint8 *)surface->pixels + y * surface->pitch);
 
-    for (int i = 0; i < 256; ++i)
-        alpha_lut[i] = (uint8)SetCorrectAlpha(i);
+        for (int x = 0; x < surface->w; ++x)
+        {
+            SDL_Color *pixel = &row[x];
 
-    PaletteSIMD palette;
+            if (pixel->a == 0)
+                continue;
 
-    BuildPaletteSIMD(&palette, g_app.info.palette_elements.a, (int)kv_size(g_app.info.palette_elements));
+            ColorLAB lab = RgbToLab(pixel);
 
-    RemapImagePalette((uint8 *)surface->pixels, surface->w, surface->h, surface->pitch, &palette, alpha_lut);
+            int32 best_idx = FindBestPaletteColorCIEDE2000(&lab);
+
+            if (best_idx >= 0 && best_idx < (int32)kv_size(g_app.info.palette_elements))
+            {
+                SDL_Color best_color = g_app.info.palette_elements.a[best_idx];
+
+                pixel->r = best_color.r;
+                pixel->g = best_color.g;
+                pixel->b = best_color.b;
+            }
+        }
+    }
 }
-
 static bool RegisterTexture(char *key, SDL_Texture *texture, int16 width, int16 height)
 {
     khash_t(TextureMap) *map = g_app.asset_manager.texture_map;

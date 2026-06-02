@@ -7,6 +7,7 @@
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
+#include "grngame/renderer/cielab.h"
 #include "grngame/renderer/renderer.h"
 #include "kvec.h"
 
@@ -20,6 +21,11 @@ KHASH_MAP_INIT_STR(EmbeddedAssetHash, EmbeddedAsset);
 #else
 #define HOT_RELOAD_ENABLE 0
 #endif
+
+typedef struct
+{
+    double srgb_linear_lut[256];
+} Cache;
 
 typedef struct AppInfo
 {
@@ -55,6 +61,7 @@ typedef struct AppInfo
     int render_clear;
 
     kvec_t(SDL_Color) palette_elements;
+    kvec_t(ColorLAB) palette_elements_lab;
     kvec_t(int) palette_alpha;
 
 } AppInfo;
@@ -71,6 +78,8 @@ typedef struct
     khash_t(EmbeddedAssetHash) embedded_assets_hash;
     int embedded_assets_count;
     int embedded_count;
+
+    Cache cache;
 
 #if HOT_RELOAD_ENABLE
     kvec_t(HotreloadQueueElement) queue;
