@@ -14,7 +14,6 @@
 #include <SDL3/SDL_init.h>
 #include <stdlib.h>
 
-
 static InitResult InitializeLogging(const AppInfo *app_info)
 {
     if (!app_info->enable_logs)
@@ -174,7 +173,9 @@ COLD void InitializeAppState(const AppInfo *app_info)
     g_app.info.offset_x = 0;
     g_app.info.offset_y = 0;
     g_app.info.window_occlusion_culled = false;
+#if HOT_RELOAD_ENABLE
     HotReloadInitQueue();
+#endif
     g_app.window = WindowCreate(&g_app.info);
     if (UNLIKELY(!g_app.window))
         exit(3);

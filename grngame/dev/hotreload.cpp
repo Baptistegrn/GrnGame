@@ -1,3 +1,4 @@
+#ifndef WASM
 #include "grngame/dev/hotreload.h"
 #include "grngame/assets/load.h"
 #include "grngame/bindings/wren/wren_bind.h"
@@ -272,3 +273,5 @@ void HotReloadInitQueue()
 {
     kv_init(g_app.queue);
 }
+
+#endif

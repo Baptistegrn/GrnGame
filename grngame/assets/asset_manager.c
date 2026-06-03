@@ -6,8 +6,10 @@
 #include "grngame/platform/directories.h"
 #include "grngame/platform/paths.h"
 #include "grngame/utils/attributes.h"
+#include "grngame/utils/string_compat.h"
 #include "khash.h"
 #include "kvec.h"
+
 
 static COLD void LoadFile(const char *file, void *user_data);
 static COLD void LoadEmbeddedFiles(void);

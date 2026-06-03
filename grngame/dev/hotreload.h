@@ -1,3 +1,5 @@
+#ifndef WASM
+
 #pragma once
 
 #include "grngame/utils/c_cpp.h"
@@ -23,3 +25,5 @@ void StartAssetHotReload(const char *directory, bool recursive);
 void ProcessHotreloadQueue();
 void HotReloadInitQueue();
 END_DECLARATIONS
+
+#endif

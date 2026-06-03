@@ -137,7 +137,9 @@ static HOT void RunUpdates(float64 frame_dt)
         g_app.info.dt = update_target;
 
         PROFILE_ZONE_START(poll_events_zone, "PollEvents");
+#if HOT_RELOAD_ENABLE
         ProcessHotreloadQueue();
+#endif
         PollEvents();
         SoundUpdate();
         PROFILE_ZONE_END(poll_events_zone);
