@@ -5,7 +5,7 @@
 int main()
 {
     AppInfo app;
-    CLEAR(app);
+    CLEAR(app, 0);
     app.name = "GrnGame editor";
     app.version = "1.0.0";
     app.fps = 40.0;
