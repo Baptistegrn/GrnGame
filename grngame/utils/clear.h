@@ -1,6 +1,6 @@
 #pragma once
 
-#define CLEAR(x) memset(&(x), 0, sizeof(x))
-#define CLEAR_PTR(x) memset((x), 0, sizeof(*(x)))
+#define CLEAR(x, y) memset(&(x), y, sizeof(x))
+#define CLEAR_PTR(x, y) memset((x), y, sizeof(*(x)))
 
 void ClearAll();

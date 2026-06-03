@@ -6,7 +6,7 @@
 #include "grngame/platform/paths.h"
 #include "grngame/renderer/renderer.h"
 #include "grngame/utils/attributes.h"
-
+#include "grngame/utils/clear.h"
 EmbeddedAsset *GetEmbeddedAsset(const char *name)
 {
     khint_t k = kh_get(EmbeddedAssetHash, &g_app.embedded_assets_hash, name);
@@ -39,6 +39,9 @@ static SDL_Surface *LoadTextureSurface(const char *file)
 
 static void ApplyPaletteRemap(SDL_Surface *surface)
 {
+    int16 hashmap[64];
+    CLEAR(hashmap, -1);
+
     for (int y = 0; y < surface->h; ++y)
     {
         SDL_Color *row = (SDL_Color *)((uint8 *)surface->pixels + y * surface->pitch);
@@ -50,9 +53,16 @@ static void ApplyPaletteRemap(SDL_Surface *surface)
             if (pixel->a == 0)
                 continue;
 
-            ColorLAB lab = RgbToLab(pixel);
+            uint32 key = (pixel->r * pixel->g * pixel->b) & 63;
 
-            int32 best_idx = FindBestPaletteColorCIEDE2000(&lab);
+            int32 best_idx = hashmap[key];
+
+            if (best_idx == -1)
+            {
+                ColorLAB lab = RgbToLab(pixel);
+                best_idx = FindBestPaletteColorCIEDE2000(&lab);
+                hashmap[key] = (int16)best_idx;
+            }
 
             if (best_idx >= 0 && best_idx < (int32)kv_size(g_app.info.palette_elements))
             {

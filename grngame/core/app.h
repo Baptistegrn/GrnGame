@@ -22,11 +22,6 @@ KHASH_MAP_INIT_STR(EmbeddedAssetHash, EmbeddedAsset);
 #define HOT_RELOAD_ENABLE 0
 #endif
 
-typedef struct
-{
-    double srgb_linear_lut[256];
-} Cache;
-
 typedef struct AppInfo
 {
     const EmbeddedAsset *embedded_assets_data;
@@ -78,8 +73,6 @@ typedef struct
     khash_t(EmbeddedAssetHash) embedded_assets_hash;
     int embedded_assets_count;
     int embedded_count;
-
-    Cache cache;
 
 #if HOT_RELOAD_ENABLE
     kvec_t(HotreloadQueueElement) queue;

@@ -16,8 +16,8 @@ int main()
     app.fps = 60;
     app.window_width = 640;
     app.window_height = 360;
-    app.window_universe_height = 180;
-    app.window_universe_width = 320;
+    app.window_universe_height = 200;
+    app.window_universe_width = 200;
     app.asset_folder = "assets"; // need to load at the origin for embedding use "assets" for not embedding option
     app.render_clear = 1;
 #ifndef GRN_EMBED_ASSETS_MISSING
@@ -30,7 +30,7 @@ int main()
     app.window_maximised = false;
     app.enable_logs = true;
     app.log_destination = LOG_TO_CONSOLE;
-    app.force_universe_scale = false;
+    app.force_universe_scale = true;
     EngineStart(&app);
 
     return 0;

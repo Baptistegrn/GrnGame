@@ -33,12 +33,12 @@ static void ResetInputManagerKeys()
     im->mouse.right_just_released = false;
     im->mouse.scroll_x = 0;
     im->mouse.scroll_y = 0;
-    CLEAR(im->key_just_pressed);
-    CLEAR(im->key_just_released);
+    CLEAR(im->key_just_pressed, 0);
+    CLEAR(im->key_just_released, 0);
     for (int i = 0; i < MAX_CONTROLLERS; i++)
     {
-        CLEAR(im->controllers[i].just_pressed);
-        CLEAR(im->controllers[i].just_released);
+        CLEAR(im->controllers[i].just_pressed, 0);
+        CLEAR(im->controllers[i].just_released, 0);
     }
 }
 

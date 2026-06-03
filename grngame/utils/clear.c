@@ -3,6 +3,5 @@
 
 void ClearAll()
 {
-    CLEAR(g_app.info.window_change);
-
+    CLEAR(g_app.info.window_change, 0);
 }

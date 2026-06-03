@@ -14,7 +14,6 @@
 #include <string>
 
 // note : we use mutex and queue because somes functions of sdl dosn't work on another thread
-
 static std::unique_ptr<efsw::FileWatcher> g_fileWatcher;
 static SDL_Mutex *g_queueMutex = nullptr;
 

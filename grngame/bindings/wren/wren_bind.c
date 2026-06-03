@@ -146,7 +146,7 @@ static void WrenInit()
 bool InitializeWrenScript(void)
 {
     g_app.wren = malloc(sizeof(WrenManager));
-    CLEAR_PTR(g_app.wren);
+    CLEAR_PTR(g_app.wren, 0);
 
     RegisterWrenModules();
     WrenInit();
@@ -183,7 +183,7 @@ bool ReloadWrenScript(void)
     }
 
     g_app.wren = malloc(sizeof(WrenManager));
-    CLEAR_PTR(g_app.wren);
+    CLEAR_PTR(g_app.wren, 0);
 
     bool success = InitializeWrenScript();
     LOG_INFO("Wren hot-reload completed successfully");
