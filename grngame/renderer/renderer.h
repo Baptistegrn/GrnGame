@@ -25,7 +25,4 @@ void RendererSetTextureAlpha(SDL_Texture *RESTRICT texture, uint8 a);
 bool OffScreen(float32 x, float32 y, float32 w, float32 h);
 void SetRenderColor(int index);
 
-int SetCorrectAlpha(int alpha);
-SDL_Color GetColorFromPalette(int c_idx, int a_idx);
-
 END_DECLARATIONS

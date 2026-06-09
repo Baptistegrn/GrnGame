@@ -45,4 +45,4 @@
 #define MODULE_WREN_NAME "Main"
 
 // path of the main entry of the script
-#define WREN_SCRIPT "test_game/scripts/main.wren"
+#define WREN_SCRIPT "scripts/main.wren"

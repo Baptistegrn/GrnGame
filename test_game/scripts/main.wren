@@ -7,19 +7,13 @@ import "std/wren/renderer/particule" for ParticleEmitter
 import "std/wren/renderer/primitive" for Primitive 
 
 class Main {
+  static on_start() {}
 
-  static on_start() {
-  }
-
-  static on_update(dt) {
-  }
+  static on_update(dt) {}
 
   static on_fixed_update(dt) {}
 
-  static on_render() {
-    Texture.draw("player", 0, 0)
-  }
+  static on_render() {Texture.draw("player", 0, 0,1,0,200)}
 
-  static on_destroy() {
-  }
+  static on_destroy() {}
 }

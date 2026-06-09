@@ -18,7 +18,7 @@ typedef struct Particle
     float32 size;
     float32 seed;
     int32 current_color_idx;
-    int32 current_alpha_idx;
+    uint8 current_alpha_idx;
 } Particle;
 
 typedef struct ParticleEmitter

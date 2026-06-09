@@ -10,7 +10,6 @@
 #include "khash.h"
 #include "kvec.h"
 
-
 static COLD void LoadFile(const char *file, void *user_data);
 static COLD void LoadEmbeddedFiles(void);
 

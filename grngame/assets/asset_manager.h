@@ -1,9 +1,13 @@
 #pragma once
 #include "../math/types.h"
 #include "SDL3/SDL_render.h"
+#include "SDL3/SDL_surface.h"
 #include "grngame/utils/attributes.h"
+#include "grngame/utils/c_cpp.h"
 #include <khash.h>
 #include <soloud_c.h>
+
+BEGIN_DECLARATIONS
 
 typedef struct
 {
@@ -15,6 +19,7 @@ typedef struct
 typedef struct
 {
     SDL_Texture *texture;
+    SDL_Surface *surface;
     uint16 w;
     uint16 h;
 } Texture;
@@ -33,3 +38,5 @@ typedef struct
 AssetManager AssetManagerCreate();
 COLD void CreateHashFromEmbeddedAssets(const struct AppInfo *app_info);
 void AssetManagerLoadFolder(const char *folder);
+
+END_DECLARATIONS

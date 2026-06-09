@@ -39,7 +39,7 @@ static SDL_Surface *LoadTextureSurface(const char *file)
 
 static void ApplyPaletteRemap(SDL_Surface *surface)
 {
-    int16 hashmap[64];
+    int16 hashmap[255];
     CLEAR(hashmap, -1);
 
     for (int y = 0; y < surface->h; ++y)
@@ -53,7 +53,7 @@ static void ApplyPaletteRemap(SDL_Surface *surface)
             if (pixel->a == 0)
                 continue;
 
-            uint32 key = (pixel->r * pixel->g * pixel->b) & 63;
+            uint32 key = (pixel->r * pixel->g * pixel->b) & 254;
 
             int32 best_idx = hashmap[key];
 
@@ -75,7 +75,7 @@ static void ApplyPaletteRemap(SDL_Surface *surface)
         }
     }
 }
-static bool RegisterTexture(char *key, SDL_Texture *texture, int16 width, int16 height)
+static bool RegisterTexture(char *key, SDL_Texture *texture, SDL_Surface *surface, int16 width, int16 height)
 {
     khash_t(TextureMap) *map = g_app.asset_manager.texture_map;
 
@@ -93,7 +93,7 @@ static bool RegisterTexture(char *key, SDL_Texture *texture, int16 width, int16 
         SDL_DestroyTexture(kh_value(map, k).texture);
     }
 
-    Texture tex = {.texture = texture, .w = width, .h = height};
+    Texture tex = {.texture = texture, .surface = surface, .w = width, .h = height};
 
     kh_value(map, k) = tex;
 
@@ -196,11 +196,13 @@ bool LoadTextureFile(const char *file)
 
     SDL_DestroySurface(surface);
 
-    if (!rgba)
+    if (UNLIKELY(!rgba))
     {
         free(key);
         return false;
     }
+
+    SDL_Surface *surface_copy = SDL_DuplicateSurface(rgba);
 
     ApplyPaletteRemap(rgba);
 
@@ -228,7 +230,7 @@ bool LoadTextureFile(const char *file)
 
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-    if (!RegisterTexture(key, texture, (int16)tex_w, (int16)tex_h))
+    if (!RegisterTexture(key, texture, surface_copy, (int16)tex_w, (int16)tex_h))
     {
         SDL_DestroyTexture(texture);
         free(key);
@@ -259,23 +261,129 @@ bool UnloadSoundFile(const char *file)
     return true;
 }
 
+bool ReloadTextureWithPalette(const char *file)
+{
+    khash_t(TextureMap) *map = g_app.asset_manager.texture_map;
+
+    char *key = FileStem(file);
+    khiter_t k = kh_get(TextureMap, map, key);
+    free(key);
+
+    if (k == kh_end(map))
+        return false;
+
+    Texture *tex = &kh_value(map, k);
+
+    if (!tex->surface)
+        return false;
+
+    SDL_Surface *rgba = SDL_ConvertSurface(tex->surface, SDL_PIXELFORMAT_RGBA32);
+
+    if (!rgba)
+        return false;
+
+    ApplyPaletteRemap(rgba);
+
+    SDL_Texture *new_texture = SDL_CreateTextureFromSurface(g_app.renderer.renderer, rgba);
+
+    SDL_DestroySurface(rgba);
+
+    if (!new_texture)
+        return false;
+
+    SDL_SetTextureScaleMode(new_texture, SDL_SCALEMODE_NEAREST);
+    SDL_SetTextureBlendMode(new_texture, SDL_BLENDMODE_BLEND);
+
+    SDL_DestroyTexture(tex->texture);
+    tex->texture = new_texture;
+
+    return true;
+}
+
 bool UnloadTextureFile(const char *file)
 {
     khash_t(TextureMap) *map = g_app.asset_manager.texture_map;
 
     char *key = FileStem(file);
-
     khiter_t k = kh_get(TextureMap, map, key);
-
     free(key);
 
     if (k == kh_end(map))
         return false;
 
     SDL_DestroyTexture(kh_value(map, k).texture);
+    SDL_DestroySurface(kh_value(map, k).surface);
     free((char *)kh_key(map, k));
 
     kh_del(TextureMap, map, k);
 
     return true;
+}
+
+bool UnloadAllTextureFiles(void)
+{
+    khash_t(TextureMap) *map = g_app.asset_manager.texture_map;
+
+    for (khiter_t k = kh_begin(map); k != kh_end(map); ++k)
+    {
+        if (!kh_exist(map, k))
+            continue;
+
+        SDL_DestroyTexture(kh_value(map, k).texture);
+        SDL_DestroySurface(kh_value(map, k).surface);
+        free((char *)kh_key(map, k));
+    }
+
+    kh_clear(TextureMap, map);
+
+    return true;
+}
+
+bool ReloadAllTexturesWithPalette(void)
+{
+    khash_t(TextureMap) *map = g_app.asset_manager.texture_map;
+
+    bool success = true;
+
+    for (khiter_t k = kh_begin(map); k != kh_end(map); ++k)
+    {
+        if (!kh_exist(map, k))
+            continue;
+
+        Texture *tex = &kh_value(map, k);
+
+        if (!tex->surface)
+        {
+            success = false;
+            continue;
+        }
+
+        SDL_Surface *rgba = SDL_ConvertSurface(tex->surface, SDL_PIXELFORMAT_RGBA32);
+
+        if (!rgba)
+        {
+            success = false;
+            continue;
+        }
+
+        ApplyPaletteRemap(rgba);
+
+        SDL_Texture *new_texture = SDL_CreateTextureFromSurface(g_app.renderer.renderer, rgba);
+
+        SDL_DestroySurface(rgba);
+
+        if (!new_texture)
+        {
+            success = false;
+            continue;
+        }
+
+        SDL_SetTextureScaleMode(new_texture, SDL_SCALEMODE_NEAREST);
+        SDL_SetTextureBlendMode(new_texture, SDL_BLENDMODE_BLEND);
+
+        SDL_DestroyTexture(tex->texture);
+        tex->texture = new_texture;
+    }
+
+    return success;
 }

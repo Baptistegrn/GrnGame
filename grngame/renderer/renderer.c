@@ -111,26 +111,3 @@ void SetRenderColor(int index)
 {
     g_app.info.render_clear = index;
 }
-
-int SetCorrectAlpha(int alpha)
-{
-    if (kv_size(g_app.info.palette_alpha) == 0)
-        return 255;
-
-    int closest = kv_A(g_app.info.palette_alpha, 0);
-    int best_diff = SDL_abs(alpha - closest);
-
-    for (size_t i = 1; i < kv_size(g_app.info.palette_alpha); i++)
-    {
-        int current = kv_A(g_app.info.palette_alpha, i);
-        int diff = SDL_abs(alpha - current);
-
-        if (diff < best_diff)
-        {
-            best_diff = diff;
-            closest = current;
-        }
-    }
-
-    return closest;
-}

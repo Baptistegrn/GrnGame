@@ -57,7 +57,6 @@ typedef struct AppInfo
 
     kvec_t(SDL_Color) palette_elements;
     kvec_t(ColorLAB) palette_elements_lab;
-    kvec_t(int) palette_alpha;
 
 } AppInfo;
 

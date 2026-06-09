@@ -1,5 +1,6 @@
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/bindings/wren/wren_callback.h"
+#include "grngame/math/types.h"
 #include "grngame/renderer/particule.h"
 #include "grngame/renderer/primitive.h"
 #include "grngame/renderer/sprite.h"
@@ -17,8 +18,8 @@ static void texture_draw_inner(WrenVM *vm)
     double y = wrenGetSlotDouble(vm, 3);
     uint8_t scale = (uint8_t)wrenGetSlotDouble(vm, 4);
     int16_t rot = (int16_t)wrenGetSlotDouble(vm, 5);
-    int alpha_idx = (int)wrenGetSlotDouble(vm, 6);
-    wrenSetSlotBool(vm, 0, TextureDraw(name, (float)x, (float)y, scale, rot, alpha_idx));
+    uint8 a = (uint8)wrenGetSlotDouble(vm, 6);
+    wrenSetSlotBool(vm, 0, TextureDraw(name, (float)x, (float)y, scale, rot, a));
 }
 
 static void texture_width(WrenVM *vm)
@@ -114,8 +115,8 @@ static void sprite_draw_inner(WrenVM *vm)
     double y = wrenGetSlotDouble(vm, 3);
     uint8_t scale = (uint8_t)wrenGetSlotDouble(vm, 4);
     int16_t rot = (int16_t)wrenGetSlotDouble(vm, 5);
-    int alpha_idx = (int)wrenGetSlotDouble(vm, 6);
-    wrenSetSlotBool(vm, 0, SpriteDraw(s->sprite, frame, (float)x, (float)y, scale, rot, alpha_idx));
+    uint8 a = (uint8)wrenGetSlotDouble(vm, 6);
+    wrenSetSlotBool(vm, 0, SpriteDraw(s->sprite, frame, (float)x, (float)y, scale, rot, a));
 }
 
 HOT static void emitter_allocate(WrenVM *vm)
@@ -411,7 +412,7 @@ static void emitter_get_alpha_start(WrenVM *vm)
 static void emitter_set_alpha_start(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    e->alpha_start = (int32)wrenGetSlotDouble(vm, 1);
+    e->alpha_start = (uint8)wrenGetSlotDouble(vm, 1);
 }
 
 static void emitter_get_color_end(WrenVM *vm)
@@ -435,7 +436,7 @@ static void emitter_get_alpha_end(WrenVM *vm)
 static void emitter_set_alpha_end(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    e->alpha_end = (int32)wrenGetSlotDouble(vm, 1);
+    e->alpha_end = (uint8)wrenGetSlotDouble(vm, 1);
 }
 
 static void emitter_get_spawn_radius(WrenVM *vm)
@@ -479,8 +480,8 @@ static void primitive_pixel(WrenVM *vm)
     double x = wrenGetSlotDouble(vm, 1);
     double y = wrenGetSlotDouble(vm, 2);
     int c_idx = (int)wrenGetSlotDouble(vm, 3);
-    int a_idx = (int)wrenGetSlotDouble(vm, 4);
-    PixelDraw((float)x, (float)y, c_idx, a_idx);
+    uint8 a = (uint8)wrenGetSlotDouble(vm, 4);
+    PixelDraw((float)x, (float)y, c_idx, a);
 }
 
 static void primitive_line(WrenVM *vm)
@@ -490,8 +491,8 @@ static void primitive_line(WrenVM *vm)
     double x1 = wrenGetSlotDouble(vm, 3);
     double y1 = wrenGetSlotDouble(vm, 4);
     int c_idx = (int)wrenGetSlotDouble(vm, 5);
-    int a_idx = (int)wrenGetSlotDouble(vm, 6);
-    LineDraw((float)x0, (float)y0, (float)x1, (float)y1, c_idx, a_idx);
+    uint8 a = (uint8)wrenGetSlotDouble(vm, 6);
+    LineDraw((float)x0, (float)y0, (float)x1, (float)y1, c_idx, a);
 }
 
 static void primitive_rect(WrenVM *vm)
@@ -501,8 +502,8 @@ static void primitive_rect(WrenVM *vm)
     double w = wrenGetSlotDouble(vm, 3);
     double h = wrenGetSlotDouble(vm, 4);
     int c_idx = (int)wrenGetSlotDouble(vm, 5);
-    int a_idx = (int)wrenGetSlotDouble(vm, 6);
-    RectDraw((float)x, (float)y, (float)w, (float)h, c_idx, a_idx);
+    uint8 a = (uint8)wrenGetSlotDouble(vm, 6);
+    RectDraw((float)x, (float)y, (float)w, (float)h, c_idx, a);
 }
 
 static void primitive_rect_fill(WrenVM *vm)
@@ -512,8 +513,8 @@ static void primitive_rect_fill(WrenVM *vm)
     double w = wrenGetSlotDouble(vm, 3);
     double h = wrenGetSlotDouble(vm, 4);
     int c_idx = (int)wrenGetSlotDouble(vm, 5);
-    int a_idx = (int)wrenGetSlotDouble(vm, 6);
-    RectDrawFill((float)x, (float)y, (float)w, (float)h, c_idx, a_idx);
+    uint8 a = (uint8)wrenGetSlotDouble(vm, 6);
+    RectDrawFill((float)x, (float)y, (float)w, (float)h, c_idx, a);
 }
 
 static void primitive_circle(WrenVM *vm)
@@ -522,8 +523,8 @@ static void primitive_circle(WrenVM *vm)
     double y = wrenGetSlotDouble(vm, 2);
     double radius = wrenGetSlotDouble(vm, 3);
     int c_idx = (int)wrenGetSlotDouble(vm, 4);
-    int a_idx = (int)wrenGetSlotDouble(vm, 5);
-    CircleDraw((float)x, (float)y, (float)radius, c_idx, a_idx);
+    uint8 a = (uint8)wrenGetSlotDouble(vm, 5);
+    CircleDraw((float)x, (float)y, (float)radius, c_idx, a);
 }
 
 static void primitive_circle_fill(WrenVM *vm)
@@ -532,8 +533,8 @@ static void primitive_circle_fill(WrenVM *vm)
     double y = wrenGetSlotDouble(vm, 2);
     double radius = wrenGetSlotDouble(vm, 3);
     int c_idx = (int)wrenGetSlotDouble(vm, 4);
-    int a_idx = (int)wrenGetSlotDouble(vm, 5);
-    CircleDrawFill((float)x, (float)y, (float)radius, c_idx, a_idx);
+    uint8 a = (uint8)wrenGetSlotDouble(vm, 5);
+    CircleDrawFill((float)x, (float)y, (float)radius, c_idx, a);
 }
 
 void RegisterRendererModule()

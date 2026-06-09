@@ -18,6 +18,33 @@
 static std::unique_ptr<efsw::FileWatcher> g_fileWatcher;
 static SDL_Mutex *g_queueMutex = nullptr;
 
+static void ReloadPalettesAndTextures(void)
+{
+    Uint64 freq = SDL_GetPerformanceFrequency();
+
+    Uint64 t0 = SDL_GetPerformanceCounter();
+    RemoveAllPalettes();
+    Uint64 t1 = SDL_GetPerformanceCounter();
+
+    InitPalettesArrays();
+    Uint64 t2 = SDL_GetPerformanceCounter();
+
+    LoadAllPalettes();
+    Uint64 t3 = SDL_GetPerformanceCounter();
+
+    ReloadAllTexturesWithPalette();
+    Uint64 t4 = SDL_GetPerformanceCounter();
+
+#define MS(a, b) ((double)((b) - (a)) * 1000.0 / (double)freq)
+
+    LOG_INFO("RemoveAllPalettes       : %.3f ms", MS(t0, t1));
+    LOG_INFO("InitPalettesArrays      : %.3f ms", MS(t1, t2));
+    LOG_INFO("LoadAllPalettes         : %.3f ms", MS(t2, t3));
+    LOG_INFO("ReloadAllTextures       : %.3f ms", MS(t3, t4));
+    LOG_INFO("TOTAL                   : %.3f ms", MS(t0, t4));
+
+#undef MS
+}
 class UpdateListener : public efsw::FileWatchListener
 {
   public:
@@ -174,6 +201,16 @@ void ProcessHotreloadQueue(void)
                 LOG_INFO("Detected modified script '%s'", cpath);
                 if (!ReloadWrenScript())
                     LOG_WARNING("Failed to reload script '%s'", cpath);
+            }
+
+            if (std::filesystem::path(cpath).lexically_normal() ==
+                std::filesystem::path(PALETTE_COLOR_FILE).lexically_normal())
+            {
+                LOG_INFO("Palette file modified '%s'", cpath);
+
+                ReloadPalettesAndTextures();
+
+                continue;
             }
 
             if (FileIsLoadableAudio(cpath))

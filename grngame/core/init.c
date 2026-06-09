@@ -130,7 +130,7 @@ static void LoadControllerMappings(const AppInfo *app_info)
 
 static void HandleWrenFailure(void)
 {
-    SetRenderColor(FindClosestPaletteColorIndex(255, 0, 0));
+    SetRenderColor(2);
     SetTaskBarIconErrorProgress(100.0);
 }
 
