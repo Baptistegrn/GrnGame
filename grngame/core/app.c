@@ -75,20 +75,16 @@ void EngineStart(const AppInfo *app_info)
     InitializeManagers();
     CreateHashFromEmbeddedAssets(app_info);
 
-#ifdef WASM
-    WebInstallAudioUnlock();
-#endif
-
     SoundInit();
 
-    InitializeAssetsAndScripts(app_info);
+    InitializeAssets(app_info);
+    InitializeScripts();
 
 #if HOT_RELOAD_ENABLE
     StartAssetHotReload(".", true);
 #endif
 
     MainLoop();
-
     ShutdownScripts();
 }
 

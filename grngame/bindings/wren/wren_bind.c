@@ -53,6 +53,7 @@ static void WrenStartVM()
 
 static bool WrenInterpret(const char *filename)
 {
+    char *module_name = FileStem(filename);
     if (g_app.info.embedded_assets_data)
     {
         EmbeddedAsset *asset = GetEmbeddedAsset(filename);
@@ -80,7 +81,7 @@ static bool WrenInterpret(const char *filename)
             source += 3;
         }
 
-        WrenInterpretResult result = wrenInterpret(g_app.wren->vm, MODULE_WREN_NAME, source);
+        WrenInterpretResult result = wrenInterpret(g_app.wren->vm, module_name, source);
         free(buf);
 
         if (result != WREN_RESULT_SUCCESS)
@@ -106,7 +107,7 @@ static bool WrenInterpret(const char *filename)
             return false;
         }
 
-        WrenInterpretResult result = wrenInterpret(g_app.wren->vm, MODULE_WREN_NAME, file_content);
+        WrenInterpretResult result = wrenInterpret(g_app.wren->vm, module_name, file_content);
         free(file_content);
 
         if (result != WREN_RESULT_SUCCESS)
@@ -143,7 +144,7 @@ static void WrenInit()
     WrenStartVM();
 }
 
-bool InitializeWrenScript(void)
+bool WrenEarlyInit(void)
 {
     g_app.wren = malloc(sizeof(WrenManager));
     CLEAR_PTR(g_app.wren, 0);
@@ -151,13 +152,30 @@ bool InitializeWrenScript(void)
     RegisterWrenModules();
     WrenInit();
 
-    if (!WrenInterpret(WREN_SCRIPT))
+    if (!WrenInterpret("scripts/config.wren"))
     {
-        LOG_ERROR("Failed to load and interpret Wren script");
+        LOG_ERROR("Failed to interpret config.wren");
         return false;
     }
 
-    if (!WrenLoadMainHandles(MODULE_WREN_NAME))
+    return true;
+}
+
+bool WrenLateInit(void)
+{
+    if (!g_app.wren || !g_app.wren->vm)
+    {
+        LOG_ERROR("WrenLateInit called but VM not initialized");
+        return false;
+    }
+
+    if (!WrenInterpret("scripts/main.wren"))
+    {
+        LOG_ERROR("Failed to interpret main.wren");
+        return false;
+    }
+
+    if (!WrenLoadMainHandles("main"))
     {
         LOG_ERROR("Failed to load Wren handles from 'main' module");
         return false;
@@ -185,7 +203,7 @@ bool ReloadWrenScript(void)
     g_app.wren = malloc(sizeof(WrenManager));
     CLEAR_PTR(g_app.wren, 0);
 
-    bool success = InitializeWrenScript();
+    bool success = WrenEarlyInit();
     LOG_INFO("Wren hot-reload completed successfully");
     return success;
 }

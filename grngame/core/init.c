@@ -195,7 +195,7 @@ COLD void InitializeManagers(void)
         exit(5);
 }
 
-COLD void InitializeAssetsAndScripts(const AppInfo *app_info)
+COLD void InitializeAssets(const AppInfo *app_info)
 {
 #ifndef WASM
     LoadControllerMappings(app_info);
@@ -205,17 +205,17 @@ COLD void InitializeAssetsAndScripts(const AppInfo *app_info)
     LoadAllPalettes();
 
     char *asset_path = PathFromExecutableDirectory(app_info->asset_folder);
-
     AssetManagerLoadFolder(asset_path);
-
     free(asset_path);
+}
 
-    if (!InitializeWrenScript())
+COLD void InitializeScripts(void)
+{
+    if (!WrenLateInit())
     {
         HandleWrenFailure();
         return;
     }
 
-    LOG_INFO("Wren runtime initialized successfully "
-             "with script 'main.wren'");
+    LOG_INFO("Wren runtime initialized successfully with script 'main.wren'");
 }

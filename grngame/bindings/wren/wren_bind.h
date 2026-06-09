@@ -19,6 +19,7 @@ typedef struct
 
 bool ReloadWrenScript(void);
 
-bool InitializeWrenScript(void);
+bool WrenEarlyInit(void);
+bool WrenLateInit(void);
 
 END_DECLARATIONS

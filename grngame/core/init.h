@@ -17,5 +17,6 @@ typedef enum
 InitResult InitAll(const AppInfo *app_info);
 void InitializeAppState(const AppInfo *app_info);
 void InitializeManagers();
-void InitializeAssetsAndScripts(const AppInfo *app_info);
+void InitializeAssets(const AppInfo *app_info);
+void InitializeScripts(void);
 void CreateHashFromEmbeddedAssets(const AppInfo *app_info);
