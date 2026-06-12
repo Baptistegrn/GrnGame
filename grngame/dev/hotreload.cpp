@@ -1,4 +1,4 @@
-#ifndef WASM
+#if HOT_RELOAD_ENABLE
 #include "grngame/dev/hotreload.h"
 #include "grngame/assets/load.h"
 #include "grngame/bindings/wren/wren_bind.h"
@@ -20,30 +20,10 @@ static SDL_Mutex *g_queueMutex = nullptr;
 
 static void ReloadPalettesAndTextures(void)
 {
-    Uint64 freq = SDL_GetPerformanceFrequency();
-
-    Uint64 t0 = SDL_GetPerformanceCounter();
     RemoveAllPalettes();
-    Uint64 t1 = SDL_GetPerformanceCounter();
-
     InitPalettesArrays();
-    Uint64 t2 = SDL_GetPerformanceCounter();
-
     LoadAllPalettes();
-    Uint64 t3 = SDL_GetPerformanceCounter();
-
     ReloadAllTexturesWithPalette();
-    Uint64 t4 = SDL_GetPerformanceCounter();
-
-#define MS(a, b) ((double)((b) - (a)) * 1000.0 / (double)freq)
-
-    LOG_INFO("RemoveAllPalettes       : %.3f ms", MS(t0, t1));
-    LOG_INFO("InitPalettesArrays      : %.3f ms", MS(t1, t2));
-    LOG_INFO("LoadAllPalettes         : %.3f ms", MS(t2, t3));
-    LOG_INFO("ReloadAllTextures       : %.3f ms", MS(t3, t4));
-    LOG_INFO("TOTAL                   : %.3f ms", MS(t0, t4));
-
-#undef MS
 }
 class UpdateListener : public efsw::FileWatchListener
 {

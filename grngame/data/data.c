@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 static sqlite3_stmt *DbPrepareInternal(sqlite3 *db, const char *sql)
 {
     sqlite3_stmt *stmt = NULL;
@@ -32,6 +31,9 @@ static void DbBindArgs(sqlite3_stmt *stmt, DbArg *args, int argc)
             break;
         case TEXT:
             sqlite3_bind_text(stmt, i + 1, args[i].value.s, -1, SQLITE_TRANSIENT);
+            break;
+        case DATA:
+            sqlite3_bind_blob(stmt, i + 1, args[i].value.blob.data, args[i].value.blob.size, SQLITE_TRANSIENT);
             break;
         default:
             sqlite3_bind_null(stmt, i + 1);

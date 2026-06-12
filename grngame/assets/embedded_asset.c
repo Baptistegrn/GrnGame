@@ -7,22 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define REGISTRY_MAX 200000
-#define VAR_NAME_MAX 2048
-
-static char g_hex_table[256][5];
-static int g_hex_initialized = 0;
-
-static void InitHexTable(void)
-{
-    if (g_hex_initialized)
-        return;
-
-    for (int i = 0; i < 256; ++i)
-        snprintf(g_hex_table[i], sizeof(g_hex_table[i]), "0x%02X", i);
-
-    g_hex_initialized = 1;
-}
+#include "grngame/data/data.h"
 
 static int IsEmbeddableFile(const char *path)
 {
@@ -30,26 +15,7 @@ static int IsEmbeddableFile(const char *path)
            FileIsLoadableText(path);
 }
 
-static void MakeVariableName(char *dst, uint64 dst_size, const char *path)
-{
-    snprintf(dst, dst_size, "embedded_%s", path);
-
-    for (char *c = dst; *c; ++c)
-    {
-        switch (*c)
-        {
-        case '.':
-        case '-':
-        case ' ':
-        case '/':
-        case '\\':
-            *c = '_';
-            break;
-        }
-    }
-}
-
-static unsigned char *LoadFile(const char *path, long *out_size)
+static unsigned char *LoadFileBinary(const char *path, long *out_size)
 {
     FILE *file = fopen(path, "rb");
     if (!file)
@@ -79,109 +45,71 @@ static unsigned char *LoadFile(const char *path, long *out_size)
     return data;
 }
 
-static void WriteEmbeddedArray(FILE *out, const unsigned char *data, long size, const char *var_name)
-{
-    fprintf(out, "static const unsigned char %s[] = {\n", var_name);
-
-    for (long i = 0; i < size; ++i)
-    {
-        if ((i % 16) == 0)
-            fprintf(out, "    ");
-
-        fprintf(out, "%s", g_hex_table[data[i]]);
-
-        if (i < size - 1)
-            fprintf(out, ", ");
-
-        if ((i % 16) == 15)
-            fprintf(out, "\n");
-    }
-
-    fprintf(out, "\n};\n");
-    fprintf(out, "#define %s_size %ld\n\n", var_name, size);
-}
-
-static void SerializeFile(FILE *out, const char *path, const char *var_name)
-{
-    long size = 0;
-    unsigned char *data = LoadFile(path, &size);
-
-    if (!data)
-    {
-        fprintf(out, "static const unsigned char %s[] = {\n", var_name);
-        fprintf(out, "0\n};\n");
-        fprintf(out, "#define %s_size 0\n\n", var_name);
-        return;
-    }
-
-    WriteEmbeddedArray(out, data, size, var_name);
-
-    free(data);
-}
-
-static void AppendRegistryEntry(EmbedContext *ctx, const char *path, const char *var_name)
-{
-    char entry[VAR_NAME_MAX];
-
-    snprintf(entry, sizeof(entry), "    {\"%s\", %s, %s_size},\n", path, var_name, var_name);
-
-    uint64 len = strlen(entry);
-
-    if (ctx->registry_len + len + 1 >= REGISTRY_MAX)
-        return;
-
-    memcpy(ctx->registry + ctx->registry_len, entry, len);
-
-    ctx->registry_len += len;
-    ctx->registry[ctx->registry_len] = '\0';
-}
-
 static void EmbedCallback(const char *path, void *userdata)
 {
-    EmbedContext *ctx = userdata;
+    DataEmbeddedBd *info = (DataEmbeddedBd *)userdata;
+    sqlite3 *db = info->db;
 
     if (!IsEmbeddableFile(path))
         return;
+    if (FileIsLoadableAudio(path) || FileIsLoadableImage(path))
+    {
+        info->asset_count++;
+    }
+    info->file_count++;
+    unsigned char *data;
+    long size;
+    data = LoadFileBinary(path, &size);
+    if (!data)
+    {
+        fprintf(stderr, "[EmbeddedAsset] Failed to load file: %s\n", path);
+        return;
+    }
 
-    char var_name[VAR_NAME_MAX];
-
-    MakeVariableName(var_name, sizeof(var_name), path);
-
-    SerializeFile(ctx->out, path, var_name);
-
-    fprintf(ctx->out, "// asset: %s = %s\n\n", path, var_name);
-
-    AppendRegistryEntry(ctx, path, var_name);
+    DbStmt stmt = DbStmtPrepare(db, "INSERT INTO embedded_assets (path, data) VALUES (?, ?);");
+    DbArg args[3];
+    args[0].type = TEXT;
+    args[0].value.s = path;
+    args[1].type = DATA;
+    args[1].value.blob.data = data;
+    args[1].value.blob.size = size;
+    DbStmtRun(&stmt, args, 2);
+    DbStmtFree(&stmt);
+    free(data);
 }
 
 void create_embedded_structure(int num_dirs, const char **dirs, const char *output_header)
 {
-    InitHexTable();
-
-    FILE *out = fopen(output_header, "w");
-
-    if (!out)
+    if (DbExists(output_header))
     {
-        fprintf(stderr, "[EmbeddedAsset] Failed to open output header: %s\n", output_header);
-        return;
+        remove(output_header);
     }
 
-    fprintf(out, "#pragma once\n\n");
-    fprintf(out, "#include \"grngame/assets/asset_manager.h\"\n\n");
+    sqlite3 *db = DbCreate(output_header);
+    if (!db)
+    {
+        fprintf(stderr, "[EmbeddedAsset] Failed to create database: %s\n", output_header);
+        return;
+    }
+    DataEmbeddedBd info = {db, 0, 0};
 
-    char registry[REGISTRY_MAX] = {0};
+    DataWrite(db, "CREATE TABLE IF NOT EXISTS embedded_assets (path TEXT PRIMARY KEY, data BLOB);");
+    DataWrite(db, "CREATE TABLE IF NOT EXISTS embedded_assets_info (key TEXT PRIMARY KEY, value INTEGER);");
 
-    EmbedContext ctx = {.out = out, .registry = registry, .registry_len = 0};
-
+    DbBegin(db);
     for (int i = 0; i < num_dirs; ++i)
-        DirWalk(dirs[i], EmbedCallback, &ctx);
+        DirWalk(dirs[i], EmbedCallback, &info);
 
-    fprintf(out, "static const EmbeddedAsset g_embedded_assets[] = {\n");
+    char sql_buffer[256];
 
-    fprintf(out, "%s", registry);
+    snprintf(sql_buffer, sizeof(sql_buffer),
+             "INSERT INTO embedded_assets_info (key, value) VALUES ('file_count', %lld);", info.file_count);
+    DataWrite(db, sql_buffer);
 
-    fprintf(out, "    {0, 0, 0}\n"
-                 "};\n\n");
+    snprintf(sql_buffer, sizeof(sql_buffer),
+             "INSERT INTO embedded_assets_info (key, value) VALUES ('asset_count', %lld);", info.asset_count);
+    DataWrite(db, sql_buffer);
 
-    fclose(out);
+    DbCommit(db);
+    DbClose(db);
 }

@@ -2,6 +2,7 @@
 #include "SDL3/SDL_error.h"
 #include "grngame/assets/load.h"
 #include "grngame/core/app.h"
+#include "grngame/data/data.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/directories.h"
 #include "grngame/platform/paths.h"
@@ -11,7 +12,7 @@
 #include "kvec.h"
 
 static COLD void LoadFile(const char *file, void *user_data);
-static COLD void LoadEmbeddedFiles(void);
+static COLD void LoadEmbeddedFiles();
 
 COLD AssetManager AssetManagerCreate()
 {
@@ -21,7 +22,7 @@ COLD AssetManager AssetManagerCreate()
 COLD void AssetManagerLoadFolder(const char *folder)
 {
 
-    if (g_app.info.embedded_assets_data)
+    if (EMBEDDED_ASSETS_DATA_AVAILABLE)
     {
         if (UNLIKELY(g_app.embedded_assets_count == 0))
         {
@@ -71,27 +72,27 @@ static COLD void LoadFile(const char *file, void *user_data)
     }
 }
 
-static COLD bool LoadEmbeddedFile(const EmbeddedAsset *asset)
+static COLD bool LoadEmbeddedFile(const char *name)
 {
-    if (!asset)
+    if (!name)
         return false;
 
-    if (FileIsLoadableAudio(asset->name))
+    if (FileIsLoadableAudio(name))
     {
-        bool result = LoadSoundFile(asset->name);
+        bool result = LoadSoundFile(name);
         if (result)
-            LOG_DEBUG("Loaded asset file '%s' (embedded)", asset->name);
+            LOG_DEBUG("Loaded asset file '%s' (embedded)", name);
         else
-            LOG_WARNING("Failed to load asset file '%s' (embedded)", asset->name);
+            LOG_WARNING("Failed to load asset file '%s' (embedded)", name);
         return result;
     }
-    else if (FileIsLoadableImage(asset->name))
+    else if (FileIsLoadableImage(name))
     {
-        bool result = LoadTextureFile(asset->name);
+        bool result = LoadTextureFile(name);
         if (result)
-            LOG_DEBUG("Loaded asset file '%s' (embedded)", asset->name);
+            LOG_DEBUG("Loaded asset file '%s' (embedded)", name);
         else
-            LOG_WARNING("Failed to load asset file '%s' (embedded), SDL error: '%s'", asset->name, SDL_GetError());
+            LOG_WARNING("Failed to load asset file '%s' (embedded), SDL error: '%s'", name, SDL_GetError());
         return result;
     }
     return false;
@@ -99,55 +100,93 @@ static COLD bool LoadEmbeddedFile(const EmbeddedAsset *asset)
 
 static COLD void LoadEmbeddedFiles()
 {
-    for (int i = 0; g_app.info.embedded_assets_data[i].name != NULL; i++)
+    khash_t(EmbeddedAssetHash) *hash = &g_app.embedded_assets_hash;
+    for (khint_t k = kh_begin(hash); k != kh_end(hash); ++k)
     {
-        LoadEmbeddedFile(&g_app.info.embedded_assets_data[i]);
+        if (kh_exist(hash, k))
+        {
+            EmbeddedAsset asset = kh_value(hash, k);
+            LoadEmbeddedFile(asset.name);
+        }
     }
 }
+static COLD int32 EmbeddedFileCountAssets(sqlite3 *db)
+{
+    int32 count = 0;
+    DbResult res = DataFetch(db, "SELECT value FROM embedded_assets_info WHERE key = 'asset_count';");
 
-static COLD int32 EmbeddedFileCountAssets()
-{
-    int32 count = 0;
-    for (int i = 0; g_app.info.embedded_assets_data[i].name != NULL; i++)
+    if (kv_size(res.rows) > 0)
     {
-        const EmbeddedAsset *asset = &g_app.info.embedded_assets_data[i];
-        if (FileIsLoadableAudio(asset->name) || FileIsLoadableImage(asset->name))
-            count++;
+        DbRow row = kv_A(res.rows, 0);
+        if (kv_size(row.cols) > 0 && kv_A(row.cols, 0).type == INTEGER)
+        {
+            count = kv_A(row.cols, 0).value.i;
+        }
     }
-    return count;
-}
-static COLD int32 EmbeddedFileCount()
-{
-    int32 count = 0;
-    for (int i = 0; g_app.info.embedded_assets_data[i].name != NULL; i++)
-    {
-        const EmbeddedAsset *asset = &g_app.info.embedded_assets_data[i];
-        if (FileIsLoadableAudio(asset->name) || FileIsLoadableImage(asset->name) || FileIsLoadableScript(asset->name) ||
-            FileIsLoadableText(asset->name))
-            count++;
-    }
+
+    DbResultFree(&res);
     return count;
 }
 
-COLD void CreateHashFromEmbeddedAssets(const AppInfo *app_info)
+static COLD int32 EmbeddedFileCount(sqlite3 *db)
 {
-    if (!app_info->embedded_assets_data)
+    int32 count = 0;
+    DbResult res = DataFetch(db, "SELECT value FROM embedded_assets_info WHERE key = 'file_count';");
+
+    if (kv_size(res.rows) > 0)
+    {
+        DbRow row = kv_A(res.rows, 0);
+        if (kv_size(row.cols) > 0 && kv_A(row.cols, 0).type == INTEGER)
+        {
+            count = kv_A(row.cols, 0).value.i;
+        }
+    }
+
+    DbResultFree(&res);
+    return count;
+}
+
+COLD void CreateEmbeddedAssetsCache(sqlite3 *db)
+{
+    sqlite3_stmt *stmt = NULL;
+
+    g_app.embedded_assets_count = EmbeddedFileCountAssets(db);
+    g_app.embedded_count = EmbeddedFileCount(db);
+    if (sqlite3_prepare_v2(db, "SELECT path, data FROM embedded_assets;", -1, &stmt, NULL) != SQLITE_OK)
+    {
+        LOG_ERROR("Failed to init asset cache: %s", sqlite3_errmsg(db));
         return;
-    g_app.embedded_count = EmbeddedFileCount();
-    g_app.embedded_assets_count = EmbeddedFileCountAssets();
+    }
+
     khash_t(EmbeddedAssetHash) *hash = &g_app.embedded_assets_hash;
 
-    for (int i = 0; i < g_app.embedded_count; ++i)
+    while (sqlite3_step(stmt) == SQLITE_ROW)
     {
-        const EmbeddedAsset asset = app_info->embedded_assets_data[i];
-        char *key = strdup(asset.name);
+        const char *path = (const char *)sqlite3_column_text(stmt, 0);
+        int size = sqlite3_column_bytes(stmt, 1);
+        const void *blob = sqlite3_column_blob(stmt, 1);
+
+        EmbeddedAsset asset;
+        asset.name = strdup(path);
+        asset.size = size;
+        asset.data = malloc(size);
+
+        if (asset.data && blob)
+        {
+            memcpy((void *)asset.data, blob, size);
+        }
+
         int32 ret;
-        khiter_t k = kh_put(EmbeddedAssetHash, hash, key, &ret);
+        khiter_t k = kh_put(EmbeddedAssetHash, hash, asset.name, &ret);
+
         if (UNLIKELY(ret == 0))
         {
             free((char *)kh_key(hash, k));
-            kh_key(hash, k) = key;
+            kh_key(hash, k) = asset.name;
         }
+
         kh_value(hash, k) = asset;
     }
+
+    sqlite3_finalize(stmt);
 }

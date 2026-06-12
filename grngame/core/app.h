@@ -5,6 +5,7 @@
 #include "grngame/assets/asset_manager.h"
 #include "grngame/audio/sound_manager.h"
 #include "grngame/bindings/wren/wren_bind.h"
+#include "grngame/data/data.h"
 #include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
 #include "grngame/renderer/cielab.h"
@@ -15,16 +16,15 @@ BEGIN_DECLARATIONS
 
 KHASH_MAP_INIT_STR(EmbeddedAssetHash, EmbeddedAsset);
 
-#if !defined(WASM) && !defined(GRN_EMBED_ASSETS)
-
-#define HOT_RELOAD_ENABLE 1
+#if defined(GRN_EMBED_ASSETS)
+#define EMBEDDED_ASSETS_DATA_AVAILABLE 1
 #else
-#define HOT_RELOAD_ENABLE 0
+#define EMBEDDED_ASSETS_DATA_AVAILABLE 0
 #endif
 
 typedef struct AppInfo
 {
-    const EmbeddedAsset *embedded_assets_data;
+    sqlite3 *asset_db;
 
     const char *name;
     const char *version;
@@ -82,7 +82,7 @@ typedef struct
 
 } App;
 
-void EngineStart(const AppInfo *app);
+void EngineStart();
 void EngineStop();
 COLD void ShutdownScripts(void);
 extern App g_app;

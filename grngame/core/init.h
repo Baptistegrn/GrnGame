@@ -11,12 +11,8 @@ typedef enum
     INIT_OK,
     INIT_SDL_FAILED,
     INIT_LOG_FAILED,
+    INIT_SOUND_FAILED,
     INIT_ALREADY, // already initialized
 } InitResult;
 
-InitResult InitAll(const AppInfo *app_info);
-void InitializeAppState(const AppInfo *app_info);
-void InitializeManagers();
-void InitializeAssets(const AppInfo *app_info);
-void InitializeScripts(void);
-void CreateHashFromEmbeddedAssets(const AppInfo *app_info);
+InitResult InitAll();

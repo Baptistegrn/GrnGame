@@ -19,7 +19,7 @@ EmbeddedAsset *GetEmbeddedAsset(const char *name)
 
 static SDL_Surface *LoadTextureSurface(const char *file)
 {
-    if (g_app.info.embedded_assets_data)
+    if (EMBEDDED_ASSETS_DATA_AVAILABLE)
     {
         const EmbeddedAsset *asset = GetEmbeddedAsset(file);
 
@@ -107,7 +107,7 @@ static WavStream *LoadSoundStream(const char *file)
     if (!stream)
         return NULL;
 
-    if (g_app.info.embedded_assets_data)
+    if (EMBEDDED_ASSETS_DATA_AVAILABLE)
     {
         const EmbeddedAsset *asset = GetEmbeddedAsset(file);
 

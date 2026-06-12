@@ -138,7 +138,7 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
     char filename[MODULE_SIZE_MAX_NAME];
     snprintf(filename, sizeof(filename), "%s.wren", name);
 
-    if (g_app.info.embedded_assets_data)
+    if (EMBEDDED_ASSETS_DATA_AVAILABLE)
     {
         EmbeddedAsset *asset = GetEmbeddedAsset(filename);
 

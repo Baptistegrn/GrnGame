@@ -14,7 +14,7 @@ class Main {
 
   static on_fixed_update(dt) {}
 
-  static on_render() {Texture.draw("player", 0, 0,1,0,200)}
+  static on_render() {Texture.draw("player", 20, 0,1,0,200)}
 
   static on_destroy() {}
 }

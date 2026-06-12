@@ -63,26 +63,13 @@ COLD void ShutdownScripts(void)
     g_app.wren = NULL;
 }
 
-void EngineStart(const AppInfo *app_info)
+void EngineStart()
 {
     SetSeed();
     CheckAllTypes();
 
-    InitResult res = InitAll(app_info);
+    InitResult res = InitAll();
     EnsureInitSucceeded(res);
-
-    InitializeAppState(app_info);
-    InitializeManagers();
-    CreateHashFromEmbeddedAssets(app_info);
-
-    SoundInit();
-
-    InitializeAssets(app_info);
-    InitializeScripts();
-
-#if HOT_RELOAD_ENABLE
-    StartAssetHotReload(".", true);
-#endif
 
     MainLoop();
     ShutdownScripts();

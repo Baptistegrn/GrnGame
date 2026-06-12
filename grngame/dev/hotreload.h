@@ -1,5 +1,4 @@
-#ifndef WASM
-
+#if HOT_RELOAD_ENABLE
 #pragma once
 
 #include "grngame/utils/c_cpp.h"

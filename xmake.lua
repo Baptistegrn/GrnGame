@@ -32,11 +32,15 @@ if not is_plat("wasm") then
     add_requires("efsw",  {version = "1.6.2"},{configs = {shared = false}, system = false})
 else
     add_defines("WASM")
-    add_ldflags(
-        "--shell-file",
-        "grngame/web/shell.html",
-        {force = true}
-    )
+add_ldflags(
+    "--shell-file", "grngame/web/shell.html",
+
+    "-sFORCE_FILESYSTEM=1",
+    "-sASYNCIFY",
+    "-sALLOW_MEMORY_GROWTH=1",
+
+    {force = true}
+)
 end
 
 local asset_pipeline_python = is_host("windows") and "python" or "python3"
@@ -84,11 +88,20 @@ local function add_grngame_defines()
             set_policy("build.optimization.lto", true)
         end
     end
+    if has_config("embed_assets") then
+        add_defines("GRN_EMBED_ASSETS", {public = true})
+    end
 
     add_defines("CGLM_USE_ANONYMOUS_STRUCT=1", {public = true})
 
     if has_config("tracy") then
         add_defines("TRACY_ENABLE", {public = true})
+    end
+
+    if has_config("embed_assets") or is_plat("wasm") then
+        add_defines("HOT_RELOAD_ENABLE=0")
+    else
+        add_defines("HOT_RELOAD_ENABLE=1")
     end
 end
 
@@ -147,11 +160,6 @@ target("WrenTest")
 
     if not is_plat("wasm") then
         add_deps("Embedded")
-    end
-
-    if has_config("embed_assets") then
-        add_defines("GRN_EMBED_ASSETS")
-        add_includedirs("resources")
     end
 
     after_build(function(target)

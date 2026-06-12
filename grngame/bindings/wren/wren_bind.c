@@ -54,7 +54,7 @@ static void WrenStartVM()
 static bool WrenInterpret(const char *filename)
 {
     char *module_name = FileStem(filename);
-    if (g_app.info.embedded_assets_data)
+    if (EMBEDDED_ASSETS_DATA_AVAILABLE)
     {
         EmbeddedAsset *asset = GetEmbeddedAsset(filename);
         if (!asset)
@@ -200,10 +200,18 @@ bool ReloadWrenScript(void)
         ShutdownScripts();
     }
 
-    g_app.wren = malloc(sizeof(WrenManager));
-    CLEAR_PTR(g_app.wren, 0);
-
     bool success = WrenEarlyInit();
+    if (!success)
+    {
+        LOG_INFO("Impossible to reload Wren config failed");
+        return false;
+    }
+    success = WrenLateInit();
+    if (!success)
+    {
+        LOG_INFO("Impossible to reload Wren Scripts failed");
+        return false;
+    }
     LOG_INFO("Wren hot-reload completed successfully");
     return success;
 }

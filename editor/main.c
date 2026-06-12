@@ -20,7 +20,7 @@ int main()
     app.enable_logs = true;
     app.log_destination = LOG_TO_CONSOLE;
     app.force_universe_scale = false;
-    app.embedded_assets_data = NULL;
+    app.asset_db = NULL;
     EngineStart(&app);
     return 0;
 }

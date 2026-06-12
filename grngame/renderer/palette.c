@@ -15,7 +15,7 @@
 
 static char *FetchPaletteContent(const char *filename)
 {
-    if (g_app.info.embedded_assets_data)
+    if (EMBEDDED_ASSETS_DATA_AVAILABLE)
     {
         const EmbeddedAsset *asset = GetEmbeddedAsset(filename);
 
