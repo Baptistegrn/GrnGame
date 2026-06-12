@@ -29,4 +29,9 @@ void Log(LogSeverity log_severity, const char *format, ...);
 #define LOG_ERROR(fmt, ...) Log(LOG_SEVERITY_ERROR, fmt, ##__VA_ARGS__)
 #define LOG_CRITICAL(fmt, ...) Log(LOG_SEVERITY_CRITICAL, fmt, ##__VA_ARGS__)
 
+void LogSetEnabled(bool enabled);
+bool LogIsEnabled();
+bool LogSetDestination(LogDestination log_destination);
+void LogSetLevel(LogSeverity severity);
+
 END_DECLARATIONS

@@ -1,4 +1,5 @@
 #include "grngame/bindings/wren/wren_bind.h"
+#include "SDL3/SDL_error.h"
 #include "grngame/assets/load.h"
 #include "grngame/bindings/wren/controller_module.h"
 #include "grngame/bindings/wren/db_module.h"
@@ -10,8 +11,10 @@
 #include "grngame/bindings/wren/window_module.h"
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/bindings/wren/wren_callback.h"
+#include "grngame/bindings/wren/wren_get.h"
 #include "grngame/core/app.h"
 #include "grngame/core/param.h"
+#include "grngame/core/window.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
 #include "grngame/utils/clear.h"
@@ -190,7 +193,44 @@ bool WrenLateInit(void)
     return true;
 }
 
-bool ReloadWrenScript(void)
+// todo : update only app_info and update app_info at every frames if it change
+static void ApplyWrenReloadConfig()
+{
+    AppInfo *info = &g_app.info;
+
+    info->name = WrenGetString("config", "Config", "name");
+    info->version = WrenGetString("config", "Config", "version");
+
+    info->window_width = WrenGetInt("config", "Config", "windowWidth");
+    info->window_height = WrenGetInt("config", "Config", "windowHeight");
+
+    info->window_universe_width = WrenGetInt("config", "Config", "universeWidth");
+    info->window_universe_height = WrenGetInt("config", "Config", "universeHeight");
+
+    info->window_resizable = WrenGetBool("config", "Config", "resizable");
+    info->window_fullscreen = WrenGetBool("config", "Config", "fullscreen");
+    info->window_maximised = WrenGetBool("config", "Config", "maximised");
+    info->force_universe_scale = WrenGetBool("config", "Config", "forceUniverseScale");
+    info->render_clear = WrenGetInt("config", "Config", "renderClear");
+
+    info->enable_logs = WrenGetBool("config", "Config", "enableLogs");
+    info->log_destination = WrenGetInt("config", "Config", "logDestination");
+
+    LogSetEnabled(info->enable_logs);
+    LogSetDestination(info->log_destination);
+
+    SetAppMetadata(info->name, info->version, info->name);
+    SetResizable(g_app.window, info->window_resizable);
+
+    if (info->window_fullscreen)
+        WindowFullscreen(info);
+    else if (info->window_maximised)
+        WindowMaximized(info);
+    else
+        WindowSetSize(info, info->window_width, info->window_height);
+}
+
+bool ReloadWrenScript(const char *filename)
 {
     if (UNLIKELY(!g_app.wren))
         return false;
@@ -201,6 +241,11 @@ bool ReloadWrenScript(void)
     }
 
     bool success = WrenEarlyInit();
+    if (strstr(filename, "config.wren") != NULL)
+    {
+        ApplyWrenReloadConfig();
+    }
+
     if (!success)
     {
         LOG_INFO("Impossible to reload Wren config failed");

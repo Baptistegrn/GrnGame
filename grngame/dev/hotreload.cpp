@@ -115,7 +115,7 @@ void ProcessHotreloadQueue(void)
             if (FileIsLoadableScript(cpath))
             {
                 LOG_INFO("Detected new script '%s'", cpath);
-                if (!ReloadWrenScript())
+                if (!ReloadWrenScript(cpath))
                     LOG_WARNING("Failed to reload script '%s'", cpath);
             }
 
@@ -147,7 +147,7 @@ void ProcessHotreloadQueue(void)
             if (FileIsLoadableScript(cpath))
             {
                 LOG_INFO("Detected deleted script '%s'", cpath);
-                if (!ReloadWrenScript())
+                if (!ReloadWrenScript(cpath))
                     LOG_WARNING("Failed to reload script '%s'", cpath);
             }
 
@@ -179,7 +179,7 @@ void ProcessHotreloadQueue(void)
             if (FileIsLoadableScript(cpath))
             {
                 LOG_INFO("Detected modified script '%s'", cpath);
-                if (!ReloadWrenScript())
+                if (!ReloadWrenScript(cpath))
                     LOG_WARNING("Failed to reload script '%s'", cpath);
             }
 
@@ -247,7 +247,7 @@ void ProcessHotreloadQueue(void)
             if (FileIsLoadableScript(cpath))
             {
                 LOG_INFO("Detected moved script '%s'", cpath);
-                if (!ReloadWrenScript())
+                if (!ReloadWrenScript(cpath))
                     LOG_WARNING("Failed to reload script '%s'", cpath);
             }
 

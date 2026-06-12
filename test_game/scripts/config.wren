@@ -4,8 +4,8 @@ class Config {
     static fps                { 60 }
     static windowWidth        { 640 }
     static windowHeight       { 360 }
-    static universeWidth      { 320 }
-    static universeHeight     { 180 }
+    static universeWidth      { 300 }
+    static universeHeight     { 300 }
     static resizable          { true }
     static fullscreen         { false }
     static maximised          { false }

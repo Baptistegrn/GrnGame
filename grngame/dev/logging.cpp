@@ -2,8 +2,10 @@
 
 #include "logging.h"
 #include "grngame/dev/logging.h"
+
 #define QUILL_DISABLE_NON_PREFIXED_MACROS
 #include "grngame/utils/attributes.h"
+
 #include <quill/Backend.h>
 #include <quill/Frontend.h>
 #include <quill/LogMacros.h>
@@ -11,11 +13,44 @@
 #include <quill/sinks/ConsoleSink.h>
 #include <quill/sinks/FileSink.h>
 #include <quill/sinks/JsonSink.h>
+
+#include <cstdio>
 #include <stdarg.h>
+#include <vector>
+
+static quill::Logger *s_logger = nullptr;
+static LogDestination s_current_destination;
+static bool s_logs_enabled = true;
 
 static LogSeverity LogSeverityForBuildType();
 static quill::LogLevel LogSeverityToLogLevel(LogSeverity log_severity);
-static quill::Logger *s_logger = nullptr;
+
+extern "C"
+{
+    void LogSetEnabled(bool enabled)
+    {
+        s_logs_enabled = enabled;
+    }
+
+    bool LogIsEnabled()
+    {
+        return s_logs_enabled;
+    }
+
+    bool LogSetDestination(LogDestination log_destination)
+    {
+        if (s_current_destination == log_destination && s_logger)
+            return true;
+
+        return LogInit(log_destination);
+    }
+
+    void LogSetLevel(LogSeverity severity)
+    {
+        if (s_logger)
+            s_logger->set_log_level(LogSeverityToLogLevel(severity));
+    }
+}
 
 extern "C"
 {
@@ -23,28 +58,38 @@ extern "C"
     {
         quill::Backend::start();
 
+        s_current_destination = log_destination;
+        s_logger = nullptr;
+
         switch (log_destination)
         {
         case LOG_TO_CONSOLE: {
-            auto console_sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("sink_id_1");
+            auto console_sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("sink_console");
+
             s_logger = quill::Frontend::create_or_get_logger("grngame", std::move(console_sink));
             break;
         }
+
         case LOG_TO_FILE: {
             auto cfg = quill::FileSinkConfig();
             cfg.set_open_mode('w');
             cfg.set_filename_append_option(quill::FilenameAppendOption::StartDateTime);
+
             auto file_sink = quill::Frontend::create_or_get_sink<quill::FileSink>("grngame.log", std::move(cfg),
                                                                                   quill::FileEventNotifier());
+
             s_logger = quill::Frontend::create_or_get_logger("grngame", std::move(file_sink));
             break;
         }
+
         case LOG_TO_JSON: {
             auto cfg = quill::FileSinkConfig();
             cfg.set_open_mode('w');
             cfg.set_filename_append_option(quill::FilenameAppendOption::None);
+
             auto json_sink = quill::Frontend::create_or_get_sink<quill::JsonFileSink>("grngame.log", std::move(cfg),
                                                                                       quill::FileEventNotifier());
+
             s_logger = quill::Frontend::create_or_get_logger("grngame", std::move(json_sink));
             break;
         }
@@ -54,20 +99,29 @@ extern "C"
             return false;
 
         s_logger->set_log_level(LogSeverityToLogLevel(LogSeverityForBuildType()));
+
         return true;
     }
+}
 
+extern "C"
+{
     void Log(LogSeverity log_severity, const char *format, ...)
     {
+        if (!s_logs_enabled)
+            return;
+
         va_list args;
         va_start(args, format);
+
         int size = vsnprintf(nullptr, 0, format, args);
         va_end(args);
 
         if (size < 0)
             return;
 
-        auto buf = std::vector<char>(size + 1);
+        std::vector<char> buf(size + 1);
+
         va_start(args, format);
         vsnprintf(buf.data(), buf.size(), format, args);
         va_end(args);
@@ -116,7 +170,6 @@ static LogSeverity LogSeverityForBuildType()
 #ifdef WASM
 
 #include "logging.h"
-
 #include <emscripten/emscripten.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -133,7 +186,6 @@ void Log(LogSeverity log_severity, const char *format, ...)
     va_start(args, format);
 
     int size = vsnprintf(nullptr, 0, format, args);
-
     va_end(args);
 
     if (size < 0)
@@ -142,9 +194,7 @@ void Log(LogSeverity log_severity, const char *format, ...)
     std::vector<char> buf(size + 1);
 
     va_start(args, format);
-
     vsnprintf(buf.data(), buf.size(), format, args);
-
     va_end(args);
 
     switch (log_severity)

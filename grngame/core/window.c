@@ -1,5 +1,6 @@
 #include "window.h"
 #include "../math/types.h"
+#include "SDL3/SDL_init.h"
 #include "SDL3/SDL_video.h"
 #include "app.h"
 #include "cglm/types-struct.h"
@@ -14,19 +15,19 @@ static void SetFullscreen(SDL_Window *window, bool fullscreen)
         LOG_ERROR("Failed to set fullscreen: %s", SDL_GetError());
 }
 
-static void SetBordered(SDL_Window *window, bool bordered)
+void SetBordered(SDL_Window *window, bool bordered)
 {
     if (UNLIKELY(!SDL_SetWindowBordered(window, bordered)))
         LOG_ERROR("Failed to set bordered: %s", SDL_GetError());
 }
 
-static void SetResizable(SDL_Window *window, bool resizable)
+void SetResizable(SDL_Window *window, bool resizable)
 {
     if (UNLIKELY(!SDL_SetWindowResizable(window, resizable)))
         LOG_ERROR("Failed to set resizable: %s", SDL_GetError());
 }
 
-static void Maximize(SDL_Window *window)
+void Maximize(SDL_Window *window)
 {
     if (UNLIKELY(!SDL_MaximizeWindow(window)))
         LOG_ERROR("Failed to maximize window: %s", SDL_GetError());
@@ -44,6 +45,16 @@ static void SetPosition(SDL_Window *window, int32 x, int32 y)
     if (UNLIKELY(!SDL_SetWindowPosition(window, x, y)))
         LOG_ERROR("Failed to set window position: %s", SDL_GetError());
 #endif
+}
+
+bool SetAppMetadata(const char *appname, const char *appversion, const char *appidentifier)
+{
+    if (UNLIKELY(!SDL_SetAppMetadata(appname, appversion, appidentifier)))
+    {
+        LOG_ERROR("Impossible to set AppMetaData : %s", SDL_GetError());
+        return false;
+    }
+    return true;
 }
 
 SDL_Window *WindowCreate(const AppInfo *app_info)

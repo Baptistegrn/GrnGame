@@ -65,9 +65,8 @@ static InitResult InitializeSDL(void)
 
 static InitResult SetSDLMetadata(const AppInfo *app_info)
 {
-    if (!SDL_SetAppMetadata(app_info->name, app_info->version, app_info->name))
+    if (!SetAppMetadata(app_info->name, app_info->version, app_info->name))
     {
-        LOG_ERROR("SDL metadata setup failed: %s", SDL_GetError());
         return INIT_SDL_FAILED;
     }
 

@@ -17,7 +17,7 @@ typedef struct
     WrenHandle *on_destroy;
 } WrenManager;
 
-bool ReloadWrenScript(void);
+bool ReloadWrenScript(const char *filename);
 
 bool WrenEarlyInit(void);
 bool WrenLateInit(void);
