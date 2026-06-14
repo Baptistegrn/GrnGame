@@ -87,7 +87,7 @@ void StartAssetHotReload(const char *directory, bool recursive)
     if (!g_queueMutex)
         g_queueMutex = SDL_CreateMutex();
 
-    g_fileWatcher = std::make_unique<efsw::FileWatcher>();
+    g_fileWatcher = std::make_unique<efsw::FileWatcher>(true);
 
     g_fileWatcher->addWatch(directory, &g_updateListener, recursive);
 

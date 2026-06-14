@@ -30,9 +30,9 @@ class Config {
 
         // Log output:
         // 0 = Console
-        // 1 = JSON file
-        // 2 = Text file
-        __logDestination = 2
+        // 1 = Text file
+        // 2 = Json file
+        __logDestination = 0
 
         // Preserve universe aspect ratio.
         // Black bars may be added when required.
