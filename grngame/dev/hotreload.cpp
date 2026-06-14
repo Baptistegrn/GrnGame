@@ -174,7 +174,8 @@ void ProcessHotreloadQueue(void)
         }
 
         case MODIFIED: {
-            LOG_DEBUG("Asset modified '%s'", cpath);
+            if (strstr(cpath, "grngame.log") == NULL)
+                LOG_DEBUG("Asset modified '%s'", cpath);
 
             if (FileIsLoadableScript(cpath))
             {

@@ -12,10 +12,11 @@
 #include <quill/Logger.h>
 #include <quill/sinks/ConsoleSink.h>
 #include <quill/sinks/FileSink.h>
-#include <quill/sinks/JsonSink.h>
 
+#include <chrono>
 #include <cstdio>
 #include <stdarg.h>
+#include <string>
 #include <vector>
 
 static quill::Logger *s_logger = nullptr;
@@ -24,6 +25,7 @@ static bool s_logs_enabled = true;
 
 static LogSeverity LogSeverityForBuildType();
 static quill::LogLevel LogSeverityToLogLevel(LogSeverity log_severity);
+static const char *LogSeverityToString(LogSeverity log_severity);
 
 extern "C"
 {
@@ -65,7 +67,6 @@ extern "C"
         {
         case LOG_TO_CONSOLE: {
             auto console_sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("sink_console");
-
             s_logger = quill::Frontend::create_or_get_logger("grngame", std::move(console_sink));
             break;
         }
@@ -73,7 +74,7 @@ extern "C"
         case LOG_TO_FILE: {
             auto cfg = quill::FileSinkConfig();
             cfg.set_open_mode('w');
-            cfg.set_filename_append_option(quill::FilenameAppendOption::StartDateTime);
+            cfg.set_filename_append_option(quill::FilenameAppendOption::None);
 
             auto file_sink = quill::Frontend::create_or_get_sink<quill::FileSink>("grngame.log", std::move(cfg),
                                                                                   quill::FileEventNotifier());
@@ -87,10 +88,10 @@ extern "C"
             cfg.set_open_mode('w');
             cfg.set_filename_append_option(quill::FilenameAppendOption::None);
 
-            auto json_sink = quill::Frontend::create_or_get_sink<quill::JsonFileSink>("grngame.log", std::move(cfg),
-                                                                                      quill::FileEventNotifier());
-
-            s_logger = quill::Frontend::create_or_get_logger("grngame", std::move(json_sink));
+            auto file_sink = quill::Frontend::create_or_get_sink<quill::FileSink>("grngame.log", std::move(cfg),
+                                                                                  quill::FileEventNotifier());
+            s_logger = quill::Frontend::create_or_get_logger("grngame", std::move(file_sink),
+                                                             quill::PatternFormatterOptions{"%(message)"});
             break;
         }
         }
@@ -133,7 +134,40 @@ extern "C"
             return;
         }
 
-        QUILL_LOG_DYNAMIC(s_logger, LogSeverityToLogLevel(log_severity), "{}", buf.data());
+        if (s_current_destination == LOG_TO_JSON)
+        {
+            // Escape the message for JSON: replace \ with \\ and " with \"
+            std::string msg(buf.data());
+            std::string escaped;
+            escaped.reserve(msg.size());
+            for (char c : msg)
+            {
+                if (c == '\\')
+                    escaped += "\\\\";
+                else if (c == '"')
+                    escaped += "\\\"";
+                else if (c == '\n')
+                    escaped += "\\n";
+                else if (c == '\r')
+                    escaped += "\\r";
+                else if (c == '\t')
+                    escaped += "\\t";
+                else
+                    escaped += c;
+            }
+
+            auto now = std::chrono::system_clock::now();
+            auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+
+            std::string json_line = std::string("{\"timestamp\":\"") + std::to_string(ns) + "\",\"log_level\":\"" +
+                                    LogSeverityToString(log_severity) + "\",\"message\":\"" + escaped + "\"}";
+
+            QUILL_LOG_DYNAMIC(s_logger, LogSeverityToLogLevel(log_severity), "{}", json_line);
+        }
+        else
+        {
+            QUILL_LOG_DYNAMIC(s_logger, LogSeverityToLogLevel(log_severity), "{}", buf.data());
+        }
     }
 }
 
@@ -153,6 +187,25 @@ static quill::LogLevel LogSeverityToLogLevel(LogSeverity log_severity)
         return quill::LogLevel::Critical;
     default:
         UNREACHABLE();
+    }
+}
+
+static const char *LogSeverityToString(LogSeverity log_severity)
+{
+    switch (log_severity)
+    {
+    case LOG_SEVERITY_DEBUG:
+        return "DEBUG";
+    case LOG_SEVERITY_INFO:
+        return "INFO";
+    case LOG_SEVERITY_WARNING:
+        return "WARNING";
+    case LOG_SEVERITY_ERROR:
+        return "ERROR";
+    case LOG_SEVERITY_CRITICAL:
+        return "CRITICAL";
+    default:
+        return "UNKNOWN";
     }
 }
 
