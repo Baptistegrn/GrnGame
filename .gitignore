@@ -9,3 +9,5 @@ vsxmake*/
 .DS_Store
 cmake*/
 external/
+benchmark/assets
+benchmark/test.db

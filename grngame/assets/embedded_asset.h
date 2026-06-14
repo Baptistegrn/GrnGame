@@ -6,6 +6,7 @@
 typedef struct
 {
     sqlite3 *db;
+    DbStmt *stmt;
     int64 file_count;
     int64 asset_count;
 } DataEmbeddedBd;

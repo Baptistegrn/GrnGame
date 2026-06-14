@@ -32,7 +32,6 @@ static unsigned char *LoadFileBinary(const char *path, long *out_size)
     }
 
     unsigned char *data = malloc(*out_size);
-
     if (!data)
     {
         fclose(file);
@@ -41,49 +40,43 @@ static unsigned char *LoadFileBinary(const char *path, long *out_size)
 
     fread(data, 1, *out_size, file);
     fclose(file);
-
     return data;
 }
 
 static void EmbedCallback(const char *path, void *userdata)
 {
     DataEmbeddedBd *info = (DataEmbeddedBd *)userdata;
-    sqlite3 *db = info->db;
 
     if (!IsEmbeddableFile(path))
         return;
+
     if (FileIsLoadableAudio(path) || FileIsLoadableImage(path))
-    {
         info->asset_count++;
-    }
     info->file_count++;
-    unsigned char *data;
+
     long size;
-    data = LoadFileBinary(path, &size);
+    unsigned char *data = LoadFileBinary(path, &size);
     if (!data)
     {
         fprintf(stderr, "[EmbeddedAsset] Failed to load file: %s\n", path);
         return;
     }
 
-    DbStmt stmt = DbStmtPrepare(db, "INSERT INTO embedded_assets (path, data) VALUES (?, ?);");
-    DbArg args[3];
+    DbArg args[2];
     args[0].type = TEXT;
     args[0].value.s = path;
     args[1].type = DATA;
     args[1].value.blob.data = data;
     args[1].value.blob.size = size;
-    DbStmtRun(&stmt, args, 2);
-    DbStmtFree(&stmt);
+    DbStmtRun(info->stmt, args, 2);
+
     free(data);
 }
 
 void create_embedded_structure(int num_dirs, const char **dirs, const char *output_header)
 {
     if (DbExists(output_header))
-    {
         remove(output_header);
-    }
 
     sqlite3 *db = DbCreate(output_header);
     if (!db)
@@ -91,17 +84,25 @@ void create_embedded_structure(int num_dirs, const char **dirs, const char *outp
         fprintf(stderr, "[EmbeddedAsset] Failed to create database: %s\n", output_header);
         return;
     }
-    DataEmbeddedBd info = {db, 0, 0};
 
-    DataWrite(db, "CREATE TABLE IF NOT EXISTS embedded_assets (path TEXT PRIMARY KEY, data BLOB);");
-    DataWrite(db, "CREATE TABLE IF NOT EXISTS embedded_assets_info (key TEXT PRIMARY KEY, value INTEGER);");
+    DataWrite(db, "CREATE TABLE IF NOT EXISTS embedded_assets "
+                  "(path TEXT PRIMARY KEY, data BLOB);");
+    DataWrite(db, "CREATE TABLE IF NOT EXISTS embedded_assets_info "
+                  "(key TEXT PRIMARY KEY, value INTEGER);");
+
+    DataWrite(db, "PRAGMA journal_mode = OFF;");    /*skip fsync*/
+    DataWrite(db, "PRAGMA synchronous  = OFF;");    /* no os confirmation disk*/
+    DataWrite(db, "PRAGMA cache_size   = -65536;"); /*bigger cache*/
+
+    DbStmt stmt = DbStmtPrepare(db, "INSERT INTO embedded_assets (path, data) VALUES (?, ?);");
+
+    DataEmbeddedBd info = {db, &stmt, 0, 0};
 
     DbBegin(db);
     for (int i = 0; i < num_dirs; ++i)
         DirWalk(dirs[i], EmbedCallback, &info);
 
     char sql_buffer[256];
-
     snprintf(sql_buffer, sizeof(sql_buffer),
              "INSERT INTO embedded_assets_info (key, value) VALUES ('file_count', %lld);", info.file_count);
     DataWrite(db, sql_buffer);
@@ -111,5 +112,6 @@ void create_embedded_structure(int num_dirs, const char **dirs, const char *outp
     DataWrite(db, sql_buffer);
 
     DbCommit(db);
+    DbStmtFree(&stmt);
     DbClose(db);
 }

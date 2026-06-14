@@ -114,7 +114,7 @@ static void LoadDefaultConfig(void)
     g_app.info.window_resizable = true;
     g_app.info.window_fullscreen = false;
     g_app.info.window_maximised = false;
-    g_app.info.bordered = false;
+    g_app.info.bordered = true;
 
     g_app.info.enable_logs = true;
     g_app.info.log_destination = LOG_TO_CONSOLE;
