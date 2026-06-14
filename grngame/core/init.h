@@ -16,3 +16,6 @@ typedef enum
 } InitResult;
 
 InitResult InitAll();
+
+// todo move
+void LoadAppConfig(void);

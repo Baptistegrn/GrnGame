@@ -44,6 +44,7 @@ typedef struct AppInfo
     bool window_maximised;
     bool window_change;
     bool window_occlusion_culled;
+    bool bordered;
 
     float32 offset_x;
     float32 offset_y;

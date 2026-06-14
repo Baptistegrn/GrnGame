@@ -218,4 +218,14 @@ void Log(LogSeverity log_severity, const char *format, ...)
     }
 }
 
+static void ApplyEnableLogs(AppInfo *info)
+{
+    LogSetEnabled(info->enable_logs);
+}
+
+static void ApplyLogDestination(AppInfo *info)
+{
+    LogSetDestination(info->log_destination);
+}
+
 #endif

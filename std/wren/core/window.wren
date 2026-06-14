@@ -1,4 +1,5 @@
 foreign class Window {
+
     foreign static scale
     foreign static width
     foreign static height
@@ -9,8 +10,11 @@ foreign class Window {
     foreign static change
     foreign static force_universe_scale
 
-    foreign static fullscreen()
-    foreign static maximized()
-    foreign static set_size(width, height)
-    foreign static apply_black_stripes()
+    foreign static apply_config(name, version,
+                                universeWidth, universeHeight,
+                                windowWidth, windowHeight,
+                                fullscreen, maximised,
+                                resizable, bordered,
+                                forceUniverseScale)
+
 }

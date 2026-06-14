@@ -7,27 +7,25 @@
 #include "grngame/renderer/renderer.h"
 #include "grngame/utils/attributes.h"
 
-// sdl wrappent
-
 static void SetFullscreen(SDL_Window *window, bool fullscreen)
 {
     if (UNLIKELY(!SDL_SetWindowFullscreen(window, fullscreen)))
         LOG_ERROR("Failed to set fullscreen: %s", SDL_GetError());
 }
 
-void SetBordered(SDL_Window *window, bool bordered)
+static void SetBordered(SDL_Window *window, bool bordered)
 {
     if (UNLIKELY(!SDL_SetWindowBordered(window, bordered)))
         LOG_ERROR("Failed to set bordered: %s", SDL_GetError());
 }
 
-void SetResizable(SDL_Window *window, bool resizable)
+static void SetResizable(SDL_Window *window, bool resizable)
 {
     if (UNLIKELY(!SDL_SetWindowResizable(window, resizable)))
         LOG_ERROR("Failed to set resizable: %s", SDL_GetError());
 }
 
-void Maximize(SDL_Window *window)
+static void Maximize(SDL_Window *window)
 {
     if (UNLIKELY(!SDL_MaximizeWindow(window)))
         LOG_ERROR("Failed to maximize window: %s", SDL_GetError());
@@ -47,16 +45,6 @@ static void SetPosition(SDL_Window *window, int32 x, int32 y)
 #endif
 }
 
-bool SetAppMetadata(const char *appname, const char *appversion, const char *appidentifier)
-{
-    if (UNLIKELY(!SDL_SetAppMetadata(appname, appversion, appidentifier)))
-    {
-        LOG_ERROR("Impossible to set AppMetaData : %s", SDL_GetError());
-        return false;
-    }
-    return true;
-}
-
 SDL_Window *WindowCreate(const AppInfo *app_info)
 {
     SDL_WindowFlags flags = SDL_WINDOW_HIDDEN;
@@ -70,15 +58,59 @@ SDL_Window *WindowCreate(const AppInfo *app_info)
     return window;
 }
 
-ivec2s WindowDimensions(SDL_Window *window)
+bool SetAppMetadata(AppInfo *app_info, const char *appname, const char *appversion, const char *appidentifier)
 {
-    ivec2s result;
-    if (!SDL_GetWindowSize(window, &result.x, &result.y))
+    if (g_app.window)
+        SDL_SetWindowTitle(g_app.window, appname);
+    if (UNLIKELY(!SDL_SetAppMetadata(appname, appversion, appidentifier)))
     {
-        LOG_ERROR("Failed to get window dimensions: %s", SDL_GetError());
+        LOG_ERROR("Impossible to set AppMetaData : %s", SDL_GetError());
+        return false;
     }
-    return result;
+
+    app_info->name = appname;
+    app_info->version = appversion;
+
+    return true;
 }
+void WindowInfoSetSize(AppInfo *app_info, uint16 width, uint16 height)
+{
+    app_info->window_width = width;
+    app_info->window_height = height;
+}
+
+void WindowInfoSetUniverseSize(AppInfo *app_info, uint16 width, uint16 height)
+{
+    app_info->window_universe_width = width;
+    app_info->window_universe_height = height;
+}
+
+void WindowInfoSetFullscreen(AppInfo *app_info, bool fullscreen)
+{
+    app_info->window_fullscreen = fullscreen;
+}
+
+void WindowInfoSetMaximised(AppInfo *app_info, bool maximised)
+{
+    app_info->window_maximised = maximised;
+}
+
+void WindowInfoSetResizable(AppInfo *app_info, bool resizable)
+{
+    app_info->window_resizable = resizable;
+}
+
+void WindowInfoSetBordered(AppInfo *app_info, bool bordered)
+{
+    app_info->bordered = bordered;
+}
+
+void WindowInfoSetForceUniverseScale(AppInfo *app_info, bool force)
+{
+    app_info->force_universe_scale = force;
+}
+
+// --- Scale ---
 
 bool WindowConfigureScale(uint8 scalex, uint8 scaley)
 {
@@ -87,7 +119,6 @@ bool WindowConfigureScale(uint8 scalex, uint8 scaley)
 
 uint8 WindowGetScale()
 {
-    // scaleX and scaleY are the same ( pixel art )
     float32 c;
     SDL_GetRenderScale(g_app.renderer.renderer, &c, &c);
     return (uint8)c;
@@ -128,6 +159,14 @@ bool WindowGetChange()
     return g_app.info.window_change;
 }
 
+ivec2s WindowDimensions(SDL_Window *window)
+{
+    ivec2s result;
+    if (!SDL_GetWindowSize(window, &result.x, &result.y))
+        LOG_ERROR("Failed to get window dimensions: %s", SDL_GetError());
+    return result;
+}
+
 void ApplyResizing(AppInfo *app_info, int16 width, int16 height)
 {
     int8 coeff_w = width / (int16)app_info->window_universe_width;
@@ -157,62 +196,6 @@ void ApplyResizing(AppInfo *app_info, int16 width, int16 height)
     g_app.info.window_change = true;
 }
 
-void WindowFullscreen(AppInfo *app_info)
-{
-    SetFullscreen(g_app.window, true);
-    ivec2s vec = WindowDimensions(g_app.window);
-    ApplyResizing(app_info, vec.x, vec.y);
-    app_info->window_fullscreen = true;
-    app_info->window_maximised = false;
-}
-
-void WindowMaximized(AppInfo *app_info)
-{
-    SetFullscreen(g_app.window, false);
-    SetResizable(g_app.window, true);
-    SetBordered(g_app.window, true);
-    Maximize(g_app.window);
-    ivec2s vec = WindowDimensions(g_app.window);
-    ApplyResizing(app_info, vec.x, vec.y);
-    app_info->window_fullscreen = false;
-    app_info->window_maximised = true;
-}
-
-void WindowSetSize(AppInfo *app_info, uint16 width, uint16 height)
-{
-
-    SDL_Window *window = g_app.window;
-    SDL_DisplayID display_id = SDL_GetDisplayForWindow(window);
-    if (display_id == 0)
-    {
-        LOG_ERROR("Impossible to get display information: %s", SDL_GetError());
-        return;
-    }
-    SDL_Rect bounds;
-    if (!SDL_GetDisplayUsableBounds(display_id, &bounds))
-    {
-        LOG_ERROR("Impossible to get usable display bounds: %s", SDL_GetError());
-        return;
-    }
-    SetFullscreen(window, false);
-    SetBordered(window, true);
-    SetSize(window, width, height);
-    SetPosition(window, bounds.x + (bounds.w - width) / 2, bounds.y + (bounds.h - height) / 2);
-    ApplyResizing(app_info, width, height);
-    app_info->window_fullscreen = false;
-    app_info->window_maximised = false;
-}
-
-void WindowApplyInitialMode(AppInfo *app_info)
-{
-    if (app_info->window_fullscreen)
-        WindowFullscreen(app_info);
-    else if (app_info->window_maximised)
-        WindowMaximized(app_info);
-    else
-        WindowSetSize(app_info, app_info->window_width, app_info->window_height);
-}
-
 void ApplyBlackStripes()
 {
     if (g_app.info.force_universe_scale)
@@ -233,5 +216,48 @@ void ApplyBlackStripes()
 
         RendererSetColor(10, 10, 10, 255);
         RendererFillRects(rects, 4);
+    }
+}
+
+void WindowApplyConfig(AppInfo *app_info)
+{
+    SDL_Window *window = g_app.window;
+
+    SetBordered(window, app_info->bordered);
+    SetResizable(window, app_info->window_resizable);
+
+    if (app_info->window_fullscreen)
+    {
+        SetFullscreen(window, true);
+        ivec2s vec = WindowDimensions(window);
+        ApplyResizing(app_info, vec.x, vec.y);
+        app_info->window_maximised = false;
+    }
+    else if (app_info->window_maximised)
+    {
+        SetFullscreen(window, false);
+        Maximize(window);
+        ivec2s vec = WindowDimensions(window);
+        ApplyResizing(app_info, vec.x, vec.y);
+    }
+    else
+    {
+        SDL_DisplayID display_id = SDL_GetDisplayForWindow(window);
+        if (display_id == 0)
+        {
+            LOG_ERROR("Impossible to get display information: %s", SDL_GetError());
+            return;
+        }
+        SDL_Rect bounds;
+        if (!SDL_GetDisplayUsableBounds(display_id, &bounds))
+        {
+            LOG_ERROR("Impossible to get usable display bounds: %s", SDL_GetError());
+            return;
+        }
+        SetFullscreen(window, false);
+        SetSize(window, app_info->window_width, app_info->window_height);
+        SetPosition(window, bounds.x + (bounds.w - app_info->window_width) / 2,
+                    bounds.y + (bounds.h - app_info->window_height) / 2);
+        ApplyResizing(app_info, app_info->window_width, app_info->window_height);
     }
 }

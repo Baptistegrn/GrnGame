@@ -4,6 +4,8 @@
 
 BEGIN_DECLARATIONS
 
+typedef struct AppInfo AppInfo;
+
 typedef enum
 {
     LOG_TO_CONSOLE,
@@ -33,5 +35,8 @@ void LogSetEnabled(bool enabled);
 bool LogIsEnabled();
 bool LogSetDestination(LogDestination log_destination);
 void LogSetLevel(LogSeverity severity);
+
+static void ApplyEnableLogs(AppInfo *info);
+static void ApplyLogDestination(AppInfo *info);
 
 END_DECLARATIONS

@@ -22,4 +22,13 @@ bool ReloadWrenScript(const char *filename);
 bool WrenEarlyInit(void);
 bool WrenLateInit(void);
 
+void UpdateAppMetadata(void);
+void UpdateWindowSize(void);
+void UpdateUniverseSize(void);
+void UpdateResizable(void);
+void UpdateFullscreen(void);
+void UpdateMaximised(void);
+void UpdateEnableLogs(void);
+void UpdateLogDestination(void);
+
 END_DECLARATIONS
