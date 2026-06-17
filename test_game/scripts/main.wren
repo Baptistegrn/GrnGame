@@ -5,12 +5,15 @@ import "std/wren/math/vec2" for Vec2
 import "std/wren/renderer/texture" for Texture
 import "std/wren/renderer/particule" for ParticleEmitter
 import "std/wren/renderer/primitive" for Primitive 
+import "std/wren/core/window" for Window
+import "config" for Config
 
 
 class Main {
   static on_start() {}
 
-  static on_update(dt) {}
+  static on_update(dt) {
+  }
 
   static on_fixed_update(dt) {}
 

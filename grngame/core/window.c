@@ -222,7 +222,7 @@ void ApplyBlackStripes()
 void WindowApplyConfig(AppInfo *app_info)
 {
     SDL_Window *window = g_app.window;
-
+    SetAppMetadata(app_info, app_info->name, app_info->version, app_info->name);
     SetBordered(window, app_info->bordered);
     SetResizable(window, app_info->window_resizable);
 

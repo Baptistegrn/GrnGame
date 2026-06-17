@@ -25,6 +25,7 @@ static void ReloadPalettesAndTextures(void)
     LoadAllPalettes();
     ReloadAllTexturesWithPalette();
 }
+
 class UpdateListener : public efsw::FileWatchListener
 {
   public:
@@ -70,7 +71,31 @@ class UpdateListener : public efsw::FileWatchListener
         if (g_queueMutex)
             SDL_LockMutex(g_queueMutex);
 
-        kv_push(HotreloadQueueElement, g_app.queue, elem);
+        bool is_duplicate = false;
+        size_t current_queue_size = kv_size(g_app.queue);
+
+        for (size_t i = 0; i < current_queue_size; ++i)
+        {
+            HotreloadQueueElement existing = kv_A(g_app.queue, i);
+
+            if (existing.action == elem.action && strcmp(existing.new_file, elem.new_file) == 0)
+            {
+                is_duplicate = true;
+                break;
+            }
+        }
+
+        if (!is_duplicate)
+        {
+            kv_push(HotreloadQueueElement, g_app.queue, elem);
+        }
+        else
+        {
+            if (elem.new_file)
+                free((void *)elem.new_file);
+            if (elem.old_file)
+                free((void *)elem.old_file);
+        }
 
         if (g_queueMutex)
             SDL_UnlockMutex(g_queueMutex);
@@ -87,7 +112,7 @@ void StartAssetHotReload(const char *directory, bool recursive)
     if (!g_queueMutex)
         g_queueMutex = SDL_CreateMutex();
 
-    g_fileWatcher = std::make_unique<efsw::FileWatcher>(true);
+    g_fileWatcher = std::make_unique<efsw::FileWatcher>(false);
 
     g_fileWatcher->addWatch(directory, &g_updateListener, recursive);
 

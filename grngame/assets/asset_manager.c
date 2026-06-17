@@ -189,4 +189,5 @@ COLD void CreateEmbeddedAssetsCache(sqlite3 *db)
     }
 
     sqlite3_finalize(stmt);
+    DbClose(g_app.info.asset_db);
 }

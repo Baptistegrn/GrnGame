@@ -72,7 +72,6 @@ void EngineStart()
     EnsureInitSucceeded(res);
 
     MainLoop();
-    ShutdownScripts();
 }
 
 void EngineStop(void)
