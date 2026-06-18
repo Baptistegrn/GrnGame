@@ -39,10 +39,19 @@ class Config {
         __forceUniverseScale = true
 
         // Screen clear color index.
-        __renderClear = 1
+        __renderClear = 0
 
         // Active color palette.
-        __colorPalette = []
+    __colorPalette = [
+    "#FF0000", "#83603d", "#FFFF00", "#7FFF00",
+    "#00FF00", "#00FF7F", "#00FFFF", "#007FFF",
+    "#0000FF", "#7F00FF", "#FF00FF", "#FF007F",
+    "#8B0000", "#FF4500", "#FFD700", "#ADFF2F",
+    "#32CD32", "#20B2AA", "#00CED1", "#1E90FF",
+    "#4169E1", "#8A2BE2", "#DA70D6", "#C71585",
+    "#2F4F4F", "#696969", "#708090", "#A9A9A9",
+    "#D2691E", "#B8860B", "#BC8F8F", "#F5F5F5"
+    ]
     }
 
     // Getters

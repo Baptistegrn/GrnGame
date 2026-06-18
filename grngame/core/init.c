@@ -202,9 +202,9 @@ COLD InitResult InitializeManagers(void)
 COLD void InitializeAssets(void)
 {
     InitLinearLut();
-    InitPalettesArrays();
-    LoadAllPalettes();
-
+    HexPaletteHashInit();
+    PaletteInit();
+    PaletteParse();
     char *asset_path = PathFromExecutableDirectory(g_app.info.asset_folder);
     AssetManagerLoadFolder(asset_path);
     free(asset_path);

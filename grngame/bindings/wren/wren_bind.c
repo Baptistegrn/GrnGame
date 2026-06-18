@@ -16,12 +16,14 @@
 #include "grngame/core/window.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
+#include "grngame/renderer/palette.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/file.h"
 #include "wren.h"
 #include "wren_handle.h"
 #include <stdlib.h>
 #include <string.h>
+
 
 static void WrenSetWriteFn(WrenWriteFn writeFn)
 {
@@ -183,6 +185,7 @@ void ReloadWrenConfig(void)
 {
     LoadAppConfig();
     WindowApplyConfig(&g_app.info);
+    PaletteReload();
 }
 
 bool ReloadWrenScript(const char *filename)

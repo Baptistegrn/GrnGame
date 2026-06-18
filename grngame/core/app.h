@@ -10,11 +10,14 @@
 #include "grngame/dev/logging.h"
 #include "grngame/renderer/cielab.h"
 #include "grngame/renderer/renderer.h"
+#include "khash.h"
 #include "kvec.h"
 
 BEGIN_DECLARATIONS
 
 KHASH_MAP_INIT_STR(EmbeddedAssetHash, EmbeddedAsset);
+
+KHASH_MAP_INIT_STR(ColorHex, SDL_Color);
 
 #if defined(GRN_EMBED_ASSETS)
 #define EMBEDDED_ASSETS_DATA_AVAILABLE 1
@@ -58,6 +61,7 @@ typedef struct AppInfo
 
     kvec_t(SDL_Color) palette_elements;
     kvec_t(ColorLAB) palette_elements_lab;
+    khash_t(ColorHex) palette_hex_hash;
 
 } AppInfo;
 

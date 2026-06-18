@@ -2,120 +2,89 @@
 #include "SDL3/SDL_pixels.h"
 #include "cielab.h"
 #include "grngame/assets/load.h"
+#include "grngame/bindings/wren/wren_get.h"
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
-#include "grngame/platform/paths.h"
 #include "grngame/renderer/cielab.h"
-#include "grngame/utils/file.h"
-#include "grngame/utils/string_compat.h"
 #include "kvec.h"
+#include "wren.h"
 #include <math.h>
-#include <stdlib.h>
-#include <string.h>
 
-static char *FetchPaletteContent(const char *filename)
-{
-    if (EMBEDDED_ASSETS_DATA_AVAILABLE)
-    {
-        const EmbeddedAsset *asset = GetEmbeddedAsset(filename);
 
-        if (asset)
-        {
-            const char *data = (const char *)asset->data;
-            size_t len = strlen(data);
-
-            char *copy = (char *)malloc(len + 1);
-            if (copy)
-            {
-                strcpy(copy, data);
-                return copy;
-            }
-        }
-    }
-    else
-    {
-        char *path = PathFromExecutableDirectory(filename);
-        if (path)
-        {
-            char *content = ReturnFileString(path);
-            free(path);
-            return content;
-        }
-    }
-
-    return NULL;
-}
-
-void LoadDefaultColors()
-{
-    size_t color_count = sizeof(default_colors) / sizeof(default_colors[0]);
-    for (size_t i = 0; i < color_count; i++)
-    {
-        kv_push(SDL_Color, g_app.info.palette_elements, default_colors[i]);
-    }
-}
-
-void ParseColorFileContent(char *content)
-{
-    //\x1A is a old windows delimiter
-    char *line = strtok(content, "\r\n\x1A");
-    while (line != NULL)
-    {
-        int r, g, b;
-
-        if (sscanf(line, "%d,%d,%d", &r, &g, &b) == 3)
-        {
-            SDL_Color color = {(Uint8)r, (Uint8)g, (Uint8)b, 255};
-            kv_push(SDL_Color, g_app.info.palette_elements, color);
-        }
-        else
-        {
-            LOG_WARNING("Invalid color format ignored: %s", line);
-        }
-
-        line = strtok(NULL, "\r\n\x1A");
-    }
-}
-
-void LoadPaletteColor()
-{
-    char *content = FetchPaletteContent(PALETTE_COLOR_FILE);
-
-    if (content != NULL)
-    {
-        ParseColorFileContent(content);
-        free(content);
-    }
-    else
-    {
-        LOG_WARNING("Palette color file doesn't exist, default palette is used");
-        LoadDefaultColors();
-    }
-}
-
-static void LoadPaletteColorLab()
-{
-    for (uint64 i = 0; i < kv_size(g_app.info.palette_elements); i++)
-    {
-        SDL_Color color = kv_A(g_app.info.palette_elements, i);
-        kv_push(ColorLAB, g_app.info.palette_elements_lab, RgbToLab(&color));
-    }
-}
-
-void InitPalettesArrays()
+void PaletteInit()
 {
     kv_init(g_app.info.palette_elements);
     kv_init(g_app.info.palette_elements_lab);
 }
 
-void LoadAllPalettes()
-{
-    LoadPaletteColor();
-    LoadPaletteColorLab();
-}
-
-void RemoveAllPalettes()
+void PaletteDestroy()
 {
     kv_destroy(g_app.info.palette_elements);
     kv_destroy(g_app.info.palette_elements_lab);
+}
+
+void PaletteAddColor(SDL_Color color)
+{
+    kv_push(SDL_Color, g_app.info.palette_elements, color);
+    kv_push(ColorLAB, g_app.info.palette_elements_lab, RgbToLab(&color));
+}
+
+void HexPaletteHashInit()
+{
+    kh_init(ColorHex);
+}
+
+static Uint8 HexToU8(const char *hex)
+{
+    char buf[3] = {hex[0], hex[1], 0};
+    return (Uint8)strtol(buf, NULL, 16);
+}
+
+SDL_Color ColorFromHex(const char *hex)
+{
+    SDL_Color color = {255, 255, 255, 255};
+
+    if (hex[0] == '#')
+        hex++;
+
+    khash_t(ColorHex) *h = &g_app.info.palette_hex_hash;
+
+    khiter_t k = kh_get(ColorHex, h, hex);
+
+    if (k != kh_end(h))
+    {
+        return kh_value(h, k);
+    }
+
+    color.r = HexToU8(hex);
+    color.g = HexToU8(hex + 2);
+    color.b = HexToU8(hex + 4);
+    color.a = 255;
+
+    int ret;
+    k = kh_put(ColorHex, h, hex, &ret);
+    kh_value(h, k) = color;
+
+    return color;
+}
+
+void PaletteParse()
+{
+    int size = WrenGetListCount("config", "Config", "colorPalette");
+    for (int i = 0; i < size; i++)
+    {
+        const char *color = WrenGetListString("config", "Config", "colorPalette", i);
+        if (!LIKELY(color == NULL))
+        {
+            PaletteAddColor(ColorFromHex(color));
+        }
+    }
+}
+
+void PaletteReload()
+{
+    PaletteDestroy();
+    PaletteInit();
+    PaletteParse();
+    ReloadAllTexturesWithPalette();
 }

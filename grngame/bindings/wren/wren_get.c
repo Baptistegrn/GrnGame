@@ -168,3 +168,48 @@ double WrenGetListDouble(const char *module, const char *variable, const char *f
     wrenGetListElement(vm, 0, index, 1);
     return wrenGetSlotDouble(vm, 1);
 }
+
+const char *WrenGetListString(const char *module, const char *variable, const char *field, int index)
+{
+    WrenVM *vm = g_app.wren->vm;
+
+    if (!WrenGetVariable(module, variable))
+        return NULL;
+
+    wrenEnsureSlots(vm, 3);
+
+    WrenHandle *obj = wrenGetSlotHandle(vm, 0);
+    WrenHandle *call = wrenMakeCallHandle(vm, field);
+
+    wrenSetSlotHandle(vm, 0, obj);
+
+    WrenInterpretResult result = wrenCall(vm, call);
+
+    wrenReleaseHandle(vm, obj);
+    wrenReleaseHandle(vm, call);
+
+    if (UNLIKELY(result != WREN_RESULT_SUCCESS))
+    {
+        LOG_ERROR("Wren: failed to get list field '%s'", field);
+        return NULL;
+    }
+
+    if (UNLIKELY(wrenGetSlotType(vm, 0) != WREN_TYPE_LIST))
+    {
+        LOG_ERROR("Wren: field '%s' is not a list", field);
+        return NULL;
+    }
+
+    if (UNLIKELY(index < 0))
+        index = 0;
+
+    wrenGetListElement(vm, 0, index, 1);
+
+    if (UNLIKELY(wrenGetSlotType(vm, 1) != WREN_TYPE_STRING))
+    {
+        LOG_ERROR("Wren: element %d is not a string", index);
+        return NULL;
+    }
+
+    return wrenGetSlotString(vm, 1);
+}
