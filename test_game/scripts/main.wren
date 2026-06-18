@@ -17,7 +17,7 @@ import "std/wren/input/input_event" for InputEvent
 
 class Main {
   static on_start() {
-    __pad = PadNode.new()
+    __pad = PadNode.new(PadButton.PAD_LB)
 
     __pad.add_alias("debug",    PadButton.PAD_SOUTH)
     __pad.add_alias("info",     PadButton.PAD_EAST)

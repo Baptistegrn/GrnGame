@@ -24,7 +24,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 static void WrenSetWriteFn(WrenWriteFn writeFn)
 {
     g_app.wren->config.writeFn = writeFn;
@@ -142,8 +141,10 @@ bool WrenEarlyInit(void)
 
     RegisterWrenModules();
     WrenInit();
+    // temporary thing
+    const char *link = EMBEDDED_ASSETS_DATA_AVAILABLE ? "test_game/scripts/config.wren" : "scripts/config.wren";
 
-    if (!WrenInterpret("scripts/config.wren"))
+    if (!WrenInterpret(link))
     {
         LOG_ERROR("Failed to interpret config.wren");
         return false;
@@ -159,8 +160,10 @@ bool WrenLateInit(void)
         LOG_ERROR("WrenLateInit called but VM not initialized");
         return false;
     }
+    // temporary thing
+    const char *link = EMBEDDED_ASSETS_DATA_AVAILABLE ? "test_game/scripts/main.wren" : "scripts/main.wren";
 
-    if (!WrenInterpret("scripts/main.wren"))
+    if (!WrenInterpret(link))
     {
         LOG_ERROR("Failed to interpret main.wren");
         return false;
@@ -199,6 +202,7 @@ bool ReloadWrenScript(const char *filename)
     }
 
     bool success = WrenEarlyInit();
+
     if (strstr(filename, "config.wren") != NULL)
     {
         ReloadWrenConfig();
