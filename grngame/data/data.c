@@ -26,7 +26,7 @@ static void DbBindArgs(sqlite3_stmt *stmt, DbArg *args, int argc)
         case INTEGER:
             sqlite3_bind_int(stmt, i + 1, args[i].value.i);
             break;
-        case FLOAT:
+        case FLOAT_:
             sqlite3_bind_double(stmt, i + 1, args[i].value.f);
             break;
         case TEXT:
@@ -120,7 +120,7 @@ static DbResult DbResultGet(sqlite3_stmt *stmt)
                 v.value.i = sqlite3_column_int(stmt, i);
                 break;
             case SQLITE_FLOAT:
-                v.type = FLOAT;
+                v.type = FLOAT_;
                 v.value.f = sqlite3_column_double(stmt, i);
                 break;
             case SQLITE_TEXT:
@@ -177,7 +177,7 @@ void DbResultPrint(DbResult *res)
             case INTEGER:
                 printf("%d\n", v.value.i);
                 break;
-            case FLOAT:
+            case FLOAT_:
                 printf("%f\n", v.value.f);
                 break;
             case TEXT:

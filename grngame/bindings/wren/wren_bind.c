@@ -3,10 +3,10 @@
 #include "grngame/bindings/wren/controller_module.h"
 #include "grngame/bindings/wren/db_module.h"
 #include "grngame/bindings/wren/file_module.h"
+#include "grngame/bindings/wren/log_module.h"
 #include "grngame/bindings/wren/mouse_module.h"
 #include "grngame/bindings/wren/renderer_module.h"
 #include "grngame/bindings/wren/sound_module.h"
-#include "grngame/bindings/wren/utils.h"
 #include "grngame/bindings/wren/window_module.h"
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/bindings/wren/wren_callback.h"
@@ -65,24 +65,11 @@ static bool WrenInterpret(const char *filename)
             return false;
         }
 
-        size_t sz = asset->size;
+        uint32 sz = asset->size;
         char *buf = malloc(sz + 1);
-        if (!buf)
-        {
-            LOG_ERROR("Wren Import Error: Out of memory while loading module '%s'", filename);
-            return false;
-        }
-
         memcpy(buf, asset->data, sz);
         buf[sz] = '\0';
-
         char *source = buf;
-        /* strip UTF-8 BOM if present */
-        if (sz >= 3 && (unsigned char)buf[0] == 0xEF && (unsigned char)buf[1] == 0xBB && (unsigned char)buf[2] == 0xBF)
-        {
-            source += 3;
-        }
-
         WrenInterpretResult result = wrenInterpret(g_app.wren->vm, module_name, source);
         free(buf);
 
@@ -126,7 +113,7 @@ static void RegisterWrenModules(void)
 {
     InitBindingSystem();
     RegisterSoundModule();
-    RegisterUtilsModule();
+    RegisterLogModule();
     RegisterControllerModule();
     RegisterFileModule();
     RegisterRendererModule();

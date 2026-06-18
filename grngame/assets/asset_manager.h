@@ -14,7 +14,7 @@ typedef struct
 {
     const char *name;
     const unsigned char *data;
-    unsigned int size;
+    uint32 size;
 } EmbeddedAsset;
 
 typedef struct

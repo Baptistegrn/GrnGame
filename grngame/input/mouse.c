@@ -63,7 +63,7 @@ void MoveMouse(int16 x, int16 y)
     SDL_WarpMouseInWindow(g_app.window, mx, my);
 }
 
-bool HideCursor()
+bool MouseHideCursor()
 {
     if (!SDL_HideCursor())
     {
@@ -73,7 +73,7 @@ bool HideCursor()
     return true;
 }
 
-bool ShowCursor()
+bool MouseShowCursor()
 {
     if (!SDL_ShowCursor())
     {

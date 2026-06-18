@@ -64,12 +64,12 @@ static void move_mouse(WrenVM *vm)
 
 static void show_cursor(WrenVM *vm)
 {
-    wrenSetSlotBool(vm, 0, ShowCursor());
+    wrenSetSlotBool(vm, 0, MouseShowCursor());
 }
 
 static void hide_cursor(WrenVM *vm)
 {
-    wrenSetSlotBool(vm, 0, HideCursor());
+    wrenSetSlotBool(vm, 0, MouseHideCursor());
 }
 
 void RegisterMouseModule()

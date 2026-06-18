@@ -34,7 +34,7 @@ int32 MouseY();
 float32 MouseScrollX();
 float32 MouseScrollY();
 void MoveMouse(int16 x, int16 y);
-bool ShowCursor();
-bool HideCursor();
+bool MouseShowCursor();
+bool MouseHideCursor();
 
 END_DECLARATIONS

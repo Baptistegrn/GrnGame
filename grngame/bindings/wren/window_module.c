@@ -54,12 +54,10 @@ static void window_apply_config(WrenVM *vm)
 {
     AppInfo *info = &g_app.info;
 
-    SetAppMetadata(info, wrenGetSlotString(vm, 1), wrenGetSlotString(vm, 2), wrenGetSlotString(vm, 1));
-
+    WindowInfoSetName(info, wrenGetSlotString(vm, 1));
+    WindowInfoSetVersion(info, wrenGetSlotString(vm, 2));
     WindowInfoSetUniverseSize(info, (uint16)wrenGetSlotDouble(vm, 3), (uint16)wrenGetSlotDouble(vm, 4));
-
     WindowInfoSetSize(info, (uint16)wrenGetSlotDouble(vm, 5), (uint16)wrenGetSlotDouble(vm, 6));
-
     WindowInfoSetFullscreen(info, wrenGetSlotBool(vm, 7));
     WindowInfoSetMaximised(info, wrenGetSlotBool(vm, 8));
     WindowInfoSetResizable(info, wrenGetSlotBool(vm, 9));

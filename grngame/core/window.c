@@ -73,6 +73,16 @@ bool SetAppMetadata(AppInfo *app_info, const char *appname, const char *appversi
 
     return true;
 }
+
+void WindowInfoSetName(AppInfo *app_info, const char *name)
+{
+    app_info->name = name;
+}
+
+void WindowInfoSetVersion(AppInfo *app_info, const char *version)
+{
+    app_info->version = version;
+}
 void WindowInfoSetSize(AppInfo *app_info, uint16 width, uint16 height)
 {
     app_info->window_width = width;

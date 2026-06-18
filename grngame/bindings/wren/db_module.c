@@ -145,7 +145,7 @@ static void db_stmt_run(WrenVM *vm)
                 }
                 else
                 {
-                    arg.type = FLOAT;
+                    arg.type = FLOAT_;
                     arg.value.f = value;
                 }
                 break;

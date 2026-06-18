@@ -11,7 +11,7 @@ BEGIN_DECLARATIONS
 typedef enum
 {
     INTEGER = 0,
-    FLOAT = 1,
+    FLOAT_ = 1,
     TEXT = 2,
     DATA = 3,
     VOID = 4

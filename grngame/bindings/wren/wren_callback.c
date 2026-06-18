@@ -144,26 +144,11 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
 
         if (asset)
         {
-            size_t sz = asset->size;
+            uint32 sz = asset->size;
             char *buf = malloc(sz + 1);
-            if (!buf)
-            {
-                LOG_ERROR("Wren Import Error: Out of memory while loading module '%s'", name);
-            }
-            else
-            {
-                memcpy(buf, asset->data, sz);
-                buf[sz] = '\0';
-
-                /* strip UTF-8 BOM if present */
-                if (sz >= 3 && (unsigned char)buf[0] == 0xEF && (unsigned char)buf[1] == 0xBB &&
-                    (unsigned char)buf[2] == 0xBF)
-                {
-                    memmove(buf, buf + 3, sz - 3 + 1); /* include terminating NUL */
-                }
-
-                result.source = buf;
-            }
+            memcpy(buf, asset->data, sz);
+            buf[sz] = '\0';
+            result.source = buf;
         }
         else
         {

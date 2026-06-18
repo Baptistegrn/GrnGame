@@ -4,6 +4,6 @@
 
 BEGIN_DECLARATIONS
 
-void RegisterUtilsModule();
+void RegisterLogModule();
 
 END_DECLARATIONS

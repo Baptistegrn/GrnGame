@@ -4,6 +4,7 @@
 #include "grngame/dev/logging.h"
 
 #define QUILL_DISABLE_NON_PREFIXED_MACROS
+#include "grngame/core/app.h"
 #include "grngame/utils/attributes.h"
 
 #include <quill/Backend.h>
@@ -14,14 +15,16 @@
 #include <quill/sinks/FileSink.h>
 
 #include <chrono>
+#include <cstdarg>
 #include <cstdio>
-#include <stdarg.h>
 #include <string>
 #include <vector>
 
 static quill::Logger *s_logger = nullptr;
-static LogDestination s_current_destination;
-static bool s_logs_enabled = true;
+static quill::Logger *s_logger_console = nullptr;
+static quill::Logger *s_logger_file = nullptr;
+static quill::Logger *s_logger_json = nullptr;
+static LogDestination s_current_destination = LOG_TO_CONSOLE;
 
 static LogSeverity LogSeverityForBuildType();
 static quill::LogLevel LogSeverityToLogLevel(LogSeverity log_severity);
@@ -29,145 +32,159 @@ static const char *LogSeverityToString(LogSeverity log_severity);
 
 extern "C"
 {
-    void LogSetEnabled(bool enabled)
-    {
-        s_logs_enabled = enabled;
-    }
-
-    bool LogIsEnabled()
-    {
-        return s_logs_enabled;
-    }
 
     bool LogSetDestination(LogDestination log_destination)
     {
-        if (s_current_destination == log_destination && s_logger)
-            return true;
-
-        return LogInit(log_destination);
-    }
-
-    void LogSetLevel(LogSeverity severity)
-    {
-        if (s_logger)
-            s_logger->set_log_level(LogSeverityToLogLevel(severity));
-    }
-}
-
-extern "C"
-{
-    bool LogInit(LogDestination log_destination)
-    {
-        quill::Backend::start();
-
-        s_current_destination = log_destination;
-        s_logger = nullptr;
-
         switch (log_destination)
         {
-        case LOG_TO_CONSOLE: {
-            auto console_sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("sink_console");
-            s_logger = quill::Frontend::create_or_get_logger("grngame", std::move(console_sink));
+        case LOG_TO_CONSOLE:
+            s_logger = s_logger_console;
             break;
-        }
-
-        case LOG_TO_FILE: {
-            auto cfg = quill::FileSinkConfig();
-            cfg.set_open_mode('w');
-            cfg.set_filename_append_option(quill::FilenameAppendOption::None);
-
-            auto file_sink = quill::Frontend::create_or_get_sink<quill::FileSink>("grngame.log", std::move(cfg),
-                                                                                  quill::FileEventNotifier());
-
-            s_logger = quill::Frontend::create_or_get_logger("grngame", std::move(file_sink));
+        case LOG_TO_FILE:
+            s_logger = s_logger_file;
             break;
-        }
-
-        case LOG_TO_JSON: {
-            auto cfg = quill::FileSinkConfig();
-            cfg.set_open_mode('w');
-            cfg.set_filename_append_option(quill::FilenameAppendOption::None);
-
-            auto file_sink = quill::Frontend::create_or_get_sink<quill::FileSink>("grngame.log", std::move(cfg),
-                                                                                  quill::FileEventNotifier());
-            s_logger = quill::Frontend::create_or_get_logger("grngame", std::move(file_sink),
-                                                             quill::PatternFormatterOptions{"%(message)"});
+        case LOG_TO_JSON:
+            s_logger = s_logger_json;
             break;
-        }
+        default:
+            return false;
         }
 
         if (UNLIKELY(!s_logger))
             return false;
 
-        s_logger->set_log_level(LogSeverityToLogLevel(LogSeverityForBuildType()));
-
+        s_current_destination = log_destination;
         return true;
     }
-}
 
-extern "C"
-{
-    void Log(LogSeverity log_severity, const char *format, ...)
+    void LogSetLevel(LogSeverity severity)
     {
-        if (!s_logs_enabled)
-            return;
+        const auto level = LogSeverityToLogLevel(severity);
+        if (s_logger_console)
+            s_logger_console->set_log_level(level);
+        if (s_logger_file)
+            s_logger_file->set_log_level(level);
+        if (s_logger_json)
+            s_logger_json->set_log_level(level);
+    }
 
-        va_list args;
-        va_start(args, format);
+    bool LogInit(LogDestination log_destination)
+    {
+        quill::Backend::start();
 
-        int size = vsnprintf(nullptr, 0, format, args);
-        va_end(args);
-
-        if (size < 0)
-            return;
-
-        std::vector<char> buf(size + 1);
-
-        va_start(args, format);
-        vsnprintf(buf.data(), buf.size(), format, args);
-        va_end(args);
-
-        if (UNLIKELY(!s_logger))
         {
-            fprintf(stderr, "%s\n", buf.data());
-            fflush(stderr);
-            return;
+            auto console_sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("sink_console");
+            s_logger_console = quill::Frontend::create_or_get_logger("grngame_console", console_sink);
         }
 
-        if (s_current_destination == LOG_TO_JSON)
         {
-            // Escape the message for JSON: replace \ with \\ and " with \"
-            std::string msg(buf.data());
-            std::string escaped;
-            escaped.reserve(msg.size());
-            for (char c : msg)
+            quill::FileSinkConfig cfg;
+            cfg.set_open_mode('w');
+            cfg.set_filename_append_option(quill::FilenameAppendOption::None);
+
+            auto file_sink =
+                quill::Frontend::create_or_get_sink<quill::FileSink>("grngame.log", cfg, quill::FileEventNotifier{});
+
+            s_logger_file = quill::Frontend::create_or_get_logger("grngame_file", file_sink);
+        }
+
+        {
+            quill::FileSinkConfig cfg;
+            cfg.set_open_mode('w');
+            cfg.set_filename_append_option(quill::FilenameAppendOption::None);
+
+            auto file_sink =
+                quill::Frontend::create_or_get_sink<quill::FileSink>("grngame.log", cfg, quill::FileEventNotifier{});
+
+            s_logger_json = quill::Frontend::create_or_get_logger("grngame_json", file_sink,
+                                                                  quill::PatternFormatterOptions{"%(message)"});
+        }
+
+        if (UNLIKELY(!s_logger_console || !s_logger_file || !s_logger_json))
+            return false;
+
+        const LogSeverity default_severity = LogSeverityForBuildType();
+        s_logger_console->set_log_level(LogSeverityToLogLevel(default_severity));
+        s_logger_file->set_log_level(LogSeverityToLogLevel(default_severity));
+        s_logger_json->set_log_level(LogSeverityToLogLevel(default_severity));
+
+        return LogSetDestination(log_destination);
+    }
+
+} // extern "C"
+
+void Log(LogSeverity log_severity, const char *format, ...)
+{
+    if (!g_app.info.enable_logs)
+        return;
+
+    va_list args;
+    va_start(args, format);
+
+    int size = vsnprintf(nullptr, 0, format, args);
+
+    va_end(args);
+
+    if (size < 0)
+        return;
+
+    std::vector<char> buf(static_cast<size_t>(size) + 1);
+
+    va_start(args, format);
+    vsnprintf(buf.data(), buf.size(), format, args);
+    va_end(args);
+
+    if (UNLIKELY(!s_logger))
+    {
+        fprintf(stderr, "%s\n", buf.data());
+        fflush(stderr);
+        return;
+    }
+
+    if (s_current_destination == LOG_TO_JSON)
+    {
+        std::string msg(buf.data());
+
+        std::string escaped;
+        escaped.reserve(msg.size());
+
+        for (char c : msg)
+        {
+            switch (c)
             {
-                if (c == '\\')
-                    escaped += "\\\\";
-                else if (c == '"')
-                    escaped += "\\\"";
-                else if (c == '\n')
-                    escaped += "\\n";
-                else if (c == '\r')
-                    escaped += "\\r";
-                else if (c == '\t')
-                    escaped += "\\t";
-                else
-                    escaped += c;
+            case '\\':
+                escaped += "\\\\";
+                break;
+            case '"':
+                escaped += "\\\"";
+                break;
+            case '\n':
+                escaped += "\\n";
+                break;
+            case '\r':
+                escaped += "\\r";
+                break;
+            case '\t':
+                escaped += "\\t";
+                break;
+            default:
+                escaped += c;
+                break;
             }
-
-            auto now = std::chrono::system_clock::now();
-            auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
-
-            std::string json_line = std::string("{\"timestamp\":\"") + std::to_string(ns) + "\",\"log_level\":\"" +
-                                    LogSeverityToString(log_severity) + "\",\"message\":\"" + escaped + "\"}";
-
-            QUILL_LOG_DYNAMIC(s_logger, LogSeverityToLogLevel(log_severity), "{}", json_line);
         }
-        else
-        {
-            QUILL_LOG_DYNAMIC(s_logger, LogSeverityToLogLevel(log_severity), "{}", buf.data());
-        }
+
+        auto now = std::chrono::system_clock::now();
+
+        auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+
+        std::string json_line = std::string("{\"timestamp\":\"") + std::to_string(ns) + "\",\"log_level\":\"" +
+                                LogSeverityToString(log_severity) + "\",\"message\":\"" + escaped + "\"}";
+
+        QUILL_LOG_DYNAMIC(s_logger, LogSeverityToLogLevel(log_severity), "{}", json_line);
+    }
+    else
+    {
+        QUILL_LOG_DYNAMIC(s_logger, LogSeverityToLogLevel(log_severity), "{}", buf.data());
     }
 }
 
@@ -177,17 +194,21 @@ static quill::LogLevel LogSeverityToLogLevel(LogSeverity log_severity)
     {
     case LOG_SEVERITY_DEBUG:
         return quill::LogLevel::Debug;
+
     case LOG_SEVERITY_INFO:
         return quill::LogLevel::Info;
+
     case LOG_SEVERITY_WARNING:
         return quill::LogLevel::Warning;
+
     case LOG_SEVERITY_ERROR:
         return quill::LogLevel::Error;
+
     case LOG_SEVERITY_CRITICAL:
         return quill::LogLevel::Critical;
-    default:
-        UNREACHABLE();
     }
+
+    return quill::LogLevel::Info;
 }
 
 static const char *LogSeverityToString(LogSeverity log_severity)
@@ -196,14 +217,19 @@ static const char *LogSeverityToString(LogSeverity log_severity)
     {
     case LOG_SEVERITY_DEBUG:
         return "DEBUG";
+
     case LOG_SEVERITY_INFO:
         return "INFO";
+
     case LOG_SEVERITY_WARNING:
         return "WARNING";
+
     case LOG_SEVERITY_ERROR:
         return "ERROR";
+
     case LOG_SEVERITY_CRITICAL:
         return "CRITICAL";
+
     default:
         return "UNKNOWN";
     }
@@ -214,37 +240,53 @@ static LogSeverity LogSeverityForBuildType()
 #ifdef GRNGAME_DEBUG
     return LOG_SEVERITY_DEBUG;
 #else
-    return LOG_SEVERITY_DEBUG;
+    return LOG_SEVERITY_INFO;
 #endif
 }
 
-#endif
+#endif // WASM
 
 #ifdef WASM
 
+#include "grngame/core/app.h"
 #include "logging.h"
+
 #include <emscripten/emscripten.h>
-#include <stdarg.h>
-#include <stdio.h>
+
+#include <cstdarg>
+#include <cstdio>
 #include <vector>
 
-bool LogInit(LogDestination log_destination)
+bool LogInit(LogDestination)
 {
     return true;
 }
 
+bool LogSetDestination(LogDestination)
+{
+    return true;
+}
+
+void LogSetLevel(LogSeverity)
+{
+}
+
 void Log(LogSeverity log_severity, const char *format, ...)
 {
+    if (!g_app.info.enable_logs)
+        return;
+
     va_list args;
     va_start(args, format);
 
     int size = vsnprintf(nullptr, 0, format, args);
+
     va_end(args);
 
     if (size < 0)
         return;
 
-    std::vector<char> buf(size + 1);
+    std::vector<char> buf(static_cast<size_t>(size) + 1);
 
     va_start(args, format);
     vsnprintf(buf.data(), buf.size(), format, args);
@@ -271,9 +313,11 @@ void Log(LogSeverity log_severity, const char *format, ...)
     }
 }
 
+#endif
+
 static void ApplyEnableLogs(AppInfo *info)
 {
-    LogSetEnabled(info->enable_logs);
+    g_app.info.enable_logs = info->enable_logs;
 }
 
 static void ApplyLogDestination(AppInfo *info)
@@ -281,4 +325,23 @@ static void ApplyLogDestination(AppInfo *info)
     LogSetDestination(info->log_destination);
 }
 
-#endif
+bool LogGetEnable(void)
+{
+    return g_app.info.enable_logs;
+}
+
+void LogInfoSetEnable(bool enable)
+{
+    g_app.info.enable_logs = enable;
+}
+
+void LogInfoSetDestination(LogDestination destination)
+{
+    g_app.info.log_destination = destination;
+}
+
+void LogApplyConfig(AppInfo *app_info)
+{
+    ApplyLogDestination(app_info);
+    ApplyEnableLogs(app_info);
+}

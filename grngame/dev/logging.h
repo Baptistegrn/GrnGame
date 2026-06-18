@@ -31,12 +31,16 @@ void Log(LogSeverity log_severity, const char *format, ...);
 #define LOG_ERROR(fmt, ...) Log(LOG_SEVERITY_ERROR, fmt, ##__VA_ARGS__)
 #define LOG_CRITICAL(fmt, ...) Log(LOG_SEVERITY_CRITICAL, fmt, ##__VA_ARGS__)
 
-void LogSetEnabled(bool enabled);
-bool LogIsEnabled();
 bool LogSetDestination(LogDestination log_destination);
 void LogSetLevel(LogSeverity severity);
 
-static void ApplyEnableLogs(AppInfo *info);
-static void ApplyLogDestination(AppInfo *info);
+// getters
+bool LogGetEnable(void);
+
+// setters
+void LogInfoSetEnable(bool enable);
+void LogInfoSetDestination(LogDestination destination);
+
+void LogApplyConfig(AppInfo *app_info);
 
 END_DECLARATIONS

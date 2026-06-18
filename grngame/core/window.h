@@ -8,7 +8,6 @@
 BEGIN_DECLARATIONS
 
 SDL_Window *WindowCreate(const AppInfo *app_info);
-bool SetAppMetadata(AppInfo *app_info, const char *appname, const char *appversion, const char *appidentifier);
 
 // Setters
 void WindowInfoSetSize(AppInfo *app_info, uint16 width, uint16 height);
@@ -18,6 +17,8 @@ void WindowInfoSetMaximised(AppInfo *app_info, bool maximised);
 void WindowInfoSetResizable(AppInfo *app_info, bool resizable);
 void WindowInfoSetBordered(AppInfo *app_info, bool bordered);
 void WindowInfoSetForceUniverseScale(AppInfo *app_info, bool force);
+void WindowInfoSetName(AppInfo *app_info, const char *name);
+void WindowInfoSetVersion(AppInfo *app_info, const char *version);
 
 // update
 void WindowApplyConfig(AppInfo *app_info);
@@ -38,5 +39,6 @@ ivec2s WindowDimensions(SDL_Window *window);
 bool WindowConfigureScale(uint8 scalex, uint8 scaley);
 void ApplyResizing(AppInfo *app_info, int16 width, int16 height);
 void ApplyBlackStripes();
+bool SetAppMetadata(AppInfo *app_info, const char *appname, const char *appversion, const char *appidentifier);
 
 END_DECLARATIONS
