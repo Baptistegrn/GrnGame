@@ -10,6 +10,12 @@ option("tracy")
     set_description("Enable Tracy profiler instrumentation")
 option_end()
 
+option("steam")
+    set_default(false)
+    set_showmenu(true)
+    set_description("Enable Steam")
+option_end()
+
 option("embed_assets")
     set_default(is_plat("wasm"))
     set_showmenu(true)
@@ -21,7 +27,7 @@ add_requires("libsdl3_image", {version = "3.2.0"},      {configs = {shared = fal
 add_requires("libsdl3_ttf",   {version = "3.2.2"},      {configs = {shared = false, freetype = false}, system = false})
 add_requires("klib",          {version = "2024.06.03"}, {configs = {shared = false}})
 add_requires("cglm",          {version = "v0.9.6"},     {configs = {shared = false}})
-add_requires("soloud",        {version = "2020.02.07"}, {configs = {shared = false}})
+add_requires("soloud",        {version = "2020.02.07"}, {configs = {shared = false,cxflags = is_arch("arm64") and "-DDR_MP3_NO_SIMD" or nil}})
 add_requires("tinydir",       {version = "1.2.6"},      {configs = {shared = false}})
 add_requires("wren",          {version = "0.4.0"},      {configs = {shared = false}})
 add_requires("highway",       {version = "1.3.0"},      {configs = {shared = false}})
@@ -52,7 +58,7 @@ local function get_embedded_exe()
 end
 
 local function add_steam_support()
-    if not is_plat("wasm") then
+    if not is_plat("wasm") and has_config("steam") then
         add_linkdirs("plugins", {public = true})
         if     is_plat("linux")   then add_links("steam_api",   {public = true})
         elseif is_plat("windows") then add_links("steam_api64", {public = true})
