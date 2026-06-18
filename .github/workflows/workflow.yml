@@ -66,20 +66,20 @@ jobs:
             buildtype: release
             embed: true
 
-          - os: macos-13
-            runner: macos-13
+          - os: macos-15-intel
+            runner: macos-15-intel
             platform: macos-x64
             buildtype: debug
             embed: false
 
-          - os: macos-13
-            runner: macos-13
+          - os: macos-15-intel
+            runner: macos-15-intel
             platform: macos-x64
             buildtype: release
             embed: false
 
-          - os: macos-13
-            runner: macos-13
+          - os: macos-15-intel
+            runner: macos-15-intel
             platform: macos-x64
             buildtype: release
             embed: true
@@ -210,6 +210,6 @@ jobs:
         with:
           name: "Release ${{ github.ref_name }}"
           draft: false
-          prerelease: ${{ contains(github.ref_name, '-') }}
+          prerelease: ${{ contains(github.ref_name, '-') }}   
           generate_release_notes: true
           files: release-assets/*.zip

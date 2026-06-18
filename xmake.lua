@@ -186,11 +186,11 @@ target("SqlTest")
     add_files("test_sql/main.c")
 
 
-target("EmbeddedBenchMark")
+target("EmbeddedBenchmark")
     set_languages("c17", "cxx17")
     set_kind("binary")
     set_targetdir("benchmark")
-    set_binary_targetdir("EmbeddedBenchMark")
+    set_binary_targetdir("EmbeddedBenchmark")
     add_files("benchmark/main.c")
     add_headerfiles("grngame/**.h")
     add_deps("GrnGame")
