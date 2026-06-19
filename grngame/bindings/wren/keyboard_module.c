@@ -22,7 +22,7 @@ static void key_just_released(WrenVM *vm)
 
 void RegisterKeyboardModule()
 {
-    const char *module = "std/wren/input/keyboard";
+    const char *module = "std/wren/input/keyboard/keyboard";
     const char *cls = "Keyboard";
     bool is_static = true;
 

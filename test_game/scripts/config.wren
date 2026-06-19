@@ -40,14 +40,14 @@ class Config {
 
         // Preserve universe aspect ratio.
         // Black bars may be added when required.
-        __forceUniverseScale = true
+        __forceUniverseScale = false
 
         // Screen clear color index.
         __renderClear = 0
 
         // Active color palette.
     __colorPalette = [
-    "#FF0000", "#83603d", "#FFFF00", "#7FFF00",
+    "#000000", "#83603d", "#FFFF00", "#7FFF00",
     "#00FF00", "#00FF7F", "#00FFFF", "#007FFF",
     "#0000FF", "#7F00FF", "#FF00FF", "#FF007F",
     "#8B0000", "#FF4500", "#FFD700", "#ADFF2F",

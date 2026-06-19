@@ -180,21 +180,21 @@ static void db_stmt_free(WrenVM *vm)
 
 void RegisterDbModule()
 {
-    const char *module = "std/wren/data/db";
+    const char *module_db = "std/wren/data/db";
+    const char *module_stmt = "std/wren/data/stmt";
+    RegisterClass(module_db, "Db", db_allocate, db_finalize);
+    RegisterClass(module_stmt, "DbStmt", db_stmt_allocate, db_stmt_finalize);
 
-    RegisterClass(module, "Db", db_allocate, db_finalize);
-    RegisterClass(module, "DbStmt", db_stmt_allocate, db_stmt_finalize);
+    RegisterMethod(module_db, "Db", false, "open(_)", db_open);
+    RegisterMethod(module_db, "Db", false, "prepare(_)", db_prepare);
+    RegisterMethod(module_db, "Db", false, "close()", db_close);
+    RegisterMethod(module_db, "Db", false, "fetch(_)", db_fetch);
+    RegisterMethod(module_db, "Db", false, "write(_)", db_write);
+    RegisterMethod(module_db, "Db", false, "begin()", db_begin);
+    RegisterMethod(module_db, "Db", false, "commit()", db_commit);
+    RegisterMethod(module_db, "Db", false, "rollback()", db_rollback);
+    RegisterMethod(module_db, "Db", true, "exists(_)", db_exists);
 
-    RegisterMethod(module, "Db", false, "open(_)", db_open);
-    RegisterMethod(module, "Db", false, "prepare(_)", db_prepare);
-    RegisterMethod(module, "Db", false, "close()", db_close);
-    RegisterMethod(module, "Db", false, "fetch(_)", db_fetch);
-    RegisterMethod(module, "Db", false, "write(_)", db_write);
-    RegisterMethod(module, "Db", false, "begin()", db_begin);
-    RegisterMethod(module, "Db", false, "commit()", db_commit);
-    RegisterMethod(module, "Db", false, "rollback()", db_rollback);
-    RegisterMethod(module, "Db", true, "exists(_)", db_exists);
-
-    RegisterMethod(module, "DbStmt", false, "run(_)", db_stmt_run);
-    RegisterMethod(module, "DbStmt", false, "free()", db_stmt_free);
+    RegisterMethod(module_stmt, "DbStmt", false, "run(_)", db_stmt_run);
+    RegisterMethod(module_stmt, "DbStmt", false, "free()", db_stmt_free);
 }

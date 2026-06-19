@@ -9,7 +9,6 @@
 #include <SDL3/SDL_events.h>
 #include <math.h>
 
-
 // sdl wrappent
 SDL_Gamepad *GamepadOpen(SDL_JoystickID id)
 {
@@ -183,7 +182,7 @@ bool PadJustReleased(int button, int16 index)
 }
 
 // todo test if function is call at frame 0 and call it at frame 1 and warn
-bool PadRumble(int16 index, uint16 left_rumble, uint16 right_rumble, uint32 time)
+bool PadRumble(int16 index, uint8 left_rumble, uint8 right_rumble, uint32 time)
 {
     if (UNLIKELY(index < 0 || index >= MAX_CONTROLLERS))
     {
@@ -198,7 +197,13 @@ bool PadRumble(int16 index, uint16 left_rumble, uint16 right_rumble, uint32 time
         return false;
     }
 
-    if (!SDL_RumbleGamepad(gp, left_rumble, right_rumble, time))
+    left_rumble = min(left_rumble, 100);
+    right_rumble = min(right_rumble, 100);
+
+    Uint16 sdl_left = (Uint16)((left_rumble * 65535u) / 100u);
+    Uint16 sdl_right = (Uint16)((right_rumble * 65535u) / 100u);
+
+    if (!SDL_RumbleGamepad(gp, sdl_left, sdl_right, time))
     {
         LOG_WARNING("Failed to rumble controller %d: %s", index, SDL_GetError());
         return false;
@@ -206,7 +211,6 @@ bool PadRumble(int16 index, uint16 left_rumble, uint16 right_rumble, uint32 time
 
     return true;
 }
-
 bool PadHasButton(int16 index, int button)
 {
     if (UNLIKELY(index < 0 || index >= MAX_CONTROLLERS))

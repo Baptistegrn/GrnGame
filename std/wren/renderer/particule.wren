@@ -62,13 +62,13 @@ foreign class ParticleEmitter {
     foreign scale_amount_curve=(value)
 
     foreign color_start
-    foreign color_start=(value)
+    foreign color_start=(idx)
 
     foreign alpha_start
     foreign alpha_start=(value)
 
     foreign color_end
-    foreign color_end=(value)
+    foreign color_end=(idx)
 
     foreign alpha_end
     foreign alpha_end=(value)

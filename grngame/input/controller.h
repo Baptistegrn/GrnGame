@@ -46,7 +46,7 @@ float32 PadStickRY(uint16 index);
 float32 PadTriggerL(uint8 index);
 float32 PadTriggerR(uint8 index);
 
-bool PadRumble(int16 index, uint16 left_rumble, uint16 right_rumble, uint32 duration_ms);
+bool PadRumble(int16 index, uint8 left_rumble, uint8 right_rumble, uint32 duration_ms);
 bool PadHasButton(int16 index, int button);
 bool PadHasAxis(int16 index, int axis);
 bool PadHasSensor(int16 index, int sensor_type);

@@ -84,16 +84,16 @@ static void controller_connected_count(WrenVM *vm)
 static void pad_rumble(WrenVM *vm)
 {
     int16 index = (int16)wrenGetSlotDouble(vm, 1);
-    uint16 left_rumble = (uint16)wrenGetSlotDouble(vm, 2);
-    uint16 right_rumble = (uint16)wrenGetSlotDouble(vm, 3);
+    uint16 left_rumble = (uint8)wrenGetSlotDouble(vm, 2);
+    uint16 right_rumble = (uint8)wrenGetSlotDouble(vm, 3);
     uint32 time = (uint32)wrenGetSlotDouble(vm, 4);
     PadRumble(index, left_rumble, right_rumble, time);
 }
 
 void RegisterControllerModule()
 {
-    const char *module = "std/wren/input/pad_node";
-    const char *cls = "PadNode";
+    const char *module = "std/wren/input/pad/pad";
+    const char *cls = "Pad";
     bool is_static = true;
 
     RegisterMethod(module, cls, is_static, "pressed(_,_)", controller_pad_pressed);

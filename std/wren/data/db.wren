@@ -10,10 +10,3 @@ foreign class Db {
     foreign rollback()
     foreign static  exists(path)
 }
-
-//todo move in correct file 
-foreign class DbStmt {
-    construct new() {}
-    foreign run(args)
-    foreign free()
-}

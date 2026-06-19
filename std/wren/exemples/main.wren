@@ -1,4 +1,4 @@
-﻿// standard library imports
+// standard library imports
 import "std/wren/input/pad/pad" for Pad
 import "std/wren/input/pad/pad_button" for PadButton
 import "std/wren/input/pad/pad_axis" for PadAxis
@@ -7,7 +7,7 @@ import "std/wren/input/input_event" for InputEvent
 class Main {
   static on_start() {
     // initialize the first controller
-    __pad = Pad.new()
+    __pad = Pad.new()// you can set a key to connect the controller
 
     // --- buttons aliases setup ---
     __pad.add_alias("jump", PadButton.A)
