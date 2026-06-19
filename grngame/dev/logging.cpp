@@ -1,10 +1,27 @@
+#include "logging.h"
+#include "grngame/core/app.h"
+
+#include <cstdarg>
+#include <cstdio>
+#include <vector>
+
+static LogDestination s_current_destination = LOG_TO_CONSOLE;
+static LogSeverity s_current_severity = LOG_SEVERITY_INFO;
+
+static LogSeverity LogSeverityForBuildType()
+{
+#ifdef GRNGAME_DEBUG
+    return LOG_SEVERITY_DEBUG;
+#else
+    return LOG_SEVERITY_INFO;
+#endif
+}
+
 #ifndef WASM
 
-#include "logging.h"
 #include "grngame/dev/logging.h"
 
 #define QUILL_DISABLE_NON_PREFIXED_MACROS
-#include "grngame/core/app.h"
 #include "grngame/utils/attributes.h"
 
 #include <quill/Backend.h>
@@ -15,19 +32,13 @@
 #include <quill/sinks/FileSink.h>
 
 #include <chrono>
-#include <cstdarg>
-#include <cstdio>
 #include <string>
-#include <vector>
 
 static quill::Logger *s_logger = nullptr;
 static quill::Logger *s_logger_console = nullptr;
 static quill::Logger *s_logger_file = nullptr;
 static quill::Logger *s_logger_json = nullptr;
-static LogDestination s_current_destination = LOG_TO_CONSOLE;
-static LogSeverity s_current_severity = LOG_SEVERITY_INFO;
 
-static LogSeverity LogSeverityForBuildType();
 static quill::LogLevel LogSeverityToLogLevel(LogSeverity log_severity);
 static const char *LogSeverityToString(LogSeverity log_severity);
 
@@ -238,50 +249,42 @@ static const char *LogSeverityToString(LogSeverity log_severity)
     }
 }
 
-static LogSeverity LogSeverityForBuildType()
-{
-#ifdef GRNGAME_DEBUG
-    return LOG_SEVERITY_DEBUG;
-#else
-    return LOG_SEVERITY_INFO;
-#endif
-}
-
-#endif // WASM
+#endif // !WASM
 
 #ifdef WASM
 
-#include "grngame/core/app.h"
-#include "logging.h"
-
 #include <emscripten/emscripten.h>
-
-#include <cstdarg>
-#include <cstdio>
-#include <vector>
 
 extern "C"
 {
 
     bool LogInit(LogDestination)
     {
+        // wasm only console work
+        s_current_destination = LOG_TO_CONSOLE;
+        s_current_severity = LogSeverityForBuildType();
+        g_app.info.enable_logs = true;
+
         return true;
     }
 
     bool LogSetDestination(LogDestination)
     {
+
+        s_current_destination = LOG_TO_CONSOLE;
         return true;
     }
 
-    void LogSetLevel(LogSeverity)
+    void LogSetLevel(LogSeverity severity)
     {
+        s_current_severity = severity;
     }
 
 } // extern "C"
 
 void Log(LogSeverity log_severity, const char *format, ...)
 {
-    if (!g_app.info.enable_logs)
+    if (log_severity < s_current_severity)
         return;
 
     va_list args;
@@ -321,11 +324,17 @@ void Log(LogSeverity log_severity, const char *format, ...)
     }
 }
 
-#endif
+#endif // WASM
 
 static void ApplyEnableLogs(AppInfo *info)
 {
+#ifdef WASM
+    // log enable on wasm
+    (void)info;
+    g_app.info.enable_logs = true;
+#else
     g_app.info.enable_logs = info->enable_logs;
+#endif
 }
 
 static void ApplyLogDestination(AppInfo *info)
@@ -340,7 +349,13 @@ bool LogGetEnable(void)
 
 void LogInfoSetEnable(bool enable)
 {
+#ifdef WASM
+    // impossible to desativate log in wasm
+    (void)enable;
+    g_app.info.enable_logs = true;
+#else
     g_app.info.enable_logs = enable;
+#endif
 }
 
 void LogInfoSetDestination(LogDestination destination)
