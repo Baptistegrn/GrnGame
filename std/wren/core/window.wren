@@ -1,5 +1,3 @@
-import "config" for Config
-
 foreign class Window {
 
     foreign static scale
@@ -18,13 +16,4 @@ foreign class Window {
                                 fullscreen, maximised,
                                 resizable, bordered,
                                 forceUniverseScale)
-
-    static apply() {
-        apply_config(Config.name, Config.version,
-            Config.universeWidth, Config.universeHeight,
-            Config.windowWidth, Config.windowHeight,
-            Config.fullscreen, Config.maximised, Config.resizable,
-            Config.bordered, Config.forceUniverseScale)
-    }
-
 }

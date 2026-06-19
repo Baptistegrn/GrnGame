@@ -17,59 +17,61 @@ import "std/wren/input/input_event" for InputEvent
 
 class Main {
   static on_start() {
-    __pad = PadNode.new(PadButton.PAD_LB)
+    __pad = PadNode.new()
 
-    __pad.add_alias("debug",    PadButton.PAD_SOUTH)
-    __pad.add_alias("info",     PadButton.PAD_EAST)
-    __pad.add_alias("warn",     PadButton.PAD_NORTH)
-    __pad.add_alias("error",    PadButton.PAD_WEST)
-    __pad.add_alias("critical", PadButton.PAD_RB)
+    __pad.add_alias("resize",      PadButton.PAD_SOUTH)
+    __pad.add_alias("fullscreen",  PadButton.PAD_EAST)
+    __pad.add_alias("resizable",   PadButton.PAD_NORTH)
+    __pad.add_alias("clear_color", PadButton.PAD_WEST)
+    __pad.add_alias("palette",     PadButton.PAD_RB)
 
-    __pad.add_callback("debug", InputEvent.just_pressed, Fn.new {
-            Log.log_set_lvl(Level.debug)
-      Log.log_debug("debug")
-      Log.log_info("info")
-      Log.log_warning("warn")
-      Log.log_error("error")
-      Log.log_critical("critical")
+    // --- Toggle entre deux tailles de fenetre ---
+    __bigWindow = false
+    __pad.add_callback("resize", InputEvent.just_pressed, Fn.new {
+      __bigWindow = !__bigWindow
+      if (__bigWindow) {
+        Config.windowWidth  = 1280
+        Config.windowHeight = 720
+      } else {
+        Config.windowWidth  = 640
+        Config.windowHeight = 360
+      }
+      Log.log_info("Resize -> %(Config.windowWidth)x%(Config.windowHeight)")
+      Config.apply()
     })
 
-    __pad.add_callback("info", InputEvent.just_pressed, Fn.new {
-            Log.log_set_lvl(Level.info)
-      Log.log_debug("debug")
-      Log.log_info("info")
-      Log.log_warning("warn")
-      Log.log_error("error")
-      Log.log_critical("critical")
+    // --- Toggle plein ecran ---
+    __pad.add_callback("fullscreen", InputEvent.just_pressed, Fn.new {
+      Config.fullscreen = !Config.fullscreen
+      Log.log_info("Fullscreen -> %(Config.fullscreen)")
+      Config.apply()
     })
 
-    __pad.add_callback("warn", InputEvent.just_pressed, Fn.new {
-            Log.log_set_lvl(Level.warning)
-      Log.log_debug("debug")
-      Log.log_info("info")
-      Log.log_warning("warn")
-      Log.log_error("error")
-      Log.log_critical("critical")
+    // --- Toggle resizable ---
+    __pad.add_callback("resizable", InputEvent.just_pressed, Fn.new {
+      Config.resizable = !Config.resizable
+      Log.log_info("Resizable -> %(Config.resizable)")
+      Config.apply()
     })
 
-    __pad.add_callback("error", InputEvent.just_pressed, Fn.new {
-            Log.log_set_lvl(Level.error)
-      Log.log_debug("debug")
-      Log.log_info("info")
-      Log.log_warning("warn")
-      Log.log_error("error")
-      Log.log_critical("critical")
+    // --- Cycle sur la couleur de clear (index 0 a 3) ---
+    __clearIndex = 0
+    __pad.add_callback("clear_color", InputEvent.just_pressed, Fn.new {
+      __clearIndex = (__clearIndex + 1) % 4
+      Config.renderClear = __clearIndex
+      Log.log_info("RenderClear -> %(Config.renderClear)")
+      Config.apply()
     })
 
-    __pad.add_callback("critical", InputEvent.just_pressed, Fn.new {
-            Log.log_set_lvl(Level.critical)
-      Log.log_debug("debug")
-      Log.log_info("info")
-      Log.log_warning("warn")
-      Log.log_error("error")
-      Log.log_critical("critical")
+    // --- Recharge une nouvelle palette de couleurs ---
+    __pad.add_callback("palette", InputEvent.just_pressed, Fn.new {
+      Config.colorPalette = [
+        "#000000", "#1A1A2E", "#16213E", "#0F3460",
+        "#E94560", "#FF2E63", "#08D9D6", "#252A34"
+      ]
+      Log.log_info("Palette rechargee")
+      Config.apply()
     })
-
   }
 
   static on_update(dt) {
@@ -80,7 +82,6 @@ class Main {
 
   static on_render() {
     Texture.draw("player", 20, 0, 1, 0, 200)
-
   }
 
   static on_destroy() {}

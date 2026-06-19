@@ -1,15 +1,27 @@
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/bindings/wren/wren_callback.h"
 #include "grngame/math/types.h"
+#include "grngame/renderer/palette.h"
 #include "grngame/renderer/particule.h"
 #include "grngame/renderer/primitive.h"
+#include "grngame/renderer/renderer.h"
 #include "grngame/renderer/sprite.h"
 #include "grngame/renderer/texture.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/string_compat.h"
 #include "wren.h"
+#include <stdbool.h>
 #include <stdlib.h>
-#include <string.h>
+
+static void set_render_color(WrenVM *vm)
+{
+    SetRenderColor((int)wrenGetSlotDouble(vm, 1));
+}
+
+static void palette_reload(WrenVM *vm)
+{
+    PaletteReload();
+}
 
 static void texture_draw_inner(WrenVM *vm)
 {
@@ -646,4 +658,6 @@ void RegisterRendererModule()
     RegisterMethod(prim_module, prim_cls, true, "rect_fill(_,_,_,_,_,_)", primitive_rect_fill);
     RegisterMethod(prim_module, prim_cls, true, "circle(_,_,_,_,_)", primitive_circle);
     RegisterMethod(prim_module, prim_cls, true, "circle_fill(_,_,_,_,_)", primitive_circle_fill);
+    RegisterMethod(prim_module, prim_cls, true, "set_render_color(_)", set_render_color);
+    RegisterMethod(prim_module, prim_cls, true, "palette_reload()", palette_reload);
 }

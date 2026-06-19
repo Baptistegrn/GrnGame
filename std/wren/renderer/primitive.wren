@@ -1,3 +1,4 @@
+
 class Primitive {
     foreign static pixel(x, y, c_idx, a)
 
@@ -10,4 +11,8 @@ class Primitive {
     foreign static circle(x, y, radius, c_idx, a)
 
     foreign static circle_fill(x, y, radius, c_idx, a)
+
+    foreign static set_render_color(index)
+
+    foreign static palette_reload()
 }

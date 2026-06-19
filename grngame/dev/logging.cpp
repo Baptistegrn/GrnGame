@@ -25,6 +25,7 @@ static quill::Logger *s_logger_console = nullptr;
 static quill::Logger *s_logger_file = nullptr;
 static quill::Logger *s_logger_json = nullptr;
 static LogDestination s_current_destination = LOG_TO_CONSOLE;
+static LogSeverity s_current_severity = LOG_SEVERITY_INFO;
 
 static LogSeverity LogSeverityForBuildType();
 static quill::LogLevel LogSeverityToLogLevel(LogSeverity log_severity);
@@ -59,6 +60,7 @@ extern "C"
 
     void LogSetLevel(LogSeverity severity)
     {
+        s_current_severity = severity;
         const auto level = LogSeverityToLogLevel(severity);
         if (s_logger_console)
             s_logger_console->set_log_level(level);
@@ -104,6 +106,7 @@ extern "C"
             return false;
 
         const LogSeverity default_severity = LogSeverityForBuildType();
+        s_current_severity = default_severity;
         s_logger_console->set_log_level(LogSeverityToLogLevel(default_severity));
         s_logger_file->set_log_level(LogSeverityToLogLevel(default_severity));
         s_logger_json->set_log_level(LogSeverityToLogLevel(default_severity));
@@ -344,4 +347,18 @@ void LogApplyConfig(AppInfo *app_info)
 {
     ApplyLogDestination(app_info);
     ApplyEnableLogs(app_info);
+}
+
+extern "C"
+{
+
+    LogSeverity LogGetLevel(void)
+    {
+        return s_current_severity;
+    }
+
+    LogDestination LogGetDestination(void)
+    {
+        return s_current_destination;
+    }
 }

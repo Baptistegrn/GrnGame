@@ -36,6 +36,8 @@ void LogSetLevel(LogSeverity severity);
 
 // getters
 bool LogGetEnable(void);
+LogSeverity LogGetLevel(void);
+LogDestination LogGetDestination(void);
 
 // setters
 void LogInfoSetEnable(bool enable);

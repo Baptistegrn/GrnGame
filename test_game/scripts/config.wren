@@ -1,5 +1,9 @@
 // Global engine configuration.
 
+import "std/wren/renderer/primitive" for Primitive
+import "std/wren/dev/log" for Log
+import "std/wren/core/window" for Window
+
 class Config {
     static init() {
         // Application metadata
@@ -52,6 +56,11 @@ class Config {
     "#2F4F4F", "#696969", "#708090", "#A9A9A9",
     "#D2691E", "#B8860B", "#BC8F8F", "#F5F5F5"
     ]
+
+    // intern
+    __palette_has_changed = false
+    __window_has_changed = false
+
     }
 
     // Getters
@@ -71,24 +80,90 @@ class Config {
     static renderClear      { __renderClear }
     static colorPalette     { __colorPalette }
     static bordered         { __bordered }
+    static palette_has_changed { __palette_has_changed }
+    static window_has_changed  { __window_has_changed }
 
     // Setters
     static name=(v)             { __name = v }
     static version=(v)          { __version = v }
     static fps=(v)              { __fps = v }
-    static windowWidth=(v)      { __windowWidth = v }
-    static windowHeight=(v)     { __windowHeight = v }
-    static universeWidth=(v)    { __universeWidth = v }
-    static universeHeight=(v)   { __universeHeight = v }
-    static resizable=(v)        { __resizable = v }
-    static fullscreen=(v)       { __fullscreen = v }
-    static maximised=(v)        { __maximised = v }
+
+    static windowWidth=(v)      { 
+        __windowWidth = v 
+        __window_has_changed = true 
+    }
+
+    static windowHeight=(v)     { 
+        __windowHeight = v
+         __window_has_changed = true
+    }
+
+    static universeWidth=(v)    { 
+        __universeWidth = v
+         __window_has_changed = true
+    }
+
+    static universeHeight=(v)   { 
+        __universeHeight = v
+         __window_has_changed = true
+    }
+
+    static resizable=(v)        { 
+        __resizable = v
+         __window_has_changed = true
+    }
+
+    static fullscreen=(v)       { 
+        __fullscreen = v
+        __window_has_changed = true
+    }
+
+    static maximised=(v)        { 
+        __maximised = v
+        __window_has_changed = true
+    }
+
     static enableLogs=(v)       { __enableLogs = v }
     static logDestination=(v)   { __logDestination = v }
-    static forceUniverseScale=(v) { __forceUniverseScale = v }
+
+    static forceUniverseScale=(v) { 
+        __forceUniverseScale = v
+        __window_has_changed = true 
+    }
+
     static renderClear=(v)      { __renderClear = v }
-    static colorPalette=(v)     { __colorPalette = v }
-    static bordered=(v)         { __bordered = v }
+
+    static colorPalette=(v)     { 
+        __colorPalette = v 
+        __palette_has_changed = true
+    }
+    static bordered=(v)         { 
+        __bordered = v
+        __window_has_changed = true
+    }
+
+    static window_has_changed=(v){ __window_has_changed =v}
+    static palette_has_changed=(v){ __palette_has_changed =v}
+
+    static apply(){
+        if (Config.window_has_changed) {
+            Window.apply_config(Config.name, Config.version,
+                Config.universeWidth, Config.universeHeight,
+                Config.windowWidth, Config.windowHeight,
+                Config.fullscreen, Config.maximised, Config.resizable,
+                Config.bordered, Config.forceUniverseScale)
+                __window_has_changed = false
+        }
+
+        Log.apply_config(Config.enableLogs, Config.logDestination)
+        Primitive.set_render_color(Config.renderClear)
+
+        if (Config.palette_has_changed){
+            Primitive.palette_reload()
+            __palette_has_changed = false
+        }
+    }
+    
 }
 
 Config.init()

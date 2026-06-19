@@ -3,6 +3,8 @@
 #include "grngame/bindings/wren/controller_module.h"
 #include "grngame/bindings/wren/db_module.h"
 #include "grngame/bindings/wren/file_module.h"
+#include "grngame/bindings/wren/input_text_module.h"
+#include "grngame/bindings/wren/keyboard_module.h"
 #include "grngame/bindings/wren/log_module.h"
 #include "grngame/bindings/wren/mouse_module.h"
 #include "grngame/bindings/wren/renderer_module.h"
@@ -17,6 +19,7 @@
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
 #include "grngame/renderer/palette.h"
+#include "grngame/renderer/renderer.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/file.h"
 #include "wren.h"
@@ -121,6 +124,8 @@ static void RegisterWrenModules(void)
     RegisterWindowModule();
     RegisterDbModule();
     RegisterMouseModule();
+    RegisterKeyboardModule();
+    RegisterInputTextModule();
 }
 
 static void WrenInit()
@@ -188,6 +193,8 @@ void ReloadWrenConfig(void)
 {
     LoadAppConfig();
     WindowApplyConfig(&g_app.info);
+    LogApplyConfig(&g_app.info);
+    SetRenderColor(g_app.info.render_clear);
     PaletteReload();
 }
 
