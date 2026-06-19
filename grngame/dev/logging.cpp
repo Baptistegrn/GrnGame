@@ -260,19 +260,24 @@ static LogSeverity LogSeverityForBuildType()
 #include <cstdio>
 #include <vector>
 
-bool LogInit(LogDestination)
+extern "C"
 {
-    return true;
-}
 
-bool LogSetDestination(LogDestination)
-{
-    return true;
-}
+    bool LogInit(LogDestination)
+    {
+        return true;
+    }
 
-void LogSetLevel(LogSeverity)
-{
-}
+    bool LogSetDestination(LogDestination)
+    {
+        return true;
+    }
+
+    void LogSetLevel(LogSeverity)
+    {
+    }
+
+} // extern "C"
 
 void Log(LogSeverity log_severity, const char *format, ...)
 {
