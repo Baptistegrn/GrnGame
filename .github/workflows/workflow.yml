@@ -156,9 +156,44 @@ jobs:
           name: "${{ matrix.platform }}-${{ matrix.buildtype }}-embed${{ matrix.embed }}"
           path: build/*/*/${{ matrix.buildtype }}/
 
+  build-wasm:
+    runs-on: ubuntu-22.04
+
+    name: "wasm | release | embed=true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+          actions-cache-folder: '.xmake-cache-v2'
+          package-cache: true
+          build-cache: true
+
+      - name: Setup emsdk
+        uses: mymindstorm/setup-emsdk@v14
+
+      - name: Configure
+        run: >
+          xmake f -p wasm -c
+          -y -vv
+          --embed_assets=y
+
+      - name: Build
+        run: xmake build -y -vv
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "wasm-release-embedtrue"
+          path: build/*/*/release/
+
   release:
     name: Create GitHub Release
-    needs: build
+    needs: [build, build-wasm]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-22.04
     permissions:
@@ -184,7 +219,6 @@ jobs:
             suffix=$([ "$embed" = "true" ] && echo "embedded" || echo "standalone")
             local archive="release-assets/${platform}-${suffix}-${tag}.zip"
 
-            # Dossier source = nom de l'artefact release avec embed
             local src="artifacts/${platform}-release-embed${embed}"
 
             if [ -d "$src" ]; then
@@ -201,6 +235,19 @@ jobs:
             package "$platform" "true"
             package "$platform" "false"
           done
+
+          mkdir -p artifacts/wasm-release-embedtrue
+          if [ -d "artifacts/wasm-release-embedtrue" ]; then
+            tag="${GITHUB_REF_NAME}"
+            archive="release-assets/wasm-embedded-${tag}.zip"
+            src="artifacts/wasm-release-embedtrue"
+            echo "Packaging $src → $archive"
+            cd "$src"
+            zip -r "../../${archive}" .
+            cd - > /dev/null
+          else
+            echo "Skipping missing: artifacts/wasm-release-embedtrue"
+          fi
 
           echo "── Contents of release-assets/ ──"
           ls -lh release-assets/

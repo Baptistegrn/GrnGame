@@ -27,6 +27,7 @@ add_requires("libsdl3_image", {version = "3.2.0"},      {configs = {shared = fal
 add_requires("libsdl3_ttf",   {version = "3.2.2"},      {configs = {shared = false, freetype = false}, system = false})
 add_requires("klib",          {version = "2024.06.03"}, {configs = {shared = false}})
 add_requires("cglm",          {version = "v0.9.6"},     {configs = {shared = false}})
+-- todo enable smd and correct window conflit definition with soloud macro
 add_requires("soloud",        {version = "2020.02.07"}, {configs = {shared = false,cxflags = is_arch("arm64") and "-DDR_MP3_NO_SIMD" or nil}})
 add_requires("tinydir",       {version = "1.2.6"},      {configs = {shared = false}})
 add_requires("wren",          {version = "0.4.0"},      {configs = {shared = false}})
