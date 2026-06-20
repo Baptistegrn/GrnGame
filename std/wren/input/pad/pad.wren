@@ -47,21 +47,19 @@ class Pad {
         _trigger_l = 0.0
         _trigger_r = 0.0
 
-        // button callbacks dictionaries
         _just_pressed_events = {}
         _just_released_events = {}
         _pressed_events = {}
 
-        // listened buttons lists to optimize update loop
-        _just_pressed_buttons = []
-        _just_released_buttons = []
-        _pressed_buttons = []
+        _just_pressed_keys = []
+        _just_released_keys = []
+        _pressed_keys = []
         
         _aliases = {}
 
         _axis_aliases = {}
         _axis_events = {}
-        _active_axes = [] 
+        _active_axis_keys = [] 
 
         if (_has_pad) {
             Log.log_debug("pad initialized with auto index: %(index)")
@@ -83,7 +81,6 @@ class Pad {
 
     get_count() { Pad.connected_count() }
 
-    // assign controller id as soon as a specific button is pressed
     set_id(button) {
         _index = Pad.first_pressed_index_for_button(button)
         if (_index == -1) {
@@ -95,84 +92,109 @@ class Pad {
     }
 
     set_detect_button(button) { _button = button }
-
-    // alias and callbacks management for buttons 
+    
     add_alias(name, button) {
         _aliases[name] = button
         Log.log_debug("button alias added: '%(name)' -> button %(button)")
     }
 
+    change_alias(name, new_button) {
+        if (_aliases.containsKey(name)) {
+            _aliases[name] = new_button
+            Log.log_debug("button alias changed: '%(name)' -> new button %(new_button)")
+        }
+    }
+
     add_callback(alias, input_type, callback) {
         if (!_aliases.containsKey(alias)) return false
-        add_callback_raw(_aliases[alias], input_type, callback)
+        add_callback_raw(alias, input_type, callback)
         return true
     }
 
-    add_callback_raw(button, input_type, callback) {
+    add_callback_raw(identifier, input_type, callback) {
         var events
-        var buttons
+        var keys
         
         if (input_type == InputEvent.just_pressed) {
             events = _just_pressed_events
-            buttons = _just_pressed_buttons
+            keys = _just_pressed_keys
         } else if (input_type == InputEvent.pressed) {
             events = _pressed_events
-            buttons = _pressed_buttons
+            keys = _pressed_keys
         } else if (input_type == InputEvent.just_released) {
             events = _just_released_events
-            buttons = _just_released_buttons
+            keys = _just_released_keys
         } else {
             return
         }
 
-        if (!events.containsKey(button)) {
-            events[button] = []
-            buttons.add(button)
+        if (!events.containsKey(identifier)) {
+            events[identifier] = []
+            keys.add(identifier)
         }
-        events[button].add(callback)
+        events[identifier].add(callback)
     }
 
-    //  alias and callbacks management for axes 
+    
     add_axis_alias(name, axis) {
         _axis_aliases[name] = axis
         Log.log_debug("axis alias added: '%(name)' -> axis %(axis)")
     }
 
-    add_axis_callback(alias, callback) {
+    change_axis_alias(name, new_axis) {
+        if (_axis_aliases.containsKey(name)) {
+            _axis_aliases[name] = new_axis
+            Log.log_debug("axis alias changed: '%(name)' -> new axis %(new_axis)")
+        }
+    }
+
+    add_axis_callback(alias, threshold, callback) {
         if (!_axis_aliases.containsKey(alias)) return false
         
-        var axis = _axis_aliases[alias]
-        if (!_axis_events.containsKey(axis)) {
-            _axis_events[axis] = []
-            _active_axes.add(axis)
+        if (!_axis_events.containsKey(alias)) {
+            _axis_events[alias] = []
+            _active_axis_keys.add(alias)
         }
-        _axis_events[axis].add(callback)
+        
+        _axis_events[alias].add([threshold, callback, 0.0])
         return true
     }
 
+    resolve_button_(identifier) {
+        if (identifier is String) return _aliases[identifier]
+        return identifier
+    }
+
+    resolve_axis_(identifier) {
+        if (identifier is String) return _axis_aliases[identifier]
+        return identifier
+    }
+
     update(dt) {
-        // if no pad, try to detect it
         if (!_has_pad) {
             set_id(_button)
             return
         }
 
-        // execute button callbacks
-        for (btn in _just_pressed_buttons) {
-            if (Pad.just_pressed(btn, _index)) {
-                for (cb in _just_pressed_events[btn]) cb.call()
+        // execute button callbacks (resolving aliases dynamically)
+        for (key in _just_pressed_keys) {
+            var btn = resolve_button_(key)
+            if (btn != null && Pad.just_pressed(btn, _index)) {
+                for (cb in _just_pressed_events[key]) cb.call()
             }
         }
 
-        for (btn in _just_released_buttons) {
-            if (Pad.just_released(btn, _index)) {
-                for (cb in _just_released_events[btn]) cb.call()
+        for (key in _just_released_keys) {
+            var btn = resolve_button_(key)
+            if (btn != null && Pad.just_released(btn, _index)) {
+                for (cb in _just_released_events[key]) cb.call()
             }
         }
 
-        for (btn in _pressed_buttons) {
-            if (Pad.pressed(btn, _index)) {
-                for (cb in _pressed_events[btn]) cb.call()
+        for (key in _pressed_keys) {
+            var btn = resolve_button_(key)
+            if (btn != null && Pad.pressed(btn, _index)) {
+                for (cb in _pressed_events[key]) cb.call()
             }
         }
 
@@ -181,12 +203,14 @@ class Pad {
         _stick_ly = Pad.stick_ly(_index)
         _stick_rx = Pad.stick_rx(_index)
         _stick_ry = Pad.stick_ry(_index)
-
         _trigger_l = Pad.trigger_l(_index)
         _trigger_r = Pad.trigger_r(_index)
 
         // execute axes callbacks
-        for (axis in _active_axes) {
+        for (key in _active_axis_keys) {
+            var axis = resolve_axis_(key)
+            if (axis == null) continue
+
             var val = 0.0
             
             if (axis == PadAxis.STICK_LX) {
@@ -203,10 +227,14 @@ class Pad {
                 val = _trigger_r
             }
             
-            for (cb in _axis_events[axis]) {
-                // pass the stick value as callback parameter
-                if(val != 0.0){
+            for (item in _axis_events[key]) {
+                var threshold = item[0]
+                var cb = item[1]
+                var last_val = item[2]
+                
+                if ((val - last_val).abs >= threshold) {
                     cb.call(val) 
+                    item[2] = val 
                 }
             }
         }

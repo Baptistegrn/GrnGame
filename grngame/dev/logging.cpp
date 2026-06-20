@@ -87,7 +87,7 @@ extern "C"
 
         {
             auto console_sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("sink_console");
-            s_logger_console = quill::Frontend::create_or_get_logger("grngame_console", console_sink);
+            s_logger_console = quill::Frontend::create_or_get_logger("con", console_sink);
         }
 
         {
@@ -98,7 +98,7 @@ extern "C"
             auto file_sink =
                 quill::Frontend::create_or_get_sink<quill::FileSink>("grngame.log", cfg, quill::FileEventNotifier{});
 
-            s_logger_file = quill::Frontend::create_or_get_logger("grngame_file", file_sink);
+            s_logger_file = quill::Frontend::create_or_get_logger("file", file_sink);
         }
 
         {
@@ -109,8 +109,8 @@ extern "C"
             auto file_sink =
                 quill::Frontend::create_or_get_sink<quill::FileSink>("grngame.log", cfg, quill::FileEventNotifier{});
 
-            s_logger_json = quill::Frontend::create_or_get_logger("grngame_json", file_sink,
-                                                                  quill::PatternFormatterOptions{"%(message)"});
+            s_logger_json =
+                quill::Frontend::create_or_get_logger("json", file_sink, quill::PatternFormatterOptions{"%(message)"});
         }
 
         if (UNLIKELY(!s_logger_console || !s_logger_file || !s_logger_json))

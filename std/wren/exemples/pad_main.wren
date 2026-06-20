@@ -1,4 +1,4 @@
-﻿// Gamepad example
+// Gamepad example
 
 // Standard library imports
 import "std/wren/input/pad/pad" for Pad
