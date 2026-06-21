@@ -152,12 +152,12 @@ bool WrenEarlyInit(void)
     // temporary thing
 
 #ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
-    const char *link = "test_game/scripts/config.wren"
+    const char *link = "test_game/scripts/config.wren";
 #else
     const char *link = "scripts/config.wren";
 #endif
 
-        if (!WrenInterpret(link))
+    if (!WrenInterpret(link))
     {
         LOG_ERROR("Failed to interpret config.wren");
         return false;
@@ -175,12 +175,12 @@ bool WrenLateInit(void)
     }
     // temporary thing
 #ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
-    const char *link = "test_game/scripts/main.wren"
+    const char *link = "test_game/scripts/main.wren";
 #else
     const char *link = "scripts/main.wren";
 #endif
 
-        if (!WrenInterpret(link))
+    if (!WrenInterpret(link))
     {
         LOG_ERROR("Failed to interpret main.wren");
         return false;
