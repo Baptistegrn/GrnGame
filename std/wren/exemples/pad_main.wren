@@ -42,7 +42,7 @@ class Main {
 
       // Start controller vibration:
       // left motor = 80%, right motor = 80%, duration = 500 ms
-      __pad.rumble(80, 80, 500)
+      __pad.rumble(100, 0, 2000)
     })
 
     // Dynamically remap the jump action.

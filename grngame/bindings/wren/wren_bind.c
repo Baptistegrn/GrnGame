@@ -60,7 +60,7 @@ static void WrenStartVM()
 static bool WrenInterpret(const char *filename)
 {
     char *module_name = FileStem(filename);
-    if (EMBEDDED_ASSETS_DATA_AVAILABLE)
+#ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
     {
         EmbeddedAsset *asset = GetEmbeddedAsset(filename);
         if (!asset)
@@ -85,7 +85,8 @@ static bool WrenInterpret(const char *filename)
 
         return true;
     }
-    else
+
+#else
     {
         char *path = PathFromExecutableDirectory(filename);
         if (!path)
@@ -111,6 +112,7 @@ static bool WrenInterpret(const char *filename)
 
         return true;
     }
+#endif
 }
 
 static void RegisterWrenModules(void)
@@ -146,10 +148,16 @@ bool WrenEarlyInit(void)
 
     RegisterWrenModules();
     WrenInit();
-    // temporary thing
-    const char *link = EMBEDDED_ASSETS_DATA_AVAILABLE ? "test_game/scripts/config.wren" : "scripts/config.wren";
 
-    if (!WrenInterpret(link))
+    // temporary thing
+
+#ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
+    const char *link = "test_game/scripts/config.wren"
+#else
+    const char *link = "scripts/config.wren";
+#endif
+
+        if (!WrenInterpret(link))
     {
         LOG_ERROR("Failed to interpret config.wren");
         return false;
@@ -166,9 +174,13 @@ bool WrenLateInit(void)
         return false;
     }
     // temporary thing
-    const char *link = EMBEDDED_ASSETS_DATA_AVAILABLE ? "test_game/scripts/main.wren" : "scripts/main.wren";
+#ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
+    const char *link = "test_game/scripts/main.wren"
+#else
+    const char *link = "scripts/main.wren";
+#endif
 
-    if (!WrenInterpret(link))
+        if (!WrenInterpret(link))
     {
         LOG_ERROR("Failed to interpret main.wren");
         return false;

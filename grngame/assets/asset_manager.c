@@ -22,7 +22,7 @@ COLD AssetManager AssetManagerCreate()
 COLD void AssetManagerLoadFolder(const char *folder)
 {
 
-    if (EMBEDDED_ASSETS_DATA_AVAILABLE)
+#ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
     {
         if (UNLIKELY(g_app.embedded_assets_count == 0))
         {
@@ -32,7 +32,7 @@ COLD void AssetManagerLoadFolder(const char *folder)
         LoadEmbeddedFiles();
     }
 
-    else
+#else
     {
         if (DirAssetFileCount(folder) == 0)
         {
@@ -42,6 +42,7 @@ COLD void AssetManagerLoadFolder(const char *folder)
 
         DirWalk(folder, LoadFile, NULL);
     }
+#endif
 }
 
 static COLD void LoadFile(const char *file, void *user_data)

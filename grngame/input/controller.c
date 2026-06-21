@@ -45,24 +45,36 @@ void GamepadClose(SDL_Gamepad *gp)
     SDL_CloseGamepad(gp);
 }
 
-// todo : explain and link index with uniq id of controller not name
+int ControllerConnectedCountptr(SDL_JoystickID **ptr)
+{
+    int count = 0;
+    *ptr = SDL_GetGamepads(&count);
+    return count;
+}
+
+int ControllerConnectedCount(void)
+{
+    int count = 0;
+    SDL_JoystickID *pads = SDL_GetGamepads(&count);
+    if (LIKELY(pads))
+        SDL_free(pads);
+    return count;
+}
+
 bool ControllerOpen()
 {
     SDL_JoystickID *pads = NULL;
     int count = ControllerConnectedCountptr(&pads);
 
     if (UNLIKELY(count == 0))
-    {
         return false;
-    }
 
     SDL_JoystickID new_pad_id = 0;
     bool found = false;
 
     for (int i = 0; i < count; i++)
     {
-        SDL_Gamepad *temp_gp = GamepadFromID(pads[i]);
-        if (!temp_gp) // Not opened yet
+        if (!GamepadFromID(pads[i])) // not opened yet
         {
             new_pad_id = pads[i];
             found = true;
@@ -88,23 +100,32 @@ bool ControllerOpen()
     if (UNLIKELY(!name))
         name = "Unknown";
 
-    int16 index = ControllerMapGet(&g_app.input_manager.controller_map, name);
+    int16 index = ControllerMapGet(&g_app.input_manager.controller_map, new_pad_id);
     if (index == -1)
     {
-        index = g_app.input_manager.controller_map.count;
-        if (UNLIKELY(index >= MAX_CONTROLLERS))
+        index = -1;
+        for (int16 i = 0; i < MAX_CONTROLLERS; ++i)
+        {
+            if (!g_app.input_manager.controllers[i].gamepad) // free slot
+            {
+                index = i;
+                break;
+            }
+        }
+        if (UNLIKELY(index == -1))
         {
             LOG_WARNING("Max controllers reached");
             GamepadClose(gp);
             return false;
         }
-        ControllerMapAdd(&g_app.input_manager.controller_map, SDL_strdup(name), index);
+        ControllerMapAdd(&g_app.input_manager.controller_map, new_pad_id, index);
     }
 
     SDL_Joystick *joy = GamepadGetJoystick(gp);
 
     g_app.input_manager.controllers[index].gamepad = gp;
     g_app.input_manager.controllers[index].joystick = joy;
+    g_app.input_manager.controllers[index].id = new_pad_id;
 
     if (UNLIKELY(!SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_LEFTX) || !SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_LEFTY)))
         LOG_WARNING("Gamepad %d (%s) is missing a left stick", index, name);
@@ -118,39 +139,23 @@ bool ControllerOpen()
     return true;
 }
 
-int ControllerConnectedCountptr(SDL_JoystickID **ptr)
-{
-    int count = 0;
-    *ptr = SDL_GetGamepads(&count);
-    return count;
-}
-
-int ControllerConnectedCount(void)
-{
-    int count = 0;
-    SDL_JoystickID *pads = SDL_GetGamepads(&count);
-    if (LIKELY(pads))
-        SDL_free(pads);
-    return count;
-}
-
 void ControllerClose(int16 index)
 {
-    if (UNLIKELY(index >= MAX_CONTROLLERS))
+    if (UNLIKELY(index < 0 || index >= MAX_CONTROLLERS))
     {
         LOG_WARNING("Invalid controller index for close: %d", index);
         return;
     }
-
     Controller *c = &g_app.input_manager.controllers[index];
     if (c->gamepad)
     {
+        ControllerMapRemove(&g_app.input_manager.controller_map, c->id);
         GamepadClose(c->gamepad);
         c->gamepad = NULL;
         c->joystick = NULL;
+        c->id = 0;
     }
 }
-
 bool PadPressed(int button, int16 index)
 {
     if (UNLIKELY(index >= MAX_CONTROLLERS || button < 0 || button >= SDL_GAMEPAD_BUTTON_COUNT))

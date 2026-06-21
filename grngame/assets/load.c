@@ -19,7 +19,7 @@ EmbeddedAsset *GetEmbeddedAsset(const char *name)
 
 static SDL_Surface *LoadTextureSurface(const char *file)
 {
-    if (EMBEDDED_ASSETS_DATA_AVAILABLE)
+#ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
     {
         const EmbeddedAsset *asset = GetEmbeddedAsset(file);
 
@@ -33,8 +33,10 @@ static SDL_Surface *LoadTextureSurface(const char *file)
 
         return IMG_Load_IO(io, true);
     }
+#else
 
     return IMG_Load(file);
+#endif
 }
 
 static void ApplyPaletteRemap(SDL_Surface *surface)
@@ -107,7 +109,7 @@ static WavStream *LoadSoundStream(const char *file)
     if (!stream)
         return NULL;
 
-    if (EMBEDDED_ASSETS_DATA_AVAILABLE)
+#ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
     {
         const EmbeddedAsset *asset = GetEmbeddedAsset(file);
 
@@ -119,10 +121,11 @@ static WavStream *LoadSoundStream(const char *file)
 
         WavStream_loadMemEx(stream, (const unsigned char *)asset->data, asset->size, 0, 0);
     }
-    else
+#else
     {
         WavStream_load(stream, file);
     }
+#endif
 
     if (WavStream_getLength(stream) <= 0)
     {

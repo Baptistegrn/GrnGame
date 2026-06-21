@@ -9,6 +9,7 @@ typedef struct
 {
     SDL_Gamepad *gamepad;
     SDL_Joystick *joystick;
+    SDL_JoystickID id;
     float32 stick_lx, stick_ly;
     float32 stick_rx, stick_ry;
     float32 trigger_l, trigger_r;

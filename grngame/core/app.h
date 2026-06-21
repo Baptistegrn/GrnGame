@@ -20,9 +20,7 @@ KHASH_MAP_INIT_STR(EmbeddedAssetHash, EmbeddedAsset);
 KHASH_MAP_INIT_STR(ColorHex, SDL_Color);
 
 #if defined(GRN_EMBED_ASSETS)
-#define EMBEDDED_ASSETS_DATA_AVAILABLE 1
-#else
-#define EMBEDDED_ASSETS_DATA_AVAILABLE 0
+#define EMBEDDED_ASSETS_DATA_AVAILABLE
 #endif
 
 typedef struct AppInfo

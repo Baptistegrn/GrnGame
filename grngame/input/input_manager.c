@@ -1,8 +1,5 @@
 #include "input_manager.h"
-#include "controller.h"
-#include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
-#include <string.h>
 
 InputManager InputManagerCreate()
 {
@@ -21,47 +18,39 @@ InputManager InputManagerCreate()
         .key_pressed = {false},
         .key_just_pressed = {false},
         .controllers = {0},
+        .controller_map = {.hash = kh_init(ctrlmap)},
     };
     kv_init(m.text_input);
     return m;
 }
 
-void ControllerMapAdd(ControllerMap *map, const char *name, int16 index)
+void ControllerMapDestroy(ControllerMap *map)
 {
-    int16 count = map->count;
-    if (LIKELY(count < MAX_CONTROLLERS))
+    if (LIKELY(map->hash))
     {
-        map->entries[count].name = name;
-        map->entries[count].index = index;
-        map->count++;
-    }
-    else
-    {
-        LOG_WARNING("trying to add another controller to controller map but its already full");
+        kh_destroy(ctrlmap, map->hash);
+        map->hash = NULL;
     }
 }
 
-int16 ControllerMapGet(const ControllerMap *map, const char *name)
+void ControllerMapAdd(ControllerMap *map, SDL_JoystickID id, int16 index)
 {
-    for (int16 i = 0; i < map->count; ++i)
-    {
-        if (strcmp(map->entries[i].name, name) == 0)
-        {
-            return map->entries[i].index;
-        }
-    }
-    return -1;
+    int ret;
+    khint_t k = kh_put(ctrlmap, map->hash, (khint32_t)id, &ret);
+    kh_value(map->hash, k) = index;
 }
 
-void ControllerMapRemove(ControllerMap *map, const char *name)
+int16 ControllerMapGet(const ControllerMap *map, SDL_JoystickID id)
 {
-    for (int16 i = 0; i < map->count; ++i)
-    {
-        if (strcmp(map->entries[i].name, name) == 0)
-        {
-            map->count--;
-            map->entries[i] = map->entries[map->count];
-            return;
-        }
-    }
+    khint_t k = kh_get(ctrlmap, map->hash, (khint32_t)id);
+    if (UNLIKELY(k == kh_end(map->hash)))
+        return -1;
+    return kh_value(map->hash, k);
+}
+
+void ControllerMapRemove(ControllerMap *map, SDL_JoystickID id)
+{
+    khint_t k = kh_get(ctrlmap, map->hash, (khint32_t)id);
+    if (LIKELY(k != kh_end(map->hash)))
+        kh_del(ctrlmap, map->hash, k);
 }

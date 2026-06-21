@@ -138,7 +138,7 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
     char filename[MODULE_SIZE_MAX_NAME];
     snprintf(filename, sizeof(filename), "%s.wren", name);
 
-    if (EMBEDDED_ASSETS_DATA_AVAILABLE)
+#ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
     {
         EmbeddedAsset *asset = GetEmbeddedAsset(filename);
 
@@ -155,7 +155,7 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
             LOG_ERROR("Wren Import Error: Failed to find module '%s' in embedded files", name);
         }
     }
-    else
+#else
     {
         char script_path[MODULE_SIZE_MAX_NAME + 15];
         snprintf(script_path, sizeof(script_path), "scripts/%s", filename);
@@ -172,6 +172,7 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
             LOG_ERROR("Wren Import Error: Failed to find module '%s'", script_path);
         }
     }
+#endif
 
     return result;
 }

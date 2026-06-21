@@ -8,18 +8,20 @@
 #include <kvec.h>
 #include <stdbool.h>
 
+#include "khash.h"
+
+KHASH_MAP_INIT_INT(ctrlmap, int16)
+
+typedef struct ControllerMap
+{
+    khash_t(ctrlmap) * hash;
+} ControllerMap;
 
 typedef struct
 {
     const char *name;
     int16 index;
 } ControllerMapEntry;
-
-typedef struct
-{
-    ControllerMapEntry entries[MAX_CONTROLLERS];
-    int16 count;
-} ControllerMap;
 
 typedef struct
 {
@@ -40,6 +42,6 @@ typedef struct
 
 InputManager InputManagerCreate();
 
-void ControllerMapAdd(ControllerMap *map, const char *name, int16 index);
-int16 ControllerMapGet(const ControllerMap *map, const char *name);
-void ControllerMapRemove(ControllerMap *map, const char *name);
+void ControllerMapAdd(ControllerMap *map, SDL_JoystickID id, int16 index);
+int16 ControllerMapGet(const ControllerMap *map, SDL_JoystickID id);
+void ControllerMapRemove(ControllerMap *map, SDL_JoystickID id);

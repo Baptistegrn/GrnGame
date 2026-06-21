@@ -70,7 +70,7 @@ static InitResult SetSDLMetadata(void)
 
     return INIT_OK;
 }
-
+// todo move
 void LoadAppConfig(void)
 {
     g_app.info.name = WrenGetString("config", "Config", "name");
@@ -129,18 +129,20 @@ static void LoadDefaultConfig(void)
 
 static SDL_IOStream *LoadControllerDatabase(void)
 {
-    if (EMBEDDED_ASSETS_DATA_AVAILABLE)
+#ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
     {
         const EmbeddedAsset *asset = GetEmbeddedAsset("grngame/input/gamecontrollerdb.txt");
         if (!asset)
             return NULL;
         return SDL_IOFromConstMem(asset->data, asset->size);
     }
+#else
 
     char *path = PathFromExecutableDirectory("gamecontrollerdb.txt");
     SDL_IOStream *stream = SDL_IOFromFile(path, "rb");
     free(path);
     return stream;
+#endif
 }
 
 static void LoadControllerMappings(void)
