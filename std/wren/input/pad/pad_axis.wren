@@ -1,18 +1,21 @@
-class PadAxis {
-    static STICK_LX { 0 }
-    static STICK_LY { 1 }
-    static STICK_RX { 2 }
-    static STICK_RY { 3 }
-    static TRIGGER_L { 4 }
-    static TRIGGER_R { 5 }
+import "std/wren/input/pad/pad_const" for PadConst
 
-    static LEFT_X { 0 }
-    static LEFT_Y { 1 }
-    static RIGHT_X { 2 }
-    static RIGHT_Y { 3 }
-    
-    static L2 { 4 }
-    static R2 { 5 }
-    static LEFT_TRIGGER { 4 }
-    static RIGHT_TRIGGER { 5 }
+class PadAxis {
+    static STICK_LX  { PadConst.new(PadConst.AXIS, 0) }
+    static STICK_LY  { PadConst.new(PadConst.AXIS, 1) }
+    static STICK_RX  { PadConst.new(PadConst.AXIS, 2) }
+    static STICK_RY  { PadConst.new(PadConst.AXIS, 3) }
+    static TRIGGER_L { PadConst.new(PadConst.AXIS, 4) }
+    static TRIGGER_R { PadConst.new(PadConst.AXIS, 5) }
+
+    static LEFT_X  { PadConst.new(PadConst.AXIS, 0) }
+    static LEFT_Y  { PadConst.new(PadConst.AXIS, 1) }
+    static RIGHT_X { PadConst.new(PadConst.AXIS, 2) }
+    static RIGHT_Y { PadConst.new(PadConst.AXIS, 3) }
+
+    static L2 { PadConst.new(PadConst.AXIS, 4) }
+    static R2 { PadConst.new(PadConst.AXIS, 5) }
+
+    static LEFT_TRIGGER  { PadConst.new(PadConst.AXIS, 4) }
+    static RIGHT_TRIGGER { PadConst.new(PadConst.AXIS, 5) }
 }

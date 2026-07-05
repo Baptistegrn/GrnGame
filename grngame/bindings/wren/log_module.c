@@ -56,12 +56,12 @@ void RegisterLogModule()
     const char *cls = "Log";
     bool is_static = true;
 
-    RegisterMethod(module, cls, is_static, "log_error(_)", log_error);
-    RegisterMethod(module, cls, is_static, "log_info(_)", log_info);
-    RegisterMethod(module, cls, is_static, "log_warning(_)", log_warning);
-    RegisterMethod(module, cls, is_static, "log_debug(_)", log_debug);
-    RegisterMethod(module, cls, is_static, "log_critical(_)", log_critical);
+    RegisterMethod(module, cls, is_static, "error(_)", log_error);
+    RegisterMethod(module, cls, is_static, "info(_)", log_info);
+    RegisterMethod(module, cls, is_static, "warning(_)", log_warning);
+    RegisterMethod(module, cls, is_static, "debug(_)", log_debug);
+    RegisterMethod(module, cls, is_static, "critical(_)", log_critical);
     RegisterMethod(module, cls, is_static, "apply_config(_,_)", apply_config);
-    RegisterMethod(module, cls, is_static, "log_set_lvl(_)", log_set_lvl);
+    RegisterMethod(module, cls, is_static, "set_lvl(_)", log_set_lvl);
     RegisterMethod(module, cls, is_static, "get_level()", log_get_level);
 }

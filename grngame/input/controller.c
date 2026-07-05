@@ -9,6 +9,8 @@
 #include "grngame/utils/attributes.h"
 #include <SDL3/SDL_events.h>
 #include <math.h>
+#include <stdio.h>
+#include <string.h>
 
 // sdl wrappent
 SDL_Gamepad *GamepadOpen(SDL_JoystickID id)
@@ -61,6 +63,52 @@ int ControllerConnectedCount(void)
     return count;
 }
 
+
+static int16 FindFreeControllerIndex(void)
+{
+    for (int16 i = 0; i < MAX_CONTROLLERS; ++i)
+    {
+        Controller *c = &g_app.input_manager.controllers[i];
+        if (!c->is_reserved && c->gamepad == NULL)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void ControllerDisablePersistence(int16 index)
+{
+    if (UNLIKELY(index < 0 || index >= MAX_CONTROLLERS))
+    {
+        LOG_WARNING("Invalid controller index provided to disable persistence: %d", index);
+        return;
+    }
+
+    Controller *c = &g_app.input_manager.controllers[index];
+    
+    // Check if there is actually an active controller at this index
+    if (UNLIKELY(!c->gamepad || !c->joystick))
+    {
+        LOG_WARNING("No active gamepad found at index %d to disable persistence.", index);
+        return;
+    }
+
+    const char *serial = SDL_GetJoystickSerial(c->joystick);
+    
+    // If the controller has a serial number, remove it from the persistent map
+    if (serial != NULL)
+    {
+        ControllerMapRemove(&g_app.input_manager.controller_map, serial);
+        LOG_INFO("Gamepad serial '%s' successfully removed from persistent mapping.", serial);
+    }
+
+    // Downgrade the slot status to ephemeral so it won't be held upon disconnection
+    c->is_reserved = false;
+    
+    LOG_INFO("Gamepad at index %d has been successfully converted to an ephemeral slot.", index);
+}
+
 bool ControllerOpen()
 {
     SDL_JoystickID *pads = NULL;
@@ -72,9 +120,10 @@ bool ControllerOpen()
     SDL_JoystickID new_pad_id = 0;
     bool found = false;
 
+    // Identify the newly connected gamepad
     for (int i = 0; i < count; i++)
     {
-        if (!GamepadFromID(pads[i])) // not opened yet
+        if (!GamepadFromID(pads[i]))
         {
             new_pad_id = pads[i];
             found = true;
@@ -100,42 +149,60 @@ bool ControllerOpen()
     if (UNLIKELY(!name))
         name = "Unknown";
 
-    int16 index = ControllerMapGet(&g_app.input_manager.controller_map, new_pad_id);
-    if (index == -1)
+    SDL_Joystick *joy = GamepadGetJoystick(gp);
+    const char *serial = SDL_GetJoystickSerial(joy);
+
+    int16 index = -1;
+
+    if (serial == NULL)
     {
-        index = -1;
-        for (int16 i = 0; i < MAX_CONTROLLERS; ++i)
-        {
-            if (!g_app.input_manager.controllers[i].gamepad) // free slot
-            {
-                index = i;
-                break;
-            }
-        }
+        LOG_INFO("Gamepad '%s' lacks a serial number. Assigning an ephemeral index.", name);
+        index = FindFreeControllerIndex();
+        
         if (UNLIKELY(index == -1))
         {
-            LOG_WARNING("Max controllers reached");
+            LOG_WARNING("Maximum controller capacity reached. Cannot assign ephemeral gamepad.");
             GamepadClose(gp);
             return false;
         }
-        ControllerMapAdd(&g_app.input_manager.controller_map, new_pad_id, index);
+    }
+    else
+    {
+        index = ControllerMapGet(&g_app.input_manager.controller_map, serial);
+        
+        if (index == -1)
+        {
+            index = FindFreeControllerIndex();
+            
+            if (UNLIKELY(index == -1))
+            {
+                LOG_WARNING("Maximum controller capacity reached. Cannot assign persistent gamepad.");
+                GamepadClose(gp);
+                return false;
+            }
+            
+            ControllerMapAdd(&g_app.input_manager.controller_map, serial, index);
+            g_app.input_manager.controllers[index].is_reserved = true; 
+        }
     }
 
-    SDL_Joystick *joy = GamepadGetJoystick(gp);
-
+    // Bind the gamepad to the identified index
     g_app.input_manager.controllers[index].gamepad = gp;
     g_app.input_manager.controllers[index].joystick = joy;
     g_app.input_manager.controllers[index].id = new_pad_id;
 
+    // Hardware capability checks
     if (UNLIKELY(!SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_LEFTX) || !SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_LEFTY)))
-        LOG_WARNING("Gamepad %d (%s) is missing a left stick", index, name);
+        LOG_WARNING("Gamepad %d (%s) lacks a left analog stick.", index, name);
+        
     if (UNLIKELY(!SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_RIGHTX) || !SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_RIGHTY)))
-        LOG_WARNING("Gamepad %d (%s) is missing a right stick", index, name);
+        LOG_WARNING("Gamepad %d (%s) lacks a right analog stick.", index, name);
+        
     if (UNLIKELY(!SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_LEFT_TRIGGER) ||
                  !SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER)))
-        LOG_WARNING("Gamepad %d (%s) might be missing triggers", index, name);
+        LOG_WARNING("Gamepad %d (%s) may lack analog triggers.", index, name);
 
-    LOG_INFO("Gamepad %d opened: %s", index, name);
+    LOG_INFO("Gamepad %d successfully opened: %s", index, name);
     return true;
 }
 
@@ -143,19 +210,24 @@ void ControllerClose(int16 index)
 {
     if (UNLIKELY(index < 0 || index >= MAX_CONTROLLERS))
     {
-        LOG_WARNING("Invalid controller index for close: %d", index);
+        LOG_WARNING("Invalid controller index provided for closure: %d", index);
         return;
     }
+    
     Controller *c = &g_app.input_manager.controllers[index];
+    
     if (c->gamepad)
     {
-        ControllerMapRemove(&g_app.input_manager.controller_map, c->id);
+        const char *name = GamepadGetName(c->gamepad);
+        LOG_INFO("Closing gamepad %d: %s", index, name ? name : "Unknown");
+        
         GamepadClose(c->gamepad);
         c->gamepad = NULL;
         c->joystick = NULL;
         c->id = 0;
     }
 }
+
 bool PadPressed(int button, int16 index)
 {
     if (UNLIKELY(index >= MAX_CONTROLLERS || button < 0 || button >= SDL_GAMEPAD_BUTTON_COUNT))

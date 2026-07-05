@@ -1,5 +1,6 @@
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/assets/load.h"
+#include "grngame/bindings/wren/time_module.h"
 #include "grngame/bindings/wren/controller_module.h"
 #include "grngame/bindings/wren/db_module.h"
 #include "grngame/bindings/wren/file_module.h"
@@ -118,6 +119,7 @@ static bool WrenInterpret(const char *filename)
 static void RegisterWrenModules(void)
 {
     InitBindingSystem();
+    RegisterTimeModule();
     RegisterSoundModule();
     RegisterLogModule();
     RegisterControllerModule();

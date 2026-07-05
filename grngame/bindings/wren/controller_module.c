@@ -90,6 +90,36 @@ static void pad_rumble(WrenVM *vm)
     PadRumble(index, left_rumble, right_rumble, time);
 }
 
+static void controller_pad_sticks_triggers(WrenVM *vm)
+{
+    uint16 index = (uint16)wrenGetSlotDouble(vm, 1);
+
+    wrenEnsureSlots(vm, 2);
+    wrenSetSlotNewList(vm, 0);
+
+    wrenSetSlotDouble(vm, 1, PadStickLX(index));
+    wrenInsertInList(vm, 0, -1, 1);
+
+    wrenSetSlotDouble(vm, 1, PadStickLY(index));
+    wrenInsertInList(vm, 0, -1, 1);
+
+    wrenSetSlotDouble(vm, 1, PadStickRX(index));
+    wrenInsertInList(vm, 0, -1, 1);
+
+    wrenSetSlotDouble(vm, 1, PadStickRY(index));
+    wrenInsertInList(vm, 0, -1, 1);
+
+    wrenSetSlotDouble(vm, 1, PadTriggerL(index));
+    wrenInsertInList(vm, 0, -1, 1);
+
+    wrenSetSlotDouble(vm, 1, PadTriggerR(index));
+    wrenInsertInList(vm, 0, -1, 1);
+}
+
+static void  controller_pad_disable_persistence(WrenVM *vm){
+    ControllerDisablePersistence((uint16)wrenGetSlotDouble(vm, 1));
+}
+
 void RegisterControllerModule()
 {
     const char *module = "std/wren/input/pad/pad";
@@ -110,4 +140,6 @@ void RegisterControllerModule()
     RegisterMethod(module, cls, is_static, "trigger_r(_)", controller_pad_trigger_r);
     RegisterMethod(module, cls, is_static, "controller_open(_)", controller_open);
     RegisterMethod(module, cls, is_static, "connected_count()", controller_connected_count);
+    RegisterMethod(module, cls, is_static, "sticks_triggers(_)", controller_pad_sticks_triggers);
+    RegisterMethod(module, cls, is_static, "disable_persistence(_)", controller_pad_disable_persistence);
 }

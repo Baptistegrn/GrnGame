@@ -24,7 +24,7 @@
 #define WREN_INTERPRET_FAILED 7
 
 // Maximum number of simultaneously supported controllers/gamepads
-#define MAX_CONTROLLERS 6
+#define MAX_CONTROLLERS 8
 
 // Default dead zone applied to controller axes (range: 0.0 - 1.0).
 #define DEFAULT_DEAD_ZONE 0.1f

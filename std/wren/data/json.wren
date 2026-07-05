@@ -1,4 +1,4 @@
-//Copyright (c) 2015 Matthew Brandly
+// Copyright (c) 2015 Matthew Brandly
 class JSON {
   static parse(string) {
     return JSONParser.new(string).parse
@@ -42,7 +42,7 @@ class JSONStringifier {
         } else if (char == "\t") {
           substrings.add("\\t")
         } else if (char.bytes[0] <= 0x1f) {
-          // Control characters!
+          // Control characters
           var byte = char.bytes[0]
           var hex = Helper.lpad(Helper.toHex(byte), 4, "0")
           substrings.add("\\u" + hex)
@@ -81,7 +81,7 @@ class JSONParser {
     var token = tokens.removeAt(0)
 
     if (token.type == Token.LeftBrace) {
-      // Making a Map
+      // Parse object
       var map = {}
 
       while (tokens[0].type != Token.RightBrace) {
@@ -101,13 +101,13 @@ class JSONParser {
         }
       }
 
-      // Remove Token.RightBrace
+      // Remove closing brace
       tokens.removeAt(0)
 
       return map
 
     } else if (token.type == Token.LeftBracket) {
-      // Making a List
+      // Parse array
       var list = []
       while (tokens[0].type != Token.RightBracket) {
         list.add(nest(tokens))
@@ -117,7 +117,7 @@ class JSONParser {
         }
       }
 
-      // Remove Token.RightBracket
+      // Remove closing bracket
       tokens.removeAt(0)
 
       return list

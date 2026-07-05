@@ -1,14 +1,16 @@
 
 class Log {
-    // Logging
-    foreign static log_error(message)
-    foreign static log_info(message)
-    foreign static log_warning(message)
-    foreign static log_debug(message)
-    foreign static log_critical(message)
-    foreign static log_set_lvl(level)
-    // Configuration
+    foreign static error(message)
+    foreign static info(message)
+    foreign static warning(message)
+    foreign static debug(message)
+    foreign static critical(message)
+    foreign static set_lvl(level)
     foreign static apply_config(enable,destination)
     foreign static get_level()
+
+    static warn(message){
+        warning(message)
+    }
 
 }
