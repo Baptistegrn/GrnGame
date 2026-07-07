@@ -105,7 +105,7 @@ local function add_grngame_defines()
         add_defines("TRACY_ENABLE", {public = true})
     end
 
-    if has_config("embed_assets") or is_plat("wasm") then
+    if not (has_config("embed_assets") or is_plat("wasm")) then
         add_defines("GRNGAME_HOT_RELOAD_ENABLE")
     end
 end
