@@ -76,7 +76,7 @@ typedef struct
     int embedded_assets_count;
     int embedded_count;
 
-#if HOT_RELOAD_ENABLE
+#if defined(GRNGAME_HOT_RELOAD_ENABLE)
     kvec_t(HotreloadQueueElement) queue;
 #endif
 

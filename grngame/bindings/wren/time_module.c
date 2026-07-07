@@ -28,7 +28,7 @@ static void time_now(WrenVM *vm)
 
 static void time_now(WrenVM *vm)
 {
-    .double t = emscripten_get_now() * 1e-3;
+    double t = emscripten_get_now() * 1e-3;
     wrenSetSlotDouble(vm, 0, t);
 }
 

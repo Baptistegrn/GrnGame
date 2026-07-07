@@ -119,7 +119,7 @@ static HOT void RunUpdates(float64 frame_dt)
         g_app.info.dt = update_target;
 
         PROFILE_ZONE_START(poll_events_zone, "PollEvents");
-#if HOT_RELOAD_ENABLE
+#if defined(GRNGAME_HOT_RELOAD_ENABLE)
         ProcessHotreloadQueue();
 #endif
         PollEvents();

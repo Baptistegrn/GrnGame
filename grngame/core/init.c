@@ -278,7 +278,7 @@ COLD InitResult InitAll(void)
 
     InitializeScripts();
 
-#if HOT_RELOAD_ENABLE
+#if defined(GRNGAME_HOT_RELOAD_ENABLE)
     HotReloadInitQueue();
     StartAssetHotReload(".", true);
 #endif

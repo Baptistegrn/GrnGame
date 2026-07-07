@@ -1,4 +1,4 @@
-#if HOT_RELOAD_ENABLE
+#if defined(GRNGAME_HOT_RELOAD_ENABLE)
 #pragma once
 
 #include "grngame/utils/c_cpp.h"

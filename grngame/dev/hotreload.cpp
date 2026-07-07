@@ -1,4 +1,4 @@
-#if HOT_RELOAD_ENABLE
+#if defined(GRNGAME_HOT_RELOAD_ENABLE)
 #include "grngame/dev/hotreload.h"
 #include "grngame/assets/load.h"
 #include "grngame/bindings/wren/wren_bind.h"

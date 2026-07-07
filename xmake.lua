@@ -106,9 +106,7 @@ local function add_grngame_defines()
     end
 
     if has_config("embed_assets") or is_plat("wasm") then
-        add_defines("HOT_RELOAD_ENABLE=0")
-    else
-        add_defines("HOT_RELOAD_ENABLE=1")
+        add_defines("GRNGAME_HOT_RELOAD_ENABLE")
     end
 end
 
