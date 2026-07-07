@@ -2,24 +2,25 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "grngame/math/types.h"
 
 typedef struct
 {
     void *base;
-    size_t size;      // total reserved size
-    size_t committed; // how much is currently committed
-    size_t offset;    // how much is currently used
+    uint64 size;      // total reserved size
+    uint64 committed; // how much is currently committed
+    uint64 offset;    // how much is currently used
 } BumpAllocator;
 
 /// Creates a bump allocator with the given virtual size reserved
 /// (you can ask it for 1TB on a 8GB of RAM machine)
-BumpAllocator BumpAllocatorInit(size_t virtual_size);
+BumpAllocator BumpAllocatorInit(uint64 virtual_size);
 
 /// Allocates size bytes, aligned to align
-void *BumpAllocatorPushAligned(BumpAllocator *allocator, size_t size, size_t align);
+void *BumpAllocatorPushAligned(BumpAllocator *allocator, uint64 size, uint64 align);
 
 /// Allocates size bytes
-void *BumpAllocatorPush(BumpAllocator *allocator, size_t size);
+void *BumpAllocatorPush(BumpAllocator *allocator, uint64 size);
 
 /// Makes the entire arena reusable without freeing the underlying memory
 void BumpAllocatorReset(BumpAllocator *allocator);
@@ -31,4 +32,4 @@ void BumpAllocatorFree(BumpAllocator *allocator);
 void *BumpAllocatorHead(BumpAllocator *allocator);
 
 /// Manually increments offset, returning false if we overran
-bool BumpAllocatorIncrement(BumpAllocator *allocator, size_t size, size_t align);
+bool BumpAllocatorIncrement(BumpAllocator *allocator, uint64 size, uint64 align);

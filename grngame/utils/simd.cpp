@@ -14,10 +14,10 @@ namespace HWY_NAMESPACE
 {
 namespace hn = hwy::HWY_NAMESPACE;
 
-HWY_ATTR int32 FindClosestIndex(uint8_t r, uint8_t g, uint8_t b, const PaletteSIMD *pal)
+HWY_ATTR int32 FindClosestIndex(uint8 r, uint8 g, uint8 b, const PaletteSIMD *pal)
 {
-    const auto d32 = hn::ScalableTag<int32_t>();
-    const auto d16 = hn::ScalableTag<int16_t>();
+    const auto d32 = hn::ScalableTag<int32>();
+    const auto d16 = hn::ScalableTag<uint16>();
     const auto d8 = hn::ScalableTag<uint8>();
 
     const auto N = hn::Lanes(d32);
@@ -99,8 +99,8 @@ struct ColorCacheEntry
     int32 index;
 };
 
-HWY_ATTR void RemapImagePaletteImpl(uint8_t *SDL_RESTRICT pixels, int32_t w, int32_t h, int32_t pitch,
-                                    const PaletteSIMD *SDL_RESTRICT pal, const uint8_t alpha_lut[256])
+HWY_ATTR void RemapImagePaletteImpl(uint8 *SDL_RESTRICT pixels, uint16 w, uint16 h, uint16 pitch,
+                                    const PaletteSIMD *SDL_RESTRICT pal, const uint8 alpha_lut[256])
 {
     ColorCacheEntry cache[64];
     for (int32 i = 0; i < 64; ++i)
@@ -128,9 +128,9 @@ HWY_ATTR void RemapImagePaletteImpl(uint8_t *SDL_RESTRICT pixels, int32_t w, int
                 cache[hash].index = idx;
             }
 
-            px[0] = (uint8_t)pal->r[idx];
-            px[1] = (uint8_t)pal->g[idx];
-            px[2] = (uint8_t)pal->b[idx];
+            px[0] = (uint8)pal->r[idx];
+            px[1] = (uint8)pal->g[idx];
+            px[2] = (uint8)pal->b[idx];
             px[3] = alpha_lut[px[3]];
         }
     }
@@ -154,7 +154,7 @@ extern "C"
         if (count == 0)
         {
             out->count = 1;
-            uint8_t def_color[] = {COLOR_DEFAULT_TEXTURE_PALETTE_EMPTY};
+            uint8 def_color[] = {COLOR_DEFAULT_TEXTURE_PALETTE_EMPTY};
             out->r[0] = def_color[0];
             out->g[0] = def_color[1];
             out->b[0] = def_color[2];
@@ -179,8 +179,8 @@ extern "C"
         }
     }
 
-    void RemapImagePalette(uint8_t *SDL_RESTRICT pixels, int32_t w, int32_t h, int32_t pitch,
-                           const PaletteSIMD *SDL_RESTRICT pal, const uint8_t alpha_lut[256])
+    void RemapImagePalette(uint8 *SDL_RESTRICT pixels, uint16 w, uint16 h, uint16 pitch,
+                           const PaletteSIMD *SDL_RESTRICT pal, const uint8 alpha_lut[256])
     {
         // Calls the best possible SIMD implementation
         HWY_DYNAMIC_DISPATCH(RemapImagePaletteImpl)(pixels, w, h, pitch, pal, alpha_lut);

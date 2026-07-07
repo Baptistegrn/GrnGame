@@ -22,8 +22,8 @@ ParticleEmitter ParticleEmitterCreate(int32 capacity)
         capacity = 128;
     emit.capacity = capacity;
 
-    emit.particles = malloc((size_t)capacity * sizeof(Particle));
-    memset(emit.particles, 0, (size_t)capacity * sizeof(Particle));
+    emit.particles = malloc((uint64)capacity * sizeof(Particle));
+    memset(emit.particles, 0, (uint64)capacity * sizeof(Particle));
 
     emit.lifetime = 1.0f;
     emit.direction = 0.0f;

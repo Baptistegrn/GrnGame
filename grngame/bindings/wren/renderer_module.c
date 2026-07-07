@@ -28,8 +28,8 @@ static void texture_draw_inner(WrenVM *vm)
     const char *name = wrenGetSlotString(vm, 1);
     float64 x = wrenGetSlotDouble(vm, 2);
     float64 y = wrenGetSlotDouble(vm, 3);
-    uint8_t scale = (uint8_t)wrenGetSlotDouble(vm, 4);
-    int16_t rot = (int16_t)wrenGetSlotDouble(vm, 5);
+    uint8 scale = (uint8)wrenGetSlotDouble(vm, 4);
+    uint16 rot = (uint16)wrenGetSlotDouble(vm, 5);
     uint8 a = (uint8)wrenGetSlotDouble(vm, 6);
     wrenSetSlotBool(vm, 0, TextureDraw(name, (float)x, (float)y, scale, rot, a));
 }
@@ -62,8 +62,8 @@ HOT static void sprite_allocate(WrenVM *vm)
     float64 h = wrenGetSlotDouble(vm, 3);
 
     s->name_buf = strdup(name);
-    s->sprite.w = (uint16_t)w;
-    s->sprite.h = (uint16_t)h;
+    s->sprite.w = (uint16)w;
+    s->sprite.h = (uint16)h;
     s->sprite.tex = NULL;
     s->sprite.name = s->name_buf;
 }
@@ -104,7 +104,7 @@ static void sprite_get_w(WrenVM *vm)
 static void sprite_set_w(WrenVM *vm)
 {
     WrenSprite *s = (WrenSprite *)wrenGetSlotForeign(vm, 0);
-    s->sprite.w = (uint16_t)wrenGetSlotDouble(vm, 1);
+    s->sprite.w = (uint16)wrenGetSlotDouble(vm, 1);
 }
 
 static void sprite_get_h(WrenVM *vm)
@@ -116,17 +116,17 @@ static void sprite_get_h(WrenVM *vm)
 static void sprite_set_h(WrenVM *vm)
 {
     WrenSprite *s = (WrenSprite *)wrenGetSlotForeign(vm, 0);
-    s->sprite.h = (uint16_t)wrenGetSlotDouble(vm, 1);
+    s->sprite.h = (uint16)wrenGetSlotDouble(vm, 1);
 }
 
 static void sprite_draw_inner(WrenVM *vm)
 {
     WrenSprite *s = (WrenSprite *)wrenGetSlotForeign(vm, 0);
-    uint16_t frame = (uint16_t)wrenGetSlotDouble(vm, 1);
+    uint16 frame = (uint16)wrenGetSlotDouble(vm, 1);
     float64 x = wrenGetSlotDouble(vm, 2);
     float64 y = wrenGetSlotDouble(vm, 3);
-    uint8_t scale = (uint8_t)wrenGetSlotDouble(vm, 4);
-    int16_t rot = (int16_t)wrenGetSlotDouble(vm, 5);
+    uint8 scale = (uint8)wrenGetSlotDouble(vm, 4);
+    uint16 rot = (uint16)wrenGetSlotDouble(vm, 5);
     uint8 a = (uint8)wrenGetSlotDouble(vm, 6);
     wrenSetSlotBool(vm, 0, SpriteDraw(s->sprite, frame, (float)x, (float)y, scale, rot, a));
 }
@@ -142,12 +142,6 @@ COLD static void emitter_finalize(void *data)
     ParticleEmitter *e = (ParticleEmitter *)data;
     if (e)
         ParticleEmitterDestroy(e);
-}
-
-static void emitter_spawn(WrenVM *vm)
-{
-    ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    // SpawnParticle(e);
 }
 
 static void emitter_update(WrenVM *vm)

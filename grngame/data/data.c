@@ -164,11 +164,11 @@ DbResult DataFetch(sqlite3 *db, const char *sql)
 
 void DbResultPrint(DbResult *res)
 {
-    for (size_t r = 0; r < kv_size(res->rows); r++)
+    for (uint64 r = 0; r < kv_size(res->rows); r++)
     {
         DbRow row = kv_A(res->rows, r);
         printf("Row %zu:\n", r);
-        for (size_t c = 0; c < kv_size(row.cols); c++)
+        for (uint64 c = 0; c < kv_size(row.cols); c++)
         {
             DbValue v = kv_A(row.cols, c);
             printf("  %s = ", v.name);
@@ -196,10 +196,10 @@ void DbResultPrint(DbResult *res)
 
 void DbResultFree(DbResult *res)
 {
-    for (size_t r = 0; r < kv_size(res->rows); r++)
+    for (uint64 r = 0; r < kv_size(res->rows); r++)
     {
         DbRow row = kv_A(res->rows, r);
-        for (size_t c = 0; c < kv_size(row.cols); c++)
+        for (uint64 c = 0; c < kv_size(row.cols); c++)
         {
             DbValue v = kv_A(row.cols, c);
             free((void *)v.name);

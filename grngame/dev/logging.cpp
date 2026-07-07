@@ -142,7 +142,7 @@ void Log(LogSeverity log_severity, const char *format, ...)
     if (size < 0)
         return;
 
-    std::vector<char> buf(static_cast<size_t>(size) + 1);
+    std::vector<char> buf(static_cast<uint64>(size) + 1);
 
     va_start(args, format);
     vsnprintf(buf.data(), buf.size(), format, args);
@@ -297,7 +297,7 @@ void Log(LogSeverity log_severity, const char *format, ...)
     if (size < 0)
         return;
 
-    std::vector<char> buf(static_cast<size_t>(size) + 1);
+    std::vector<char> buf(static_cast<uint64>(size) + 1);
 
     va_start(args, format);
     vsnprintf(buf.data(), buf.size(), format, args);

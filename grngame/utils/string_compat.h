@@ -1,4 +1,6 @@
 #pragma once
+
+#include "grngame/math/types.h"
 #include <string.h>
 
 #ifdef _MSC_VER
@@ -24,7 +26,7 @@
 #else
 
 #include <stddef.h>
-int32 strncpy_s(char *dst, size_t dst_size, const char *src, size_t count);
+int32 strncpy_s(char *dst, uint64 dst_size, const char *src, uint64 count);
 #endif
 
 // Provide an internal-linkage fallback for platforms where strdup
@@ -34,7 +36,7 @@ int32 strncpy_s(char *dst, size_t dst_size, const char *src, size_t count);
 
 static inline char *strdup(const char *s)
 {
-    size_t len = strlen(s) + 1;
+    uint64 len = strlen(s) + 1;
     char *p = (char *)malloc(len);
     memcpy(p, s, len);
     return p;

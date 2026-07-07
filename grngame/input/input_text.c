@@ -43,7 +43,7 @@ const char *InputDropFile()
 void InputTextRemoveTextInt(uint32 size)
 {
     InputManager *im = &g_app.input_manager;
-    if ((size_t)size >= kv_size(im->text_input))
+    if ((uint64)size >= kv_size(im->text_input))
     {
         kv_size(im->text_input) = 0;
     }
@@ -63,13 +63,13 @@ void InputTextRemoveTextChar(const char *pattern)
     kv_size(im->text_input)--;
 
     char *start = im->text_input.a;
-    size_t pat_len = strlen(pattern);
+    uint64 pat_len = strlen(pattern);
     char *match;
 
     while ((match = strstr(start, pattern)) != NULL)
     {
-        size_t match_pos = match - im->text_input.a;
-        size_t rem_len = kv_size(im->text_input) - (match_pos + pat_len);
+        uint64 match_pos = match - im->text_input.a;
+        uint64 rem_len = kv_size(im->text_input) - (match_pos + pat_len);
 
         memmove(match, match + pat_len, rem_len);
         kv_size(im->text_input) -= pat_len;
@@ -88,30 +88,30 @@ void InputTextReplace(const char *pattern, const char *replace)
     kv_push(char, im->text_input, '\0');
     kv_size(im->text_input)--;
 
-    size_t pat_len = strlen(pattern);
-    size_t rep_len = strlen(replace);
+    uint64 pat_len = strlen(pattern);
+    uint64 rep_len = strlen(replace);
 
     char *match;
-    size_t search_pos = 0;
+    uint64 search_pos = 0;
 
     while ((match = strstr(im->text_input.a + search_pos, pattern)) != NULL)
     {
-        size_t match_pos = match - im->text_input.a;
+        uint64 match_pos = match - im->text_input.a;
 
         if (rep_len > pat_len)
         {
-            size_t diff = rep_len - pat_len;
-            for (size_t i = 0; i < diff; i++)
+            uint64 diff = rep_len - pat_len;
+            for (uint64 i = 0; i < diff; i++)
                 kv_push(char, im->text_input, '\0');
             kv_size(im->text_input) -= diff;
 
             match = im->text_input.a + match_pos;
-            size_t rem_len = kv_size(im->text_input) - (match_pos + pat_len);
+            uint64 rem_len = kv_size(im->text_input) - (match_pos + pat_len);
             memmove(match + rep_len, match + pat_len, rem_len + 1);
         }
         else if (rep_len < pat_len)
         {
-            size_t rem_len = kv_size(im->text_input) - (match_pos + pat_len);
+            uint64 rem_len = kv_size(im->text_input) - (match_pos + pat_len);
             memmove(match + rep_len, match + pat_len, rem_len + 1);
         }
 

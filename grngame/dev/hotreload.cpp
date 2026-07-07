@@ -64,9 +64,9 @@ class UpdateListener : public efsw::FileWatchListener
             SDL_LockMutex(g_queueMutex);
 
         bool is_duplicate = false;
-        size_t current_queue_size = kv_size(g_app.queue);
+        uint64 current_queue_size = kv_size(g_app.queue);
 
-        for (size_t i = 0; i < current_queue_size; ++i)
+        for (uint64 i = 0; i < current_queue_size; ++i)
         {
             HotreloadQueueElement existing = kv_A(g_app.queue, i);
 
@@ -116,9 +116,9 @@ void ProcessHotreloadQueue(void)
     if (g_queueMutex)
         SDL_LockMutex(g_queueMutex);
 
-    size_t count = kv_size(g_app.queue);
+    uint64 count = kv_size(g_app.queue);
 
-    for (size_t i = 0; i < count; ++i)
+    for (uint64 i = 0; i < count; ++i)
     {
         HotreloadQueueElement elem = kv_A(g_app.queue, i);
         const char *cpath = elem.new_file;

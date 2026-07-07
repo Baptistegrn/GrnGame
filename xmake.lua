@@ -22,6 +22,10 @@ option("embed_assets")
     set_description("Generate embedded assets before building game (auto-enabled for wasm)")
 option_end()
 
+if is_arch("x64") then
+    add_defines("GRNGAME_X64")
+end
+
 add_requires("libsdl3",       {version = "3.4.0"},      {configs = {shared = false}})
 add_requires("libsdl3_image", {version = "3.2.0"},      {configs = {shared = false}})
 add_requires("libsdl3_ttf",   {version = "3.2.2"},      {configs = {shared = false, freetype = false}, system = false})

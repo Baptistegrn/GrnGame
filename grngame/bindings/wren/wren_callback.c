@@ -18,14 +18,14 @@ static khash_t(wren_method_map) *g_methods = NULL;
 static khash_t(wren_class_map) *g_classes = NULL;
 
 // key : "module:class:static:signature"
-static void MakeMethodKey(char *buffer, size_t max, const char *module, const char *className, bool isStatic,
+static void MakeMethodKey(char *buffer, uint64 max, const char *module, const char *className, bool isStatic,
                           const char *signature)
 {
     snprintf(buffer, max, "%s:%s:%s:%s", module, className, isStatic ? "s" : "i", signature);
 }
 
 // key : "module:class"
-static void MakeClassKey(char *buffer, size_t max, const char *module, const char *className)
+static void MakeClassKey(char *buffer, uint64 max, const char *module, const char *className)
 {
     snprintf(buffer, max, "%s:%s", module, className);
 }

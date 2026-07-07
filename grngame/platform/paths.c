@@ -17,7 +17,7 @@ char *FileStem(const char *path)
 
     // last dot after the slash
     const char *dot = strrchr(start, '.');
-    size_t len = dot ? (size_t)(dot - start) : strlen(start);
+    uint64 len = dot ? (uint64)(dot - start) : strlen(start);
 
     char *stem = malloc(len + 1);
     memcpy(stem, start, len);
@@ -108,13 +108,13 @@ char *PathFromExecutableDirectory(const char *relative)
     while (*relative == '/')
         relative++;
 
-    size_t exe_len = strlen(exe_dir);
+    uint64 exe_len = strlen(exe_dir);
 
     // trim trailing slashes on exe_dir
     while (exe_len > 0 && exe_dir[exe_len - 1] == '/')
         exe_len--;
 
-    size_t len = exe_len + strlen(relative) + 2; // +2 bytes for '/' and for '\0'
+    uint64 len = exe_len + strlen(relative) + 2; // +2 bytes for '/' and for '\0'
     char *buf = malloc(len);
     snprintf(buf, len, "%.*s/%s", (int32)exe_len, exe_dir, relative);
 
