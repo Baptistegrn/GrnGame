@@ -19,7 +19,7 @@ KHASH_MAP_INIT_STR(EmbeddedAssetHash, EmbeddedAsset);
 
 KHASH_MAP_INIT_STR(ColorHex, SDL_Color);
 
-#if defined(GRN_EMBED_ASSETS)
+#if defined(GRNGAME_EMBED_ASSETS)
 #define EMBEDDED_ASSETS_DATA_AVAILABLE
 #endif
 

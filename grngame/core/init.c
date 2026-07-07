@@ -38,14 +38,14 @@ static void ConfigureSDLHints(void)
 {
     SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "1");
 
-#if defined(_WIN32)
+#if defined(GRNGAME_WINDOWS)
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d12,vulkan");
-#elif defined(WASM)
+#elif defined(GRNGAME_WASM)
     SDL_SetHint(SDL_HINT_EMSCRIPTEN_KEYBOARD_ELEMENT, "#canvas");
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengles3,opengles2");
-#elif defined(__APPLE__)
+#elif defined(GRNGAME_MACOS)
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "metal");
-#elif defined(__linux__)
+#elif defined(GRNGAME_LINUX)
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "vulkan,opengl");
 #endif
 }
@@ -125,7 +125,7 @@ static void LoadDefaultConfig(void)
     g_app.info.asset_folder = "assets";
 }
 
-#ifndef WASM
+#ifndef GRNGAME_WASM
 
 static SDL_IOStream *LoadControllerDatabase(void)
 {
@@ -270,7 +270,7 @@ COLD InitResult InitAll(void)
 
     SoundInit();
 
-#ifndef WASM
+#ifndef GRNGAME_WASM
     LoadControllerMappings();
 #endif
 

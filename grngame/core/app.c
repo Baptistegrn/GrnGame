@@ -16,7 +16,7 @@
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/random.h"
-#ifdef WASM
+#ifdef GRNGAME_WASM
 #include "grngame/web/web.h"
 #endif
 
@@ -212,7 +212,7 @@ static COLD void MainLoop(void)
 
     SDL_ShowWindow(g_app.window);
 
-#ifdef WASM
+#ifdef GRNGAME_WASM
     WEB_LOOP(MainLoopIteration);
 #else
     while (LIKELY(s_is_running))

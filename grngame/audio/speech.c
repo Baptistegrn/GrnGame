@@ -6,7 +6,7 @@
 #include <kvec.h>
 #include <math.h>
 
-#ifndef WASM
+#ifndef GRNGAME_WASM
 typedef struct
 {
     void *ptr;
@@ -82,7 +82,7 @@ static void ApplyFilters(Speech *speech, const SoundInfo *info)
 
 void SpeechSay(const char *text, const SoundInfo *sound_info)
 {
-#ifndef WASM
+#ifndef GRNGAME_WASM
     Speech *speech = g_app.sound_manager.speech;
     Soloud soloud = g_app.sound_manager.soloud;
 

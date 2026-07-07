@@ -38,7 +38,7 @@ if not is_plat("wasm") then
     add_requires("quill", {version = "v11.0.2"}, {configs = {shared = false}})
     add_requires("efsw",  {version = "1.6.2"},{configs = {shared = false}, system = false})
 else
-    add_defines("WASM")
+    add_defines("GRNGAME_WASM")
 add_ldflags(
     "--shell-file", "grngame/web/shell.html",
 
@@ -96,7 +96,7 @@ local function add_grngame_defines()
         end
     end
     if has_config("embed_assets") then
-        add_defines("GRN_EMBED_ASSETS", {public = true})
+        add_defines("GRNGAME_EMBED_ASSETS", {public = true})
     end
 
     add_defines("CGLM_USE_ANONYMOUS_STRUCT=1", {public = true})

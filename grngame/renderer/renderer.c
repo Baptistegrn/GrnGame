@@ -20,7 +20,7 @@ COLD bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
         return false;
     }
 // disable vsync on web
-#ifdef WASM
+#ifdef GRNGAME_WASM
     SDL_SetRenderVSync(renderer->renderer, 0);
 #else
     SDL_SetRenderVSync(renderer->renderer, 1);

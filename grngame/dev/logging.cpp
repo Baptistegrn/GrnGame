@@ -17,7 +17,7 @@ static LogSeverity LogSeverityForBuildType()
 #endif
 }
 
-#ifndef WASM
+#ifndef GRNGAME_WASM
 
 #include "grngame/dev/logging.h"
 
@@ -249,9 +249,9 @@ static const char *LogSeverityToString(LogSeverity log_severity)
     }
 }
 
-#endif // !WASM
+#endif // !GRNGAME_WASM
 
-#ifdef WASM
+#ifdef GRNGAME_WASM
 
 #include <emscripten/emscripten.h>
 
@@ -260,7 +260,7 @@ extern "C"
 
     bool LogInit(LogDestination)
     {
-        // wasm only console work
+        // GRNGAME_WASM only console work
         s_current_destination = LOG_TO_CONSOLE;
         s_current_severity = LogSeverityForBuildType();
         g_app.info.enable_logs = true;
@@ -324,11 +324,11 @@ void Log(LogSeverity log_severity, const char *format, ...)
     }
 }
 
-#endif // WASM
+#endif // GRNGAME_WASM
 
 static void ApplyEnableLogs(AppInfo *info)
 {
-#ifdef WASM
+#ifdef GRNGAME_WASM
     // log enable on wasm
     (void)info;
     g_app.info.enable_logs = true;
@@ -349,7 +349,7 @@ bool LogGetEnable(void)
 
 void LogInfoSetEnable(bool enable)
 {
-#ifdef WASM
+#ifdef GRNGAME_WASM
     // impossible to desativate log in wasm
     (void)enable;
     g_app.info.enable_logs = true;

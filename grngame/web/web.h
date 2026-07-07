@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef WASM
+#ifdef GRNGAME_WASM
 
 #include "grngame/core/param.h"
 #include <emscripten.h>
