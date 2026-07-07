@@ -10,7 +10,6 @@
 #include "wren.h"
 #include <math.h>
 
-
 void PaletteInit()
 {
     kv_init(g_app.info.palette_elements);
@@ -61,7 +60,7 @@ SDL_Color ColorFromHex(const char *hex)
     color.b = HexToU8(hex + 4);
     color.a = 255;
 
-    int ret;
+    int32 ret;
     k = kh_put(ColorHex, h, hex, &ret);
     kh_value(h, k) = color;
 
@@ -70,8 +69,8 @@ SDL_Color ColorFromHex(const char *hex)
 
 void PaletteParse()
 {
-    int size = WrenGetListCount("config", "Config", "colorPalette");
-    for (int i = 0; i < size; i++)
+    int32 size = WrenGetListCount("config", "Config", "colorPalette");
+    for (int32 i = 0; i < size; i++)
     {
         const char *color = WrenGetListString("config", "Config", "colorPalette", i);
         if (!LIKELY(color == NULL))

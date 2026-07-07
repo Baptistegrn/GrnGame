@@ -26,10 +26,10 @@ InputManager InputManagerCreate()
 
 void ControllerMapAdd(ControllerMap *map, const char *key, int16 index)
 {
-    int ret;
+    int32 ret;
     khint_t k = kh_put(ctrlmap, map->hash, key, &ret);
 
-    if (ret != 0) 
+    if (ret != 0)
     {
         kh_key(map->hash, k) = SDL_strdup(key);
     }
@@ -39,10 +39,10 @@ void ControllerMapAdd(ControllerMap *map, const char *key, int16 index)
 int16 ControllerMapGet(const ControllerMap *map, const char *key)
 {
     khint_t k = kh_get(ctrlmap, map->hash, key);
-    
+
     if (UNLIKELY(k == kh_end(map->hash)))
         return -1;
-        
+
     return kh_value(map->hash, k);
 }
 
@@ -53,7 +53,7 @@ void ControllerMapDestroy(ControllerMap *map)
         for (khint_t k = kh_begin(map->hash); k != kh_end(map->hash); ++k)
         {
             if (kh_exist(map->hash, k))
-                SDL_free((void *)kh_key(map->hash, k)); 
+                SDL_free((void *)kh_key(map->hash, k));
         }
         kh_destroy(ctrlmap, map->hash);
         map->hash = NULL;

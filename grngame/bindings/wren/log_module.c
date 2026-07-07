@@ -37,7 +37,7 @@ static void log_critical(WrenVM *vm)
 static void apply_config(WrenVM *vm)
 {
     LogInfoSetEnable(wrenGetSlotBool(vm, 1));
-    LogInfoSetDestination((int)wrenGetSlotDouble(vm, 2));
+    LogInfoSetDestination((int32)wrenGetSlotDouble(vm, 2));
     LogApplyConfig(&g_app.info);
 }
 
@@ -48,7 +48,7 @@ static void log_get_level(WrenVM *vm)
 
 static void log_set_lvl(WrenVM *vm)
 {
-    LogSetLevel((int)wrenGetSlotDouble(vm, 1));
+    LogSetLevel((int32)wrenGetSlotDouble(vm, 1));
 }
 void RegisterLogModule()
 {

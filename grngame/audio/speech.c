@@ -18,7 +18,7 @@ static bool s_filters_initialized = false;
 
 static void ClearFilters(Speech *speech)
 {
-    for (int i = 0; i < (int)kv_size(s_active_filters); i++)
+    for (int32 i = 0; i < (int32)kv_size(s_active_filters); i++)
     {
         FilterHandle *fh = &kv_A(s_active_filters, i);
         if (fh->ptr)
@@ -40,7 +40,7 @@ static void ApplyFilters(Speech *speech, const SoundInfo *info)
 
     ClearFilters(speech);
 
-    for (int i = 0; i < info->filter_count && i < MAX_FILTERS; i++)
+    for (int32 i = 0; i < info->filter_count && i < MAX_FILTERS; i++)
     {
         const FilterDef *def = &info->filters[i];
         void *filter = NULL;
@@ -90,7 +90,7 @@ void SpeechSay(const char *text, const SoundInfo *sound_info)
 
     Speech_setText(speech, text);
 
-    unsigned int handle;
+    uint32 handle;
     if (!isnan(sound_info->position.x) && !isnan(sound_info->position.y))
     {
         handle = Soloud_play3dEx(soloud, speech, sound_info->position.x, sound_info->position.y, 0.0f, 0.0f, 0.0f, 0.0f,

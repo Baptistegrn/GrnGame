@@ -58,8 +58,8 @@ float32 MouseScrollY()
 void MoveMouse(int16 x, int16 y)
 {
     uint8 coeff = WindowGetScale();
-    int mx = (int)((x + g_app.info.offset_x) * coeff);
-    int my = (int)((y + g_app.info.offset_y) * coeff);
+    int32 mx = (int32)((x + g_app.info.offset_x) * coeff);
+    int32 my = (int32)((y + g_app.info.offset_y) * coeff);
     SDL_WarpMouseInWindow(g_app.window, mx, my);
 }
 

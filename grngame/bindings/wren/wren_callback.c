@@ -44,7 +44,7 @@ void RegisterMethod(const char *module, const char *className, bool isStatic, co
     char key[KEY_SIZE];
     MakeMethodKey(key, sizeof(key), module, className, isStatic, signature);
 
-    int ret;
+    int32 ret;
     khint_t k = kh_put(wren_method_map, g_methods, strdup(key), &ret);
     kh_value(g_methods, k) = fn;
 }
@@ -55,7 +55,7 @@ void RegisterClass(const char *module, const char *className, WrenForeignMethodF
     char key[KEY_SIZE];
     MakeClassKey(key, sizeof(key), module, className);
 
-    int ret;
+    int32 ret;
     khint_t k = kh_put(wren_class_map, g_classes, strdup(key), &ret);
 
     WrenForeignClassMethods methods;
@@ -70,7 +70,7 @@ void WriteFn(WrenVM *vm, const char *text)
     LOG_INFO("%s", text);
 }
 
-void ErrorFn(WrenVM *vm, WrenErrorType errorType, const char *module, int line, const char *msg)
+void ErrorFn(WrenVM *vm, WrenErrorType errorType, const char *module, int32 line, const char *msg)
 {
     if (errorType == WREN_ERROR_COMPILE)
     {

@@ -37,22 +37,22 @@ static void mouse_right_just_released(WrenVM *vm)
 
 static void mouse_x(WrenVM *vm)
 {
-    wrenSetSlotDouble(vm, 0, (double)MouseX());
+    wrenSetSlotDouble(vm, 0, (float64)MouseX());
 }
 
 static void mouse_y(WrenVM *vm)
 {
-    wrenSetSlotDouble(vm, 0, (double)MouseY());
+    wrenSetSlotDouble(vm, 0, (float64)MouseY());
 }
 
 static void mouse_scroll_x(WrenVM *vm)
 {
-    wrenSetSlotDouble(vm, 0, (double)MouseScrollX());
+    wrenSetSlotDouble(vm, 0, (float64)MouseScrollX());
 }
 
 static void mouse_scroll_y(WrenVM *vm)
 {
-    wrenSetSlotDouble(vm, 0, (double)MouseScrollY());
+    wrenSetSlotDouble(vm, 0, (float64)MouseScrollY());
 }
 
 static void move_mouse(WrenVM *vm)

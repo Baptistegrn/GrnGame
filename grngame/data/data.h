@@ -1,10 +1,12 @@
 #pragma once
 
+#include "grngame/math/types.h"
 #include "grngame/utils/c_cpp.h"
 #include "wren.h"
 #include <kvec.h>
 #include <sqlite3.h>
 #include <stdbool.h>
+
 
 BEGIN_DECLARATIONS
 
@@ -22,13 +24,13 @@ typedef struct
     const char *name; // null for DbArg
     DbType type;
     union {
-        int i;
-        double f;
+        int32 i;
+        float64 f;
         const char *s;
         struct
         {
             void *data;
-            int size;
+            int32 size;
         } blob; // not usable in wren / sql
     } value;
 } DbValue;
@@ -66,7 +68,7 @@ void DbCommit(sqlite3 *db);
 void DbRollback(sqlite3 *db);
 
 DbStmt DbStmtPrepare(sqlite3 *db, const char *sql);
-bool DbStmtRun(DbStmt *s, DbArg *args, int argc);
+bool DbStmtRun(DbStmt *s, DbArg *args, int32 argc);
 void DbStmtFree(DbStmt *s);
 
 // bypass DbResult to populate Wren list directly in one pass

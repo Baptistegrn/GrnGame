@@ -65,5 +65,5 @@ HOT ivec2s TextureGetSize(const char *name)
         return (ivec2s){{0, 0}};
     }
 
-    return (ivec2s){{(int)tex->w, (int)tex->h}};
+    return (ivec2s){{(int32)tex->w, (int32)tex->h}};
 }

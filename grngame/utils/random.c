@@ -5,7 +5,7 @@
 
 void SetSeed()
 {
-    srand((unsigned int)time(NULL));
+    srand((uint32)time(NULL));
 }
 
 float32 Random(float32 min, float32 max)

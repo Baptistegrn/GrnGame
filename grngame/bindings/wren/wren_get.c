@@ -44,7 +44,7 @@ const char *WrenGetString(const char *module, const char *variable, const char *
     return wrenGetSlotString(vm, 0);
 }
 
-double WrenGetDouble(const char *module, const char *variable, const char *field)
+float64 WrenGetDouble(const char *module, const char *variable, const char *field)
 {
     WrenVM *vm = g_app.wren->vm;
 
@@ -63,16 +63,16 @@ double WrenGetDouble(const char *module, const char *variable, const char *field
 
     if (result != WREN_RESULT_SUCCESS)
     {
-        LOG_ERROR("Wren: failed to get double field '%s'", field);
+        LOG_ERROR("Wren: failed to get float64 field '%s'", field);
         return 0.0;
     }
 
     return wrenGetSlotDouble(vm, 0);
 }
 
-int WrenGetInt(const char *module, const char *variable, const char *field)
+int32 WrenGetInt(const char *module, const char *variable, const char *field)
 {
-    return (int)WrenGetDouble(module, variable, field);
+    return (int32)WrenGetDouble(module, variable, field);
 }
 
 bool WrenGetBool(const char *module, const char *variable, const char *field)
@@ -101,7 +101,7 @@ bool WrenGetBool(const char *module, const char *variable, const char *field)
     return wrenGetSlotBool(vm, 0);
 }
 
-int WrenGetListCount(const char *module, const char *variable, const char *field)
+int32 WrenGetListCount(const char *module, const char *variable, const char *field)
 {
     WrenVM *vm = g_app.wren->vm;
 
@@ -133,7 +133,7 @@ int WrenGetListCount(const char *module, const char *variable, const char *field
     return wrenGetListCount(vm, 0);
 }
 
-double WrenGetListDouble(const char *module, const char *variable, const char *field, int index)
+float64 WrenGetListDouble(const char *module, const char *variable, const char *field, int32 index)
 {
     WrenVM *vm = g_app.wren->vm;
 
@@ -169,7 +169,7 @@ double WrenGetListDouble(const char *module, const char *variable, const char *f
     return wrenGetSlotDouble(vm, 1);
 }
 
-const char *WrenGetListString(const char *module, const char *variable, const char *field, int index)
+const char *WrenGetListString(const char *module, const char *variable, const char *field, int32 index)
 {
     WrenVM *vm = g_app.wren->vm;
 

@@ -8,7 +8,7 @@
 #include "renderer.h"
 #include <math.h>
 
-static inline void SetColorFromPalette(int c_idx, uint8 a)
+static inline void SetColorFromPalette(int32 c_idx, uint8 a)
 {
     int32 palette_size = kv_size(g_app.info.palette_elements);
 
@@ -28,14 +28,14 @@ static inline SDL_FRect make_rect(float32 x, float32 y, float32 w, float32 h)
                        PIXEL_ALIGN(h)};
 }
 
-void PixelDraw(float32 x, float32 y, int c_idx, uint8 a)
+void PixelDraw(float32 x, float32 y, int32 c_idx, uint8 a)
 {
     SetColorFromPalette(c_idx, a);
     SDL_FRect rect = make_rect(x, y, 1.0f, 1.0f);
     RendererFillRect(&rect);
 }
 
-void LineDraw(float32 x0, float32 y0, float32 x1, float32 y1, int c_idx, uint8 a)
+void LineDraw(float32 x0, float32 y0, float32 x1, float32 y1, int32 c_idx, uint8 a)
 {
     SetColorFromPalette(c_idx, a);
 
@@ -70,21 +70,21 @@ void LineDraw(float32 x0, float32 y0, float32 x1, float32 y1, int c_idx, uint8 a
     RendererFillRects(rects, n);
 }
 
-void RectDraw(float32 x, float32 y, float32 w, float32 h, int c_idx, uint8 a)
+void RectDraw(float32 x, float32 y, float32 w, float32 h, int32 c_idx, uint8 a)
 {
     SetColorFromPalette(c_idx, a);
     SDL_FRect rect = make_rect(x, y, w, h);
     RendererRect(&rect);
 }
 
-void RectDrawFill(float32 x, float32 y, float32 w, float32 h, int c_idx, uint8 a)
+void RectDrawFill(float32 x, float32 y, float32 w, float32 h, int32 c_idx, uint8 a)
 {
     SetColorFromPalette(c_idx, a);
     SDL_FRect rect = make_rect(x, y, w, h);
     RendererFillRect(&rect);
 }
 
-void CircleDraw(float32 xc, float32 yc, float32 radius, int c_idx, uint8 a)
+void CircleDraw(float32 xc, float32 yc, float32 radius, int32 c_idx, uint8 a)
 {
     SetColorFromPalette(c_idx, a);
 
@@ -128,7 +128,7 @@ void CircleDraw(float32 xc, float32 yc, float32 radius, int c_idx, uint8 a)
     RendererFillRects(rects, count);
 }
 
-void CircleDrawFill(float32 xc, float32 yc, float32 radius, int c_idx, uint8 a)
+void CircleDrawFill(float32 xc, float32 yc, float32 radius, int32 c_idx, uint8 a)
 {
     SetColorFromPalette(c_idx, a);
 

@@ -24,7 +24,7 @@
 #else
 
 #include <stddef.h>
-int strncpy_s(char *dst, size_t dst_size, const char *src, size_t count);
+int32 strncpy_s(char *dst, size_t dst_size, const char *src, size_t count);
 #endif
 
 // Provide an internal-linkage fallback for platforms where strdup

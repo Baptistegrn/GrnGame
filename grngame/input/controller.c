@@ -47,22 +47,21 @@ void GamepadClose(SDL_Gamepad *gp)
     SDL_CloseGamepad(gp);
 }
 
-int ControllerConnectedCountptr(SDL_JoystickID **ptr)
+int32 ControllerConnectedCountptr(SDL_JoystickID **ptr)
 {
-    int count = 0;
+    int32 count = 0;
     *ptr = SDL_GetGamepads(&count);
     return count;
 }
 
-int ControllerConnectedCount(void)
+int32 ControllerConnectedCount(void)
 {
-    int count = 0;
+    int32 count = 0;
     SDL_JoystickID *pads = SDL_GetGamepads(&count);
     if (LIKELY(pads))
         SDL_free(pads);
     return count;
 }
-
 
 static int16 FindFreeControllerIndex(void)
 {
@@ -86,7 +85,7 @@ void ControllerDisablePersistence(int16 index)
     }
 
     Controller *c = &g_app.input_manager.controllers[index];
-    
+
     // Check if there is actually an active controller at this index
     if (UNLIKELY(!c->gamepad || !c->joystick))
     {
@@ -95,7 +94,7 @@ void ControllerDisablePersistence(int16 index)
     }
 
     const char *serial = SDL_GetJoystickSerial(c->joystick);
-    
+
     // If the controller has a serial number, remove it from the persistent map
     if (serial != NULL)
     {
@@ -105,14 +104,14 @@ void ControllerDisablePersistence(int16 index)
 
     // Downgrade the slot status to ephemeral so it won't be held upon disconnection
     c->is_reserved = false;
-    
+
     LOG_INFO("Gamepad at index %d has been successfully converted to an ephemeral slot.", index);
 }
 
 bool ControllerOpen()
 {
     SDL_JoystickID *pads = NULL;
-    int count = ControllerConnectedCountptr(&pads);
+    int32 count = ControllerConnectedCountptr(&pads);
 
     if (UNLIKELY(count == 0))
         return false;
@@ -121,7 +120,7 @@ bool ControllerOpen()
     bool found = false;
 
     // Identify the newly connected gamepad
-    for (int i = 0; i < count; i++)
+    for (int32 i = 0; i < count; i++)
     {
         if (!GamepadFromID(pads[i]))
         {
@@ -158,7 +157,7 @@ bool ControllerOpen()
     {
         LOG_INFO("Gamepad '%s' lacks a serial number. Assigning an ephemeral index.", name);
         index = FindFreeControllerIndex();
-        
+
         if (UNLIKELY(index == -1))
         {
             LOG_WARNING("Maximum controller capacity reached. Cannot assign ephemeral gamepad.");
@@ -169,20 +168,20 @@ bool ControllerOpen()
     else
     {
         index = ControllerMapGet(&g_app.input_manager.controller_map, serial);
-        
+
         if (index == -1)
         {
             index = FindFreeControllerIndex();
-            
+
             if (UNLIKELY(index == -1))
             {
                 LOG_WARNING("Maximum controller capacity reached. Cannot assign persistent gamepad.");
                 GamepadClose(gp);
                 return false;
             }
-            
+
             ControllerMapAdd(&g_app.input_manager.controller_map, serial, index);
-            g_app.input_manager.controllers[index].is_reserved = true; 
+            g_app.input_manager.controllers[index].is_reserved = true;
         }
     }
 
@@ -194,10 +193,10 @@ bool ControllerOpen()
     // Hardware capability checks
     if (UNLIKELY(!SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_LEFTX) || !SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_LEFTY)))
         LOG_WARNING("Gamepad %d (%s) lacks a left analog stick.", index, name);
-        
+
     if (UNLIKELY(!SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_RIGHTX) || !SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_RIGHTY)))
         LOG_WARNING("Gamepad %d (%s) lacks a right analog stick.", index, name);
-        
+
     if (UNLIKELY(!SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_LEFT_TRIGGER) ||
                  !SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER)))
         LOG_WARNING("Gamepad %d (%s) may lack analog triggers.", index, name);
@@ -213,14 +212,14 @@ void ControllerClose(int16 index)
         LOG_WARNING("Invalid controller index provided for closure: %d", index);
         return;
     }
-    
+
     Controller *c = &g_app.input_manager.controllers[index];
-    
+
     if (c->gamepad)
     {
         const char *name = GamepadGetName(c->gamepad);
         LOG_INFO("Closing gamepad %d: %s", index, name ? name : "Unknown");
-        
+
         GamepadClose(c->gamepad);
         c->gamepad = NULL;
         c->joystick = NULL;
@@ -228,7 +227,7 @@ void ControllerClose(int16 index)
     }
 }
 
-bool PadPressed(int button, int16 index)
+bool PadPressed(int32 button, int16 index)
 {
     if (UNLIKELY(index >= MAX_CONTROLLERS || button < 0 || button >= SDL_GAMEPAD_BUTTON_COUNT))
     {
@@ -239,7 +238,7 @@ bool PadPressed(int button, int16 index)
     return g_app.input_manager.controllers[index].pressed[button];
 }
 
-bool PadJustPressed(int button, int16 index)
+bool PadJustPressed(int32 button, int16 index)
 {
     if (UNLIKELY(index >= MAX_CONTROLLERS || button < 0 || button >= SDL_GAMEPAD_BUTTON_COUNT))
     {
@@ -249,7 +248,7 @@ bool PadJustPressed(int button, int16 index)
     return g_app.input_manager.controllers[index].just_pressed[button];
 }
 
-bool PadJustReleased(int button, int16 index)
+bool PadJustReleased(int32 button, int16 index)
 {
     if (UNLIKELY(index >= MAX_CONTROLLERS || button < 0 || button >= SDL_GAMEPAD_BUTTON_COUNT))
     {
@@ -289,7 +288,7 @@ bool PadRumble(int16 index, uint8 left_rumble, uint8 right_rumble, uint32 time)
 
     return true;
 }
-bool PadHasButton(int16 index, int button)
+bool PadHasButton(int16 index, int32 button)
 {
     if (UNLIKELY(index < 0 || index >= MAX_CONTROLLERS))
     {
@@ -307,7 +306,7 @@ bool PadHasButton(int16 index, int button)
     return SDL_GamepadHasButton(gp, (SDL_GamepadButton)button);
 }
 
-bool PadHasAxis(int16 index, int axis)
+bool PadHasAxis(int16 index, int32 axis)
 {
     if (UNLIKELY(index < 0 || index >= MAX_CONTROLLERS))
     {
@@ -325,7 +324,7 @@ bool PadHasAxis(int16 index, int axis)
     return SDL_GamepadHasAxis(gp, (SDL_GamepadAxis)axis);
 }
 
-bool PadHasSensor(int16 index, int sensor_type)
+bool PadHasSensor(int16 index, int32 sensor_type)
 {
     if (UNLIKELY(index < 0 || index >= MAX_CONTROLLERS))
     {
@@ -343,7 +342,7 @@ bool PadHasSensor(int16 index, int sensor_type)
     return SDL_GamepadHasSensor(gp, (SDL_SensorType)sensor_type);
 }
 
-int PadFirstPressedIndexForButton(int button)
+int32 PadFirstPressedIndexForButton(int32 button)
 {
     if (UNLIKELY(button < 0 || button >= SDL_GAMEPAD_BUTTON_COUNT))
     {
@@ -351,7 +350,7 @@ int PadFirstPressedIndexForButton(int button)
         return -1;
     }
 
-    for (int i = 0; i < MAX_CONTROLLERS; ++i)
+    for (int32 i = 0; i < MAX_CONTROLLERS; ++i)
     {
         Controller *c = &g_app.input_manager.controllers[i];
         if (!c->gamepad)

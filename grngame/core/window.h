@@ -25,10 +25,10 @@ void WindowApplyConfig(AppInfo *app_info);
 
 // Getters
 uint8 WindowGetScale();
-int WindowGetWidth();
-int WindowGetHeight();
-int WindowGetUniverseWidth();
-int WindowGetUniverseHeight();
+int32 WindowGetWidth();
+int32 WindowGetHeight();
+int32 WindowGetUniverseWidth();
+int32 WindowGetUniverseHeight();
 float32 WindowGetOffsetX();
 float32 WindowGetOffsetY();
 bool WindowGetChange();

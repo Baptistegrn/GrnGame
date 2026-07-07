@@ -1,6 +1,6 @@
 #include "grngame/core/app.h"
 
-int main()
+int32 main()
 {
     EngineStart();
     return 0;

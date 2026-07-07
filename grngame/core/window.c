@@ -134,24 +134,24 @@ uint8 WindowGetScale()
     return (uint8)c;
 }
 
-int WindowGetWidth()
+int32 WindowGetWidth()
 {
-    return (int)g_app.info.window_width;
+    return (int32)g_app.info.window_width;
 }
 
-int WindowGetHeight()
+int32 WindowGetHeight()
 {
-    return (int)g_app.info.window_height;
+    return (int32)g_app.info.window_height;
 }
 
-int WindowGetUniverseWidth()
+int32 WindowGetUniverseWidth()
 {
-    return (int)g_app.info.window_universe_width;
+    return (int32)g_app.info.window_universe_width;
 }
 
-int WindowGetUniverseHeight()
+int32 WindowGetUniverseHeight()
 {
-    return (int)g_app.info.window_universe_height;
+    return (int32)g_app.info.window_universe_height;
 }
 
 float32 WindowGetOffsetX()

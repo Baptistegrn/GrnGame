@@ -4,19 +4,19 @@
 
 static void key_pressed(WrenVM *vm)
 {
-    int key = (int)wrenGetSlotDouble(vm, 1);
+    int32 key = (int32)wrenGetSlotDouble(vm, 1);
     wrenSetSlotBool(vm, 0, KeyPressed(key));
 }
 
 static void key_just_pressed(WrenVM *vm)
 {
-    int key = (int)wrenGetSlotDouble(vm, 1);
+    int32 key = (int32)wrenGetSlotDouble(vm, 1);
     wrenSetSlotBool(vm, 0, KeyJustPressed(key));
 }
 
 static void key_just_released(WrenVM *vm)
 {
-    int key = (int)wrenGetSlotDouble(vm, 1);
+    int32 key = (int32)wrenGetSlotDouble(vm, 1);
     wrenSetSlotBool(vm, 0, KeyJustReleased(key));
 }
 

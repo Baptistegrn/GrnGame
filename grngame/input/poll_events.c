@@ -15,13 +15,13 @@ static int16 FindControllerIndex(SDL_JoystickID id)
     for (int16 i = 0; i < MAX_CONTROLLERS; ++i)
     {
         Controller *c = &g_app.input_manager.controllers[i];
-    
+
         if (c->gamepad && c->id == id)
         {
             return i;
         }
     }
-    return -1; 
+    return -1;
 }
 static void ResetInputManagerKeys()
 {
@@ -35,7 +35,7 @@ static void ResetInputManagerKeys()
     im->mouse.scroll_y = 0;
     CLEAR(im->key_just_pressed, 0);
     CLEAR(im->key_just_released, 0);
-    for (int i = 0; i < MAX_CONTROLLERS; i++)
+    for (int32 i = 0; i < MAX_CONTROLLERS; i++)
     {
         CLEAR(im->controllers[i].just_pressed, 0);
         CLEAR(im->controllers[i].just_released, 0);

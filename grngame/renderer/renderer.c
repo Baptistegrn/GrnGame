@@ -25,7 +25,7 @@ COLD bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
 #else
     SDL_SetRenderVSync(renderer->renderer, 1);
 #endif
-    int vsync_val = 0;
+    int32 vsync_val = 0;
     SDL_GetRenderVSync(renderer->renderer, &vsync_val);
 
     if (vsync_val == 1)
@@ -73,7 +73,7 @@ void RendererFillRect(const SDL_FRect *restrict rect)
         LOG_ERROR("Failed to fill rect: %s", SDL_GetError());
 }
 
-HOT void RendererFillRects(const SDL_FRect *restrict rects, int count)
+HOT void RendererFillRects(const SDL_FRect *restrict rects, int32 count)
 {
     if (UNLIKELY(!SDL_RenderFillRects(g_app.renderer.renderer, rects, count)))
         LOG_ERROR("Failed to fill rects: %s", SDL_GetError());
@@ -107,7 +107,7 @@ bool OffScreen(float32 x, float32 y, float32 w, float32 h)
     float32 off_y = g_app.info.offset_y;
     return (x + w <= -off_x) || (x >= view_w + off_x) || (y + h <= -off_y) || (y >= view_h + off_y);
 }
-void SetRenderColor(int index)
+void SetRenderColor(int32 index)
 {
     g_app.info.render_clear = index;
 }

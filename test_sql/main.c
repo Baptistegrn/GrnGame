@@ -1,7 +1,7 @@
 #include "../grngame/data/data.h"
 #include <stdio.h>
 
-int main()
+int32 main()
 {
     const char *db_name = "game.db";
     bool exists = DbExists(db_name);

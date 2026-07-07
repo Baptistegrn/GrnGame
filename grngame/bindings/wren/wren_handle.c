@@ -67,7 +67,7 @@ bool WrenCallOnUpdate(float delta)
 
     wrenEnsureSlots(g_app.wren->vm, 2);
     wrenSetSlotHandle(g_app.wren->vm, 0, g_app.wren->main_class);
-    wrenSetSlotDouble(g_app.wren->vm, 1, (double)delta);
+    wrenSetSlotDouble(g_app.wren->vm, 1, (float64)delta);
 
     return CheckWrenCallResult(wrenCall(g_app.wren->vm, g_app.wren->on_update), "on_update");
 }
@@ -79,7 +79,7 @@ bool WrenCallOnFixedUpdate(float delta)
 
     wrenEnsureSlots(g_app.wren->vm, 2);
     wrenSetSlotHandle(g_app.wren->vm, 0, g_app.wren->main_class);
-    wrenSetSlotDouble(g_app.wren->vm, 1, (double)delta);
+    wrenSetSlotDouble(g_app.wren->vm, 1, (float64)delta);
 
     return CheckWrenCallResult(wrenCall(g_app.wren->vm, g_app.wren->on_fixed_update), "on_fixed_update");
 }

@@ -1,8 +1,8 @@
 #include "../grngame/assets/embedded_asset.h"
+#include "grngame/utils/time.h"
 #include <stdio.h>
-#include <time.h>
 
-int main(int argc, char **argv)
+int32 main(int32 argc, char **argv)
 {
     if (argc < 3)
     {
@@ -11,11 +11,11 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    clock_t start_time = clock();
+    float64 start_time = TimeNow();
 
     create_embedded_structure(argc - 2, (const char **)(argv + 2), argv[1]);
 
-    double elapsed_time = ((double)(clock() - start_time)) / CLOCKS_PER_SEC;
+    float64 elapsed_time = TimeNow() - start_time;
 
     printf("[EmbeddedAsset] Successfully embedded files in %.3f seconds.\n", elapsed_time);
 

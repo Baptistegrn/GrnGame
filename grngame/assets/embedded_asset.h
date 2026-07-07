@@ -11,4 +11,4 @@ typedef struct
     int64 asset_count;
 } DataEmbeddedBd;
 
-void create_embedded_structure(int num_dirs, const char **dirs, const char *output_header);
+void create_embedded_structure(int32 num_dirs, const char **dirs, const char *output_header);

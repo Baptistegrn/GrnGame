@@ -39,7 +39,7 @@ void DirWalk(const char *dir_path, FileCallback callback, void *userdata)
 static void count_file_callback(const char *path, void *userdata)
 {
     (void)path;
-    (*(int *)userdata)++;
+    (*(int32 *)userdata)++;
 }
 
 static void count_asset_file_callback(const char *path, void *userdata)
@@ -47,20 +47,20 @@ static void count_asset_file_callback(const char *path, void *userdata)
     (void)path;
     if (FileIsLoadableImage(path) || FileIsLoadableAudio(path))
     {
-        (*(int *)userdata)++;
+        (*(int32 *)userdata)++;
     }
 }
 
-int DirFileCount(const char *dir_path)
+int32 DirFileCount(const char *dir_path)
 {
-    int count = 0;
+    int32 count = 0;
     DirWalk(dir_path, count_file_callback, &count);
     return count;
 }
 
-int DirAssetFileCount(const char *dir_path)
+int32 DirAssetFileCount(const char *dir_path)
 {
-    int count = 0;
+    int32 count = 0;
     DirWalk(dir_path, count_asset_file_callback, &count);
     return count;
 }

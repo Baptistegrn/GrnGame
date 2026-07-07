@@ -11,7 +11,7 @@
 
 typedef struct
 {
-    unsigned int handle;
+    uint32 handle;
     const char *name;
     vec2s position;
 } SFXInstance;
@@ -28,7 +28,7 @@ typedef struct
 typedef struct
 {
     kvec_t(FilterHandle) active_filters;
-    unsigned int handle;
+    uint32 handle;
     bool playing;
     vec2s position;
     float volume;
@@ -57,7 +57,7 @@ static bool PositionMatch(vec2s a, float x, float y)
     return (dx * dx + dy * dy) < (SOUND_POSITION_EPSILON * SOUND_POSITION_EPSILON);
 }
 
-static void Apply3dSource(Soloud *soloud, unsigned int handle, float x, float y)
+static void Apply3dSource(Soloud *soloud, uint32 handle, float x, float y)
 {
     Soloud_set3dSourceMinMaxDistance(soloud, handle, 1.f, s_max_distance);
     Soloud_set3dSourceAttenuation(soloud, handle, 1 /* LINEAR_DISTANCE */, 1.f);
@@ -91,7 +91,7 @@ bool SoundPlaySFX(const char *name, const SoundInfo *info)
     WavStream *stream = kh_value(sound_map, k);
     bool positional = IsPositional(info->position);
 
-    unsigned int handle;
+    uint32 handle;
     if (positional)
     {
         handle = Soloud_play3dEx(soloud, stream, info->position.x, info->position.y, 0.f, 0.f, 0.f, 0.f, info->volume,
@@ -133,7 +133,7 @@ bool SFXIsPlaying(const char *name)
 {
 #ifndef GRNGAME_WASM
     Soloud *soloud = g_app.sound_manager.soloud;
-    for (int i = 0; i < (int)kv_size(s_active_sfx); i++)
+    for (int32 i = 0; i < (int32)kv_size(s_active_sfx); i++)
     {
         SFXInstance *inst = &kv_A(s_active_sfx, i);
         if (strcmp(inst->name, name) == 0 && Soloud_isValidVoiceHandle(soloud, inst->handle))
@@ -147,7 +147,7 @@ bool SFXIsPlayingAt(const char *name, float x, float y)
 {
 #ifndef GRNGAME_WASM
     Soloud *soloud = g_app.sound_manager.soloud;
-    for (int i = 0; i < (int)kv_size(s_active_sfx); i++)
+    for (int32 i = 0; i < (int32)kv_size(s_active_sfx); i++)
     {
         SFXInstance *inst = &kv_A(s_active_sfx, i);
         if (strcmp(inst->name, name) == 0 && Soloud_isValidVoiceHandle(soloud, inst->handle) &&
@@ -162,7 +162,7 @@ void SoundUpdate()
 {
 #ifndef GRNGAME_WASM
     Soloud *soloud = g_app.sound_manager.soloud;
-    for (int i = 0; i < (int)kv_size(s_active_sfx); i++)
+    for (int32 i = 0; i < (int32)kv_size(s_active_sfx); i++)
     {
         if (!Soloud_isValidVoiceHandle(soloud, kv_A(s_active_sfx, i).handle))
         {
@@ -185,7 +185,7 @@ static MusicState *GetOrCreateMusicState(const char *name)
 
     MusicState state = {0};
     kv_init(state.active_filters);
-    int ret;
+    int32 ret;
     k = kh_put(MusicStateMap, s_music_states, strdup(name), &ret);
     kh_value(s_music_states, k) = state;
     return &kh_value(s_music_states, k);
@@ -194,7 +194,7 @@ static MusicState *GetOrCreateMusicState(const char *name)
 static void ClearFilters(MusicState *state, WavStream *stream)
 {
 #ifndef GRNGAME_WASM
-    for (int i = 0; i < (int)kv_size(state->active_filters); i++)
+    for (int32 i = 0; i < (int32)kv_size(state->active_filters); i++)
     {
         FilterHandle *fh = &kv_A(state->active_filters, i);
         if (fh->ptr)
@@ -211,7 +211,7 @@ static void ApplyFilters(MusicState *state, WavStream *stream, const SoundInfo *
 {
 #ifndef GRNGAME_WASM
     ClearFilters(state, stream);
-    for (int i = 0; i < info->filter_count && i < MAX_FILTERS; i++)
+    for (int32 i = 0; i < info->filter_count && i < MAX_FILTERS; i++)
     {
         const FilterDef *def = &info->filters[i];
         void *filter = NULL;
@@ -273,7 +273,7 @@ bool SoundPlayMusic(const char *name, const SoundInfo *info)
     ApplyFilters(state, stream, info);
 
     bool positional = IsPositional(info->position);
-    unsigned int handle;
+    uint32 handle;
     if (positional)
     {
         handle = Soloud_play3dEx(soloud, stream, info->position.x, info->position.y, 0.f, 0.f, 0.f, 0.f, info->volume,

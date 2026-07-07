@@ -1,8 +1,10 @@
 #pragma once
 #include "filter.h"
+#include "grngame/math/types.h"
 #include "grngame/utils/c_cpp.h"
 #include <cglm/types-struct.h>
 #include <stdbool.h>
+
 
 BEGIN_DECLARATIONS
 
@@ -15,7 +17,7 @@ typedef struct
     float fade_in; // seconds
     vec2s position;
     FilterDef *filters;
-    int filter_count;
+    int32 filter_count;
 } SoundInfo;
 
 SoundInfo SoundInfoDefault();

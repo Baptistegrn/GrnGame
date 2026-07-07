@@ -1,5 +1,6 @@
 #pragma once
 
+#include "grngame/math/types.h"
 #include "grngame/utils/c_cpp.h"
 #include "wren.h"
 
@@ -10,7 +11,7 @@ BEGIN_DECLARATIONS
 
 void WriteFn(WrenVM *vm, const char *text);
 
-void ErrorFn(WrenVM *vm, WrenErrorType errorType, const char *module, int line, const char *msg);
+void ErrorFn(WrenVM *vm, WrenErrorType errorType, const char *module, int32 line, const char *msg);
 
 WrenForeignMethodFn BindMethodFn(WrenVM *vm, const char *module, const char *className, bool isStatic,
                                  const char *signature);

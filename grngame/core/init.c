@@ -154,7 +154,7 @@ static void LoadControllerMappings(void)
         return;
     }
 
-    int mapped = SDL_AddGamepadMappingsFromIO(stream, true);
+    int32 mapped = SDL_AddGamepadMappingsFromIO(stream, true);
     if (mapped < 0)
     {
         LOG_WARNING("Failed to load gamepad mappings: %s", SDL_GetError());

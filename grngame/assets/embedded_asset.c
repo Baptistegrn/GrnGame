@@ -9,7 +9,7 @@
 
 #include "grngame/data/data.h"
 
-static int IsEmbeddableFile(const char *path)
+static int32 IsEmbeddableFile(const char *path)
 {
     return FileIsLoadableScript(path) || FileIsLoadableAudio(path) || FileIsLoadableImage(path) ||
            FileIsLoadableText(path);
@@ -73,7 +73,7 @@ static void EmbedCallback(const char *path, void *userdata)
     free(data);
 }
 
-void create_embedded_structure(int num_dirs, const char **dirs, const char *output_header)
+void create_embedded_structure(int32 num_dirs, const char **dirs, const char *output_header)
 {
     if (DbExists(output_header))
         remove(output_header);
@@ -99,7 +99,7 @@ void create_embedded_structure(int num_dirs, const char **dirs, const char *outp
     DataEmbeddedBd info = {db, &stmt, 0, 0};
 
     DbBegin(db);
-    for (int i = 0; i < num_dirs; ++i)
+    for (int32 i = 0; i < num_dirs; ++i)
         DirWalk(dirs[i], EmbedCallback, &info);
 
     char sql_buffer[256];

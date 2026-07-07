@@ -44,11 +44,11 @@ static void ApplyPaletteRemap(SDL_Surface *surface)
     int16 hashmap[255];
     CLEAR(hashmap, -1);
 
-    for (int y = 0; y < surface->h; ++y)
+    for (int32 y = 0; y < surface->h; ++y)
     {
         SDL_Color *row = (SDL_Color *)((uint8 *)surface->pixels + y * surface->pitch);
 
-        for (int x = 0; x < surface->w; ++x)
+        for (int32 x = 0; x < surface->w; ++x)
         {
             SDL_Color *pixel = &row[x];
 
@@ -140,7 +140,7 @@ static bool RegisterSound(char *key, WavStream *stream)
 {
     khash_t(SoundMap) *map = g_app.asset_manager.sound_map;
 
-    int ret;
+    int32 ret;
     khiter_t k = kh_put(SoundMap, map, key, &ret);
 
     if (UNLIKELY(ret < 0))

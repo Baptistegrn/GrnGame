@@ -16,6 +16,8 @@
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/random.h"
+#include "grngame/utils/time.h"
+
 #ifdef GRNGAME_WASM
 #include "grngame/web/web.h"
 #endif
@@ -25,9 +27,9 @@
 #include <stdlib.h>
 
 static bool s_is_running = false;
-static uint64 s_previous_counter = 0;
 static float64 s_fixed_accumulator = 0.0;
 static float64 s_update_accumulator = 0.0;
+static float64 s_previous_time = 0.0;
 
 static HOT void MainLoopIteration(void *arg);
 static COLD void MainLoop(void);
@@ -86,17 +88,10 @@ void EngineStop(void)
 
 static HOT float64 CalculateFrameDelta(void)
 {
-    uint64 now = SDL_GetPerformanceCounter();
-
-    static uint64 freq = 0;
-    if (freq == 0)
-        freq = SDL_GetPerformanceFrequency();
-
-    float64 frame_dt = (float64)(now - s_previous_counter) / (float64)freq;
-
-    s_previous_counter = now;
-
-    return frame_dt;
+    float64 now = TimeNow();
+    float64 dt = now - s_previous_time;
+    s_previous_time = now;
+    return dt;
 }
 
 static HOT void RunGarbageCollector(void)
@@ -200,7 +195,7 @@ static COLD void InitializeLoopState(void)
 
     g_app.info.frame_count = 0;
 
-    s_previous_counter = SDL_GetPerformanceCounter();
+    s_previous_time = TimeNow();
 
     s_fixed_accumulator = 0.0;
     s_update_accumulator = 0.0;

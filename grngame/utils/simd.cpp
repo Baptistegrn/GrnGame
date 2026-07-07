@@ -14,7 +14,7 @@ namespace HWY_NAMESPACE
 {
 namespace hn = hwy::HWY_NAMESPACE;
 
-HWY_ATTR int FindClosestIndex(uint8_t r, uint8_t g, uint8_t b, const PaletteSIMD *pal)
+HWY_ATTR int32 FindClosestIndex(uint8_t r, uint8_t g, uint8_t b, const PaletteSIMD *pal)
 {
     const auto d32 = hn::ScalableTag<int32_t>();
     const auto d16 = hn::ScalableTag<int16_t>();
@@ -33,7 +33,7 @@ HWY_ATTR int FindClosestIndex(uint8_t r, uint8_t g, uint8_t b, const PaletteSIMD
     auto laneIdx = hn::Iota(d32, 0);
     const auto vN = hn::Set(d32, N);
 
-    int i = 0;
+    int32 i = 0;
     for (; i + N <= count; i += N)
     {
         // Load SOA palette data and convert to int32
@@ -67,7 +67,7 @@ HWY_ATTR int FindClosestIndex(uint8_t r, uint8_t g, uint8_t b, const PaletteSIMD
 
     auto bestI = idxBuf[0];
     auto bestD = distBuf[0]; // best D is me >:D
-    for (int j = 1; j < N; j++)
+    for (int32 j = 1; j < N; j++)
     {
         if (distBuf[j] < bestD)
         {
@@ -79,9 +79,9 @@ HWY_ATTR int FindClosestIndex(uint8_t r, uint8_t g, uint8_t b, const PaletteSIMD
     // Scalar tail for remainder in case pal->count % N != 0
     for (; i < count; i++)
     {
-        auto dr = (int)r - pal->r[i];
-        auto dg = (int)g - pal->g[i];
-        auto db = (int)b - pal->b[i];
+        auto dr = (int32)r - pal->r[i];
+        auto dg = (int32)g - pal->g[i];
+        auto db = (int32)b - pal->b[i];
         auto d = dr * dr + dg * dg + db * db;
         if (d < bestD)
         {
@@ -103,7 +103,7 @@ HWY_ATTR void RemapImagePaletteImpl(uint8_t *SDL_RESTRICT pixels, int32_t w, int
                                     const PaletteSIMD *SDL_RESTRICT pal, const uint8_t alpha_lut[256])
 {
     ColorCacheEntry cache[64];
-    for (int i = 0; i < 64; ++i)
+    for (int32 i = 0; i < 64; ++i)
         cache[i].key = 0xFFFFFFFF;
 
     for (int32 y = 0; y < h; y++)
@@ -146,7 +146,7 @@ HWY_EXPORT(RemapImagePaletteImpl);
 
 extern "C"
 {
-    void BuildPaletteSIMD(PaletteSIMD *SDL_RESTRICT out, const SDL_Color *SDL_RESTRICT colors, int count)
+    void BuildPaletteSIMD(PaletteSIMD *SDL_RESTRICT out, const SDL_Color *SDL_RESTRICT colors, int32 count)
     {
         if (count > 256)
             count = 256;
@@ -158,7 +158,7 @@ extern "C"
             out->r[0] = def_color[0];
             out->g[0] = def_color[1];
             out->b[0] = def_color[2];
-            for (int i = 1; i < 256; i++)
+            for (int32 i = 1; i < 256; i++)
             {
                 out->r[i] = out->g[i] = out->b[i] = 0;
             }
@@ -166,14 +166,14 @@ extern "C"
         }
 
         out->count = count;
-        for (int i = 0; i < count; i++)
+        for (int32 i = 0; i < count; i++)
         {
             out->r[i] = colors[i].r;
             out->g[i] = colors[i].g;
             out->b[i] = colors[i].b;
         }
         // Pad remainder so SIMD lanes never read garbage
-        for (int i = count; i < 256; i++)
+        for (int32 i = count; i < 256; i++)
         {
             out->r[i] = out->g[i] = out->b[i] = 0;
         }

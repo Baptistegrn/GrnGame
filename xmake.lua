@@ -39,15 +39,13 @@ if not is_plat("wasm") then
     add_requires("efsw",  {version = "1.6.2"},{configs = {shared = false}, system = false})
 else
     add_defines("GRNGAME_WASM")
-add_ldflags(
-    "--shell-file", "grngame/web/shell.html",
-
-    "-sFORCE_FILESYSTEM=1",
-    "-sASYNCIFY",
-    "-sALLOW_MEMORY_GROWTH=1",
-
-    {force = true}
-)
+    add_ldflags(
+        "--shell-file", "grngame/web/shell.html",
+        "-sFORCE_FILESYSTEM=1",
+        "-sASYNCIFY",
+        "-sALLOW_MEMORY_GROWTH=1",
+        {force = true}
+    )
 end
 
 local asset_pipeline_python = is_host("windows") and "python" or "python3"
@@ -184,7 +182,6 @@ target("SqlTest")
     add_deps("GrnGame")
     add_files("test_sql/main.c")
 
-
 target("EmbeddedBenchmark")
     set_languages("c17", "cxx17")
     set_kind("binary")
@@ -193,4 +190,3 @@ target("EmbeddedBenchmark")
     add_files("benchmark/main.c")
     add_headerfiles("grngame/**.h")
     add_deps("GrnGame")
-

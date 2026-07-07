@@ -4,8 +4,8 @@
 
 BEGIN_DECLARATIONS;
 
-bool KeyPressed(int key);
-bool KeyJustPressed(int key);
-bool KeyJustReleased(int key);
+bool KeyPressed(int32 key);
+bool KeyJustPressed(int32 key);
+bool KeyJustReleased(int32 key);
 
 END_DECLARATIONS;

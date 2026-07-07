@@ -15,7 +15,7 @@
 
 static void set_render_color(WrenVM *vm)
 {
-    SetRenderColor((int)wrenGetSlotDouble(vm, 1));
+    SetRenderColor((int32)wrenGetSlotDouble(vm, 1));
 }
 
 static void palette_reload(WrenVM *vm)
@@ -26,8 +26,8 @@ static void palette_reload(WrenVM *vm)
 static void texture_draw_inner(WrenVM *vm)
 {
     const char *name = wrenGetSlotString(vm, 1);
-    double x = wrenGetSlotDouble(vm, 2);
-    double y = wrenGetSlotDouble(vm, 3);
+    float64 x = wrenGetSlotDouble(vm, 2);
+    float64 y = wrenGetSlotDouble(vm, 3);
     uint8_t scale = (uint8_t)wrenGetSlotDouble(vm, 4);
     int16_t rot = (int16_t)wrenGetSlotDouble(vm, 5);
     uint8 a = (uint8)wrenGetSlotDouble(vm, 6);
@@ -38,14 +38,14 @@ static void texture_width(WrenVM *vm)
 {
     const char *name = wrenGetSlotString(vm, 1);
     ivec2s size = TextureGetSize(name);
-    wrenSetSlotDouble(vm, 0, (double)size.x);
+    wrenSetSlotDouble(vm, 0, (float64)size.x);
 }
 
 static void texture_height(WrenVM *vm)
 {
     const char *name = wrenGetSlotString(vm, 1);
     ivec2s size = TextureGetSize(name);
-    wrenSetSlotDouble(vm, 0, (double)size.y);
+    wrenSetSlotDouble(vm, 0, (float64)size.y);
 }
 
 typedef struct
@@ -58,8 +58,8 @@ HOT static void sprite_allocate(WrenVM *vm)
 {
     WrenSprite *s = (WrenSprite *)wrenSetSlotNewForeign(vm, 0, 0, sizeof(WrenSprite));
     const char *name = wrenGetSlotString(vm, 1);
-    double w = wrenGetSlotDouble(vm, 2);
-    double h = wrenGetSlotDouble(vm, 3);
+    float64 w = wrenGetSlotDouble(vm, 2);
+    float64 h = wrenGetSlotDouble(vm, 3);
 
     s->name_buf = strdup(name);
     s->sprite.w = (uint16_t)w;
@@ -98,7 +98,7 @@ static void sprite_set_name(WrenVM *vm)
 static void sprite_get_w(WrenVM *vm)
 {
     WrenSprite *s = (WrenSprite *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)s->sprite.w);
+    wrenSetSlotDouble(vm, 0, (float64)s->sprite.w);
 }
 
 static void sprite_set_w(WrenVM *vm)
@@ -110,7 +110,7 @@ static void sprite_set_w(WrenVM *vm)
 static void sprite_get_h(WrenVM *vm)
 {
     WrenSprite *s = (WrenSprite *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)s->sprite.h);
+    wrenSetSlotDouble(vm, 0, (float64)s->sprite.h);
 }
 
 static void sprite_set_h(WrenVM *vm)
@@ -123,8 +123,8 @@ static void sprite_draw_inner(WrenVM *vm)
 {
     WrenSprite *s = (WrenSprite *)wrenGetSlotForeign(vm, 0);
     uint16_t frame = (uint16_t)wrenGetSlotDouble(vm, 1);
-    double x = wrenGetSlotDouble(vm, 2);
-    double y = wrenGetSlotDouble(vm, 3);
+    float64 x = wrenGetSlotDouble(vm, 2);
+    float64 y = wrenGetSlotDouble(vm, 3);
     uint8_t scale = (uint8_t)wrenGetSlotDouble(vm, 4);
     int16_t rot = (int16_t)wrenGetSlotDouble(vm, 5);
     uint8 a = (uint8)wrenGetSlotDouble(vm, 6);
@@ -153,7 +153,7 @@ static void emitter_spawn(WrenVM *vm)
 static void emitter_update(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    double dt = wrenGetSlotDouble(vm, 1);
+    float64 dt = wrenGetSlotDouble(vm, 1);
     UpdateEmitter(e, (float)dt);
 }
 
@@ -166,7 +166,7 @@ static void emitter_render(WrenVM *vm)
 static void emitter_get_pos_x(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->position.x);
+    wrenSetSlotDouble(vm, 0, (float64)e->position.x);
 }
 
 static void emitter_set_pos_x(WrenVM *vm)
@@ -178,7 +178,7 @@ static void emitter_set_pos_x(WrenVM *vm)
 static void emitter_get_pos_y(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->position.y);
+    wrenSetSlotDouble(vm, 0, (float64)e->position.y);
 }
 
 static void emitter_set_pos_y(WrenVM *vm)
@@ -190,19 +190,19 @@ static void emitter_set_pos_y(WrenVM *vm)
 static void emitter_get_capacity(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->capacity);
+    wrenSetSlotDouble(vm, 0, (float64)e->capacity);
 }
 
 static void emitter_get_alive_count(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->alive_count);
+    wrenSetSlotDouble(vm, 0, (float64)e->alive_count);
 }
 
 static void emitter_get_lifetime(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->lifetime);
+    wrenSetSlotDouble(vm, 0, (float64)e->lifetime);
 }
 
 static void emitter_set_lifetime(WrenVM *vm)
@@ -214,7 +214,7 @@ static void emitter_set_lifetime(WrenVM *vm)
 static void emitter_get_lifetime_variation(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->lifetime_variation);
+    wrenSetSlotDouble(vm, 0, (float64)e->lifetime_variation);
 }
 
 static void emitter_set_lifetime_variation(WrenVM *vm)
@@ -226,7 +226,7 @@ static void emitter_set_lifetime_variation(WrenVM *vm)
 static void emitter_get_explosiveness(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->explosiveness);
+    wrenSetSlotDouble(vm, 0, (float64)e->explosiveness);
 }
 
 static void emitter_set_explosiveness(WrenVM *vm)
@@ -274,7 +274,7 @@ static void emitter_set_local_coords(WrenVM *vm)
 static void emitter_get_direction(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->direction);
+    wrenSetSlotDouble(vm, 0, (float64)e->direction);
 }
 
 static void emitter_set_direction(WrenVM *vm)
@@ -286,7 +286,7 @@ static void emitter_set_direction(WrenVM *vm)
 static void emitter_get_spread(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->spread);
+    wrenSetSlotDouble(vm, 0, (float64)e->spread);
 }
 
 static void emitter_set_spread(WrenVM *vm)
@@ -298,7 +298,7 @@ static void emitter_set_spread(WrenVM *vm)
 static void emitter_get_initial_velocity(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->initial_velocity);
+    wrenSetSlotDouble(vm, 0, (float64)e->initial_velocity);
 }
 
 static void emitter_set_initial_velocity(WrenVM *vm)
@@ -310,7 +310,7 @@ static void emitter_set_initial_velocity(WrenVM *vm)
 static void emitter_get_velocity_variation(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->velocity_variation);
+    wrenSetSlotDouble(vm, 0, (float64)e->velocity_variation);
 }
 
 static void emitter_set_velocity_variation(WrenVM *vm)
@@ -322,7 +322,7 @@ static void emitter_set_velocity_variation(WrenVM *vm)
 static void emitter_get_gravity(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->gravity);
+    wrenSetSlotDouble(vm, 0, (float64)e->gravity);
 }
 
 static void emitter_set_gravity(WrenVM *vm)
@@ -334,7 +334,7 @@ static void emitter_set_gravity(WrenVM *vm)
 static void emitter_get_damping(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->damping);
+    wrenSetSlotDouble(vm, 0, (float64)e->damping);
 }
 
 static void emitter_set_damping(WrenVM *vm)
@@ -346,7 +346,7 @@ static void emitter_set_damping(WrenVM *vm)
 static void emitter_get_turbulence(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->turbulence);
+    wrenSetSlotDouble(vm, 0, (float64)e->turbulence);
 }
 
 static void emitter_set_turbulence(WrenVM *vm)
@@ -358,7 +358,7 @@ static void emitter_set_turbulence(WrenVM *vm)
 static void emitter_get_turbulence_freq(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->turbulence_freq);
+    wrenSetSlotDouble(vm, 0, (float64)e->turbulence_freq);
 }
 
 static void emitter_set_turbulence_freq(WrenVM *vm)
@@ -370,7 +370,7 @@ static void emitter_set_turbulence_freq(WrenVM *vm)
 static void emitter_get_scale_start(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->scale_start);
+    wrenSetSlotDouble(vm, 0, (float64)e->scale_start);
 }
 
 static void emitter_set_scale_start(WrenVM *vm)
@@ -382,7 +382,7 @@ static void emitter_set_scale_start(WrenVM *vm)
 static void emitter_get_scale_end(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->scale_end);
+    wrenSetSlotDouble(vm, 0, (float64)e->scale_end);
 }
 
 static void emitter_set_scale_end(WrenVM *vm)
@@ -394,7 +394,7 @@ static void emitter_set_scale_end(WrenVM *vm)
 static void emitter_get_scale_amount_curve(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->scale_amount_curve);
+    wrenSetSlotDouble(vm, 0, (float64)e->scale_amount_curve);
 }
 
 static void emitter_set_scale_amount_curve(WrenVM *vm)
@@ -406,7 +406,7 @@ static void emitter_set_scale_amount_curve(WrenVM *vm)
 static void emitter_get_color_start(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->color_start);
+    wrenSetSlotDouble(vm, 0, (float64)e->color_start);
 }
 
 static void emitter_set_color_start(WrenVM *vm)
@@ -418,7 +418,7 @@ static void emitter_set_color_start(WrenVM *vm)
 static void emitter_get_alpha_start(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->alpha_start);
+    wrenSetSlotDouble(vm, 0, (float64)e->alpha_start);
 }
 
 static void emitter_set_alpha_start(WrenVM *vm)
@@ -430,7 +430,7 @@ static void emitter_set_alpha_start(WrenVM *vm)
 static void emitter_get_color_end(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->color_end);
+    wrenSetSlotDouble(vm, 0, (float64)e->color_end);
 }
 
 static void emitter_set_color_end(WrenVM *vm)
@@ -442,7 +442,7 @@ static void emitter_set_color_end(WrenVM *vm)
 static void emitter_get_alpha_end(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->alpha_end);
+    wrenSetSlotDouble(vm, 0, (float64)e->alpha_end);
 }
 
 static void emitter_set_alpha_end(WrenVM *vm)
@@ -454,7 +454,7 @@ static void emitter_set_alpha_end(WrenVM *vm)
 static void emitter_get_spawn_radius(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->spawn_radius);
+    wrenSetSlotDouble(vm, 0, (float64)e->spawn_radius);
 }
 
 static void emitter_set_spawn_radius(WrenVM *vm)
@@ -466,7 +466,7 @@ static void emitter_set_spawn_radius(WrenVM *vm)
 static void emitter_get_spawn_rect_w(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->spawn_rect_w);
+    wrenSetSlotDouble(vm, 0, (float64)e->spawn_rect_w);
 }
 
 static void emitter_set_spawn_rect_w(WrenVM *vm)
@@ -478,7 +478,7 @@ static void emitter_set_spawn_rect_w(WrenVM *vm)
 static void emitter_get_spawn_rect_h(WrenVM *vm)
 {
     ParticleEmitter *e = (ParticleEmitter *)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)e->spawn_rect_h);
+    wrenSetSlotDouble(vm, 0, (float64)e->spawn_rect_h);
 }
 
 static void emitter_set_spawn_rect_h(WrenVM *vm)
@@ -489,62 +489,62 @@ static void emitter_set_spawn_rect_h(WrenVM *vm)
 
 static void primitive_pixel(WrenVM *vm)
 {
-    double x = wrenGetSlotDouble(vm, 1);
-    double y = wrenGetSlotDouble(vm, 2);
-    int c_idx = (int)wrenGetSlotDouble(vm, 3);
+    float64 x = wrenGetSlotDouble(vm, 1);
+    float64 y = wrenGetSlotDouble(vm, 2);
+    int32 c_idx = (int32)wrenGetSlotDouble(vm, 3);
     uint8 a = (uint8)wrenGetSlotDouble(vm, 4);
     PixelDraw((float)x, (float)y, c_idx, a);
 }
 
 static void primitive_line(WrenVM *vm)
 {
-    double x0 = wrenGetSlotDouble(vm, 1);
-    double y0 = wrenGetSlotDouble(vm, 2);
-    double x1 = wrenGetSlotDouble(vm, 3);
-    double y1 = wrenGetSlotDouble(vm, 4);
-    int c_idx = (int)wrenGetSlotDouble(vm, 5);
+    float64 x0 = wrenGetSlotDouble(vm, 1);
+    float64 y0 = wrenGetSlotDouble(vm, 2);
+    float64 x1 = wrenGetSlotDouble(vm, 3);
+    float64 y1 = wrenGetSlotDouble(vm, 4);
+    int32 c_idx = (int32)wrenGetSlotDouble(vm, 5);
     uint8 a = (uint8)wrenGetSlotDouble(vm, 6);
     LineDraw((float)x0, (float)y0, (float)x1, (float)y1, c_idx, a);
 }
 
 static void primitive_rect(WrenVM *vm)
 {
-    double x = wrenGetSlotDouble(vm, 1);
-    double y = wrenGetSlotDouble(vm, 2);
-    double w = wrenGetSlotDouble(vm, 3);
-    double h = wrenGetSlotDouble(vm, 4);
-    int c_idx = (int)wrenGetSlotDouble(vm, 5);
+    float64 x = wrenGetSlotDouble(vm, 1);
+    float64 y = wrenGetSlotDouble(vm, 2);
+    float64 w = wrenGetSlotDouble(vm, 3);
+    float64 h = wrenGetSlotDouble(vm, 4);
+    int32 c_idx = (int32)wrenGetSlotDouble(vm, 5);
     uint8 a = (uint8)wrenGetSlotDouble(vm, 6);
     RectDraw((float)x, (float)y, (float)w, (float)h, c_idx, a);
 }
 
 static void primitive_rect_fill(WrenVM *vm)
 {
-    double x = wrenGetSlotDouble(vm, 1);
-    double y = wrenGetSlotDouble(vm, 2);
-    double w = wrenGetSlotDouble(vm, 3);
-    double h = wrenGetSlotDouble(vm, 4);
-    int c_idx = (int)wrenGetSlotDouble(vm, 5);
+    float64 x = wrenGetSlotDouble(vm, 1);
+    float64 y = wrenGetSlotDouble(vm, 2);
+    float64 w = wrenGetSlotDouble(vm, 3);
+    float64 h = wrenGetSlotDouble(vm, 4);
+    int32 c_idx = (int32)wrenGetSlotDouble(vm, 5);
     uint8 a = (uint8)wrenGetSlotDouble(vm, 6);
     RectDrawFill((float)x, (float)y, (float)w, (float)h, c_idx, a);
 }
 
 static void primitive_circle(WrenVM *vm)
 {
-    double x = wrenGetSlotDouble(vm, 1);
-    double y = wrenGetSlotDouble(vm, 2);
-    double radius = wrenGetSlotDouble(vm, 3);
-    int c_idx = (int)wrenGetSlotDouble(vm, 4);
+    float64 x = wrenGetSlotDouble(vm, 1);
+    float64 y = wrenGetSlotDouble(vm, 2);
+    float64 radius = wrenGetSlotDouble(vm, 3);
+    int32 c_idx = (int32)wrenGetSlotDouble(vm, 4);
     uint8 a = (uint8)wrenGetSlotDouble(vm, 5);
     CircleDraw((float)x, (float)y, (float)radius, c_idx, a);
 }
 
 static void primitive_circle_fill(WrenVM *vm)
 {
-    double x = wrenGetSlotDouble(vm, 1);
-    double y = wrenGetSlotDouble(vm, 2);
-    double radius = wrenGetSlotDouble(vm, 3);
-    int c_idx = (int)wrenGetSlotDouble(vm, 4);
+    float64 x = wrenGetSlotDouble(vm, 1);
+    float64 y = wrenGetSlotDouble(vm, 2);
+    float64 radius = wrenGetSlotDouble(vm, 3);
+    int32 c_idx = (int32)wrenGetSlotDouble(vm, 4);
     uint8 a = (uint8)wrenGetSlotDouble(vm, 5);
     CircleDrawFill((float)x, (float)y, (float)radius, c_idx, a);
 }

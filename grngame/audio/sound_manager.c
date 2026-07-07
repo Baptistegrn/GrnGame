@@ -1,7 +1,9 @@
 #include "sound_manager.h"
 #include "grngame/dev/logging.h"
+#include "grngame/math/types.h"
 #include "grngame/utils/attributes.h"
 #include "soloud_c.h"
+
 
 COLD bool SoundManagerTryCreate(SoundManager *result)
 {
@@ -13,7 +15,7 @@ COLD bool SoundManagerTryCreate(SoundManager *result)
     if (!result->soloud)
         return false;
 
-    int err = Soloud_init(result->soloud);
+    int32 err = Soloud_init(result->soloud);
     if (err != 0)
     {
         LOG_ERROR("Failed to initialize SoLoud (error %d)", err);

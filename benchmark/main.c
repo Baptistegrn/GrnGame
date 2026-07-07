@@ -1,10 +1,10 @@
 #include "../grngame/assets/embedded_asset.h"
+#include "grngame/utils/time.h"
 #include <stdio.h>
-#include <time.h>
 
 #define NB_RUNS 10
 
-int main(int argc, char **argv)
+int32 main(int32 argc, char **argv)
 {
     if (argc < 3)
     {
@@ -12,17 +12,23 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    double total = 0.0, min_t = -1.0, max_t = -1.0;
+    float64 total = 0.0;
+    float64 min_t = -1.0;
+    float64 max_t = -1.0;
 
-    for (int i = 0; i < NB_RUNS; i++)
+    for (int32 i = 0; i < NB_RUNS; i++)
     {
-        clock_t start = clock();
+        float64 start = TimeNow();
+
         create_embedded_structure(argc - 2, (const char **)(argv + 2), argv[1]);
-        double elapsed = (double)(clock() - start) / CLOCKS_PER_SEC;
+
+        float64 elapsed = TimeNow() - start;
 
         total += elapsed;
+
         if (min_t < 0.0 || elapsed < min_t)
             min_t = elapsed;
+
         if (max_t < 0.0 || elapsed > max_t)
             max_t = elapsed;
 
@@ -30,5 +36,6 @@ int main(int argc, char **argv)
     }
 
     printf("\navg: %.6f s  |  min: %.6f s  |  max: %.6f s\n", total / NB_RUNS, min_t, max_t);
+
     return 0;
 }

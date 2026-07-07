@@ -1,6 +1,8 @@
 #include "paths.h"
+#include "grngame/math/types.h"
 #include "grngame/platform/directories.h"
 #include "grngame/utils/string_compat.h"
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,7 +44,7 @@ bool FileIsLoadableImage(const char *file)
                                  "qoi", "svg", "tga", "tif",  "tiff", "webp", "xcf", "xpm", "xv",  NULL};
 
     // exts[i] will be false when it will reach NULL
-    for (int i = 0; exts[i]; ++i)
+    for (int32 i = 0; exts[i]; ++i)
         if (strcasecmp(ext, exts[i]) == 0)
             return true;
 
@@ -59,7 +61,7 @@ bool FileIsLoadableScript(const char *file)
     static const char *exts[] = {"wren", "das", NULL};
 
     // exts[i] will be false when it will reach NULL
-    for (int i = 0; exts[i]; ++i)
+    for (int32 i = 0; exts[i]; ++i)
         if (strcasecmp(ext, exts[i]) == 0)
             return true;
 
@@ -75,7 +77,7 @@ bool FileIsLoadableAudio(const char *file)
     // same
     static const char *exts[] = {"wav", "mp3", "ogg", NULL};
 
-    for (int i = 0; exts[i]; ++i)
+    for (int32 i = 0; exts[i]; ++i)
         if (strcasecmp(ext, exts[i]) == 0)
             return true;
 
@@ -91,7 +93,7 @@ bool FileIsLoadableText(const char *file)
     // same
     static const char *exts[] = {"txt", NULL};
 
-    for (int i = 0; exts[i]; ++i)
+    for (int32 i = 0; exts[i]; ++i)
         if (strcasecmp(ext, exts[i]) == 0)
             return true;
 
@@ -114,7 +116,7 @@ char *PathFromExecutableDirectory(const char *relative)
 
     size_t len = exe_len + strlen(relative) + 2; // +2 bytes for '/' and for '\0'
     char *buf = malloc(len);
-    snprintf(buf, len, "%.*s/%s", (int)exe_len, exe_dir, relative);
+    snprintf(buf, len, "%.*s/%s", (int32)exe_len, exe_dir, relative);
 
     return buf;
 }

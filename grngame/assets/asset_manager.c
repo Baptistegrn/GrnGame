@@ -164,7 +164,7 @@ COLD void CreateEmbeddedAssetsCache(sqlite3 *db)
     while (sqlite3_step(stmt) == SQLITE_ROW)
     {
         const char *path = (const char *)sqlite3_column_text(stmt, 0);
-        int size = sqlite3_column_bytes(stmt, 1);
+        int32 size = sqlite3_column_bytes(stmt, 1);
         const void *blob = sqlite3_column_blob(stmt, 1);
 
         EmbeddedAsset asset;

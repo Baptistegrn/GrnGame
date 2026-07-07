@@ -9,7 +9,7 @@ static float srgb_linear_lut[256];
 
 void InitLinearLut()
 {
-    for (int i = 0; i < 256; i++)
+    for (int32 i = 0; i < 256; i++)
     {
         float v = i / 255.0;
         if (v <= 0.04045)

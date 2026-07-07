@@ -55,7 +55,7 @@ typedef struct AppInfo
 
     bool force_universe_scale; // apply black stripes to the window
 
-    int render_clear;
+    int32 render_clear;
 
     kvec_t(SDL_Color) palette_elements;
     kvec_t(ColorLAB) palette_elements_lab;
@@ -73,8 +73,8 @@ typedef struct
     InputManager input_manager;
 
     khash_t(EmbeddedAssetHash) embedded_assets_hash;
-    int embedded_assets_count;
-    int embedded_count;
+    int32 embedded_assets_count;
+    int32 embedded_count;
 
 #if defined(GRNGAME_HOT_RELOAD_ENABLE)
     kvec_t(HotreloadQueueElement) queue;

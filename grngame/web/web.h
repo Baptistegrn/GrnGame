@@ -30,7 +30,7 @@ EM_JS(void, WebResumeAudioContext, (), {
 });
 // clang-format on
 
-static inline EM_BOOL WebResumeAudioMouseCallback(int event_type, const EmscriptenMouseEvent *mouse_event,
+static inline EM_BOOL WebResumeAudioMouseCallback(int32 event_type, const EmscriptenMouseEvent *mouse_event,
                                                   void *user_data)
 {
     (void)event_type;
@@ -41,7 +41,7 @@ static inline EM_BOOL WebResumeAudioMouseCallback(int event_type, const Emscript
     return EM_TRUE;
 }
 
-static inline EM_BOOL WebResumeAudioKeyCallback(int event_type, const EmscriptenKeyboardEvent *keyboard_event,
+static inline EM_BOOL WebResumeAudioKeyCallback(int32 event_type, const EmscriptenKeyboardEvent *keyboard_event,
                                                 void *user_data)
 {
     (void)event_type;
@@ -52,7 +52,7 @@ static inline EM_BOOL WebResumeAudioKeyCallback(int event_type, const Emscripten
     return EM_TRUE;
 }
 
-static inline EM_BOOL WebResumeAudioTouchCallback(int event_type, const EmscriptenTouchEvent *touch_event,
+static inline EM_BOOL WebResumeAudioTouchCallback(int32 event_type, const EmscriptenTouchEvent *touch_event,
                                                   void *user_data)
 {
     (void)event_type;
@@ -74,7 +74,7 @@ static inline void WebInstallAudioUnlock()
     do                                                                                                                 \
     {                                                                                                                  \
         /* on web loop render is set to fixed fps not vsync */                                                         \
-        emscripten_set_main_loop_timing(EM_TIMING_SETTIMEOUT, (int)(1000 / RENDER_UPDATE_WEB));                        \
+        emscripten_set_main_loop_timing(EM_TIMING_SETTIMEOUT, (int32)(1000 / RENDER_UPDATE_WEB));                      \
         emscripten_set_main_loop_arg(func, NULL, 0, 1);                                                                \
     } while (0)
 

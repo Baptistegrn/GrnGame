@@ -135,7 +135,7 @@ void Log(LogSeverity log_severity, const char *format, ...)
     va_list args;
     va_start(args, format);
 
-    int size = vsnprintf(nullptr, 0, format, args);
+    int32 size = vsnprintf(nullptr, 0, format, args);
 
     va_end(args);
 
@@ -290,7 +290,7 @@ void Log(LogSeverity log_severity, const char *format, ...)
     va_list args;
     va_start(args, format);
 
-    int size = vsnprintf(nullptr, 0, format, args);
+    int32 size = vsnprintf(nullptr, 0, format, args);
 
     va_end(args);
 

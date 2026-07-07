@@ -114,7 +114,7 @@ static void db_stmt_run(WrenVM *vm)
     DbStmt *stmt = (DbStmt *)wrenGetSlotForeign(vm, 0);
 
     DbArg *args = NULL;
-    int count = 0;
+    int32 count = 0;
 
     if (wrenGetSlotType(vm, 1) == WREN_TYPE_LIST)
     {
@@ -124,7 +124,7 @@ static void db_stmt_run(WrenVM *vm)
             args = (DbArg *)malloc(count * sizeof(DbArg));
         }
 
-        for (int i = 0; i < count; i++)
+        for (int32 i = 0; i < count; i++)
         {
             wrenGetListElement(vm, 1, i, 2);
             DbArg arg;
@@ -137,11 +137,11 @@ static void db_stmt_run(WrenVM *vm)
                 arg.value.i = wrenGetSlotBool(vm, 2) ? 1 : 0;
                 break;
             case WREN_TYPE_NUM: {
-                double value = wrenGetSlotDouble(vm, 2);
-                if (value == (double)(long long)value)
+                float64 value = wrenGetSlotDouble(vm, 2);
+                if (value == (float64)(long long)value)
                 {
                     arg.type = INTEGER;
-                    arg.value.i = (int)value;
+                    arg.value.i = (int32)value;
                 }
                 else
                 {

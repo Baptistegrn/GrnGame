@@ -7,37 +7,37 @@
 
 static void window_get_scale(WrenVM *vm)
 {
-    wrenSetSlotDouble(vm, 0, (double)WindowGetScale());
+    wrenSetSlotDouble(vm, 0, (float64)WindowGetScale());
 }
 
 static void window_get_width(WrenVM *vm)
 {
-    wrenSetSlotDouble(vm, 0, (double)WindowGetWidth());
+    wrenSetSlotDouble(vm, 0, (float64)WindowGetWidth());
 }
 
 static void window_get_height(WrenVM *vm)
 {
-    wrenSetSlotDouble(vm, 0, (double)WindowGetHeight());
+    wrenSetSlotDouble(vm, 0, (float64)WindowGetHeight());
 }
 
 static void window_get_universe_width(WrenVM *vm)
 {
-    wrenSetSlotDouble(vm, 0, (double)WindowGetUniverseWidth());
+    wrenSetSlotDouble(vm, 0, (float64)WindowGetUniverseWidth());
 }
 
 static void window_get_universe_height(WrenVM *vm)
 {
-    wrenSetSlotDouble(vm, 0, (double)WindowGetUniverseHeight());
+    wrenSetSlotDouble(vm, 0, (float64)WindowGetUniverseHeight());
 }
 
 static void window_get_offset_x(WrenVM *vm)
 {
-    wrenSetSlotDouble(vm, 0, (double)WindowGetOffsetX());
+    wrenSetSlotDouble(vm, 0, (float64)WindowGetOffsetX());
 }
 
 static void window_get_offset_y(WrenVM *vm)
 {
-    wrenSetSlotDouble(vm, 0, (double)WindowGetOffsetY());
+    wrenSetSlotDouble(vm, 0, (float64)WindowGetOffsetY());
 }
 
 static void window_get_change(WrenVM *vm)

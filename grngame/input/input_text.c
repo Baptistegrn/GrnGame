@@ -29,7 +29,7 @@ void InputTextPutChar(const char text)
 // todo o(n) -> o(1)
 void InputTextPutText(const char *text)
 {
-    for (int i = 0; text[i] != '\0'; i++)
+    for (int32 i = 0; text[i] != '\0'; i++)
     {
         InputTextPutChar(text[i]);
     }

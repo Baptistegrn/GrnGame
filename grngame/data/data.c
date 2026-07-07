@@ -17,9 +17,9 @@ static sqlite3_stmt *DbPrepareInternal(sqlite3 *db, const char *sql)
     return stmt;
 }
 
-static void DbBindArgs(sqlite3_stmt *stmt, DbArg *args, int argc)
+static void DbBindArgs(sqlite3_stmt *stmt, DbArg *args, int32 argc)
 {
-    for (int i = 0; i < argc; i++)
+    for (int32 i = 0; i < argc; i++)
     {
         switch (args[i].type)
         {
@@ -84,7 +84,7 @@ bool DataWrite(sqlite3 *db, const char *sql)
     if (!stmt)
         return false;
 
-    int rc = sqlite3_step(stmt);
+    int32 rc = sqlite3_step(stmt);
     sqlite3_finalize(stmt);
 
     if (rc != SQLITE_DONE && rc != SQLITE_ROW)
@@ -100,15 +100,15 @@ static DbResult DbResultGet(sqlite3_stmt *stmt)
     DbResult result;
     kv_init(result.rows);
 
-    int colCount = sqlite3_column_count(stmt);
-    int rc;
+    int32 colCount = sqlite3_column_count(stmt);
+    int32 rc;
 
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
     {
         DbRow row;
         kv_init(row.cols);
 
-        for (int i = 0; i < colCount; i++)
+        for (int32 i = 0; i < colCount; i++)
         {
             DbValue v = {0};
             v.name = StrDupSafe(sqlite3_column_name(stmt, i));
@@ -129,7 +129,7 @@ static DbResult DbResultGet(sqlite3_stmt *stmt)
                 break;
             case SQLITE_BLOB: {
                 v.type = DATA;
-                int size = sqlite3_column_bytes(stmt, i);
+                int32 size = sqlite3_column_bytes(stmt, i);
                 v.value.blob.data = malloc(size);
                 memcpy(v.value.blob.data, sqlite3_column_blob(stmt, i), size);
                 v.value.blob.size = size;
@@ -221,12 +221,12 @@ DbStmt DbStmtPrepare(sqlite3 *db, const char *sql)
     return s;
 }
 
-bool DbStmtRun(DbStmt *s, DbArg *args, int argc)
+bool DbStmtRun(DbStmt *s, DbArg *args, int32 argc)
 {
     sqlite3_clear_bindings(s->stmt);
     DbBindArgs(s->stmt, args, argc);
 
-    int rc = sqlite3_step(s->stmt);
+    int32 rc = sqlite3_step(s->stmt);
     sqlite3_reset(s->stmt);
 
     if (rc != SQLITE_DONE && rc != SQLITE_ROW)
@@ -255,21 +255,21 @@ void DataFetchWren(sqlite3 *db, const char *sql, WrenVM *vm)
     if (!stmt)
         return;
 
-    int colCount = sqlite3_column_count(stmt);
-    int rc;
+    int32 colCount = sqlite3_column_count(stmt);
+    int32 rc;
 
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
     {
         wrenSetSlotNewMap(vm, 1);
 
-        for (int i = 0; i < colCount; i++)
+        for (int32 i = 0; i < colCount; i++)
         {
             wrenSetSlotString(vm, 2, sqlite3_column_name(stmt, i));
 
             switch (sqlite3_column_type(stmt, i))
             {
             case SQLITE_INTEGER:
-                wrenSetSlotDouble(vm, 3, (double)sqlite3_column_int64(stmt, i));
+                wrenSetSlotDouble(vm, 3, (float64)sqlite3_column_int64(stmt, i));
                 break;
             case SQLITE_FLOAT:
                 wrenSetSlotDouble(vm, 3, sqlite3_column_double(stmt, i));
