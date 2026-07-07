@@ -14,24 +14,12 @@ class Sound {
   foreign static speech_say_(name, volume, pitch, pan, looping, fade_in, pos_x, pos_y, filters)
   foreign static set_listener_position_(x, y)
 
-
-  static position_x(position) {
-    if (position is Vec2) return position.x
-    return position
-  }
-
-  static position_y(position) {
-    if (position is Vec2) return position.y
-    return position
-  }
-
-
   static play(info) {
-    sound_play_sfx_(info.name, info.volume, info.pitch, info.pan, info.looping, info.fade_in, position_x(info.position), position_y(info.position), info.filters)
+    sound_play_sfx_(info.name, info.volume, info.pitch, info.pan, info.looping, info.fade_in, info.position.x, info.position.y, info.filters)
   }
 
   static music_play(info) {
-    sound_play_music_(info.name, info.volume, info.pitch, info.pan, info.looping, info.fade_in, position_x(info.position), position_y(info.position), info.filters)
+    sound_play_music_(info.name, info.volume, info.pitch, info.pan, info.looping, info.fade_in,info.position.x, info.position.y, info.filters)
   }
 
   static stop(name) {
@@ -42,27 +30,27 @@ class Sound {
     return music_is_playing_(name)
   }
 
-  static is_playing_at(name, x, y) {
-    return music_is_playing_at_(name, x, y)
+  static is_playing_at(name,pos) {
+    return music_is_playing_at_(name,pos.x,pos.y)
   }
 
   static sfx_play(info) {
-    sound_play_sfx_(info.name, info.volume, info.pitch, info.pan, info.looping, info.fade_in, position_x(info.position), position_y(info.position), info.filters)
+    sound_play_sfx_(info.name, info.volume, info.pitch, info.pan, info.looping, info.fade_in,info.position.x, info.position.y, info.filters)
   }
 
   static sfx_is_playing(name) {
     return sfx_is_playing_(name)
   }
 
-  static sfx_is_playing_at(name, x, y) {
-    return sfx_is_playing_at_(name, x, y)
+  static sfx_is_playing_at(name,pos) {
+    return sfx_is_playing_at_(name,pos.x,pos.y)
   }
 
   static speech_say(info) {
-    speech_say_(info.name, info.volume, info.pitch, info.pan, info.looping, info.fade_in, position_x(info.position), position_y(info.position), info.filters)
+    speech_say_(info.name, info.volume, info.pitch, info.pan, info.looping, info.fade_in, info.position.x, info.position.y, info.filters)
   }
 
-  static set_listener_position(x, y) {
-    set_listener_position_(x, y)
+  static set_listener_position(pos) {
+    set_listener_position_(pos.x,pos.y)
   }
 }

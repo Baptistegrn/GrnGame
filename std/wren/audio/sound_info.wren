@@ -8,7 +8,7 @@ class SoundInfo {
     _pan = 0.0         
     _looping = false
     _fade_in = 0.0     
-    _position = "NAN"
+    _position = Vec2.new()
     _filters = []
   }
 
