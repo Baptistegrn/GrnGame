@@ -26,6 +26,8 @@ static void time_now(WrenVM *vm)
 
 #elif defined(GRNGAME_WASM)
 
+#include <emscripten.h>
+
 static void time_now(WrenVM *vm)
 {
     double t = emscripten_get_now() * 1e-3;
