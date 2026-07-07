@@ -5,12 +5,12 @@
 
 typedef struct
 {
-    float x, y, z;
+    float32 x, y, z;
 } ColorXYZ;
 
 typedef struct
 {
-    float l, a, b;
+    float32 l, a, b;
 } ColorLAB;
 
 void InitLinearLut();

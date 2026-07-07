@@ -31,7 +31,7 @@ typedef struct
     uint32 handle;
     bool playing;
     vec2s position;
-    float volume;
+    float32 volume;
 } MusicState;
 
 KHASH_MAP_INIT_STR(MusicStateMap, MusicState)
@@ -50,14 +50,14 @@ static bool IsPositional(vec2s pos)
     return !isnan(pos.x) && !isnan(pos.y);
 }
 
-static bool PositionMatch(vec2s a, float x, float y)
+static bool PositionMatch(vec2s a, float32 x, float32 y)
 {
-    float dx = a.x - x;
-    float dy = a.y - y;
+    float32 dx = a.x - x;
+    float32 dy = a.y - y;
     return (dx * dx + dy * dy) < (SOUND_POSITION_EPSILON * SOUND_POSITION_EPSILON);
 }
 
-static void Apply3dSource(Soloud *soloud, uint32 handle, float x, float y)
+static void Apply3dSource(Soloud *soloud, uint32 handle, float32 x, float32 y)
 {
     Soloud_set3dSourceMinMaxDistance(soloud, handle, 1.f, s_max_distance);
     Soloud_set3dSourceAttenuation(soloud, handle, 1 /* LINEAR_DISTANCE */, 1.f);
@@ -69,8 +69,8 @@ COLD void SoundInit()
 #ifndef GRNGAME_WASM
     kv_init(s_active_sfx);
     s_music_states = kh_init(MusicStateMap);
-    float w = (float)g_app.info.window_universe_width;
-    float h = (float)g_app.info.window_universe_height;
+    float32 w = (float32)g_app.info.window_universe_width;
+    float32 h = (float32)g_app.info.window_universe_height;
     s_max_distance = sqrtf(w * w + h * h);
 #endif
 }
@@ -143,7 +143,7 @@ bool SFXIsPlaying(const char *name)
     return false;
 }
 
-bool SFXIsPlayingAt(const char *name, float x, float y)
+bool SFXIsPlayingAt(const char *name, float32 x, float32 y)
 {
 #ifndef GRNGAME_WASM
     Soloud *soloud = g_app.sound_manager.soloud;
@@ -339,7 +339,7 @@ bool MusicIsPlaying(const char *name)
 #endif
 }
 
-bool MusicIsPlayingAt(const char *name, float x, float y)
+bool MusicIsPlayingAt(const char *name, float32 x, float32 y)
 {
 #ifndef GRNGAME_WASM
     khiter_t k = kh_get(MusicStateMap, s_music_states, name);

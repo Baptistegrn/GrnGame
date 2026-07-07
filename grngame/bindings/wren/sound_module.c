@@ -39,7 +39,7 @@ static void filter_def_get_reverb_room(WrenVM *vm)
 
 static void filter_def_set_reverb_room(WrenVM *vm)
 {
-    ((FilterDef *)wrenGetSlotForeign(vm, 0))->reverb.room = (float)wrenGetSlotDouble(vm, 1);
+    ((FilterDef *)wrenGetSlotForeign(vm, 0))->reverb.room = (float32)wrenGetSlotDouble(vm, 1);
 }
 
 static void filter_def_get_reverb_damp(WrenVM *vm)
@@ -49,7 +49,7 @@ static void filter_def_get_reverb_damp(WrenVM *vm)
 
 static void filter_def_set_reverb_damp(WrenVM *vm)
 {
-    ((FilterDef *)wrenGetSlotForeign(vm, 0))->reverb.damp = (float)wrenGetSlotDouble(vm, 1);
+    ((FilterDef *)wrenGetSlotForeign(vm, 0))->reverb.damp = (float32)wrenGetSlotDouble(vm, 1);
 }
 
 static void filter_def_get_reverb_width(WrenVM *vm)
@@ -59,7 +59,7 @@ static void filter_def_get_reverb_width(WrenVM *vm)
 
 static void filter_def_set_reverb_width(WrenVM *vm)
 {
-    ((FilterDef *)wrenGetSlotForeign(vm, 0))->reverb.width = (float)wrenGetSlotDouble(vm, 1);
+    ((FilterDef *)wrenGetSlotForeign(vm, 0))->reverb.width = (float32)wrenGetSlotDouble(vm, 1);
 }
 
 static void filter_def_get_reverb_wet(WrenVM *vm)
@@ -69,7 +69,7 @@ static void filter_def_get_reverb_wet(WrenVM *vm)
 
 static void filter_def_set_reverb_wet(WrenVM *vm)
 {
-    ((FilterDef *)wrenGetSlotForeign(vm, 0))->reverb.wet = (float)wrenGetSlotDouble(vm, 1);
+    ((FilterDef *)wrenGetSlotForeign(vm, 0))->reverb.wet = (float32)wrenGetSlotDouble(vm, 1);
 }
 
 static void filter_def_get_echo_delay(WrenVM *vm)
@@ -79,7 +79,7 @@ static void filter_def_get_echo_delay(WrenVM *vm)
 
 static void filter_def_set_echo_delay(WrenVM *vm)
 {
-    ((FilterDef *)wrenGetSlotForeign(vm, 0))->echo.delay = (float)wrenGetSlotDouble(vm, 1);
+    ((FilterDef *)wrenGetSlotForeign(vm, 0))->echo.delay = (float32)wrenGetSlotDouble(vm, 1);
 }
 
 static void filter_def_get_echo_decay(WrenVM *vm)
@@ -89,7 +89,7 @@ static void filter_def_get_echo_decay(WrenVM *vm)
 
 static void filter_def_set_echo_decay(WrenVM *vm)
 {
-    ((FilterDef *)wrenGetSlotForeign(vm, 0))->echo.decay = (float)wrenGetSlotDouble(vm, 1);
+    ((FilterDef *)wrenGetSlotForeign(vm, 0))->echo.decay = (float32)wrenGetSlotDouble(vm, 1);
 }
 
 static void filter_def_get_echo_wet(WrenVM *vm)
@@ -99,7 +99,7 @@ static void filter_def_get_echo_wet(WrenVM *vm)
 
 static void filter_def_set_echo_wet(WrenVM *vm)
 {
-    ((FilterDef *)wrenGetSlotForeign(vm, 0))->echo.wet = (float)wrenGetSlotDouble(vm, 1);
+    ((FilterDef *)wrenGetSlotForeign(vm, 0))->echo.wet = (float32)wrenGetSlotDouble(vm, 1);
 }
 
 static void filter_def_get_bassboost_boost(WrenVM *vm)
@@ -109,20 +109,20 @@ static void filter_def_get_bassboost_boost(WrenVM *vm)
 
 static void filter_def_set_bassboost_boost(WrenVM *vm)
 {
-    ((FilterDef *)wrenGetSlotForeign(vm, 0))->bassboost.boost = (float)wrenGetSlotDouble(vm, 1);
+    ((FilterDef *)wrenGetSlotForeign(vm, 0))->bassboost.boost = (float32)wrenGetSlotDouble(vm, 1);
 }
 
 static FilterDef static_filters[MAX_FILTERS];
 
 static void parse_sound_info(WrenVM *vm, SoundInfo *info)
 {
-    info->volume = (float)wrenGetSlotDouble(vm, 2);
-    info->pitch = (float)wrenGetSlotDouble(vm, 3);
-    info->pan = (float)wrenGetSlotDouble(vm, 4);
+    info->volume = (float32)wrenGetSlotDouble(vm, 2);
+    info->pitch = (float32)wrenGetSlotDouble(vm, 3);
+    info->pan = (float32)wrenGetSlotDouble(vm, 4);
     info->looping = wrenGetSlotBool(vm, 5);
-    info->fade_in = (float)wrenGetSlotDouble(vm, 6);
-    info->position.x = (float)wrenGetSlotDouble(vm, 7);
-    info->position.y = (float)wrenGetSlotDouble(vm, 8);
+    info->fade_in = (float32)wrenGetSlotDouble(vm, 6);
+    info->position.x = (float32)wrenGetSlotDouble(vm, 7);
+    info->position.y = (float32)wrenGetSlotDouble(vm, 8);
 
     int32 filter_count = 0;
     memset(static_filters, 0, sizeof(static_filters));
@@ -187,8 +187,8 @@ static void music_is_playing(WrenVM *vm)
 static void music_is_playing_at(WrenVM *vm)
 {
     const char *name = wrenGetSlotString(vm, 1);
-    float x = (float)wrenGetSlotDouble(vm, 2);
-    float y = (float)wrenGetSlotDouble(vm, 3);
+    float32 x = (float32)wrenGetSlotDouble(vm, 2);
+    float32 y = (float32)wrenGetSlotDouble(vm, 3);
     wrenSetSlotBool(vm, 0, MusicIsPlayingAt(name, x, y));
 }
 
@@ -201,15 +201,15 @@ static void sfx_is_playing(WrenVM *vm)
 static void sfx_is_playing_at(WrenVM *vm)
 {
     const char *name = wrenGetSlotString(vm, 1);
-    float x = (float)wrenGetSlotDouble(vm, 2);
-    float y = (float)wrenGetSlotDouble(vm, 3);
+    float32 x = (float32)wrenGetSlotDouble(vm, 2);
+    float32 y = (float32)wrenGetSlotDouble(vm, 3);
     wrenSetSlotBool(vm, 0, SFXIsPlayingAt(name, x, y));
 }
 
 static void set_listener_position(WrenVM *vm)
 {
-    float x = (float)wrenGetSlotDouble(vm, 1);
-    float y = (float)wrenGetSlotDouble(vm, 2);
+    float32 x = (float32)wrenGetSlotDouble(vm, 1);
+    float32 y = (float32)wrenGetSlotDouble(vm, 2);
     SetListenerPosition(x, y);
 }
 

@@ -10,18 +10,18 @@ BEGIN_DECLARATIONS
 
 typedef struct
 {
-    float volume;
-    float pitch;
-    float pan; // -1.0 = left, 0.0 = center, 1.0 = right
+    float32 volume;
+    float32 pitch;
+    float32 pan; // -1.0 = left, 0.0 = center, 1.0 = right
     bool looping;
-    float fade_in; // seconds
+    float32 fade_in; // seconds
     vec2s position;
     FilterDef *filters;
     int32 filter_count;
 } SoundInfo;
 
 SoundInfo SoundInfoDefault();
-SoundInfo SoundInfoPositional(float x, float y);
+SoundInfo SoundInfoPositional(float32 x, float32 y);
 SoundInfo SoundInfoMusic();
 
 END_DECLARATIONS

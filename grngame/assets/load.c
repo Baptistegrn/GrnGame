@@ -219,8 +219,8 @@ bool LoadTextureFile(const char *file)
         return false;
     }
 
-    float tex_w;
-    float tex_h;
+    float32 tex_w;
+    float32 tex_h;
 
     if (!SDL_GetTextureSize(texture, &tex_w, &tex_h))
     {

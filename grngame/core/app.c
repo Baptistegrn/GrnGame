@@ -27,18 +27,18 @@
 #include <stdlib.h>
 
 static bool s_is_running = false;
-static float64 s_fixed_accumulator = 0.0;
-static float64 s_update_accumulator = 0.0;
+static float32 s_fixed_accumulator = 0.0f;
+static float32 s_update_accumulator = 0.0f;
 static float64 s_previous_time = 0.0;
 
 static HOT void MainLoopIteration(void *arg);
 static COLD void MainLoop(void);
 static COLD void EnsureInitSucceeded(InitResult res);
 
-static HOT float64 CalculateFrameDelta(void);
+static HOT float32 CalculateFrameDelta(void);
 static HOT void RunGarbageCollector(void);
-static HOT void RunUpdates(float64 frame_dt);
-static HOT void RunFixedUpdates(float64 frame_dt);
+static HOT void RunUpdates(float32 frame_dt);
+static HOT void RunFixedUpdates(float32 frame_dt);
 static HOT void RenderFrame(void);
 static COLD void InitializeLoopState(void);
 
@@ -86,11 +86,14 @@ void EngineStop(void)
     s_is_running = false;
 }
 
-static HOT float64 CalculateFrameDelta(void)
+static HOT float32 CalculateFrameDelta(void)
 {
     float64 now = TimeNow();
-    float64 dt = now - s_previous_time;
+
+    float32 dt = (float32)(now - s_previous_time);
+
     s_previous_time = now;
+
     return dt;
 }
 
@@ -103,9 +106,9 @@ static HOT void RunGarbageCollector(void)
     }
 }
 
-static HOT void RunUpdates(float64 frame_dt)
+static HOT void RunUpdates(float32 frame_dt)
 {
-    const float64 update_target = 1.0 / (float64)g_app.info.fps;
+    const float32 update_target = 1.0f / (float32)g_app.info.fps;
 
     s_update_accumulator += frame_dt;
 
@@ -122,14 +125,14 @@ static HOT void RunUpdates(float64 frame_dt)
         PROFILE_ZONE_END(poll_events_zone);
 
         PROFILE_ZONE_START(wren_update_zone, "Wren.OnUpdate");
-        WrenCallOnUpdate((float32)update_target);
+        WrenCallOnUpdate(update_target);
         PROFILE_ZONE_END(wren_update_zone);
 
         s_update_accumulator -= update_target;
     }
 }
 
-static HOT void RunFixedUpdates(float64 frame_dt)
+static HOT void RunFixedUpdates(float32 frame_dt)
 {
     (void)frame_dt;
 
@@ -139,7 +142,7 @@ static HOT void RunFixedUpdates(float64 frame_dt)
     {
         PROFILE_ZONE_START(wren_fixed_zone, "Wren.OnFixedUpdate");
 
-        WrenCallOnFixedUpdate((float32)FIXED_DT);
+        WrenCallOnFixedUpdate(FIXED_DT);
 
         PROFILE_ZONE_END(wren_fixed_zone);
 
@@ -174,7 +177,7 @@ static HOT void MainLoopIteration(void *arg)
 
     PROFILE_FRAME_MARK();
 
-    float64 frame_dt = CalculateFrameDelta();
+    float32 frame_dt = CalculateFrameDelta();
 
     RunGarbageCollector();
 

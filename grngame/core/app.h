@@ -32,7 +32,7 @@ typedef struct AppInfo
     const char *asset_folder;
 
     uint16 fps;
-    float64 dt;
+    float32 dt;
     uint64 frame_count;
 
     uint16 window_universe_width;

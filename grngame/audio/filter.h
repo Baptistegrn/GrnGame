@@ -1,5 +1,7 @@
 #pragma once
 
+#include "grngame/math/types.h"
+
 typedef enum
 {
     FILTER_REVERB,
@@ -13,19 +15,19 @@ typedef struct
     union {
         struct
         {
-            float room, damp, width, wet;
+            float32 room, damp, width, wet;
         } reverb;
         struct
         {
-            float delay, decay, wet;
+            float32 delay, decay, wet;
         } echo;
         struct
         {
-            float boost;
+            float32 boost;
         } bassboost;
     };
 } FilterDef;
 
-FilterDef FilterReverb(float room, float damp, float width, float wet);
-FilterDef FilterEcho(float delay, float decay, float wet);
-FilterDef FilterBassboost(float boost);
+FilterDef FilterReverb(float32 room, float32 damp, float32 width, float32 wet);
+FilterDef FilterEcho(float32 delay, float32 decay, float32 wet);
+FilterDef FilterBassboost(float32 boost);

@@ -13,13 +13,13 @@ void SetListenerPosition(float32 x, float32 y);
 // SFX
 bool SoundPlaySFX(const char *name, const SoundInfo *info);
 bool SFXIsPlaying(const char *name);
-bool SFXIsPlayingAt(const char *name, float x, float y);
+bool SFXIsPlayingAt(const char *name, float32 x, float32 y);
 
 // Music
 bool SoundPlayMusic(const char *name, const SoundInfo *info);
 void MusicStop(const char *name);
 bool MusicIsPlaying(const char *name);
-bool MusicIsPlayingAt(const char *name, float x, float y);
+bool MusicIsPlayingAt(const char *name, float32 x, float32 y);
 
 void SoundUpdate();
 END_DECLARATIONS

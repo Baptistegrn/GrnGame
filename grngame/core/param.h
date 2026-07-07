@@ -16,7 +16,7 @@
 #endif
 
 // Fixed-update loop frequency
-#define FIXED_UPDATE_LOOP 60.0
+#define FIXED_UPDATE_LOOP 60.0f
 
 #define FIXED_DT (1.0 / FIXED_UPDATE_LOOP)
 

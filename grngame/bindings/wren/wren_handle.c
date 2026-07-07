@@ -60,7 +60,7 @@ bool WrenCallOnStart()
     return CheckWrenCallResult(wrenCall(g_app.wren->vm, g_app.wren->on_start), "on_start");
 }
 
-bool WrenCallOnUpdate(float delta)
+bool WrenCallOnUpdate(float32 delta)
 {
     if (!g_app.wren->main_class || !g_app.wren->on_update)
         return false;
@@ -72,7 +72,7 @@ bool WrenCallOnUpdate(float delta)
     return CheckWrenCallResult(wrenCall(g_app.wren->vm, g_app.wren->on_update), "on_update");
 }
 
-bool WrenCallOnFixedUpdate(float delta)
+bool WrenCallOnFixedUpdate(float32 delta)
 {
     if (!g_app.wren->main_class || !g_app.wren->on_fixed_update)
         return false;

@@ -10,7 +10,7 @@
 #include "texture.h"
 #include <math.h>
 
-HOT bool SpriteDraw(Sprite s, uint16 frame, float x, float y, uint8 c, int16 r, uint8 a)
+HOT bool SpriteDraw(Sprite s, uint16 frame, float32 x, float32 y, uint8 c, int16 r, uint8 a)
 {
     if (s.tex == NULL)
         s.tex = TextureGet(s.name);

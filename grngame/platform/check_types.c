@@ -44,7 +44,7 @@ COLD void CheckAllTypes()
 {
     bool f = CheckFloat();
     if (UNLIKELY(!f))
-        LOG_WARNING("Float architecture isnt valid");
+        LOG_WARNING("float32 architecture isnt valid");
     bool d = CheckDouble();
     if (UNLIKELY(!d))
         LOG_WARNING("Double architecture isnt valid");

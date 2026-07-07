@@ -9,7 +9,7 @@
 
 vec2s GetMousePosition()
 {
-    float mx, my;
+    float32 mx, my;
     SDL_GetMouseState(&mx, &my);
     return (vec2s){{mx, my}};
 }

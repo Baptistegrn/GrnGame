@@ -6,8 +6,8 @@
 BEGIN_DECLARATIONS
 
 bool WrenCallOnStart();
-bool WrenCallOnUpdate(float delta);
-bool WrenCallOnFixedUpdate(float delta);
+bool WrenCallOnUpdate(float32 delta);
+bool WrenCallOnFixedUpdate(float32 delta);
 bool WrenCallOnRender();
 bool WrenCallOnDestroy();
 void WrenFree();

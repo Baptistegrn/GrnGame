@@ -22,7 +22,7 @@ Texture *TextureGet(const char *name)
     return &kh_value(texture_map, k);
 }
 
-HOT bool TextureDraw(const char *name, float x, float y, uint8 c, int16 r, uint8 a)
+HOT bool TextureDraw(const char *name, float32 x, float32 y, uint8 c, int16 r, uint8 a)
 {
     Texture *tex = TextureGet(name);
     if (!tex)
@@ -37,8 +37,8 @@ HOT bool TextureDraw(const char *name, float x, float y, uint8 c, int16 r, uint8
         return false;
     }
 
-    SDL_FRect dst = {PIXEL_ALIGN(x + g_app.info.offset_x), PIXEL_ALIGN(y + g_app.info.offset_y), (float)(tex->w * c),
-                     (float)(tex->h * c)};
+    SDL_FRect dst = {PIXEL_ALIGN(x + g_app.info.offset_x), PIXEL_ALIGN(y + g_app.info.offset_y), (float32)(tex->w * c),
+                     (float32)(tex->h * c)};
 
     SDL_FPoint center = {dst.w / 2.0f, dst.h / 2.0f};
 

@@ -2,11 +2,11 @@
 #include "grngame/core/app.h"
 #include "sound.c"
 #include <cglm/types-struct.h>
-#include <float.h>
 #include <khash.h>
 #include <kvec.h>
 #include <math.h>
 #include <stddef.h>
+#include "grngame/math/types.h"
 
 SoundInfo SoundInfoDefault()
 {
@@ -20,6 +20,6 @@ SoundInfo SoundInfoDefault()
                        .filter_count = 0};
 }
 
-SoundInfo SoundInfoAt(float x, float y)
+SoundInfo SoundInfoAt(float32 x, float32 y)
 {
 }
