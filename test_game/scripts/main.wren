@@ -10,17 +10,18 @@ import "std/wren/audio/sound" for Sound
 import "std/wren/audio/sound_info" for SoundInfo
 import "std/wren/audio/filter_def" for FilterDef
 
+import "std/wren/input/keyboard/key_code" for KeyCode
+import "std/wren/input/keyboard/keyboard" for Keyboard
+
 class Main {
     static on_start() {
-        var info = SoundInfo.new("music")
-        //info.position = Vec2.new(0.0,0.0)
-        Sound.music_play(info) 
-        __pos = Vec2.new(0.0,0.0)
     }
 
     static on_update(dt) {
-        __pos = __pos +0.1
-        Sound.set_listener_position(__pos)
+        if(Keyboard.just_pressed(1,KeyCode.KEY_0)){
+            System.print("touche 0")
+        }
+
     }
 
     static on_fixed_update(dt) {}

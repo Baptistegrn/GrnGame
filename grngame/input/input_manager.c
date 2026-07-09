@@ -15,8 +15,7 @@ InputManager InputManagerCreate()
                   .scroll_x = 0,
                   .scroll_y = 0},
         .drop_file = {0},
-        .key_pressed = {false},
-        .key_just_pressed = {false},
+        .keyboard = {0},
         .controllers = {0},
         .controller_map = {.hash = kh_init(ctrlmap)},
     };

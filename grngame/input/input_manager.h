@@ -8,6 +8,7 @@
 #include <kvec.h>
 #include <stdbool.h>
 
+#include "grngame/input/keyboard.h"
 #include "khash.h"
 
 KHASH_MAP_INIT_STR(ctrlmap, int16)
@@ -25,14 +26,11 @@ typedef struct
 
     kvec_t(char) text_input;
 
-    // index is save here for pad with serial number 
+    // index is save here for pad with serial number
     ControllerMap controller_map;
 
-    bool key_pressed[SDL_SCANCODE_COUNT];
-    bool key_just_pressed[SDL_SCANCODE_COUNT];
-    bool key_just_released[SDL_SCANCODE_COUNT];
-
     Controller controllers[MAX_CONTROLLERS];
+    Keyboard keyboard[MAX_KEYBOARDS];
 } InputManager;
 
 InputManager InputManagerCreate();
