@@ -116,10 +116,6 @@ static void controller_pad_sticks_triggers(WrenVM *vm)
     wrenInsertInList(vm, 0, -1, 1);
 }
 
-static void controller_pad_disable_persistence(WrenVM *vm)
-{
-    ControllerDisablePersistence((uint16)wrenGetSlotDouble(vm, 1));
-}
 
 void RegisterControllerModule()
 {
@@ -142,5 +138,4 @@ void RegisterControllerModule()
     RegisterMethod(module, cls, is_static, "controller_open(_)", controller_open);
     RegisterMethod(module, cls, is_static, "connected_count()", controller_connected_count);
     RegisterMethod(module, cls, is_static, "sticks_triggers(_)", controller_pad_sticks_triggers);
-    RegisterMethod(module, cls, is_static, "disable_persistence(_)", controller_pad_disable_persistence);
 }

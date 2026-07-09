@@ -20,11 +20,6 @@ class Pad {
     foreign static sticks_triggers(index)
     foreign static controller_open(index)
     foreign static connected_count()
-    foreign static disable_persistence(index)
-
-    disable_persistence() {
-        disable_persistence(_index)
-    }
 
     construct new() {
         if (__next_index == null) {

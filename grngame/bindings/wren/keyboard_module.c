@@ -4,20 +4,23 @@
 
 static void key_pressed(WrenVM *vm)
 {
-    int32 key = (int32)wrenGetSlotDouble(vm, 1);
-    wrenSetSlotBool(vm, 0, KeyPressed(key));
+    int32 keyboard_index = (int32)wrenGetSlotDouble(vm, 1);
+    int32 key = (int32)wrenGetSlotDouble(vm, 2);
+    wrenSetSlotBool(vm, 0, KeyPressed(keyboard_index, key));
 }
 
 static void key_just_pressed(WrenVM *vm)
 {
-    int32 key = (int32)wrenGetSlotDouble(vm, 1);
-    wrenSetSlotBool(vm, 0, KeyJustPressed(key));
+    int32 keyboard_index = (int32)wrenGetSlotDouble(vm, 1);
+    int32 key = (int32)wrenGetSlotDouble(vm, 2);
+    wrenSetSlotBool(vm, 0, KeyJustPressed(keyboard_index, key));
 }
 
 static void key_just_released(WrenVM *vm)
 {
-    int32 key = (int32)wrenGetSlotDouble(vm, 1);
-    wrenSetSlotBool(vm, 0, KeyJustReleased(key));
+    int32 keyboard_index = (int32)wrenGetSlotDouble(vm, 1);
+    int32 key = (int32)wrenGetSlotDouble(vm, 2);
+    wrenSetSlotBool(vm, 0, KeyJustReleased(keyboard_index, key));
 }
 
 void RegisterKeyboardModule()
@@ -26,7 +29,7 @@ void RegisterKeyboardModule()
     const char *cls = "Keyboard";
     bool is_static = true;
 
-    RegisterMethod(module, cls, is_static, "pressed(_)", key_pressed);
-    RegisterMethod(module, cls, is_static, "just_pressed(_)", key_just_pressed);
-    RegisterMethod(module, cls, is_static, "just_released(_)", key_just_released);
+    RegisterMethod(module, cls, is_static, "pressed(_,_)", key_pressed);
+    RegisterMethod(module, cls, is_static, "just_pressed(_,_)", key_just_pressed);
+    RegisterMethod(module, cls, is_static, "just_released(_,_)", key_just_released);
 }

@@ -8,6 +8,7 @@
 #include <kvec.h>
 #include <stdbool.h>
 
+#include "grngame/input/keyboard.h"
 #include "khash.h"
 
 KHASH_MAP_INIT_INT(joymap, int16)
@@ -26,12 +27,9 @@ typedef struct
     kvec_t(char) text_input;
 
     JoystickMap joystick_map;
-
-    bool key_pressed[SDL_SCANCODE_COUNT];
-    bool key_just_pressed[SDL_SCANCODE_COUNT];
-    bool key_just_released[SDL_SCANCODE_COUNT];
-
+    //todo create keybord map
     Controller controllers[MAX_CONTROLLERS];
+    Keyboard keyboard[MAX_KEYBOARDS];
 } InputManager;
 
 InputManager InputManagerCreate();

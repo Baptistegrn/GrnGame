@@ -188,6 +188,23 @@ bool PadJustPressed(int32 button, int16 index)
     return g_app.input_manager.controllers[index].just_pressed[button];
 }
 
+bool PadPressed(int32 button, int16 index)
+{
+    if (UNLIKELY(index < 0 || index >= MAX_CONTROLLERS ||
+                 button < 0 || button >= SDL_GAMEPAD_BUTTON_COUNT))
+    {
+        LOG_WARNING("Invalid pad button %d or index %d", button, index);
+        return false;
+    }
+
+    Controller *c = &g_app.input_manager.controllers[index];
+
+    if (UNLIKELY(c->gamepad == NULL))
+        return false;
+
+    return c->pressed[button];
+}
+
 bool PadJustReleased(int32 button, int16 index)
 {
     if (UNLIKELY(index >= MAX_CONTROLLERS || button < 0 || button >= SDL_GAMEPAD_BUTTON_COUNT))

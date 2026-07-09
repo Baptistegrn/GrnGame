@@ -6,6 +6,7 @@
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 // dont moove string compat
+#include "grngame/input/keyboard.h"
 #include "grngame/utils/string_compat.h"
 #include "mouse.h"
 #include <SDL3/SDL_events.h>
@@ -13,6 +14,25 @@
 static int16 FindControllerIndex(SDL_JoystickID id)
 {
     return JoystickMapGet(&g_app.input_manager.joystick_map, id);
+}
+
+static int16 FindKeyboardIndex(SDL_KeyboardID id)
+{
+
+    for (int16 i = 0; i < MAX_KEYBOARDS; i++)
+    {
+        Keyboard *k = &g_app.input_manager.keyboard[i];
+        if (!k->id)
+        {
+            k->id = id;
+            return i;
+        }
+        if (k->id && k->id == id)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 static void ResetInputManagerKeys()
@@ -25,8 +45,12 @@ static void ResetInputManagerKeys()
     im->mouse.right_just_released = false;
     im->mouse.scroll_x = 0;
     im->mouse.scroll_y = 0;
-    CLEAR(im->key_just_pressed, 0);
-    CLEAR(im->key_just_released, 0);
+    for (int16 i = 0; i < MAX_KEYBOARDS; i++)
+    {
+        CLEAR(im->keyboard[i].key_just_pressed, 0);
+        CLEAR(im->keyboard[i].key_just_released, 0);
+    }
+
     for (int32 i = 0; i < MAX_CONTROLLERS; i++)
     {
         CLEAR(im->controllers[i].just_pressed, 0);
@@ -90,8 +114,9 @@ HOT void PollEvents()
 
                 if (LIKELY(event.key.scancode < SDL_SCANCODE_COUNT))
                 {
-                    im->key_pressed[event.key.scancode] = true;
-                    im->key_just_pressed[event.key.scancode] = true;
+                    int16 index = FindKeyboardIndex(event.key.which);
+                    im->keyboard[index].key_just_pressed[event.key.scancode] = true;
+                    im->keyboard[index].key_pressed[event.key.scancode] = true;
                 }
             }
             break;
@@ -99,8 +124,9 @@ HOT void PollEvents()
         case SDL_EVENT_KEY_UP:
             if (LIKELY(event.key.scancode < SDL_SCANCODE_COUNT))
             {
-                im->key_pressed[event.key.scancode] = false;
-                im->key_just_released[event.key.scancode] = true;
+                int16 index = FindKeyboardIndex(event.key.which);
+                im->keyboard[index].key_just_released[event.key.scancode] = true;
+                im->keyboard[index].key_pressed[event.key.scancode] = false;
             }
             break;
         case SDL_EVENT_TEXT_INPUT:
