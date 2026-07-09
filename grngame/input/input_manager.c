@@ -18,27 +18,26 @@ InputManager InputManagerCreate()
         .key_pressed = {false},
         .key_just_pressed = {false},
         .controllers = {0},
-        .controller_map = {.hash = kh_init(ctrlmap)},
+        .joystick_map = {.hash = kh_init(joymap)},
     };
     kv_init(m.text_input);
     return m;
 }
 
-void ControllerMapAdd(ControllerMap *map, const char *key, int16 index)
+void JoystickMapAdd(JoystickMap *map, SDL_JoystickID id, int16 index)
 {
     int32 ret;
-    khint_t k = kh_put(ctrlmap, map->hash, key, &ret);
+    khint_t k = kh_put(joymap, map->hash, (khint32_t)id, &ret);
 
-    if (ret != 0)
+    if (ret != -1)
     {
-        kh_key(map->hash, k) = SDL_strdup(key);
+        kh_value(map->hash, k) = index;
     }
-    kh_value(map->hash, k) = index;
 }
 
-int16 ControllerMapGet(const ControllerMap *map, const char *key)
+int16 JoystickMapGet(const JoystickMap *map, SDL_JoystickID id)
 {
-    khint_t k = kh_get(ctrlmap, map->hash, key);
+    khint_t k = kh_get(joymap, map->hash, (khint32_t)id);
 
     if (UNLIKELY(k == kh_end(map->hash)))
         return -1;
@@ -46,26 +45,20 @@ int16 ControllerMapGet(const ControllerMap *map, const char *key)
     return kh_value(map->hash, k);
 }
 
-void ControllerMapDestroy(ControllerMap *map)
+void JoystickMapDestroy(JoystickMap *map)
 {
     if (LIKELY(map->hash))
     {
-        for (khint_t k = kh_begin(map->hash); k != kh_end(map->hash); ++k)
-        {
-            if (kh_exist(map->hash, k))
-                SDL_free((void *)kh_key(map->hash, k));
-        }
-        kh_destroy(ctrlmap, map->hash);
+        kh_destroy(joymap, map->hash);
         map->hash = NULL;
     }
 }
 
-void ControllerMapRemove(ControllerMap *map, const char *key)
+void JoystickMapRemove(JoystickMap *map, SDL_JoystickID id)
 {
-    khint_t k = kh_get(ctrlmap, map->hash, key);
+    khint_t k = kh_get(joymap, map->hash, (khint32_t)id);
     if (LIKELY(k != kh_end(map->hash)))
     {
-        SDL_free((void *)kh_key(map->hash, k));
-        kh_del(ctrlmap, map->hash, k);
+        kh_del(joymap, map->hash, k);
     }
 }

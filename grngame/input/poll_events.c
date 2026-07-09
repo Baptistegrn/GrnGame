@@ -12,17 +12,9 @@
 
 static int16 FindControllerIndex(SDL_JoystickID id)
 {
-    for (int16 i = 0; i < MAX_CONTROLLERS; ++i)
-    {
-        Controller *c = &g_app.input_manager.controllers[i];
-
-        if (c->gamepad && c->id == id)
-        {
-            return i;
-        }
-    }
-    return -1;
+    return JoystickMapGet(&g_app.input_manager.joystick_map, id);
 }
+
 static void ResetInputManagerKeys()
 {
     InputManager *im = &g_app.input_manager;

@@ -10,12 +10,12 @@
 
 #include "khash.h"
 
-KHASH_MAP_INIT_STR(ctrlmap, int16)
+KHASH_MAP_INIT_INT(joymap, int16)
 
-typedef struct ControllerMap
+typedef struct JoystickMap
 {
-    khash_t(ctrlmap) * hash;
-} ControllerMap;
+    khash_t(joymap) * hash;
+} JoystickMap;
 
 typedef struct
 {
@@ -25,8 +25,7 @@ typedef struct
 
     kvec_t(char) text_input;
 
-    // index is save here for pad with serial number 
-    ControllerMap controller_map;
+    JoystickMap joystick_map;
 
     bool key_pressed[SDL_SCANCODE_COUNT];
     bool key_just_pressed[SDL_SCANCODE_COUNT];
@@ -37,7 +36,7 @@ typedef struct
 
 InputManager InputManagerCreate();
 
-void ControllerMapAdd(ControllerMap *map, const char *key, int16 index);
-int16 ControllerMapGet(const ControllerMap *map, const char *key);
-void ControllerMapRemove(ControllerMap *map, const char *key);
-void ControllerMapDestroy(ControllerMap *map);
+void JoystickMapAdd(JoystickMap *map, SDL_JoystickID id, int16 index);
+int16 JoystickMapGet(const JoystickMap *map, SDL_JoystickID id);
+void JoystickMapRemove(JoystickMap *map, SDL_JoystickID id);
+void JoystickMapDestroy(JoystickMap *map);

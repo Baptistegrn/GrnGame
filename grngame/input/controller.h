@@ -17,8 +17,6 @@ typedef struct
     bool just_pressed[SDL_GAMEPAD_BUTTON_COUNT];
     bool just_released[SDL_GAMEPAD_BUTTON_COUNT];
     const char *name;
-    // for pad with serial number
-    bool is_reserved;
 } Controller;
 
 BEGIN_DECLARATIONS;
@@ -54,8 +52,5 @@ bool PadHasAxis(int16 index, int32 axis);
 bool PadHasSensor(int16 index, int32 sensor_type);
 
 float32 compute_axis(Sint16 value, float32 dead_zone);
-
-// for pad with serial number
-void ControllerDisablePersistence(int16 index);
 
 END_DECLARATIONS;
