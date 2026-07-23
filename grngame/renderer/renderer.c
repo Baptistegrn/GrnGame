@@ -37,7 +37,7 @@ COLD bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
 #ifdef GRNGAME_WASM
     else
     {
-        LOG_INFO("Renderer initialized: VSync . Driver=\"%s\" Renderer=\"%s\"", SDL_GetCurrentVideoDriver(),
+        LOG_INFO("Renderer initialized: VSync disabled. Driver=\"%s\" Renderer=\"%s\"", SDL_GetCurrentVideoDriver(),
                  SDL_GetRendererName(renderer->renderer));
     }
 #else

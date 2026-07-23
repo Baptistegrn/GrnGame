@@ -42,7 +42,7 @@ static void ConfigureSDLHints(void)
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d12,vulkan");
 #elif defined(GRNGAME_WASM)
     SDL_SetHint(SDL_HINT_EMSCRIPTEN_KEYBOARD_ELEMENT, "#canvas");
-    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "webgpu");
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "webgpu,opengles3,opengles2");
 #elif defined(GRNGAME_MACOS)
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "metal");
 #elif defined(GRNGAME_LINUX)
