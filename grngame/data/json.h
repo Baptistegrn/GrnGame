@@ -2,7 +2,7 @@
 
 #include "grngame/math/types.h"
 #include "grngame/utils/attributes.h"
-#include <CJSON/cJSON.h>
+#include <cjson/cJSON.h>
 #include <kvec.h>
 #include <stdbool.h>
 
