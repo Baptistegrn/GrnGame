@@ -8,6 +8,7 @@
 #include "grngame/core/app.h"
 #include "grngame/core/window.h"
 #include "grngame/data/data.h"
+#include "grngame/data/json.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
 #include "grngame/renderer/cielab.h"
@@ -70,59 +71,99 @@ static InitResult SetSDLMetadata(void)
 
     return INIT_OK;
 }
-// todo move
-void LoadAppConfig(void)
+
+#define GET_CONFIG_STR(key, dest, default_val)                                                                         \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        const char *tmp = NULL;                                                                                        \
+        if (!JsonGetString("config.json", key, &tmp))                                                                  \
+        {                                                                                                              \
+            LOG_ERROR("Using default value for : " key);                                                               \
+            tmp = default_val;                                                                                         \
+        }                                                                                                              \
+        dest = tmp;                                                                                                    \
+    } while (0)
+
+#define GET_CONFIG_INT(key, dest, default_val)                                                                         \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        double tmp = 0.0;                                                                                              \
+        if (!JsonGetNumber("config.json", key, &tmp))                                                                  \
+        {                                                                                                              \
+            LOG_ERROR("Using default value for : " key);                                                               \
+            tmp = (double)(default_val);                                                                               \
+        }                                                                                                              \
+        dest = (int)tmp;                                                                                               \
+    } while (0)
+
+#define GET_CONFIG_BOOL(key, dest, default_val)                                                                        \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        bool tmp = false;                                                                                              \
+        if (!JsonGetBool("config.json", key, &tmp))                                                                    \
+        {                                                                                                              \
+            LOG_ERROR("Using default value for : " key);                                                               \
+            tmp = default_val;                                                                                         \
+        }                                                                                                              \
+        dest = tmp;                                                                                                    \
+    } while (0)
+
+static void LoadAppConfig(const unsigned char *text)
 {
-    g_app.info.name = WrenGetString("config", "Config", "name");
-    g_app.info.version = WrenGetString("config", "Config", "version");
+#ifndef EMBEDDED_ASSETS_DATA_AVAILABLE
+    if (!OpenJsonFile("config.json", 0, 0))
+    {
+        LOG_ERROR("Impossible to load config file, using defaults");
+    }
+#else
+    OpenJsonFileFromMemory("config.json", text, 0, 0);
+#endif
 
-    g_app.info.fps = WrenGetInt("config", "Config", "fps");
+    GET_CONFIG_STR("Config.name", g_app.info.name, "App");
+    GET_CONFIG_STR("Config.version", g_app.info.version, "1.0.0");
+    GET_CONFIG_INT("Config.fps", g_app.info.fps, 60);
+    GET_CONFIG_INT("Config.windowWidth", g_app.info.window_width, 1280);
+    GET_CONFIG_INT("Config.windowHeight", g_app.info.window_height, 720);
+    GET_CONFIG_INT("Config.universeWidth", g_app.info.window_universe_width, 1280);
+    GET_CONFIG_INT("Config.universeHeight", g_app.info.window_universe_height, 720);
 
-    g_app.info.window_width = WrenGetInt("config", "Config", "windowWidth");
-    g_app.info.window_height = WrenGetInt("config", "Config", "windowHeight");
+    GET_CONFIG_BOOL("Config.resizable", g_app.info.window_resizable, true);
+    GET_CONFIG_BOOL("Config.fullscreen", g_app.info.window_fullscreen, false);
+    GET_CONFIG_BOOL("Config.maximised", g_app.info.window_maximised, false);
+    GET_CONFIG_BOOL("Config.bordered", g_app.info.bordered, true);
 
-    g_app.info.window_universe_width = WrenGetInt("config", "Config", "universeWidth");
-    g_app.info.window_universe_height = WrenGetInt("config", "Config", "universeHeight");
+    GET_CONFIG_BOOL("Config.enableLogs", g_app.info.enable_logs, true);
+    GET_CONFIG_INT("Config.logDestination", g_app.info.log_destination, 0);
 
-    g_app.info.window_resizable = WrenGetBool("config", "Config", "resizable");
-    g_app.info.window_fullscreen = WrenGetBool("config", "Config", "fullscreen");
-    g_app.info.window_maximised = WrenGetBool("config", "Config", "maximised");
-    g_app.info.bordered = WrenGetBool("config", "Config", "bordered");
-
-    g_app.info.enable_logs = WrenGetBool("config", "Config", "enableLogs");
-    g_app.info.log_destination = WrenGetInt("config", "Config", "logDestination");
-
-    g_app.info.force_universe_scale = WrenGetBool("config", "Config", "forceUniverseScale");
-
-    g_app.info.render_clear = WrenGetInt("config", "Config", "renderClear");
-    g_app.info.asset_folder = "assets";
+    GET_CONFIG_BOOL("Config.forceUniverseScale", g_app.info.force_universe_scale, false);
+    GET_CONFIG_INT("Config.renderClear", g_app.info.render_clear, 0);
+    GET_CONFIG_STR("Config.assetFolder", g_app.info.asset_folder, "assets");
 }
 
-static void LoadDefaultConfig(void)
+#undef GET_CONFIG_STR
+#undef GET_CONFIG_INT
+#undef GET_CONFIG_BOOL
+
+void InitAppConfig(void)
 {
-    g_app.info.name = "Default Config";
-    g_app.info.version = "0.1.0";
+#ifndef EMBEDDED_ASSETS_DATA_AVAILABLE
+    LoadAppConfig(NULL);
+#else
+    g_app.info.asset_db = DbCreate("Assets.pak");
+    CreateEmbeddedAssetsCache(g_app.info.asset_db);
 
-    g_app.info.fps = 60;
+    const EmbeddedAsset *asset = GetEmbeddedAsset("test_game/config.json");
 
-    g_app.info.window_width = 1280;
-    g_app.info.window_height = 720;
-
-    g_app.info.window_universe_width = 320;
-    g_app.info.window_universe_height = 180;
-
-    g_app.info.window_resizable = true;
-    g_app.info.window_fullscreen = false;
-    g_app.info.window_maximised = false;
-    g_app.info.bordered = true;
-
-    g_app.info.enable_logs = true;
-    g_app.info.log_destination = LOG_TO_CONSOLE;
-
-    g_app.info.force_universe_scale = false;
-
-    g_app.info.render_clear = 0;
-    g_app.info.asset_folder = "assets";
+    if (asset != NULL)
+    {
+        LoadAppConfig(asset->data);
+    }
+    else
+    {
+        LOG_ERROR("Embedded config file not found! Falling back to defaults.");
+        LoadAppConfig(NULL);
+    }
+#endif
 }
 
 #ifndef GRNGAME_WASM
@@ -168,7 +209,9 @@ static void LoadControllerMappings(void)
 
 static void HandleWrenFailure(void)
 {
-    SetRenderColor(2);
+    SDL_Color red = {255, 0, 0, 255};
+    ColorLAB red_lab = RgbToLab(&red);
+    SetRenderColor(FindBestPaletteColorCIEDE2000(&red_lab));
     SetTaskBarIconErrorProgress(100.0);
 }
 
@@ -214,7 +257,7 @@ COLD void InitializeAssets(void)
 
 COLD void InitializeScripts(void)
 {
-    if (!WrenLateInit())
+    if (!WrenInit())
     {
         HandleWrenFailure();
         return;
@@ -232,19 +275,8 @@ COLD InitResult InitAll(void)
     }
 
     g_app = (App){0};
-
-    g_app.info.asset_db = DbCreate("Assets.pak");
-    CreateEmbeddedAssetsCache(g_app.info.asset_db);
-
-    if (!WrenEarlyInit())
-    {
-        LOG_WARNING("Impossible to initialize Wren Config, default config is used");
-        LoadDefaultConfig();
-    }
-    else
-    {
-        LoadAppConfig();
-    }
+    InitJson();
+    InitAppConfig();
 
     InitResult result = InitializeLogging();
     if (result != INIT_OK)

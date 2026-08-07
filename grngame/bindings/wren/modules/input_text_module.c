@@ -1,3 +1,4 @@
+#include "grngame/bindings/wren/wren_api.h"
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/bindings/wren/wren_callback.h"
 #include "grngame/input/input_text.h"
@@ -60,3 +61,5 @@ void RegisterInputTextModule()
     RegisterMethod(module, cls, is_static, "remove_text_char(_)", input_text_remove_text_char);
     RegisterMethod(module, cls, is_static, "replace(_,_)", input_text_replace);
 }
+
+WREN_MODULE(RegisterInputTextModule)

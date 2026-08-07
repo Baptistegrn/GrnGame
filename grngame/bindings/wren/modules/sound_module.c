@@ -2,6 +2,7 @@
 #include "grngame/audio/sound.h"
 #include "grngame/audio/sound_info.h"
 #include "grngame/audio/speech.h"
+#include "grngame/bindings/wren/wren_api.h"
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/bindings/wren/wren_callback.h"
 #include "grngame/core/param.h"
@@ -254,3 +255,5 @@ void RegisterSoundModule()
     RegisterMethod(sound_mod, sound_cls, true, "speech_say_(_,_,_,_,_,_,_,_,_)", speech_say);
     RegisterMethod(sound_mod, sound_cls, true, "set_listener_position_(_,_)", set_listener_position);
 }
+
+WREN_MODULE(RegisterSoundModule)

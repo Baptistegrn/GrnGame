@@ -655,3 +655,5 @@ void RegisterRendererModule()
     RegisterMethod(prim_module, prim_cls, true, "set_render_color(_)", set_render_color);
     RegisterMethod(prim_module, prim_cls, true, "palette_reload()", palette_reload);
 }
+
+WREN_MODULE(RegisterRendererModule)

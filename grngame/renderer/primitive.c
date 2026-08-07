@@ -12,12 +12,8 @@ static inline void SetColorFromPalette(int32 c_idx, uint8 a)
 {
     int32 palette_size = kv_size(g_app.info.palette_elements);
 
-    SDL_Color base_color = {COLOR_DEFAULT_PRIMITIVE_PALETTE_EMPTY, 255};
-    if (LIKELY(palette_size > 0))
-    {
-        int32 safe_c = Math_ClampInt(c_idx, 0, palette_size - 1);
-        base_color = kv_A(g_app.info.palette_elements, safe_c);
-    }
+    int32 safe_c = Math_ClampInt(c_idx, 0, palette_size - 1);
+    SDL_Color base_color = kv_A(g_app.info.palette_elements, safe_c);
 
     RendererSetColor(base_color.r, base_color.g, base_color.b, a);
 }

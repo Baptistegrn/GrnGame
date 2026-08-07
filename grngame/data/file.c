@@ -1,3 +1,5 @@
+// todo : make the same system of json
+
 #include "grngame/dev/logging.h"
 #include "grngame/math/types.h"
 #include <stdbool.h>

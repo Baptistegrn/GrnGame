@@ -3,11 +3,11 @@
 #include "SDL3/SDL_error.h"
 #include "SDL3/SDL_pixels.h"
 #include "grngame/core/app.h"
+#include "grngame/data/file.h"
 #include "grngame/dev/logging.h"
 #include "grngame/math/math.h"
 #include "grngame/platform/paths.h"
 #include "grngame/utils/attributes.h"
-#include "grngame/utils/file.h"
 #include "kvec.h"
 #include <math.h>
 
@@ -43,11 +43,11 @@ COLD bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
 
 HOT void RendererClear(const Renderer *renderer)
 {
-    SDL_Color color = {COLOR_DEFAULT_RENDER_CLEAR_PALETTE_EMPTY, 255};
+    SDL_Color color = {255, 255, 255, 255};
     if (kv_size(g_app.info.palette_elements) > 0)
     {
         color = kv_A(g_app.info.palette_elements,
-                     Math_ClampInt(g_app.info.render_clear, 0, kv_size(g_app.info.palette_elements)));
+                     Math_ClampInt(g_app.info.render_clear, 0, kv_size(g_app.info.palette_elements) - 1));
     }
     RendererSetColor(color.r, color.g, color.b, 255);
     if (UNLIKELY(!SDL_RenderClear(renderer->renderer)))

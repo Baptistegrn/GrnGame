@@ -154,7 +154,7 @@ extern "C"
         if (count == 0)
         {
             out->count = 1;
-            uint8 def_color[] = {COLOR_DEFAULT_TEXTURE_PALETTE_EMPTY};
+            uint8 def_color[] = {0, 0, 0, 0};
             out->r[0] = def_color[0];
             out->g[0] = def_color[1];
             out->b[0] = def_color[2];

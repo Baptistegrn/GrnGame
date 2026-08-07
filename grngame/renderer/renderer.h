@@ -5,7 +5,6 @@
 
 BEGIN_DECLARATIONS
 
-#define COLOR_DEFAULT_RENDER_CLEAR_PALETTE_EMPTY 0, 123, 64
 typedef struct
 {
     SDL_Renderer *renderer;

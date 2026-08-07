@@ -5,8 +5,6 @@
 
 BEGIN_DECLARATIONS
 
-#define COLOR_DEFAULT_TEXTURE_PALETTE_EMPTY 255, 0, 0
-
 bool LoadSoundFile(const char *file);
 bool LoadTextureFile(const char *file);
 

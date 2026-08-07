@@ -7,8 +7,6 @@
 #include <math.h>
 #include <stdbool.h>
 
-#define COLOR_DEFAULT_PARTICLE_PALETTE_EMPTY 0, 0, 255
-
 typedef struct Particle
 {
     vec2s position;

@@ -6,6 +6,7 @@
 #include "grngame/audio/sound_manager.h"
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/data/data.h"
+#include "grngame/data/json.h"
 #include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
 #include "grngame/renderer/cielab.h"
@@ -18,6 +19,8 @@ BEGIN_DECLARATIONS
 KHASH_MAP_INIT_STR(EmbeddedAssetHash, EmbeddedAsset);
 
 KHASH_MAP_INIT_STR(ColorHex, SDL_Color);
+
+KHASH_MAP_INIT_STR(JsonObjects, JsonObject)
 
 #if defined(GRNGAME_EMBED_ASSETS)
 #define EMBEDDED_ASSETS_DATA_AVAILABLE
@@ -57,8 +60,12 @@ typedef struct AppInfo
 
     int32 render_clear;
 
+    string_vec_t palette;
+
+    // TODO moove
     kvec_t(SDL_Color) palette_elements;
     kvec_t(ColorLAB) palette_elements_lab;
+
     khash_t(ColorHex) palette_hex_hash;
 
 } AppInfo;
@@ -80,6 +87,8 @@ typedef struct
     kvec_t(HotreloadQueueElement) queue;
 #endif
 
+    khash_t(JsonObjects) json_objects;
+
     WrenManager *wren;
     AppInfo info;
 
@@ -88,6 +97,8 @@ typedef struct
 void EngineStart();
 void EngineStop();
 COLD void ShutdownScripts(void);
+void ReloadConfig(void);
+
 extern App g_app;
 
 END_DECLARATIONS

@@ -43,3 +43,9 @@ static inline char *strdup(const char *s)
 }
 
 #endif
+
+#include <SDL3/SDL_stdinc.h>
+
+#ifndef strtok_r
+#define strtok_r SDL_strtok_r
+#endif

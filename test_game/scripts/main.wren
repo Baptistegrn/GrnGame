@@ -18,7 +18,7 @@ class Main {
     }
 
     static on_update(dt) {
-        if(Keyboard.just_pressed(1,KeyCode.KEY_0)){
+        if(Keyboard.just_pressed(0,KeyCode.KEY_0)){
             System.print("touche 0")
         }
 

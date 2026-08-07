@@ -1,22 +1,12 @@
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/bindings/wren/wren_callback.h"
+#include "grngame/data/file.h"
 #include "grngame/dev/logging.h"
-#include "grngame/utils/file.h"
 #include "wren.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
-static bool warning = true;
-
-static void warn_file_io()
-{
-    if (warning)
-    {
-        LOG_WARNING("FileSystem I/O is expensive, avoid using File methods in update() or draw().");
-        warning = false;
-    }
-}
 
 static void file_exists(WrenVM *vm)
 {
@@ -26,7 +16,6 @@ static void file_exists(WrenVM *vm)
 
 static void file_read(WrenVM *vm)
 {
-    warn_file_io();
     const char *path = wrenGetSlotString(vm, 1);
     char *content = ReturnFileString(path);
 
@@ -42,7 +31,6 @@ static void file_read(WrenVM *vm)
 
 static void file_write(WrenVM *vm)
 {
-    warn_file_io();
     const char *path = wrenGetSlotString(vm, 1);
     const char *content = wrenGetSlotString(vm, 2);
     wrenSetSlotBool(vm, 0, WriteFileString(path, content, false));
@@ -50,7 +38,6 @@ static void file_write(WrenVM *vm)
 
 static void file_append(WrenVM *vm)
 {
-    warn_file_io();
     const char *path = wrenGetSlotString(vm, 1);
     const char *content = wrenGetSlotString(vm, 2);
     wrenSetSlotBool(vm, 0, WriteFileString(path, content, true));
@@ -67,3 +54,5 @@ void RegisterFileModule()
     RegisterMethod(module, cls, is_static, "write(_,_)", file_write);
     RegisterMethod(module, cls, is_static, "append(_,_)", file_append);
 }
+
+WREN_MODULE(RegisterFileModule)

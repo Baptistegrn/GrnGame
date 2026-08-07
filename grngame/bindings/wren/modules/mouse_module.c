@@ -1,3 +1,4 @@
+#include "grngame/bindings/wren/wren_api.h"
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/bindings/wren/wren_callback.h"
 #include "grngame/input/mouse.h"
@@ -92,3 +93,5 @@ void RegisterMouseModule()
     RegisterMethod(module, cls, is_static, "show_cursor()", show_cursor);
     RegisterMethod(module, cls, is_static, "hide_cursor()", hide_cursor);
 }
+
+WREN_MODULE(RegisterMouseModule)

@@ -1,3 +1,4 @@
+#include "grngame/bindings/wren/wren_api.h"
 #include "grngame/bindings/wren/wren_callback.h"
 #include "grngame/utils/time.h"
 #include "wren.h"
@@ -11,3 +12,5 @@ void RegisterTimeModule()
 {
     RegisterMethod("std/wren/core/time", "Time", true, "now()", time_now_w);
 }
+
+WREN_MODULE(RegisterTimeModule)

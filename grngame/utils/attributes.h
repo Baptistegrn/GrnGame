@@ -17,6 +17,10 @@
  * ASSUME: Tell the compiler something is true
  * FLATTEN: All calls inside this function should be inlined
  * RESTRICT: pointers never overlap
+ * CONSTRUCTOR: Declares a function that runs automatically before
+ * main(), at program/module load time, without needing to be called
+ * explicitly anywhere.
+ * THREAD_LOCAL: variable local to a thread
  */
 
 #if defined(__clang__) || defined(__GNUC__)
@@ -93,4 +97,20 @@
 #else
 #include <alloca.h>
 #define STACK_ALLOC(type, n) ((type *)alloca(sizeof(type) * (n)))
+#endif
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+#define CONSTRUCTOR(fn)                                                                                                \
+    static void fn(void);                                                                                              \
+    __declspec(allocate(".CRT$XCU")) void(__cdecl * fn##_)(void) = (void(__cdecl *)(void))fn;                          \
+    static void fn(void)
+#else
+#define CONSTRUCTOR(fn) __attribute__((constructor)) static void fn(void)
+#endif
+
+#if defined(_MSC_VER)
+#define THREAD_LOCAL __declspec(thread)
+#else
+#define THREAD_LOCAL __thread
 #endif

@@ -4,20 +4,41 @@
 #include "grngame/assets/load.h"
 #include "grngame/bindings/wren/wren_get.h"
 #include "grngame/core/app.h"
+#include "grngame/data/json.h"
 #include "grngame/dev/logging.h"
 #include "grngame/renderer/cielab.h"
 #include "kvec.h"
 #include "wren.h"
 #include <math.h>
 
+// todo move
+
+static void StringVecDestroy(string_vec_t *vec)
+{
+    if (UNLIKELY(vec == NULL))
+        return;
+
+    for (size_t i = 0; i < kv_size(*vec); i++)
+        free(kv_A(*vec, i));
+
+    kv_destroy(*vec);
+}
+
 void PaletteInit()
 {
+    string_vec_t palette;
+    if (!JsonGetStringArray("config.json", "Config.palette", &palette))
+    {
+        LOG_ERROR("Using default value for : Config.palette");
+    }
+    g_app.info.palette = palette;
     kv_init(g_app.info.palette_elements);
     kv_init(g_app.info.palette_elements_lab);
 }
 
 void PaletteDestroy()
 {
+    StringVecDestroy(&g_app.info.palette);
     kv_destroy(g_app.info.palette_elements);
     kv_destroy(g_app.info.palette_elements_lab);
 }
@@ -69,11 +90,19 @@ SDL_Color ColorFromHex(const char *hex)
 
 void PaletteParse()
 {
-    int32 size = WrenGetListCount("config", "Config", "colorPalette");
-    for (int32 i = 0; i < size; i++)
+    string_vec_t *text = &g_app.info.palette;
+    if (text == NULL || kv_size(*text) == 0)
     {
-        const char *color = WrenGetListString("config", "Config", "colorPalette", i);
-        if (!LIKELY(color == NULL))
+        LOG_INFO("No color palette detected, set to black and white");
+        PaletteAddColor((SDL_Color){0, 0, 0, 255});
+        PaletteAddColor((SDL_Color){255, 255, 255, 255});
+        return;
+    }
+
+    for (size_t i = 0; i < kv_size(*text); i++)
+    {
+        const char *color = kv_A(*text, i);
+        if (LIKELY(color != NULL))
         {
             PaletteAddColor(ColorFromHex(color));
         }

@@ -201,6 +201,11 @@ void ProcessHotreloadQueue(void)
                     LOG_WARNING("Failed to reload script '%s'", cpath);
             }
 
+            if (!(strstr(cpath, "config.json") == NULL))
+            {
+                ReloadConfig();
+            }
+
             if (FileIsLoadableAudio(cpath))
             {
                 bool unload_result = UnloadSoundFile(cpath);

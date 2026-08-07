@@ -12,7 +12,7 @@
 static int32 IsEmbeddableFile(const char *path)
 {
     return FileIsLoadableScript(path) || FileIsLoadableAudio(path) || FileIsLoadableImage(path) ||
-           FileIsLoadableText(path);
+           FileIsLoadableText(path) || !(strstr(path, "config.json") == NULL);
 }
 
 static unsigned char *LoadFileBinary(const char *path, long *out_size)

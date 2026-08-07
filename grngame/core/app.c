@@ -13,6 +13,7 @@
 #include "grngame/input/input_data.h"
 #include "grngame/input/poll_events.h"
 #include "grngame/platform/check_type.h"
+#include "grngame/renderer/palette.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/random.h"
@@ -218,6 +219,18 @@ static COLD void MainLoop(void)
         MainLoopIteration(NULL);
     }
 #endif
+}
+
+// todo move
+void ReloadConfig(void)
+{
+    JsonCloseFile("config.json");
+    InitAppConfig();
+    WindowApplyConfig(&g_app.info);
+    LogApplyConfig(&g_app.info);
+    SetRenderColor(g_app.info.render_clear);
+    PaletteReload();
+    LOG_INFO("sucessfuly reload config");
 }
 
 App g_app;

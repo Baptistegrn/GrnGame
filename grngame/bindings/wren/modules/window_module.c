@@ -1,3 +1,4 @@
+#include "grngame/bindings/wren/wren_api.h"
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/bindings/wren/wren_callback.h"
 #include "grngame/core/app.h"
@@ -84,3 +85,5 @@ void RegisterWindowModule(void)
     RegisterMethod(module, cls, is_static, "force_universe_scale", window_is_force_universe_scale);
     RegisterMethod(module, cls, is_static, "apply_config(_,_,_,_,_,_,_,_,_,_,_)", window_apply_config);
 }
+
+WREN_MODULE(RegisterWindowModule)

@@ -1,3 +1,4 @@
+#include "grngame/bindings/wren/wren_api.h"
 #include "grngame/bindings/wren/wren_callback.h"
 #include "grngame/input/keyboard.h"
 #include "wren.h"
@@ -33,3 +34,5 @@ void RegisterKeyboardModule()
     RegisterMethod(module, cls, is_static, "just_pressed(_,_)", key_just_pressed);
     RegisterMethod(module, cls, is_static, "just_released(_,_)", key_just_released);
 }
+
+WREN_MODULE(RegisterKeyboardModule)

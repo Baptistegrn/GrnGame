@@ -1,7 +1,7 @@
 #include "data.h"
 #include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
-#include "grngame/utils/file.h"
+#include "file.h"
 #include "grngame/utils/strdup.c"
 #include "kvec.h"
 #include "wren.h"

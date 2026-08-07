@@ -1,3 +1,4 @@
+#include "grngame/bindings/wren/wren_api.h"
 #include "grngame/bindings/wren/wren_callback.h"
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
@@ -65,3 +66,5 @@ void RegisterLogModule()
     RegisterMethod(module, cls, is_static, "set_lvl(_)", log_set_lvl);
     RegisterMethod(module, cls, is_static, "get_level()", log_get_level);
 }
+
+WREN_MODULE(RegisterLogModule)

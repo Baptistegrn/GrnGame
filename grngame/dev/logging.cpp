@@ -13,7 +13,7 @@ static LogSeverity LogSeverityForBuildType()
 #ifdef GRNGAME_DEBUG
     return LOG_SEVERITY_DEBUG;
 #else
-    return LOG_SEVERITY_INFO;
+    return LOG_SEVERITY_DEBUG;
 #endif
 }
 
@@ -129,9 +129,6 @@ extern "C"
 
 void Log(LogSeverity log_severity, const char *format, ...)
 {
-    if (!g_app.info.enable_logs)
-        return;
-
     va_list args;
     va_start(args, format);
 
@@ -150,10 +147,13 @@ void Log(LogSeverity log_severity, const char *format, ...)
 
     if (UNLIKELY(!s_logger))
     {
-        fprintf(stderr, "%s\n", buf.data());
-        fflush(stderr);
+        fprintf(stdout, "%s\n", buf.data());
+        fflush(stdout);
         return;
     }
+
+    if (!g_app.info.enable_logs)
+        return;
 
     if (s_current_destination == LOG_TO_JSON)
     {
