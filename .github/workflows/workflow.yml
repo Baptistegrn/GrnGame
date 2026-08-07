@@ -133,7 +133,7 @@ jobs:
         with:
           xmake-version: latest
           actions-cache-folder: '.xmake-cache-v2'
-          package-cache: true
+          package-cache: false
           build-cache: true
 
       - name: Remove homebrew freetype
@@ -170,7 +170,7 @@ jobs:
         with:
           xmake-version: latest
           actions-cache-folder: '.xmake-cache-v2'
-          package-cache: true
+          package-cache: false
           build-cache: true
 
       - name: Setup emsdk
@@ -257,6 +257,6 @@ jobs:
         with:
           name: "Release ${{ github.ref_name }}"
           draft: false
-          prerelease: ${{ contains(github.ref_name, '-') }}   
+          prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: true
           files: release-assets/*.zip
