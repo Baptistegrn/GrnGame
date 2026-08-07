@@ -10,6 +10,7 @@
 #include "grngame/utils/string_compat.h"
 #include "khash.h"
 #include "kvec.h"
+#include "soloud_c.h"
 
 static COLD void LoadFile(const char *file, void *user_data);
 static COLD void LoadEmbeddedFiles();
@@ -191,4 +192,51 @@ COLD void CreateEmbeddedAssetsCache(sqlite3 *db)
 
     sqlite3_finalize(stmt);
     DbClose(g_app.info.asset_db);
+}
+
+COLD void AssetManagerDestroy(AssetManager *manager)
+{
+    if (UNLIKELY(!manager))
+        return;
+
+    if (LIKELY(manager->sound_map))
+    {
+        khiter_t k;
+        for (k = kh_begin(manager->sound_map); k != kh_end(manager->sound_map); ++k)
+        {
+            if (!kh_exist(manager->sound_map, k))
+                continue;
+            char *key = (char *)kh_key(manager->sound_map, k);
+            WavStream stream = kh_value(manager->sound_map, k);
+
+            Soloud_destroy(&stream);
+            free(key);
+        }
+
+        kh_destroy(SoundMap, manager->sound_map);
+        manager->sound_map = NULL;
+    }
+    if (LIKELY(manager->texture_map))
+    {
+        khiter_t k;
+        for (k = kh_begin(manager->texture_map); k != kh_end(manager->texture_map); ++k)
+        {
+            if (!kh_exist(manager->texture_map, k))
+                continue;
+
+            char *key = (char *)kh_key(manager->texture_map, k);
+            Texture tex = kh_value(manager->texture_map, k);
+
+            if (tex.texture)
+                SDL_DestroyTexture(tex.texture);
+
+            if (tex.surface)
+                SDL_DestroySurface(tex.surface);
+
+            free(key);
+        }
+
+        kh_destroy(TextureMap, manager->texture_map);
+        manager->texture_map = NULL;
+    }
 }

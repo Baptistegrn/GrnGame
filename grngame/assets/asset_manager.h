@@ -37,7 +37,8 @@ typedef struct
 } AssetManager;
 
 AssetManager AssetManagerCreate();
-void AssetManagerLoadFolder(const char *folder);
+COLD void AssetManagerDestroy(AssetManager *manager);
+COLD void AssetManagerLoadFolder(const char *folder);
 COLD void CreateEmbeddedAssetsCache(sqlite3 *db);
 
 END_DECLARATIONS
