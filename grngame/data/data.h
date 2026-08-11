@@ -7,7 +7,6 @@
 #include <sqlite3.h>
 #include <stdbool.h>
 
-
 BEGIN_DECLARATIONS
 
 typedef enum
@@ -24,14 +23,14 @@ typedef struct
     const char *name; // null for DbArg
     DbType type;
     union {
-        int32 i;
+        int64 i;
         float64 f;
         const char *s;
         struct
         {
             void *data;
-            int32 size;
-        } blob; // not usable in wren / sql
+            uint64 size;
+        } blob; // not exposed to Wren
     } value;
 } DbValue;
 

@@ -23,17 +23,17 @@ void Event_callback(WrenVM *vm)
 
     WrenHandle *fn = wrenGetSlotHandle(vm, 2);
 
-    if (g_app.wren_manager->registry.callbacks[index].is_registered)
+    if (g_app.wren_manager.registry.callbacks[index].is_registered)
     {
-        wrenReleaseHandle(vm, g_app.wren_manager->registry.callbacks[index].handle);
+        wrenReleaseHandle(vm, g_app.wren_manager.registry.callbacks[index].handle);
     }
 
     wrenEnsureSlots(vm, 1);
     wrenSetSlotHandle(vm, 0, fn);
-    wrenCall(vm, g_app.wren_manager->arity);
+    wrenCall(vm, g_app.wren_manager.arity);
     uint8 arity = (uint8)wrenGetSlotDouble(vm, 0);
 
-    g_app.wren_manager->registry.callbacks[index].handle = fn;
-    g_app.wren_manager->registry.callbacks[index].is_registered = true;
-    g_app.wren_manager->registry.callbacks[index].arity = arity;
+    g_app.wren_manager.registry.callbacks[index].handle = fn;
+    g_app.wren_manager.registry.callbacks[index].is_registered = true;
+    g_app.wren_manager.registry.callbacks[index].arity = arity;
 }

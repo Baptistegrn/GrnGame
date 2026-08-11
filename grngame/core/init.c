@@ -258,7 +258,6 @@ COLD void InitializePalette(void)
 
 COLD void InitializeAssets(void)
 {
-    InitLinearLut();
     char *asset_path = PathFromExecutableDirectory(g_app.info.asset_folder);
     AssetManagerLoadFolder(asset_path);
     free(asset_path);

@@ -58,16 +58,11 @@ static COLD void EnsureInitSucceeded(InitResult res)
 
 COLD void ShutdownScripts(void)
 {
-    if (!g_app.wren_manager)
-        return;
 
     WrenCallOnDestroy();
     WrenFree();
 
     LOG_INFO("Wren runtime shut down successfully");
-
-    free(g_app.wren_manager);
-    g_app.wren_manager = NULL;
 }
 
 void EngineStart()
@@ -102,10 +97,8 @@ void EngineStop(void)
 
 static COLD void CleanupAppResources(void)
 {
-    if (g_app.wren_manager)
-    {
-        ShutdownScripts();
-    }
+
+    ShutdownScripts();
 
     if (g_app.window)
     {
@@ -145,10 +138,7 @@ static HOT float32 CalculateFrameDelta(void)
 static HOT void RunGarbageCollector(void)
 {
     if (UNLIKELY(g_app.info.frame_count % ((uint64)g_app.info.fps * GARBAGE_COLLECTOR_TIME_TO_REFRESH) == 0))
-    {
-        if (g_app.wren_manager && g_app.wren_manager->vm)
-            wrenCollectGarbage(g_app.wren_manager->vm);
-    }
+        wrenCollectGarbage(g_app.wren_manager.vm);
 }
 
 static HOT void RunUpdates(float32 frame_dt)

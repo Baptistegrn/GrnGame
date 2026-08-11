@@ -24,7 +24,6 @@ void PaletteFreeStringVec(string_vec_t *vec)
     }
 
     kv_destroy(*vec);
-    kv_init(*vec);
 }
 
 PaletteManager PaletteManagerCreate()
@@ -130,7 +129,7 @@ void PaletteParse(string_vec_t *text)
         return;
     }
 
-    for (size_t i = 0; i < kv_size(*text); i++)
+    for (uint64 i = 0; i < kv_size(*text); i++)
     {
         const char *color = kv_A(*text, i);
 
@@ -154,12 +153,12 @@ void PaletteReload()
 
 void PaletteRead()
 {
-    for (size_t i = 0; i < kv_size(g_app.palette_manager.palette_elements); i++)
+    for (int32 i = 0; i < (int32)kv_size(g_app.palette_manager.palette_elements); i++)
     {
         SDL_Color color = kv_A(g_app.palette_manager.palette_elements, i);
         LOG_INFO("color r,g,b %d :%d,%d,%d,%d", i, color.r, color.g, color.b, color.a);
     }
-    for (size_t i = 0; i < kv_size(g_app.info.palette); i++)
+    for (int32 i = 0; i < (int32)kv_size(g_app.info.palette); i++)
     {
         LOG_INFO("color palette hex : %s", kv_A(g_app.info.palette, i));
     }

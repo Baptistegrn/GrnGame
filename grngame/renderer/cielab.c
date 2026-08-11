@@ -175,11 +175,11 @@ HOT static float32 CalculateCIEDE2000(const ColorLAB *color1, const ColorLAB *co
 
 int32 FindBestPaletteColorCIEDE2000(ColorLAB *target_pixel)
 {
-    uint64 size = kv_size(g_app.palette_manager.palette_elements_lab);
+    int32 size = (int32)kv_size(g_app.palette_manager.palette_elements_lab);
 
     int32 best_index = 0;
     float32 best_score = 9999999.0;
-    for (uint64 i = 0; i < size; i++)
+    for (int32 i = 0; i < size; i++)
     {
         ColorLAB *candidate_lab = &kv_A(g_app.palette_manager.palette_elements_lab, i);
         float32 current_score = CalculateCIEDE2000(target_pixel, candidate_lab);

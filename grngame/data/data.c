@@ -1,7 +1,7 @@
 #include "data.h"
+#include "file.h"
 #include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
-#include "file.h"
 #include "grngame/utils/strdup.c"
 #include "kvec.h"
 #include "wren.h"
@@ -24,7 +24,7 @@ static void DbBindArgs(sqlite3_stmt *stmt, DbArg *args, int32 argc)
         switch (args[i].type)
         {
         case INTEGER:
-            sqlite3_bind_int(stmt, i + 1, args[i].value.i);
+            sqlite3_bind_int64(stmt, i + 1, args[i].value.i);
             break;
         case FLOAT_:
             sqlite3_bind_double(stmt, i + 1, args[i].value.f);
@@ -117,7 +117,7 @@ static DbResult DbResultGet(sqlite3_stmt *stmt)
             {
             case SQLITE_INTEGER:
                 v.type = INTEGER;
-                v.value.i = sqlite3_column_int(stmt, i);
+                v.value.i = sqlite3_column_int64(stmt, i);
                 break;
             case SQLITE_FLOAT:
                 v.type = FLOAT_;
@@ -167,7 +167,7 @@ void DbResultPrint(DbResult *res)
     for (uint64 r = 0; r < kv_size(res->rows); r++)
     {
         DbRow row = kv_A(res->rows, r);
-        printf("Row %zu:\n", r);
+        printf("Row %llu:\n", r);
         for (uint64 c = 0; c < kv_size(row.cols); c++)
         {
             DbValue v = kv_A(row.cols, c);
@@ -175,7 +175,7 @@ void DbResultPrint(DbResult *res)
             switch (v.type)
             {
             case INTEGER:
-                printf("%d\n", v.value.i);
+                printf("%lld\n", v.value.i);
                 break;
             case FLOAT_:
                 printf("%f\n", v.value.f);
@@ -184,7 +184,7 @@ void DbResultPrint(DbResult *res)
                 printf("%s\n", v.value.s);
                 break;
             case DATA:
-                printf("[BLOB size=%d]\n", v.value.blob.size);
+                printf("[BLOB size=%llu]\n", v.value.blob.size);
                 break;
             case VOID:
                 printf("NULL\n");

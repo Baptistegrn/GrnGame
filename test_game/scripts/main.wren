@@ -21,7 +21,6 @@ class Main {
     static on_update(dt) {
         if(Keyboard.just_pressed(0,KeyCode.KEY_0)){
             System.print("touche 0")
-                    Texture.draw("4",100,100)
         }
 
 
@@ -30,7 +29,7 @@ class Main {
 
     static on_fixed_update(dt) {}
     static on_render() {
-        Texture.draw("abc",0,0)
+        Texture.draw("4",0,0)
     }
     static on_destroy() {}
 }

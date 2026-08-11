@@ -7,6 +7,11 @@
 #include "grngame/renderer/renderer.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
+
+KHASH_MAP_INIT_INT(PixelHashmap, SDL_Color)
+
+static khash_t(PixelHashmap) *pixel_hash_map = NULL;
+
 EmbeddedAsset *GetEmbeddedAsset(const char *name)
 {
     khint_t k = kh_get(EmbeddedAssetHash, g_app.embedded_asset_manager.embedded_assets_hash, name);
@@ -38,8 +43,21 @@ static SDL_Surface *LoadTextureSurface(const char *file)
 #endif
 }
 
+static void ClearPaletteRemapCache(void)
+{
+    if (pixel_hash_map != NULL)
+    {
+        kh_destroy(PixelHashmap, pixel_hash_map);
+        pixel_hash_map = NULL;
+    }
+}
+
 static void ApplyPaletteRemap(SDL_Surface *surface)
 {
+    ClearPaletteRemapCache();
+    if (pixel_hash_map == NULL)
+        pixel_hash_map = kh_init(PixelHashmap);
+
     for (int32 y = 0; y < surface->h; ++y)
     {
         SDL_Color *row = (SDL_Color *)((uint8 *)surface->pixels + y * surface->pitch);
@@ -51,12 +69,31 @@ static void ApplyPaletteRemap(SDL_Surface *surface)
             if (pixel->a == 0)
                 continue;
 
+            uint32 color_key = ((uint32)pixel->r << 16) | ((uint32)pixel->g << 8) | (uint32)pixel->b;
+
+            khiter_t k = kh_get(PixelHashmap, pixel_hash_map, color_key);
+
+            if (k != kh_end(pixel_hash_map))
+            {
+                SDL_Color best_color = kh_value(pixel_hash_map, k);
+
+                pixel->r = best_color.r;
+                pixel->g = best_color.g;
+                pixel->b = best_color.b;
+
+                continue;
+            }
             ColorLAB lab = RgbToLab(pixel);
             int32 best_idx = FindBestPaletteColorCIEDE2000(&lab);
 
             if (best_idx >= 0 && best_idx < (int32)kv_size(g_app.palette_manager.palette_elements))
             {
                 SDL_Color best_color = g_app.palette_manager.palette_elements.a[best_idx];
+                int ret;
+                k = kh_put(PixelHashmap, pixel_hash_map, color_key, &ret);
+
+                if (ret >= 0)
+                    kh_value(pixel_hash_map, k) = best_color;
 
                 pixel->r = best_color.r;
                 pixel->g = best_color.g;

@@ -67,7 +67,7 @@ typedef struct
     AssetManager asset_manager;
     InputManager input_manager;
     JsonManager json_manager;
-    WrenManager *wren_manager;
+    WrenManager wren_manager;
     EmbeddedAssetManager embedded_asset_manager;
     PaletteManager palette_manager;
 

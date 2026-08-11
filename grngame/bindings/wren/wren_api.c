@@ -235,7 +235,7 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
 static bool WrenGetObjectField(const char *module, const char *variable, const char *field, WrenHandle **obj,
                                WrenHandle **call)
 {
-    WrenVM *vm = g_app.wren_manager->vm;
+    WrenVM *vm = g_app.wren_manager.vm;
 
     if (!WrenGetVariable(module, variable))
         return false;
@@ -255,7 +255,7 @@ static void WrenReleaseFieldHandles(WrenVM *vm, WrenHandle **obj, WrenHandle **c
 
 bool WrenGetVariable(const char *module, const char *variable)
 {
-    WrenVM *vm = g_app.wren_manager->vm;
+    WrenVM *vm = g_app.wren_manager.vm;
 
     if (!wrenHasVariable(vm, module, variable))
     {
@@ -270,7 +270,7 @@ bool WrenGetVariable(const char *module, const char *variable)
 
 const char *WrenGetString(const char *module, const char *variable, const char *field)
 {
-    WrenVM *vm = g_app.wren_manager->vm;
+    WrenVM *vm = g_app.wren_manager.vm;
     WrenHandle *obj = NULL;
     WrenHandle *call = NULL;
 
@@ -292,7 +292,7 @@ const char *WrenGetString(const char *module, const char *variable, const char *
 
 float64 WrenGetDouble(const char *module, const char *variable, const char *field)
 {
-    WrenVM *vm = g_app.wren_manager->vm;
+    WrenVM *vm = g_app.wren_manager.vm;
     WrenHandle *obj = NULL;
     WrenHandle *call = NULL;
 
@@ -319,7 +319,7 @@ int32 WrenGetInt(const char *module, const char *variable, const char *field)
 
 bool WrenGetBool(const char *module, const char *variable, const char *field)
 {
-    WrenVM *vm = g_app.wren_manager->vm;
+    WrenVM *vm = g_app.wren_manager.vm;
     WrenHandle *obj = NULL;
     WrenHandle *call = NULL;
 
@@ -342,7 +342,7 @@ bool WrenGetBool(const char *module, const char *variable, const char *field)
 static bool WrenGetListObject(const char *module, const char *variable, const char *field, WrenVM **vm,
                               WrenHandle **obj, WrenHandle **call)
 {
-    *vm = g_app.wren_manager->vm;
+    *vm = g_app.wren_manager.vm;
 
     if (!WrenGetObjectField(module, variable, field, obj, call))
         return false;
@@ -424,32 +424,32 @@ const char *WrenGetListString(const char *module, const char *variable, const ch
 
 static void WrenSetWriteFn(WrenWriteFn writeFn)
 {
-    g_app.wren_manager->config.writeFn = writeFn;
+    g_app.wren_manager.config.writeFn = writeFn;
 }
 
 static void WrenSetErrorFn(WrenErrorFn errorFn)
 {
-    g_app.wren_manager->config.errorFn = errorFn;
+    g_app.wren_manager.config.errorFn = errorFn;
 }
 
 static void WrenSetBindMethodFn(WrenBindForeignMethodFn bindMethodFn)
 {
-    g_app.wren_manager->config.bindForeignMethodFn = bindMethodFn;
+    g_app.wren_manager.config.bindForeignMethodFn = bindMethodFn;
 }
 
 static void WrenSetBindClassFn(WrenBindForeignClassFn bindClassFn)
 {
-    g_app.wren_manager->config.bindForeignClassFn = bindClassFn;
+    g_app.wren_manager.config.bindForeignClassFn = bindClassFn;
 }
 
 static void WrenSetLoadModuleFn(WrenLoadModuleFn loadModuleFn)
 {
-    g_app.wren_manager->config.loadModuleFn = loadModuleFn;
+    g_app.wren_manager.config.loadModuleFn = loadModuleFn;
 }
 
 static void WrenStartVM()
 {
-    g_app.wren_manager->vm = wrenNewVM(&(g_app.wren_manager->config));
+    g_app.wren_manager.vm = wrenNewVM(&(g_app.wren_manager.config));
 }
 
 static bool WrenInterpret(const char *filename)
@@ -469,7 +469,7 @@ static bool WrenInterpret(const char *filename)
         memcpy(buf, asset->data, sz);
         buf[sz] = '\0';
         char *source = buf;
-        WrenInterpretResult result = wrenInterpret(g_app.wren_manager->vm, module_name, source);
+        WrenInterpretResult result = wrenInterpret(g_app.wren_manager.vm, module_name, source);
         free(buf);
 
         if (result != WREN_RESULT_SUCCESS)
@@ -496,7 +496,7 @@ static bool WrenInterpret(const char *filename)
             return false;
         }
 
-        WrenInterpretResult result = wrenInterpret(g_app.wren_manager->vm, module_name, file_content);
+        WrenInterpretResult result = wrenInterpret(g_app.wren_manager.vm, module_name, file_content);
         free(file_content);
 
         if (result != WREN_RESULT_SUCCESS)
@@ -514,7 +514,7 @@ static void WrenSetCallHandle()
 {
     for (int i = 0; i <= 16; i++)
     {
-        g_app.wren_manager->call[i] = wrenMakeCallHandle(g_app.wren_manager->vm, CALL_SIGNATURES[i]);
+        g_app.wren_manager.call[i] = wrenMakeCallHandle(g_app.wren_manager.vm, CALL_SIGNATURES[i]);
     }
 }
 
@@ -536,10 +536,9 @@ static void RegisterWrenModules(void)
 
 bool WrenInit()
 {
-    g_app.wren_manager = malloc(sizeof(WrenManager));
-    CLEAR_PTR(g_app.wren_manager, 0);
+    g_app.wren_manager = (WrenManager){0};
     RegisterWrenModules();
-    wrenInitConfiguration(&(g_app.wren_manager->config));
+    wrenInitConfiguration(&(g_app.wren_manager.config));
     WrenSetWriteFn(WriteFn);
     WrenSetErrorFn(ErrorFn);
     WrenSetBindMethodFn(BindMethodFn);
@@ -576,10 +575,8 @@ bool WrenInit()
 
 bool ReloadWrenScript(const char *filename)
 {
-    if (UNLIKELY(!g_app.wren_manager))
-        return false;
 
-    if (g_app.wren_manager->vm)
+    if (g_app.wren_manager.vm)
     {
         ShutdownScripts();
     }
@@ -612,98 +609,96 @@ static void SafeReleaseHandle(WrenVM *vm, WrenHandle **handle)
 
 bool WrenLoadMainHandles(const char *main_module_name)
 {
-    if (!g_app.wren_manager->vm)
-        return false;
 
-    if (!wrenHasVariable(g_app.wren_manager->vm, main_module_name, "Main"))
+    if (!wrenHasVariable(g_app.wren_manager.vm, main_module_name, "Main"))
     {
         LOG_ERROR("Class 'Main' not found in script module '%s'", main_module_name);
         return false;
     }
 
-    wrenEnsureSlots(g_app.wren_manager->vm, 1);
-    wrenGetVariable(g_app.wren_manager->vm, main_module_name, "Main", 0);
+    wrenEnsureSlots(g_app.wren_manager.vm, 1);
+    wrenGetVariable(g_app.wren_manager.vm, main_module_name, "Main", 0);
 
-    g_app.wren_manager->main_class = wrenGetSlotHandle(g_app.wren_manager->vm, 0);
-    g_app.wren_manager->on_start = wrenMakeCallHandle(g_app.wren_manager->vm, "on_start()");
-    g_app.wren_manager->on_update = wrenMakeCallHandle(g_app.wren_manager->vm, "on_update(_)");
-    g_app.wren_manager->on_fixed_update = wrenMakeCallHandle(g_app.wren_manager->vm, "on_fixed_update(_)");
-    g_app.wren_manager->on_render = wrenMakeCallHandle(g_app.wren_manager->vm, "on_render()");
-    g_app.wren_manager->on_destroy = wrenMakeCallHandle(g_app.wren_manager->vm, "on_destroy()");
-    g_app.wren_manager->arity = wrenMakeCallHandle(g_app.wren_manager->vm, "arity");
+    g_app.wren_manager.main_class = wrenGetSlotHandle(g_app.wren_manager.vm, 0);
+    g_app.wren_manager.on_start = wrenMakeCallHandle(g_app.wren_manager.vm, "on_start()");
+    g_app.wren_manager.on_update = wrenMakeCallHandle(g_app.wren_manager.vm, "on_update(_)");
+    g_app.wren_manager.on_fixed_update = wrenMakeCallHandle(g_app.wren_manager.vm, "on_fixed_update(_)");
+    g_app.wren_manager.on_render = wrenMakeCallHandle(g_app.wren_manager.vm, "on_render()");
+    g_app.wren_manager.on_destroy = wrenMakeCallHandle(g_app.wren_manager.vm, "on_destroy()");
+    g_app.wren_manager.arity = wrenMakeCallHandle(g_app.wren_manager.vm, "arity");
     return true;
 }
 
 static bool CallMainNoArgHandle(WrenHandle *handle, const char *method_name)
 {
-    if (!g_app.wren_manager->main_class || !handle)
+    if (!g_app.wren_manager.main_class || !handle)
         return false;
 
-    wrenEnsureSlots(g_app.wren_manager->vm, 1);
-    wrenSetSlotHandle(g_app.wren_manager->vm, 0, g_app.wren_manager->main_class);
-    return CheckWrenCallResult(wrenCall(g_app.wren_manager->vm, handle), method_name);
+    wrenEnsureSlots(g_app.wren_manager.vm, 1);
+    wrenSetSlotHandle(g_app.wren_manager.vm, 0, g_app.wren_manager.main_class);
+    return CheckWrenCallResult(wrenCall(g_app.wren_manager.vm, handle), method_name);
 }
 
 static bool CallMainDeltaHandle(WrenHandle *handle, float32 delta, const char *method_name)
 {
-    if (!g_app.wren_manager->main_class || !handle)
+    if (!g_app.wren_manager.main_class || !handle)
         return false;
 
-    wrenEnsureSlots(g_app.wren_manager->vm, 2);
-    wrenSetSlotHandle(g_app.wren_manager->vm, 0, g_app.wren_manager->main_class);
-    wrenSetSlotDouble(g_app.wren_manager->vm, 1, (float64)delta);
-    return CheckWrenCallResult(wrenCall(g_app.wren_manager->vm, handle), method_name);
+    wrenEnsureSlots(g_app.wren_manager.vm, 2);
+    wrenSetSlotHandle(g_app.wren_manager.vm, 0, g_app.wren_manager.main_class);
+    wrenSetSlotDouble(g_app.wren_manager.vm, 1, (float64)delta);
+    return CheckWrenCallResult(wrenCall(g_app.wren_manager.vm, handle), method_name);
 }
 
 bool WrenCallOnStart()
 {
-    return CallMainNoArgHandle(g_app.wren_manager->on_start, "on_start");
+    return CallMainNoArgHandle(g_app.wren_manager.on_start, "on_start");
 }
 
 bool WrenCallOnUpdate(float32 delta)
 {
-    return CallMainDeltaHandle(g_app.wren_manager->on_update, delta, "on_update");
+    return CallMainDeltaHandle(g_app.wren_manager.on_update, delta, "on_update");
 }
 
 bool WrenCallOnFixedUpdate(float32 delta)
 {
-    return CallMainDeltaHandle(g_app.wren_manager->on_fixed_update, delta, "on_fixed_update");
+    return CallMainDeltaHandle(g_app.wren_manager.on_fixed_update, delta, "on_fixed_update");
 }
 
 bool WrenCallOnRender()
 {
-    return CallMainNoArgHandle(g_app.wren_manager->on_render, "on_render");
+    return CallMainNoArgHandle(g_app.wren_manager.on_render, "on_render");
 }
 
 bool WrenCallOnDestroy()
 {
-    return CallMainNoArgHandle(g_app.wren_manager->on_destroy, "on_destroy");
+    return CallMainNoArgHandle(g_app.wren_manager.on_destroy, "on_destroy");
 }
 
 void WrenFree()
 {
-    if (!g_app.wren_manager || !g_app.wren_manager->vm)
+    if (!g_app.wren_manager.vm)
         return;
 
-    SafeReleaseHandle(g_app.wren_manager->vm, &g_app.wren_manager->main_class);
-    SafeReleaseHandle(g_app.wren_manager->vm, &g_app.wren_manager->on_start);
-    SafeReleaseHandle(g_app.wren_manager->vm, &g_app.wren_manager->on_update);
-    SafeReleaseHandle(g_app.wren_manager->vm, &g_app.wren_manager->on_fixed_update);
-    SafeReleaseHandle(g_app.wren_manager->vm, &g_app.wren_manager->on_render);
-    SafeReleaseHandle(g_app.wren_manager->vm, &g_app.wren_manager->on_destroy);
-    SafeReleaseHandle(g_app.wren_manager->vm, &g_app.wren_manager->arity);
+    SafeReleaseHandle(g_app.wren_manager.vm, &g_app.wren_manager.main_class);
+    SafeReleaseHandle(g_app.wren_manager.vm, &g_app.wren_manager.on_start);
+    SafeReleaseHandle(g_app.wren_manager.vm, &g_app.wren_manager.on_update);
+    SafeReleaseHandle(g_app.wren_manager.vm, &g_app.wren_manager.on_fixed_update);
+    SafeReleaseHandle(g_app.wren_manager.vm, &g_app.wren_manager.on_render);
+    SafeReleaseHandle(g_app.wren_manager.vm, &g_app.wren_manager.on_destroy);
+    SafeReleaseHandle(g_app.wren_manager.vm, &g_app.wren_manager.arity);
 
     for (int i = 0; i < 4; i++)
     {
-        if (g_app.wren_manager->registry.callbacks[i].is_registered)
+        if (g_app.wren_manager.registry.callbacks[i].is_registered)
         {
-            SafeReleaseHandle(g_app.wren_manager->vm, &g_app.wren_manager->registry.callbacks[i].handle);
-            g_app.wren_manager->registry.callbacks[i].is_registered = false;
+            SafeReleaseHandle(g_app.wren_manager.vm, &g_app.wren_manager.registry.callbacks[i].handle);
+            g_app.wren_manager.registry.callbacks[i].is_registered = false;
         }
     }
 
-    wrenFreeVM(g_app.wren_manager->vm);
-    g_app.wren_manager->vm = NULL;
+    wrenFreeVM(g_app.wren_manager.vm);
+    g_app.wren_manager.vm = NULL;
 }
 
 bool CallWrenCallback(int16 index, void *data, uint8 arg_count)
@@ -714,7 +709,7 @@ bool CallWrenCallback(int16 index, void *data, uint8 arg_count)
         return false;
     }
 
-    WrenCallback *cb = &g_app.wren_manager->registry.callbacks[index];
+    WrenCallback *cb = &g_app.wren_manager.registry.callbacks[index];
 
     if (UNLIKELY(!cb->is_registered))
     {
@@ -728,7 +723,7 @@ bool CallWrenCallback(int16 index, void *data, uint8 arg_count)
         return false;
     }
 
-    WrenVM *vm = g_app.wren_manager->vm;
+    WrenVM *vm = g_app.wren_manager.vm;
     CallbackArg *args = (CallbackArg *)data;
 
     wrenEnsureSlots(vm, arg_count + 1);
@@ -753,7 +748,7 @@ bool CallWrenCallback(int16 index, void *data, uint8 arg_count)
         }
     }
 
-    WrenInterpretResult result = wrenCall(vm, g_app.wren_manager->call[arg_count]);
+    WrenInterpretResult result = wrenCall(vm, g_app.wren_manager.call[arg_count]);
 
     if (UNLIKELY(result != WREN_RESULT_SUCCESS))
     {
