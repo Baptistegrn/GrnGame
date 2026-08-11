@@ -198,8 +198,8 @@ void ApplyResizing(AppInfo *app_info, int16 width, int16 height)
 
     app_info->window_width = real_w;
     app_info->window_height = real_h;
-    app_info->offset_x = offset_x;
-    app_info->offset_y = offset_y;
+    app_info->offset_x = (int16)roundf(offset_x);
+    app_info->offset_y = (int16)roundf(offset_y);
 
     WindowConfigureScale(coeff, coeff);
 

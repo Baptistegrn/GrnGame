@@ -31,18 +31,12 @@
 
 static bool s_is_running = false;
 bool request_stop = false;
-static float32 s_fixed_accumulator = 0.0f;
-static float32 s_update_accumulator = 0.0f;
-static float64 s_previous_time = 0.0;
 
 static HOT void MainLoopIteration(void *arg);
 static COLD void MainLoop(void);
 static COLD void EnsureInitSucceeded(InitResult res);
 
-static HOT float32 CalculateFrameDelta(void);
 static HOT void RunGarbageCollector(void);
-static HOT void RunUpdates(float32 frame_dt);
-static HOT void RunFixedUpdates(float32 frame_dt);
 static HOT void RenderFrame(void);
 static COLD void InitializeLoopState(void);
 static COLD void CleanupAppResources(void);
@@ -58,10 +52,8 @@ static COLD void EnsureInitSucceeded(InitResult res)
 
 COLD void ShutdownScripts(void)
 {
-
     WrenCallOnDestroy();
     WrenFree();
-
     LOG_INFO("Wren runtime shut down successfully");
 }
 
@@ -97,7 +89,6 @@ void EngineStop(void)
 
 static COLD void CleanupAppResources(void)
 {
-
     ShutdownScripts();
 
     if (g_app.window)
@@ -124,65 +115,10 @@ static COLD void CleanupAppResources(void)
     g_app = (App){0};
 }
 
-static HOT float32 CalculateFrameDelta(void)
-{
-    float64 now = TimeNow();
-
-    float32 dt = (float32)(now - s_previous_time);
-
-    s_previous_time = now;
-
-    return dt;
-}
-
 static HOT void RunGarbageCollector(void)
 {
     if (UNLIKELY(g_app.info.frame_count % ((uint64)g_app.info.fps * GARBAGE_COLLECTOR_TIME_TO_REFRESH) == 0))
         wrenCollectGarbage(g_app.wren_manager.vm);
-}
-
-static HOT void RunUpdates(float32 frame_dt)
-{
-    const float32 update_target = 1.0f / (float32)g_app.info.fps;
-
-    s_update_accumulator += frame_dt;
-
-    while (s_update_accumulator >= update_target)
-    {
-        g_app.info.dt = update_target;
-
-        PROFILE_ZONE_START(poll_events_zone, "PollEvents");
-#if defined(GRNGAME_HOT_RELOAD_ENABLE)
-        ProcessHotreloadQueue();
-#endif
-        PollEvents();
-        SoundUpdate();
-        PROFILE_ZONE_END(poll_events_zone);
-
-        PROFILE_ZONE_START(wren_update_zone, "Wren.OnUpdate");
-        WrenCallOnUpdate(update_target);
-        PROFILE_ZONE_END(wren_update_zone);
-
-        s_update_accumulator -= update_target;
-    }
-}
-
-static HOT void RunFixedUpdates(float32 frame_dt)
-{
-    (void)frame_dt;
-
-    s_fixed_accumulator += frame_dt;
-
-    while (s_fixed_accumulator >= FIXED_DT)
-    {
-        PROFILE_ZONE_START(wren_fixed_zone, "Wren.OnFixedUpdate");
-
-        WrenCallOnFixedUpdate(FIXED_DT);
-
-        PROFILE_ZONE_END(wren_fixed_zone);
-
-        s_fixed_accumulator -= FIXED_DT;
-    }
 }
 
 static HOT void RenderFrame(void)
@@ -193,18 +129,15 @@ static HOT void RenderFrame(void)
     PROFILE_ZONE_START(render_zone, "Render");
 
     RendererClear(&g_app.renderer);
-
     WrenCallOnRender();
-
     ApplyBlackStripes();
-
     RendererPresent(&g_app.renderer);
 
     PROFILE_ZONE_END(render_zone);
 }
-
 static HOT void MainLoopIteration(void *arg)
 {
+
     (void)arg;
 
     if (!s_is_running)
@@ -212,39 +145,57 @@ static HOT void MainLoopIteration(void *arg)
 
     PROFILE_FRAME_MARK();
 
-    float32 frame_dt = CalculateFrameDelta();
+    PROFILE_ZONE_START(main_loop_work_zone, "MainLoop");
+
+    uint64 frame_start_ticks = SDL_GetTicks();
+
+    float32 frame_dt = 1.0f / (float32)g_app.info.fps;
+    g_app.info.dt = frame_dt;
 
     RunGarbageCollector();
 
-    RunUpdates(frame_dt);
+    PROFILE_ZONE_START(poll_events_zone, "PollEvents");
+#if defined(GRNGAME_HOT_RELOAD_ENABLE)
+    ProcessHotreloadQueue();
+#endif
+    PollEvents();
+    SoundUpdate();
+    PROFILE_ZONE_END(poll_events_zone);
 
-    RunFixedUpdates(frame_dt);
+    PROFILE_ZONE_START(wren_update_zone, "Wren.OnUpdate");
+    WrenCallOnUpdate(frame_dt);
+    PROFILE_ZONE_END(wren_update_zone);
+
+    PROFILE_ZONE_START(wren_fixed_zone, "Wren.OnFixedUpdate");
+    WrenCallOnFixedUpdate(FIXED_DT);
+    PROFILE_ZONE_END(wren_fixed_zone);
 
     RenderFrame();
-
     ClearAll();
 
-    EngineRequestStop();
-
     g_app.info.frame_count++;
+
+    PROFILE_ZONE_END(main_loop_work_zone);
+
+    uint64 frame_elapsed_ticks = SDL_GetTicks() - frame_start_ticks;
+    uint64 target_frame_ticks = 1000 / g_app.info.fps;
+
+    if (frame_elapsed_ticks < target_frame_ticks)
+    {
+        SDL_Delay((uint32)(target_frame_ticks - frame_elapsed_ticks));
+    }
+    EngineRequestStop();
 }
 
 static COLD void InitializeLoopState(void)
 {
     s_is_running = true;
-
     g_app.info.frame_count = 0;
-
-    s_previous_time = TimeNow();
-
-    s_fixed_accumulator = 0.0;
-    s_update_accumulator = 0.0;
 }
 
 static COLD void MainLoop(void)
 {
     InitializeLoopState();
-
     SDL_ShowWindow(g_app.window);
 
 #ifdef GRNGAME_WASM
@@ -257,7 +208,6 @@ static COLD void MainLoop(void)
 #endif
 }
 
-// todo move
 void ReloadConfig(void)
 {
     JsonCloseFile(&g_app.json_manager, "config.json");

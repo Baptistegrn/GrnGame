@@ -20,9 +20,6 @@
 
 #define FIXED_DT (1.0 / FIXED_UPDATE_LOOP)
 
-// index color used to clear the screen when a Wren script interpretation fails.
-#define WREN_INTERPRET_FAILED 7
-
 // Maximum number of simultaneously supported controllers/gamepads
 #define MAX_CONTROLLERS 8
 
@@ -30,7 +27,7 @@
 #define DEFAULT_DEAD_ZONE 0.1f
 
 // Number of seconds (in frames multiplier) between garbage collector runs.
-#define GARBAGE_COLLECTOR_TIME_TO_REFRESH 60
+#define GARBAGE_COLLECTOR_TIME_TO_REFRESH 180
 
 // fps on web for rendering (because vsync doesnt work on web)
 #define RENDER_UPDATE_WEB 60

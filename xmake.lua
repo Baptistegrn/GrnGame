@@ -26,6 +26,7 @@ if is_arch("x64") then
     add_defines("GRNGAME_X64")
 end
 
+add_requires("tracy")
 add_requires("libsdl3",       {version = "3.4.0"},      {configs = {shared = false}})
 add_requires("libsdl3_image", {version = "3.2.0"},      {configs = {shared = false}})
 add_requires("libsdl3_ttf",   {version = "3.2.2"},      {configs = {shared = false, freetype = false}, system = false})
@@ -81,6 +82,11 @@ local function add_grngame_packages(with_quill_and_efsw)
     if with_quill_and_efsw then
         add_packages("quill","efsw", {public = true})
     end
+
+
+if has_config("tracy") then
+        add_packages("tracy", {public = true})
+    end
 end
 
 local function add_grngame_defines()
@@ -127,10 +133,6 @@ target("GrnGame")
     add_files("grngame/**.c", "grngame/**.cpp")
     add_headerfiles("grngame/**.h")
     add_includedirs(".", {public = true})
-    if has_config("tracy") then
-        add_files("external/tracy/public/TracyClient.cpp")
-        add_includedirs("external/tracy/public", {public = true})
-    end
 
     add_grngame_defines()
     add_grngame_packages(not is_plat("wasm"))

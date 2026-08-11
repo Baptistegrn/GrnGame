@@ -45,8 +45,8 @@ typedef struct AppInfo
     bool window_occlusion_culled;
     bool bordered;
 
-    float32 offset_x;
-    float32 offset_y;
+    int16 offset_x;
+    int16 offset_y;
 
     bool enable_logs;
     LogDestination log_destination;

@@ -12,24 +12,33 @@ import "std/wren/audio/filter_def" for FilterDef
 
 import "std/wren/input/keyboard/key_code" for KeyCode
 import "std/wren/input/keyboard/keyboard" for Keyboard
-import "std/wren/renderer/texture" for Texture
+import "std/wren/renderer/primitive" for Primitive
 
 class Main {
     static on_start() {
+        __x  = 400
+        __y = 400
     }
 
     static on_update(dt) {
-        if(Keyboard.just_pressed(0,KeyCode.KEY_0)){
-            System.print("touche 0")
+        if(Keyboard.pressed(0,KeyCode.KEY_Z)){
+            __x = __x -1000 *dt
         }
-
-
+        if(Keyboard.pressed(0,KeyCode.KEY_S)){
+            __x = __x +1000 *dt
+        }
+        if(Keyboard.pressed(0,KeyCode.KEY_Q)){
+            __y = __y -1000 *dt
+        }
+        if(Keyboard.pressed(0,KeyCode.KEY_D)){
+            __y = __y +1000 *dt
+        }
 
     }
 
     static on_fixed_update(dt) {}
     static on_render() {
-        Texture.draw("4",0,0)
+        Primitive.rect_fill(__y,__x,48,48,1,255)
     }
     static on_destroy() {}
 }

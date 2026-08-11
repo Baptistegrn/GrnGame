@@ -43,18 +43,8 @@ static SDL_Surface *LoadTextureSurface(const char *file)
 #endif
 }
 
-static void ClearPaletteRemapCache(void)
+static HOT void ApplyPaletteRemap(SDL_Surface *surface)
 {
-    if (pixel_hash_map != NULL)
-    {
-        kh_destroy(PixelHashmap, pixel_hash_map);
-        pixel_hash_map = NULL;
-    }
-}
-
-static void ApplyPaletteRemap(SDL_Surface *surface)
-{
-    ClearPaletteRemapCache();
     if (pixel_hash_map == NULL)
         pixel_hash_map = kh_init(PixelHashmap);
 
@@ -89,7 +79,7 @@ static void ApplyPaletteRemap(SDL_Surface *surface)
             if (best_idx >= 0 && best_idx < (int32)kv_size(g_app.palette_manager.palette_elements))
             {
                 SDL_Color best_color = g_app.palette_manager.palette_elements.a[best_idx];
-                int ret;
+                int32 ret;
                 k = kh_put(PixelHashmap, pixel_hash_map, color_key, &ret);
 
                 if (ret >= 0)
@@ -308,6 +298,15 @@ bool UnloadAllSoundFiles(void)
     return true;
 }
 
+static void ClearPaletteRemapCache(void)
+{
+    if (pixel_hash_map != NULL)
+    {
+        kh_destroy(PixelHashmap, pixel_hash_map);
+        pixel_hash_map = NULL;
+    }
+}
+
 bool ReloadTextureWithPalette(const char *file)
 {
     khash_t(TextureMap) *map = g_app.asset_manager.texture_map;
@@ -388,6 +387,7 @@ bool UnloadAllTextureFiles(void)
 
 bool ReloadAllTexturesWithPalette(void)
 {
+    ClearPaletteRemapCache();
     khash_t(TextureMap) *map = g_app.asset_manager.texture_map;
 
     bool success = true;

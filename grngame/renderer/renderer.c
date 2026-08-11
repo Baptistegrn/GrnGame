@@ -19,34 +19,12 @@ COLD bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
         LOG_ERROR("Failed to create renderer: %s", SDL_GetError());
         return false;
     }
-// disable vsync on web
-#ifdef GRNGAME_WASM
+
     SDL_SetRenderVSync(renderer->renderer, 0);
-#else
-    SDL_SetRenderVSync(renderer->renderer, 1);
-#endif
-    int32 vsync_val = 0;
-    SDL_GetRenderVSync(renderer->renderer, &vsync_val);
 
-    if (vsync_val == 1)
-    {
-        LOG_INFO("Renderer initialized: VSync enabled. Driver=\"%s\" Renderer=\"%s\"", SDL_GetCurrentVideoDriver(),
-                 SDL_GetRendererName(renderer->renderer));
-    }
+    LOG_INFO("Renderer initialized. Driver=\"%s\" Renderer=\"%s\"", SDL_GetCurrentVideoDriver(),
+             SDL_GetRendererName(renderer->renderer));
 
-#ifdef GRNGAME_WASM
-    else
-    {
-        LOG_INFO("Renderer initialized: VSync disabled. Driver=\"%s\" Renderer=\"%s\"", SDL_GetCurrentVideoDriver(),
-                 SDL_GetRendererName(renderer->renderer));
-    }
-#else
-    else
-    {
-        LOG_WARNING("Renderer initialized: VSync disabled. SDL_Error=\"%s\". Driver=\"%s\" Renderer=\"%s\"",
-                    SDL_GetError(), SDL_GetCurrentVideoDriver(), SDL_GetRendererName(renderer->renderer));
-    }
-#endif
     return true;
 }
 
