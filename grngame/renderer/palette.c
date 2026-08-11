@@ -13,7 +13,7 @@
 #include <string.h>
 
 // todo move
-static void StringVecDestroy(string_vec_t *vec)
+void PaletteFreeStringVec(string_vec_t *vec)
 {
     if (UNLIKELY(vec == NULL))
         return;
@@ -24,6 +24,7 @@ static void StringVecDestroy(string_vec_t *vec)
     }
 
     kv_destroy(*vec);
+    kv_init(*vec);
 }
 
 PaletteManager PaletteManagerCreate()
@@ -143,7 +144,7 @@ void PaletteParse(string_vec_t *text)
 void PaletteReload()
 {
     PaletteManagerDestroy(&g_app.palette_manager);
-    StringVecDestroy(&g_app.info.palette);
+    PaletteFreeStringVec(&g_app.info.palette);
     g_app.palette_manager = PaletteManagerCreate();
     PaletteSetFromConfig();
     PaletteParse(&g_app.info.palette);

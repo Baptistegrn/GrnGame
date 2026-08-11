@@ -85,5 +85,6 @@ COLD void ShutdownScripts(void);
 void ReloadConfig(void);
 
 extern App g_app;
+extern bool request_stop;
 
 END_DECLARATIONS

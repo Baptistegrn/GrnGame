@@ -20,6 +20,7 @@ typedef struct
 
 PaletteManager PaletteManagerCreate(void);
 void PaletteManagerDestroy(PaletteManager *manager);
+void PaletteFreeStringVec(string_vec_t *vec);
 
 void PaletteSetFromConfig(void);
 void PaletteAddColor(SDL_Color color);

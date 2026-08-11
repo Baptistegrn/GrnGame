@@ -111,13 +111,13 @@ static InitResult SetSDLMetadata(void)
 static void LoadAppConfig(const unsigned char *text)
 {
 #ifndef EMBEDDED_ASSETS_DATA_AVAILABLE
-    if (!OpenJsonFile(&g_app.json_manager, "config.json", 0, 0))
-    {
-        LOG_ERROR("Impossible to load config file, using defaults");
-    }
+    OpenJsonFile(&g_app.json_manager, "config.json", 0, 0);
 #else
     OpenJsonFileFromMemory(&g_app.json_manager, "config.json", text, 0, 0);
 #endif
+
+    GET_CONFIG_BOOL("Config.enableLogs", g_app.info.enable_logs, true);
+    GET_CONFIG_INT("Config.logDestination", g_app.info.log_destination, 0);
 
     GET_CONFIG_STR("Config.name", g_app.info.name, "App");
     GET_CONFIG_STR("Config.version", g_app.info.version, "1.0.0");
@@ -131,9 +131,6 @@ static void LoadAppConfig(const unsigned char *text)
     GET_CONFIG_BOOL("Config.fullscreen", g_app.info.window_fullscreen, false);
     GET_CONFIG_BOOL("Config.maximised", g_app.info.window_maximised, false);
     GET_CONFIG_BOOL("Config.bordered", g_app.info.bordered, true);
-
-    GET_CONFIG_BOOL("Config.enableLogs", g_app.info.enable_logs, true);
-    GET_CONFIG_INT("Config.logDestination", g_app.info.log_destination, 0);
 
     GET_CONFIG_BOOL("Config.forceUniverseScale", g_app.info.force_universe_scale, false);
     GET_CONFIG_INT("Config.renderClear", g_app.info.render_clear, 0);

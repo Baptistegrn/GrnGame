@@ -1,4 +1,5 @@
 #include "app.h"
+#include "SDL3/SDL_init.h"
 #include "SDL3/SDL_timer.h"
 #include "SDL3/SDL_video.h"
 #include "grngame/audio/sound.h"
@@ -6,6 +7,7 @@
 #include "grngame/bindings/wren/wren_handle.h"
 #include "grngame/core/app.h"
 #include "grngame/core/init.h"
+#include "grngame/core/param.h"
 #include "grngame/core/window.h"
 #include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
@@ -28,6 +30,7 @@
 #include <stdlib.h>
 
 static bool s_is_running = false;
+bool request_stop = false;
 static float32 s_fixed_accumulator = 0.0f;
 static float32 s_update_accumulator = 0.0f;
 static float64 s_previous_time = 0.0;
@@ -42,6 +45,7 @@ static HOT void RunUpdates(float32 frame_dt);
 static HOT void RunFixedUpdates(float32 frame_dt);
 static HOT void RenderFrame(void);
 static COLD void InitializeLoopState(void);
+static COLD void CleanupAppResources(void);
 
 static COLD void EnsureInitSucceeded(InitResult res)
 {
@@ -77,6 +81,14 @@ void EngineStart()
     MainLoop();
 }
 
+void EngineRequestStop(void)
+{
+    if (UNLIKELY(request_stop))
+    {
+        EngineStop();
+    }
+}
+
 void EngineStop(void)
 {
     if (!s_is_running)
@@ -85,6 +97,38 @@ void EngineStop(void)
     LOG_INFO("Engine stopping");
 
     s_is_running = false;
+    CleanupAppResources();
+}
+
+static COLD void CleanupAppResources(void)
+{
+    if (g_app.wren_manager)
+    {
+        ShutdownScripts();
+    }
+
+    if (g_app.window)
+    {
+        SDL_DestroyWindow(g_app.window);
+        g_app.window = NULL;
+    }
+
+    if (g_app.renderer.renderer)
+    {
+        SDL_DestroyRenderer(g_app.renderer.renderer);
+        g_app.renderer.renderer = NULL;
+    }
+
+    PaletteFreeStringVec(&g_app.info.palette);
+    PaletteManagerDestroy(&g_app.palette_manager);
+    InputManagerDestroy(&g_app.input_manager);
+
+    AssetManagerDestroy(&g_app.asset_manager);
+    EmbeddedAssetManagerDestroy(&g_app.embedded_asset_manager);
+    SoundManagerDestroy(&g_app.sound_manager);
+
+    JsonManagerDestroy(&g_app.json_manager);
+    g_app = (App){0};
 }
 
 static HOT float32 CalculateFrameDelta(void)
@@ -189,6 +233,8 @@ static HOT void MainLoopIteration(void *arg)
     RenderFrame();
 
     ClearAll();
+
+    EngineRequestStop();
 
     g_app.info.frame_count++;
 }

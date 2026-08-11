@@ -554,17 +554,15 @@ COLD void JsonManagerDestroy(JsonManager *manager)
     while (kh_size(manager) > 0)
     {
         khiter_t it = kh_begin(manager);
-
         while (it != kh_end(manager) && !kh_exist(manager, it))
             ++it;
-
         if (it == kh_end(manager))
             break;
-
         const char *key = kh_key(manager, it);
-
         JsonCloseFile(manager, key);
     }
 
-    kh_destroy(JsonObjects, manager);
+    free(manager->keys);
+    free(manager->flags);
+    free(manager->vals);
 }

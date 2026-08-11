@@ -86,7 +86,7 @@ HOT void PollEvents()
         {
         case SDL_EVENT_QUIT:
         case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-            EngineStop();
+            request_stop = true;
             break;
 
         case SDL_EVENT_WINDOW_RESIZED:
