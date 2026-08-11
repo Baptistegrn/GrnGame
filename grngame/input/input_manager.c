@@ -23,6 +23,30 @@ InputManager InputManagerCreate()
     return m;
 }
 
+#include "input_manager.h"
+
+void InputManagerDestroy(InputManager *manager)
+{
+    if (manager == NULL)
+        return;
+
+    for (int16 i = 0; i < MAX_CONTROLLERS; ++i)
+    {
+        if (manager->controllers[i].gamepad != NULL)
+        {
+            GamepadClose(manager->controllers[i].gamepad);
+
+            manager->controllers[i].gamepad = NULL;
+            manager->controllers[i].joystick = NULL;
+            manager->controllers[i].id = 0;
+            manager->controllers[i].name = NULL;
+        }
+    }
+
+    JoystickMapDestroy(&manager->joystick_map);
+    kv_destroy(manager->text_input);
+}
+
 void JoystickMapAdd(JoystickMap *map, SDL_JoystickID id, int16 index)
 {
     int32 ret;

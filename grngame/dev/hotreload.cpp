@@ -1,8 +1,9 @@
+#include "kvec.h"
 #if defined(GRNGAME_HOT_RELOAD_ENABLE)
-#include "grngame/dev/hotreload.h"
 #include "grngame/assets/load.h"
 #include "grngame/bindings/wren/wren_bind.h"
 #include "grngame/core/app.h"
+#include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
 #include "grngame/renderer/palette.h"
@@ -13,6 +14,7 @@
 #include <filesystem>
 #include <memory>
 #include <string>
+
 
 // note : we use mutex and queue because somes functions of sdl dosn't work on another thread
 static std::unique_ptr<efsw::FileWatcher> g_fileWatcher;
@@ -302,6 +304,11 @@ void ProcessHotreloadQueue(void)
 void HotReloadInitQueue()
 {
     kv_init(g_app.queue);
+}
+
+void HotReloadDestroyQueue()
+{
+    kv_destroy(g_app.queue);
 }
 
 #endif

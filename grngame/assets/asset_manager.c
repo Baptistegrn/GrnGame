@@ -10,7 +10,6 @@
 #include "grngame/utils/string_compat.h"
 #include "khash.h"
 #include "kvec.h"
-#include "soloud_c.h"
 
 static COLD void LoadFile(const char *file, void *user_data);
 static COLD void LoadEmbeddedFiles();
@@ -20,12 +19,19 @@ COLD AssetManager AssetManagerCreate()
     return (AssetManager){.sound_map = kh_init(SoundMap), .texture_map = kh_init(TextureMap)};
 }
 
+COLD EmbeddedAssetManager EmbeddedAssetManagerCreate()
+{
+
+    return (EmbeddedAssetManager){
+        .embedded_assets_hash = kh_init(EmbeddedAssetHash), .embedded_assets_count = 0, .embedded_count = 0};
+}
+
 COLD void AssetManagerLoadFolder(const char *folder)
 {
 
 #ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
     {
-        if (UNLIKELY(g_app.embedded_assets_count == 0))
+        if (UNLIKELY(g_app.embedded_asset_manager.embedded_assets_count == 0))
         {
             LOG_WARNING("No assets files in embedded assets folder '%s'", folder);
             return;
@@ -102,7 +108,7 @@ static COLD bool LoadEmbeddedFile(const char *name)
 
 static COLD void LoadEmbeddedFiles()
 {
-    khash_t(EmbeddedAssetHash) *hash = &g_app.embedded_assets_hash;
+    khash_t(EmbeddedAssetHash) *hash = g_app.embedded_asset_manager.embedded_assets_hash;
     for (khint_t k = kh_begin(hash); k != kh_end(hash); ++k)
     {
         if (kh_exist(hash, k))
@@ -112,6 +118,7 @@ static COLD void LoadEmbeddedFiles()
         }
     }
 }
+
 static COLD int32 EmbeddedFileCountAssets(sqlite3 *db)
 {
     int32 count = 0;
@@ -148,19 +155,20 @@ static COLD int32 EmbeddedFileCount(sqlite3 *db)
     return count;
 }
 
-COLD void CreateEmbeddedAssetsCache(sqlite3 *db)
+COLD void AddDbToEmbeddedAssetManager(sqlite3 *db)
 {
     sqlite3_stmt *stmt = NULL;
 
-    g_app.embedded_assets_count = EmbeddedFileCountAssets(db);
-    g_app.embedded_count = EmbeddedFileCount(db);
+    g_app.embedded_asset_manager.embedded_assets_count = EmbeddedFileCountAssets(db);
+    g_app.embedded_asset_manager.embedded_count = EmbeddedFileCount(db);
+
     if (sqlite3_prepare_v2(db, "SELECT path, data FROM embedded_assets;", -1, &stmt, NULL) != SQLITE_OK)
     {
         LOG_ERROR("Failed to init asset cache: %s", sqlite3_errmsg(db));
         return;
     }
 
-    khash_t(EmbeddedAssetHash) *hash = &g_app.embedded_assets_hash;
+    khash_t(EmbeddedAssetHash) *hash = g_app.embedded_asset_manager.embedded_assets_hash;
 
     while (sqlite3_step(stmt) == SQLITE_ROW)
     {
@@ -168,22 +176,25 @@ COLD void CreateEmbeddedAssetsCache(sqlite3 *db)
         int32 size = sqlite3_column_bytes(stmt, 1);
         const void *blob = sqlite3_column_blob(stmt, 1);
 
-        EmbeddedAsset asset;
-        asset.name = strdup(path);
-        asset.size = size;
-        asset.data = malloc(size);
+        EmbeddedAsset asset = {
+            .name = strdup(path),
+            .size = size,
+            .data = malloc(size),
+        };
 
         if (asset.data && blob)
         {
-            memcpy((void *)asset.data, blob, size);
+            memcpy(asset.data, blob, size);
         }
 
-        int32 ret;
+        int ret;
         khiter_t k = kh_put(EmbeddedAssetHash, hash, asset.name, &ret);
 
         if (UNLIKELY(ret == 0))
         {
             free((char *)kh_key(hash, k));
+            free((void *)kh_value(hash, k).data);
+
             kh_key(hash, k) = asset.name;
         }
 
@@ -191,52 +202,44 @@ COLD void CreateEmbeddedAssetsCache(sqlite3 *db)
     }
 
     sqlite3_finalize(stmt);
-    DbClose(g_app.info.asset_db);
+    DbClose(db);
 }
 
 COLD void AssetManagerDestroy(AssetManager *manager)
 {
-    if (UNLIKELY(!manager))
+
+    UnloadAllTextureFiles();
+    UnloadAllSoundFiles();
+
+    kh_destroy(TextureMap, manager->texture_map);
+    kh_destroy(SoundMap, manager->sound_map);
+
+    g_app.asset_manager.texture_map = NULL;
+    g_app.asset_manager.sound_map = NULL;
+}
+
+COLD void EmbeddedAssetManagerDestroy(EmbeddedAssetManager *manager)
+{
+    if (!manager)
         return;
 
-    if (LIKELY(manager->sound_map))
-    {
-        khiter_t k;
-        for (k = kh_begin(manager->sound_map); k != kh_end(manager->sound_map); ++k)
-        {
-            if (!kh_exist(manager->sound_map, k))
-                continue;
-            char *key = (char *)kh_key(manager->sound_map, k);
-            WavStream stream = kh_value(manager->sound_map, k);
+    khash_t(EmbeddedAssetHash) *hash = manager->embedded_assets_hash;
 
-            Soloud_destroy(&stream);
-            free(key);
+    if (hash)
+    {
+        for (khiter_t k = kh_begin(hash); k != kh_end(hash); ++k)
+        {
+            if (kh_exist(hash, k))
+            {
+                free((char *)kh_key(hash, k));
+                free((void *)kh_value(hash, k).data);
+            }
         }
 
-        kh_destroy(SoundMap, manager->sound_map);
-        manager->sound_map = NULL;
+        kh_destroy(EmbeddedAssetHash, hash);
+        manager->embedded_assets_hash = NULL;
     }
-    if (LIKELY(manager->texture_map))
-    {
-        khiter_t k;
-        for (k = kh_begin(manager->texture_map); k != kh_end(manager->texture_map); ++k)
-        {
-            if (!kh_exist(manager->texture_map, k))
-                continue;
 
-            char *key = (char *)kh_key(manager->texture_map, k);
-            Texture tex = kh_value(manager->texture_map, k);
-
-            if (tex.texture)
-                SDL_DestroyTexture(tex.texture);
-
-            if (tex.surface)
-                SDL_DestroySurface(tex.surface);
-
-            free(key);
-        }
-
-        kh_destroy(TextureMap, manager->texture_map);
-        manager->texture_map = NULL;
-    }
+    manager->embedded_assets_count = 0;
+    manager->embedded_count = 0;
 }

@@ -10,17 +10,12 @@
 #include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
 #include "grngame/renderer/cielab.h"
+#include "grngame/renderer/palette.h"
 #include "grngame/renderer/renderer.h"
 #include "khash.h"
 #include "kvec.h"
 
 BEGIN_DECLARATIONS
-
-KHASH_MAP_INIT_STR(EmbeddedAssetHash, EmbeddedAsset);
-
-KHASH_MAP_INIT_STR(ColorHex, SDL_Color);
-
-KHASH_MAP_INIT_STR(JsonObjects, JsonObject)
 
 #if defined(GRNGAME_EMBED_ASSETS)
 #define EMBEDDED_ASSETS_DATA_AVAILABLE
@@ -61,13 +56,6 @@ typedef struct AppInfo
     int32 render_clear;
 
     string_vec_t palette;
-
-    // TODO moove
-    kvec_t(SDL_Color) palette_elements;
-    kvec_t(ColorLAB) palette_elements_lab;
-
-    khash_t(ColorHex) palette_hex_hash;
-
 } AppInfo;
 
 typedef struct
@@ -78,18 +66,15 @@ typedef struct
     SoundManager sound_manager;
     AssetManager asset_manager;
     InputManager input_manager;
-
-    khash_t(EmbeddedAssetHash) embedded_assets_hash;
-    int32 embedded_assets_count;
-    int32 embedded_count;
+    JsonManager json_manager;
+    WrenManager *wren_manager;
+    EmbeddedAssetManager embedded_asset_manager;
+    PaletteManager palette_manager;
 
 #if defined(GRNGAME_HOT_RELOAD_ENABLE)
     kvec_t(HotreloadQueueElement) queue;
 #endif
 
-    khash_t(JsonObjects) json_objects;
-
-    WrenManager *wren;
     AppInfo info;
 
 } App;

@@ -53,10 +53,10 @@ COLD bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
 HOT void RendererClear(const Renderer *renderer)
 {
     SDL_Color color = {255, 255, 255, 255};
-    if (kv_size(g_app.info.palette_elements) > 0)
+    if (kv_size(g_app.palette_manager.palette_elements) > 0)
     {
-        color = kv_A(g_app.info.palette_elements,
-                     Math_ClampInt(g_app.info.render_clear, 0, kv_size(g_app.info.palette_elements) - 1));
+        color = kv_A(g_app.palette_manager.palette_elements,
+                     Math_ClampInt(g_app.info.render_clear, 0, kv_size(g_app.palette_manager.palette_elements) - 1));
     }
     RendererSetColor(color.r, color.g, color.b, 255);
     if (UNLIKELY(!SDL_RenderClear(renderer->renderer)))

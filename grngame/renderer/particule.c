@@ -213,7 +213,7 @@ void RenderEmitter(ParticleEmitter *emit)
 
     SDL_Renderer *renderer = g_app.renderer.renderer;
 
-    int32 palette_size = kv_size(g_app.info.palette_elements);
+    int32 palette_size = kv_size(g_app.palette_manager.palette_elements);
 
     SDL_Vertex *verts = STACK_ALLOC(SDL_Vertex, emit->alive_count * 4);
     int32 *indices = STACK_ALLOC(int32, emit->alive_count * 6);
@@ -239,7 +239,7 @@ void RenderEmitter(ParticleEmitter *emit)
         if (LIKELY(palette_size > 0))
         {
             int32 safe_idx = Math_ClampInt(p->current_color_idx, 0, palette_size - 1);
-            base_color = kv_A(g_app.info.palette_elements, safe_idx);
+            base_color = kv_A(g_app.palette_manager.palette_elements, safe_idx);
         }
 
         uint8 alpha_val = p->current_alpha_idx;

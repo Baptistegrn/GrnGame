@@ -54,7 +54,7 @@ static COLD void EnsureInitSucceeded(InitResult res)
 
 COLD void ShutdownScripts(void)
 {
-    if (!g_app.wren)
+    if (!g_app.wren_manager)
         return;
 
     WrenCallOnDestroy();
@@ -62,8 +62,8 @@ COLD void ShutdownScripts(void)
 
     LOG_INFO("Wren runtime shut down successfully");
 
-    free(g_app.wren);
-    g_app.wren = NULL;
+    free(g_app.wren_manager);
+    g_app.wren_manager = NULL;
 }
 
 void EngineStart()
@@ -102,8 +102,8 @@ static HOT void RunGarbageCollector(void)
 {
     if (UNLIKELY(g_app.info.frame_count % ((uint64)g_app.info.fps * GARBAGE_COLLECTOR_TIME_TO_REFRESH) == 0))
     {
-        if (g_app.wren && g_app.wren->vm)
-            wrenCollectGarbage(g_app.wren->vm);
+        if (g_app.wren_manager && g_app.wren_manager->vm)
+            wrenCollectGarbage(g_app.wren_manager->vm);
     }
 }
 
@@ -224,7 +224,7 @@ static COLD void MainLoop(void)
 // todo move
 void ReloadConfig(void)
 {
-    JsonCloseFile("config.json");
+    JsonCloseFile(&g_app.json_manager, "config.json");
     InitAppConfig();
     WindowApplyConfig(&g_app.info);
     LogApplyConfig(&g_app.info);

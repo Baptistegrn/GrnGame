@@ -76,7 +76,7 @@ static InitResult SetSDLMetadata(void)
     do                                                                                                                 \
     {                                                                                                                  \
         const char *tmp = NULL;                                                                                        \
-        if (!JsonGetString("config.json", key, &tmp))                                                                  \
+        if (!JsonGetString(&g_app.json_manager, "config.json", key, &tmp))                                             \
         {                                                                                                              \
             LOG_ERROR("Using default value for : " key);                                                               \
             tmp = default_val;                                                                                         \
@@ -88,7 +88,7 @@ static InitResult SetSDLMetadata(void)
     do                                                                                                                 \
     {                                                                                                                  \
         double tmp = 0.0;                                                                                              \
-        if (!JsonGetNumber("config.json", key, &tmp))                                                                  \
+        if (!JsonGetNumber(&g_app.json_manager, "config.json", key, &tmp))                                             \
         {                                                                                                              \
             LOG_ERROR("Using default value for : " key);                                                               \
             tmp = (double)(default_val);                                                                               \
@@ -100,7 +100,7 @@ static InitResult SetSDLMetadata(void)
     do                                                                                                                 \
     {                                                                                                                  \
         bool tmp = false;                                                                                              \
-        if (!JsonGetBool("config.json", key, &tmp))                                                                    \
+        if (!JsonGetBool(&g_app.json_manager, "config.json", key, &tmp))                                               \
         {                                                                                                              \
             LOG_ERROR("Using default value for : " key);                                                               \
             tmp = default_val;                                                                                         \
@@ -111,12 +111,12 @@ static InitResult SetSDLMetadata(void)
 static void LoadAppConfig(const unsigned char *text)
 {
 #ifndef EMBEDDED_ASSETS_DATA_AVAILABLE
-    if (!OpenJsonFile("config.json", 0, 0))
+    if (!OpenJsonFile(&g_app.json_manager, "config.json", 0, 0))
     {
         LOG_ERROR("Impossible to load config file, using defaults");
     }
 #else
-    OpenJsonFileFromMemory("config.json", text, 0, 0);
+    OpenJsonFileFromMemory(&g_app.json_manager, "config.json", text, 0, 0);
 #endif
 
     GET_CONFIG_STR("Config.name", g_app.info.name, "App");
@@ -149,8 +149,9 @@ void InitAppConfig(void)
 #ifndef EMBEDDED_ASSETS_DATA_AVAILABLE
     LoadAppConfig(NULL);
 #else
+    g_app.embedded_asset_manager = EmbeddedAssetManagerCreate();
     g_app.info.asset_db = DbCreate("Assets.pak");
-    CreateEmbeddedAssetsCache(g_app.info.asset_db);
+    AddDbToEmbeddedAssetManager(g_app.info.asset_db);
 
     const EmbeddedAsset *asset = GetEmbeddedAsset("test_game/config.json");
 
@@ -244,12 +245,23 @@ COLD InitResult InitializeManagers(void)
     return INIT_OK;
 }
 
+COLD void InitializeJson(void)
+{
+    g_app.json_manager = JsonManagerCreate();
+}
+
+COLD void InitializePalette(void)
+{
+    InitLinearLut();
+    g_app.palette_manager = PaletteManagerCreate();
+    PaletteSetFromConfig();
+    PaletteParse(&g_app.info.palette);
+    // PaletteRead();
+}
+
 COLD void InitializeAssets(void)
 {
     InitLinearLut();
-    HexPaletteHashInit();
-    PaletteInit();
-    PaletteParse();
     char *asset_path = PathFromExecutableDirectory(g_app.info.asset_folder);
     AssetManagerLoadFolder(asset_path);
     free(asset_path);
@@ -275,7 +287,7 @@ COLD InitResult InitAll(void)
     }
 
     g_app = (App){0};
-    InitJson();
+    InitializeJson();
     InitAppConfig();
 
     InitResult result = InitializeLogging();
@@ -305,6 +317,8 @@ COLD InitResult InitAll(void)
 #ifndef GRNGAME_WASM
     LoadControllerMappings();
 #endif
+
+    InitializePalette();
 
     InitializeAssets();
 

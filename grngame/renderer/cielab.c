@@ -156,7 +156,7 @@ HOT static float32 CalculateCIEDE2000(const ColorLAB *color1, const ColorLAB *co
         }
     }
     float32 T = 1.0 - 0.17 * cos(DEG2RAD(h_prime_avg - 30.0)) + 0.24 * cos(DEG2RAD(2.0 * h_prime_avg)) +
-              0.32 * cos(DEG2RAD(3.0 * h_prime_avg + 6.0)) - 0.20 * cos(DEG2RAD(4.0 * h_prime_avg - 63.0));
+                0.32 * cos(DEG2RAD(3.0 * h_prime_avg + 6.0)) - 0.20 * cos(DEG2RAD(4.0 * h_prime_avg - 63.0));
 
     float32 delta_theta = 30.0 * exp(-pow((h_prime_avg - 275.0) / 25.0, 2.0));
     float32 C_prime_avg7 = pow(C_prime_avg, 7.0);
@@ -175,13 +175,13 @@ HOT static float32 CalculateCIEDE2000(const ColorLAB *color1, const ColorLAB *co
 
 int32 FindBestPaletteColorCIEDE2000(ColorLAB *target_pixel)
 {
-    uint64 size = kv_size(g_app.info.palette_elements_lab);
+    uint64 size = kv_size(g_app.palette_manager.palette_elements_lab);
 
     int32 best_index = 0;
     float32 best_score = 9999999.0;
     for (uint64 i = 0; i < size; i++)
     {
-        ColorLAB *candidate_lab = &kv_A(g_app.info.palette_elements_lab, i);
+        ColorLAB *candidate_lab = &kv_A(g_app.palette_manager.palette_elements_lab, i);
         float32 current_score = CalculateCIEDE2000(target_pixel, candidate_lab);
         if (current_score < best_score)
         {

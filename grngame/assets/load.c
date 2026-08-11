@@ -9,14 +9,13 @@
 #include "grngame/utils/clear.h"
 EmbeddedAsset *GetEmbeddedAsset(const char *name)
 {
-    khint_t k = kh_get(EmbeddedAssetHash, &g_app.embedded_assets_hash, name);
+    khint_t k = kh_get(EmbeddedAssetHash, g_app.embedded_asset_manager.embedded_assets_hash, name);
 
-    if (k == kh_end(&g_app.embedded_assets_hash))
+    if (k == kh_end(g_app.embedded_asset_manager.embedded_assets_hash))
         return NULL;
 
-    return &kh_val(&g_app.embedded_assets_hash, k);
+    return &kh_val(g_app.embedded_asset_manager.embedded_assets_hash, k);
 }
-
 static SDL_Surface *LoadTextureSurface(const char *file)
 {
 #ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
@@ -41,9 +40,6 @@ static SDL_Surface *LoadTextureSurface(const char *file)
 
 static void ApplyPaletteRemap(SDL_Surface *surface)
 {
-    int16 hashmap[255];
-    CLEAR(hashmap, -1);
-
     for (int32 y = 0; y < surface->h; ++y)
     {
         SDL_Color *row = (SDL_Color *)((uint8 *)surface->pixels + y * surface->pitch);
@@ -55,20 +51,12 @@ static void ApplyPaletteRemap(SDL_Surface *surface)
             if (pixel->a == 0)
                 continue;
 
-            uint32 key = (pixel->r * pixel->g * pixel->b) & 254;
+            ColorLAB lab = RgbToLab(pixel);
+            int32 best_idx = FindBestPaletteColorCIEDE2000(&lab);
 
-            int32 best_idx = hashmap[key];
-
-            if (best_idx == -1)
+            if (best_idx >= 0 && best_idx < (int32)kv_size(g_app.palette_manager.palette_elements))
             {
-                ColorLAB lab = RgbToLab(pixel);
-                best_idx = FindBestPaletteColorCIEDE2000(&lab);
-                hashmap[key] = (int16)best_idx;
-            }
-
-            if (best_idx >= 0 && best_idx < (int32)kv_size(g_app.info.palette_elements))
-            {
-                SDL_Color best_color = g_app.info.palette_elements.a[best_idx];
+                SDL_Color best_color = g_app.palette_manager.palette_elements.a[best_idx];
 
                 pixel->r = best_color.r;
                 pixel->g = best_color.g;
@@ -93,6 +81,7 @@ static bool RegisterTexture(char *key, SDL_Texture *texture, SDL_Surface *surfac
         kh_key(map, k) = key;
 
         SDL_DestroyTexture(kh_value(map, k).texture);
+        SDL_DestroySurface(kh_value(map, k).surface);
     }
 
     Texture tex = {.texture = texture, .surface = surface, .w = width, .h = height};
@@ -260,6 +249,24 @@ bool UnloadSoundFile(const char *file)
     free((char *)kh_key(map, k));
 
     kh_del(SoundMap, map, k);
+
+    return true;
+}
+
+bool UnloadAllSoundFiles(void)
+{
+    khash_t(SoundMap) *map = g_app.asset_manager.sound_map;
+
+    for (khiter_t k = kh_begin(map); k != kh_end(map); ++k)
+    {
+        if (!kh_exist(map, k))
+            continue;
+
+        WavStream_destroy(kh_value(map, k));
+        free((char *)kh_key(map, k));
+    }
+
+    kh_clear(SoundMap, map);
 
     return true;
 }

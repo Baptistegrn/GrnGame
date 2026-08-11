@@ -20,9 +20,12 @@ typedef struct
 } HotreloadQueueElement;
 
 BEGIN_DECLARATIONS
+
 void StartAssetHotReload(const char *directory, bool recursive);
 void ProcessHotreloadQueue();
+
 void HotReloadInitQueue();
+void HotReloadDestroyQueue();
 END_DECLARATIONS
 
 #endif

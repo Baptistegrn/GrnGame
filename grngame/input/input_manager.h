@@ -27,12 +27,13 @@ typedef struct
     kvec_t(char) text_input;
 
     JoystickMap joystick_map;
-    //todo create keybord map
+    // todo create keybord map
     Controller controllers[MAX_CONTROLLERS];
     Keyboard keyboard[MAX_KEYBOARDS];
 } InputManager;
 
 InputManager InputManagerCreate();
+void InputManagerDestroy(InputManager *manager);
 
 void JoystickMapAdd(JoystickMap *map, SDL_JoystickID id, int16 index);
 int16 JoystickMapGet(const JoystickMap *map, SDL_JoystickID id);

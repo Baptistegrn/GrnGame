@@ -10,10 +10,10 @@
 
 static inline void SetColorFromPalette(int32 c_idx, uint8 a)
 {
-    int32 palette_size = kv_size(g_app.info.palette_elements);
+    int32 palette_size = kv_size(g_app.palette_manager.palette_elements);
 
     int32 safe_c = Math_ClampInt(c_idx, 0, palette_size - 1);
-    SDL_Color base_color = kv_A(g_app.info.palette_elements, safe_c);
+    SDL_Color base_color = kv_A(g_app.palette_manager.palette_elements, safe_c);
 
     RendererSetColor(base_color.r, base_color.g, base_color.b, a);
 }
