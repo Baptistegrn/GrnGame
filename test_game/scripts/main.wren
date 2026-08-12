@@ -21,16 +21,16 @@ class Main {
     }
 
     static on_update(dt) {
-        if(Keyboard.pressed(1,KeyCode.KEY_Z)){
+        if(Keyboard.pressed(0,KeyCode.KEY_Z)){
             __x = __x -1000 *dt
         }
-        if(Keyboard.pressed(1,KeyCode.KEY_S)){
+        if(Keyboard.pressed(0,KeyCode.KEY_S)){
             __x = __x +1000 *dt
         }
-        if(Keyboard.pressed(1,KeyCode.KEY_Q)){
+        if(Keyboard.pressed(0,KeyCode.KEY_Q)){
             __y = __y -1000 *dt
         }
-        if(Keyboard.pressed(1,KeyCode.KEY_D)){
+        if(Keyboard.pressed(0,KeyCode.KEY_D)){
             __y = __y +1000 *dt
         }
 

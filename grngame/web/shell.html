@@ -1,10 +1,9 @@
-<!-- this is an example of game for web -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
-    <title>My Game</title>
+    <title>GrnGame for web</title>
 
     <style>
         * {
@@ -32,11 +31,11 @@
             image-rendering: pixelated;
             image-rendering: crisp-edges;
             image-rendering: -moz-crisp-edges;
+            outline: none;
         }
     </style>
 
     <script>
-        <!-- to load files before loading the game in the current directory -->
         var Module = {
             preRun: [
                 function () {
@@ -58,7 +57,8 @@
 </head>
 
 <body>
-    <canvas id="canvas"></canvas>
+    -- lock right click
+    <canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
 
     {{{ SCRIPT }}}
 </body>
