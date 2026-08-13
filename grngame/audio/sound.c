@@ -66,18 +66,15 @@ static void Apply3dSource(Soloud *soloud, uint32 handle, float32 x, float32 y)
 
 COLD void SoundInit()
 {
-#ifndef GRNGAME_WASM
     kv_init(s_active_sfx);
     s_music_states = kh_init(MusicStateMap);
     float32 w = (float32)g_app.info.window_universe_width;
     float32 h = (float32)g_app.info.window_universe_height;
     s_max_distance = sqrtf(w * w + h * h);
-#endif
 }
 
 bool SoundPlaySFX(const char *name, const SoundInfo *info)
 {
-#ifndef GRNGAME_WASM
     khash_t(SoundMap) *sound_map = g_app.asset_manager.sound_map;
     Soloud *soloud = g_app.sound_manager.soloud;
 
@@ -125,13 +122,11 @@ bool SoundPlaySFX(const char *name, const SoundInfo *info)
     };
     kv_push(SFXInstance, s_active_sfx, instance);
 
-#endif
     return true;
 }
 
 bool SFXIsPlaying(const char *name)
 {
-#ifndef GRNGAME_WASM
     Soloud *soloud = g_app.sound_manager.soloud;
     for (int32 i = 0; i < (int32)kv_size(s_active_sfx); i++)
     {
@@ -139,13 +134,11 @@ bool SFXIsPlaying(const char *name)
         if (strcmp(inst->name, name) == 0 && Soloud_isValidVoiceHandle(soloud, inst->handle))
             return true;
     }
-#endif
     return false;
 }
 
 bool SFXIsPlayingAt(const char *name, float32 x, float32 y)
 {
-#ifndef GRNGAME_WASM
     Soloud *soloud = g_app.sound_manager.soloud;
     for (int32 i = 0; i < (int32)kv_size(s_active_sfx); i++)
     {
@@ -154,13 +147,11 @@ bool SFXIsPlayingAt(const char *name, float32 x, float32 y)
             PositionMatch(inst->position, x, y))
             return true;
     }
-#endif
     return false;
 }
 
 void SoundUpdate()
 {
-#ifndef GRNGAME_WASM
     Soloud *soloud = g_app.sound_manager.soloud;
     for (int32 i = 0; i < (int32)kv_size(s_active_sfx); i++)
     {
@@ -171,7 +162,6 @@ void SoundUpdate()
             i--;
         }
     }
-#endif
 }
 
 static MusicState *GetOrCreateMusicState(const char *name)
@@ -193,7 +183,6 @@ static MusicState *GetOrCreateMusicState(const char *name)
 
 static void ClearFilters(MusicState *state, WavStream *stream)
 {
-#ifndef GRNGAME_WASM
     for (int32 i = 0; i < (int32)kv_size(state->active_filters); i++)
     {
         FilterHandle *fh = &kv_A(state->active_filters, i);
@@ -204,12 +193,11 @@ static void ClearFilters(MusicState *state, WavStream *stream)
         }
     }
     kv_size(state->active_filters) = 0;
-#endif
 }
 
 static void ApplyFilters(MusicState *state, WavStream *stream, const SoundInfo *info)
 {
-#ifndef GRNGAME_WASM
+
     ClearFilters(state, stream);
     for (int32 i = 0; i < info->filter_count && i < MAX_FILTERS; i++)
     {
@@ -248,12 +236,10 @@ static void ApplyFilters(MusicState *state, WavStream *stream, const SoundInfo *
             kv_push(FilterHandle, state->active_filters, ((FilterHandle){filter, destroy}));
         }
     }
-#endif
 }
 
 bool SoundPlayMusic(const char *name, const SoundInfo *info)
 {
-#ifndef GRNGAME_WASM
     khash_t(SoundMap) *sound_map = g_app.asset_manager.sound_map;
     Soloud *soloud = g_app.sound_manager.soloud;
 
@@ -306,13 +292,11 @@ bool SoundPlayMusic(const char *name, const SoundInfo *info)
     state->volume = info->volume;
     state->playing = true;
 
-#endif
     return true;
 }
 
 void MusicStop(const char *name)
 {
-#ifndef GRNGAME_WASM
     khiter_t k = kh_get(MusicStateMap, s_music_states, name);
     if (k == kh_end(s_music_states))
         return;
@@ -320,12 +304,11 @@ void MusicStop(const char *name)
     MusicState *state = &kh_value(s_music_states, k);
     Soloud_stop(g_app.sound_manager.soloud, state->handle);
     state->playing = false;
-#endif
 }
 
 bool MusicIsPlaying(const char *name)
 {
-#ifndef GRNGAME_WASM
+
     khiter_t k = kh_get(MusicStateMap, s_music_states, name);
     if (k == kh_end(s_music_states))
         return false;
@@ -333,15 +316,10 @@ bool MusicIsPlaying(const char *name)
     MusicState *state = &kh_value(s_music_states, k);
     state->playing = Soloud_isValidVoiceHandle(g_app.sound_manager.soloud, state->handle);
     return state->playing;
-#else
-    (void)name;
-    return false;
-#endif
 }
 
 bool MusicIsPlayingAt(const char *name, float32 x, float32 y)
 {
-#ifndef GRNGAME_WASM
     khiter_t k = kh_get(MusicStateMap, s_music_states, name);
     if (k == kh_end(s_music_states))
         return false;
@@ -352,20 +330,13 @@ bool MusicIsPlayingAt(const char *name, float32 x, float32 y)
         return false;
 
     return PositionMatch(state->position, x, y);
-#else
-    (void)name;
-    (void)x;
-    (void)y;
-    return false;
-#endif
 }
 
 void SetListenerPosition(float32 x, float32 y)
 {
-#ifndef GRNGAME_WASM
+
     s_listener_pos.x = x;
     s_listener_pos.y = y;
     Soloud_set3dListenerPosition(g_app.sound_manager.soloud, x, y, 0.f);
     Soloud_update3dAudio(g_app.sound_manager.soloud);
-#endif
 }

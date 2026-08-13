@@ -45,6 +45,7 @@ static SDL_Surface *LoadTextureSurface(const char *file)
 
 static HOT void ApplyPaletteRemap(SDL_Surface *surface)
 {
+
     if (pixel_hash_map == NULL)
         pixel_hash_map = kh_init(PixelHashmap);
 
@@ -92,6 +93,7 @@ static HOT void ApplyPaletteRemap(SDL_Surface *surface)
         }
     }
 }
+
 static bool RegisterTexture(char *key, SDL_Texture *texture, SDL_Surface *surface, int16 width, int16 height)
 {
     khash_t(TextureMap) *map = g_app.asset_manager.texture_map;
@@ -391,7 +393,7 @@ bool ReloadAllTexturesWithPalette(void)
     khash_t(TextureMap) *map = g_app.asset_manager.texture_map;
 
     bool success = true;
-
+    // multithread
     for (khiter_t k = kh_begin(map); k != kh_end(map); ++k)
     {
         if (!kh_exist(map, k))

@@ -18,6 +18,7 @@ class Main {
     static on_start() {
         __x  = 400
         __y = 400
+        Sound.play(SoundInfo.new("music"))
     }
 
     static on_update(dt) {

@@ -1,4 +1,8 @@
+includes("packages/s/soloud/xmake.lua")
+
 add_rules("mode.debug", "mode.release")
+
+
 if is_plat("windows") then
     local msvcRuntime = is_mode("debug") and "MTd" or "MT"
     set_runtimes(msvcRuntime)
@@ -28,13 +32,18 @@ end
 if has_config("tracy") then
 add_requires("tracy")
 end
+
 add_requires("libsdl3",       {version = "3.4.0"},      {configs = {shared = false}})
 add_requires("libsdl3_image", {version = "3.2.0"},      {configs = {shared = false}})
 add_requires("libsdl3_ttf",   {version = "3.2.2"},      {configs = {shared = false, freetype = false}, system = false})
 add_requires("klib",          {version = "2024.06.03"}, {configs = {shared = false}})
 add_requires("cglm",          {version = "v0.9.6"},     {configs = {shared = false}})
--- todo enable smd and correct window conflit definition with soloud macro
-add_requires("soloud",        {version = "2020.02.07"}, {configs = {shared = false,cxflags = is_arch("arm64") and "-DDR_MP3_NO_SIMD" or nil}})
+add_requires("soloud pr402", {
+    configs = {
+        shared = false,
+        cxflags = is_arch("arm64") and "-DDR_MP3_NO_SIMD" or nil
+    }
+})
 add_requires("tinydir",       {version = "1.2.6"},      {configs = {shared = false}})
 add_requires("wren",          {version = "0.4.0"},      {configs = {shared = false}})
 add_requires("highway",       {version = "1.3.0"},      {configs = {shared = false}})
@@ -127,6 +136,7 @@ end
 set_warnings("all", "extra")
 
 target("GrnGame")
+    add_defines("WITH_SDL3_STATIC")
     set_languages("c17", "cxx20")
     set_kind("static")
     add_steam_support()
@@ -137,6 +147,11 @@ target("GrnGame")
 
     add_grngame_defines()
     add_grngame_packages(not is_plat("wasm"))
+
+    if is_plat("wasm") then
+        add_ldflags("-s USE_SDL=3")
+        add_cxflags("-s USE_SDL=3")
+    end
 
 target("Editor")
     set_languages("c17", "cxx17")

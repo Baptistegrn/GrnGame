@@ -8,7 +8,7 @@
         "universeWidth": 1000,
         "universeHeight": 800,
         "resizable": true,
-        "fullscreen": true,
+        "fullscreen": false,
         "maximised": false,
         "bordered": true,
         "enableLogs": true,
