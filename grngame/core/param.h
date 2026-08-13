@@ -7,7 +7,7 @@
 // Pixel coordinate mode:
 // - 1: force integer-aligned drawing (useful for pixel-art rendering)
 // - 0: allow floating-point positions
-#define PIXEL_INT_ONLY 1
+#define PIXEL_INT_ONLY 0
 
 #if PIXEL_INT_ONLY
 #define PIXEL_ALIGN(x) floor(x)
@@ -29,7 +29,7 @@
 // Number of seconds (in frames multiplier) between garbage collector runs.
 #define GARBAGE_COLLECTOR_TIME_TO_REFRESH 180
 
-// fps on web for rendering (because vsync doesnt work on web)
+// fps on web for rendering
 #define RENDER_UPDATE_WEB 60
 
 // max filters can be use for sounds

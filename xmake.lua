@@ -1,3 +1,4 @@
+-- custom package from a pull request
 includes("packages/s/soloud/xmake.lua")
 
 add_rules("mode.debug", "mode.release")
@@ -8,17 +9,14 @@ if is_plat("windows") then
     set_runtimes(msvcRuntime)
 end
 
+local asset_pipeline_python = is_host("windows") and "python" or "python3"
+
 option("tracy")
     set_default(false)
     set_showmenu(true)
     set_description("Enable Tracy profiler instrumentation")
 option_end()
 
-option("steam")
-    set_default(false)
-    set_showmenu(true)
-    set_description("Enable Steam")
-option_end()
 
 option("embed_assets")
     set_default(is_plat("wasm"))
@@ -29,91 +27,89 @@ option_end()
 if is_arch("x64") then
     add_defines("GRNGAME_X64")
 end
+
 if has_config("tracy") then
-add_requires("tracy")
+    add_requires("tracy")
 end
 
+-- render + input
 add_requires("libsdl3",       {version = "3.4.0"},      {configs = {shared = false}})
 add_requires("libsdl3_image", {version = "3.2.0"},      {configs = {shared = false}})
 add_requires("libsdl3_ttf",   {version = "3.2.2"},      {configs = {shared = false, freetype = false}, system = false})
+
+-- maths
 add_requires("klib",          {version = "2024.06.03"}, {configs = {shared = false}})
 add_requires("cglm",          {version = "v0.9.6"},     {configs = {shared = false}})
-add_requires("soloud pr402", {
-    configs = {
-        shared = false,
-        cxflags = is_arch("arm64") and "-DDR_MP3_NO_SIMD" or nil
-    }
-})
+
+-- song
+add_requires("soloud pr402", {configs = {shared = false, cxflags = is_arch("arm64") and "-DDR_MP3_NO_SIMD" or nil }})
+
+-- folder
 add_requires("tinydir",       {version = "1.2.6"},      {configs = {shared = false}})
+if not is_plat("wasm") then
+    add_requires("efsw",  {version = "1.6.2"},{configs = {shared = false}, system = false})
+end
+
+-- scripting
 add_requires("wren",          {version = "0.4.0"},      {configs = {shared = false}})
+
+-- simd
 add_requires("highway",       {version = "1.3.0"},      {configs = {shared = false}})
+
+-- files
 add_requires("sqlite3",       {version = "3-3.53.0+0"}, {configs = {shared = false}, system = false})
 add_requires("cjson",{configs = {shared = false}})
 
+--logs
 if not is_plat("wasm") then
     add_requires("quill", {version = "v11.0.2"}, {configs = {shared = false}})
-    add_requires("efsw",  {version = "1.6.2"},{configs = {shared = false}, system = false})
-else
-    add_defines("GRNGAME_WASM")
-    add_ldflags(
-        "--shell-file", "grngame/web/shell.html",
-        "-sFORCE_FILESYSTEM=1",
-        "-sASYNCIFY",
-        "-sALLOW_MEMORY_GROWTH=1",
-        {force = true}
-    )
 end
 
-local asset_pipeline_python = is_host("windows") and "python" or "python3"
+set_warnings("all", "extra")
 
-local function get_embedded_exe()
-    local host = os.host()
-    local name = is_host("windows") and "Embedded.exe" or "Embedded"
-    return path.join("embedded", host:sub(1,1):upper() .. host:sub(2), name)
-end
+target("GrnGame")
+    add_defines("WITH_SDL3_STATIC")
+    set_languages("c17", "cxx20")
+    set_kind("static")
 
-local function add_steam_support()
-    if not is_plat("wasm") and has_config("steam") then
-        add_linkdirs("plugins", {public = true})
-        if     is_plat("linux")   then add_links("steam_api",   {public = true})
-        elseif is_plat("windows") then add_links("steam_api64", {public = true})
-        elseif is_plat("macosx")  then add_links("steam_api",   {public = true})
-        end
-    end
-end
+    add_files("grngame/**.c", "grngame/**.cpp")
+    add_headerfiles("grngame/**.h")
+    add_includedirs(".", {public = true})
 
-local function add_grngame_packages(with_quill_and_efsw)
+    -- packages
     add_packages(
         "libsdl3", "libsdl3_image", "libsdl3_ttf",
         "klib", "cglm", "soloud", "tinydir",
-        "wren", "freetype", "sqlite3", "highway","Libimagequant","cjson",
+        "wren", "freetype", "sqlite3", "highway", "Libimagequant", "cjson",
         {public = true}
     )
-    if with_quill_and_efsw then
-        add_packages("quill","efsw", {public = true})
+    if not is_plat("wasm") then
+        add_packages("quill", "efsw", {public = true})
     end
-
-
-if has_config("tracy") then
+    if has_config("tracy") then
         add_packages("tracy", {public = true})
     end
-end
 
-local function add_grngame_defines()
+    -- platform defines
     if     is_plat("linux")   then
         add_defines("GRNGAME_LINUX", "_GNU_SOURCE", {public = true})
         add_cxxflags("-frtti", "-fexceptions")
-    elseif is_plat("windows") then add_defines("GRNGAME_WINDOWS", {public = true})
-    elseif is_plat("macosx")  then add_defines("GRNGAME_MACOS",   {public = true})
+    elseif is_plat("windows") then
+        add_defines("GRNGAME_WINDOWS", {public = true})
+    elseif is_plat("macosx")  then
+        add_defines("GRNGAME_MACOS", {public = true})
     end
 
-    if     is_mode("debug")   then add_defines("GRNGAME_DEBUG",   {public = true})
+    -- mode defines
+    if     is_mode("debug")   then
+        add_defines("GRNGAME_DEBUG", {public = true})
     elseif is_mode("release") then
         add_defines("GRNGAME_RELEASE", {public = true})
         if not is_plat("macosx") then
             set_policy("build.optimization.lto", true)
         end
     end
+
     if has_config("embed_assets") then
         add_defines("GRNGAME_EMBED_ASSETS", {public = true})
     end
@@ -127,36 +123,28 @@ local function add_grngame_defines()
     if not (has_config("embed_assets") or is_plat("wasm")) then
         add_defines("GRNGAME_HOT_RELOAD_ENABLE")
     end
-end
-
-local function set_binary_targetdir(target_name)
-    set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", target_name))
-end
-
-set_warnings("all", "extra")
-
-target("GrnGame")
-    add_defines("WITH_SDL3_STATIC")
-    set_languages("c17", "cxx20")
-    set_kind("static")
-    add_steam_support()
-
-    add_files("grngame/**.c", "grngame/**.cpp")
-    add_headerfiles("grngame/**.h")
-    add_includedirs(".", {public = true})
-
-    add_grngame_defines()
-    add_grngame_packages(not is_plat("wasm"))
 
     if is_plat("wasm") then
+        add_defines("GRNGAME_WASM")
+
+        add_ldflags(
+            "--shell-file", "grngame/web/shell.html",
+            "-sFORCE_FILESYSTEM=1",
+            "-sASYNCIFY",
+            "-sALLOW_MEMORY_GROWTH=1",
+            {force = true}
+        )
+
         add_ldflags("-s USE_SDL=3")
         add_cxflags("-s USE_SDL=3")
     end
 
+
+
 target("Editor")
     set_languages("c17", "cxx17")
     set_kind("binary")
-    set_binary_targetdir("Editor")
+    set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "Editor"))
     add_files("editor/main.c")
     add_headerfiles("grngame/**.h")
     add_deps("GrnGame")
@@ -171,7 +159,7 @@ if not is_plat("wasm") then
     target("Embedded")
         set_languages("c17", "cxx17")
         set_kind("binary")
-        set_binary_targetdir("Embedded")
+        set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "Embedded"))
         add_files("embedded/main.c")
         add_headerfiles("grngame/**.h")
         add_deps("GrnGame")
@@ -180,7 +168,7 @@ end
 target("WrenTest")
     set_languages("c17", "cxx17")
     set_kind("binary")
-    set_binary_targetdir("WrenTest")
+    set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "WrenTest"))
     add_files("test_game/scripts/main.c")
     add_deps("GrnGame")
 
@@ -193,7 +181,6 @@ target("WrenTest")
             "scripts/asset_pipeline.py",
             "test_game",
             target:targetdir()
-
         })
         os.cp("grngame/input/gamecontrollerdb.txt", target:targetdir())
     end)
@@ -201,15 +188,14 @@ target("WrenTest")
 target("SqlTest")
     set_languages("c17", "cxx17")
     set_kind("binary")
-    set_binary_targetdir("SqlTest")
+    set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "SqlTest"))
     add_deps("GrnGame")
     add_files("test_sql/main.c")
 
 target("EmbeddedBenchmark")
     set_languages("c17", "cxx17")
     set_kind("binary")
-    set_targetdir("benchmark")
-    set_binary_targetdir("EmbeddedBenchmark")
+    set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "EmbeddedBenchmark"))
     add_files("benchmark/main.c")
     add_headerfiles("grngame/**.h")
     add_deps("GrnGame")
