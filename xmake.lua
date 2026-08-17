@@ -40,6 +40,7 @@ add_requires("libsdl3_ttf",   {version = "3.2.2"},      {configs = {shared = fal
 -- maths
 add_requires("klib",          {version = "2024.06.03"}, {configs = {shared = false}})
 add_requires("cglm",          {version = "v0.9.6"},     {configs = {shared = false}})
+add_requires("glib",    {version = "2.89.2"},   {configs = {shared = false}})
 
 -- song
 add_requires("soloud pr402", {configs = {shared = false, cxflags = is_arch("arm64") and "-DDR_MP3_NO_SIMD" or nil }})
@@ -80,7 +81,7 @@ target("GrnGame")
     add_packages(
         "libsdl3", "libsdl3_image", "libsdl3_ttf",
         "klib", "cglm", "soloud", "tinydir",
-        "wren", "freetype", "sqlite3", "highway", "Libimagequant", "cjson",
+        "wren", "freetype", "sqlite3", "highway", "Libimagequant", "cjson","glib",
         {public = true}
     )
     if not is_plat("wasm") then

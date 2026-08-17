@@ -8,6 +8,7 @@
 #include "grngame/core/app.h"
 #include "grngame/core/init.h"
 #include "grngame/core/param.h"
+#include "grngame/core/thread.h"
 #include "grngame/core/window.h"
 #include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
@@ -54,7 +55,6 @@ COLD void ShutdownScripts(void)
 {
     WrenCallOnDestroy();
     WrenFree();
-    LOG_INFO("Wren runtime shut down successfully");
 }
 
 void EngineStart()
@@ -87,30 +87,36 @@ void EngineStop(void)
     CleanupAppResources();
 }
 
-static COLD void CleanupAppResources(void)
+static void DestroyWindow()
 {
-    ShutdownScripts();
-
     if (g_app.window)
     {
         SDL_DestroyWindow(g_app.window);
         g_app.window = NULL;
     }
+}
 
+static void DestroyRenderer()
+{
     if (g_app.renderer.renderer)
     {
         SDL_DestroyRenderer(g_app.renderer.renderer);
         g_app.renderer.renderer = NULL;
     }
+}
 
+static COLD void CleanupAppResources(void)
+{
+    ShutdownScripts();
+    DestroyWindow();
+    DestroyRenderer();
     PaletteFreeStringVec(&g_app.info.palette);
     PaletteManagerDestroy(&g_app.palette_manager);
     InputManagerDestroy(&g_app.input_manager);
-
     AssetManagerDestroy(&g_app.asset_manager);
     EmbeddedAssetManagerDestroy(&g_app.embedded_asset_manager);
     SoundManagerDestroy(&g_app.sound_manager);
-
+    ThreadManagerDestroy(&g_app.thread_manager);
     JsonManagerDestroy(&g_app.json_manager);
     g_app = (App){0};
 }

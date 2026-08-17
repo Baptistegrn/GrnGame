@@ -24,6 +24,7 @@ typedef khash_t(JsonObjects) JsonManager;
 typedef kvec_t(float64) float64_vec_t;
 typedef kvec_t(bool) bool_vec_t;
 typedef kvec_t(char *) string_vec_t;
+typedef kvec_t(const char *) string_const_vec_t;
 
 COLD JsonManager JsonManagerCreate(void);
 COLD void JsonManagerDestroy(JsonManager *manager);

@@ -14,6 +14,7 @@
 #include "grngame/renderer/renderer.h"
 #include "khash.h"
 #include "kvec.h"
+#include "thread.h"
 
 BEGIN_DECLARATIONS
 
@@ -70,6 +71,7 @@ typedef struct
     WrenManager wren_manager;
     EmbeddedAssetManager embedded_asset_manager;
     PaletteManager palette_manager;
+    ThreadManager thread_manager;
 
 #if defined(GRNGAME_HOT_RELOAD_ENABLE)
     kvec_t(HotreloadQueueElement) queue;

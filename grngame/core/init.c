@@ -15,6 +15,7 @@
 #include "grngame/renderer/palette.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/taskbar_icon.h"
+#include "grngame/utils/time.h"
 
 #include <SDL3/SDL.h>
 #include <stdlib.h>
@@ -259,7 +260,10 @@ COLD void InitializePalette(void)
 COLD void InitializeAssets(void)
 {
     char *asset_path = PathFromExecutableDirectory(g_app.info.asset_folder);
+    float64 deb = TimeNow();
     AssetManagerLoadFolder(asset_path);
+    float64 fin = TimeNow();
+    LOG_CRITICAL("%lf", fin - deb);
     free(asset_path);
 }
 
@@ -285,11 +289,10 @@ COLD InitResult InitAll(void)
     g_app = (App){0};
     InitializeJson();
     InitAppConfig();
-
     InitResult result = InitializeLogging();
     if (result != INIT_OK)
         return result;
-
+    g_app.thread_manager = ThreadManagerCreate();
     ConfigureSDLHints();
 
     result = InitializeSDL();

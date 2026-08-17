@@ -1,22 +1,29 @@
 #include "asset_manager.h"
-#include "SDL3/SDL_error.h"
 #include "grngame/assets/load.h"
 #include "grngame/core/app.h"
+#include "grngame/core/thread.h"
 #include "grngame/data/data.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/directories.h"
 #include "grngame/platform/paths.h"
 #include "grngame/utils/attributes.h"
+#include "grngame/utils/clear.h"
 #include "grngame/utils/string_compat.h"
 #include "khash.h"
 #include "kvec.h"
+#include <stdlib.h>
 
-static COLD void LoadFile(const char *file, void *user_data);
-static COLD void LoadEmbeddedFiles();
+static void AddTextureToArray(const char *path, void *user_data);
+static void LoadTaskWorker(void *data);
+static void LoadFilesMultithreaded(void);
 
 COLD AssetManager AssetManagerCreate()
 {
-    return (AssetManager){.sound_map = kh_init(SoundMap), .texture_map = kh_init(TextureMap)};
+    AssetManager manager = {.sound_map = kh_init(SoundMap), .texture_map = kh_init(TextureMap)};
+
+    kv_init(manager.texture_list);
+
+    return manager;
 }
 
 COLD EmbeddedAssetManager EmbeddedAssetManagerCreate()
@@ -26,7 +33,65 @@ COLD EmbeddedAssetManager EmbeddedAssetManagerCreate()
         .embedded_assets_hash = kh_init(EmbeddedAssetHash), .embedded_assets_count = 0, .embedded_count = 0};
 }
 
-COLD void AssetManagerLoadFolder(const char *folder)
+static void LoadTaskWorker(void *data)
+{
+    LoadTask *task = (LoadTask *)data;
+
+    task->results[task->index] = LoadFileParallel(task->path);
+
+    free(task);
+}
+
+static void LoadFilesMultithreaded(void)
+{
+    string_vec_t *list = &g_app.asset_manager.texture_list;
+    int32 count = (int32)kv_size(*list);
+
+    if (count == 0)
+        return;
+
+    InitPaletteRemapLUT();
+
+    LoadResult *results = malloc(count * sizeof(LoadResult));
+    CLEAR_PTR(results, 0);
+
+    for (int32 i = 0; i < count; ++i)
+    {
+        LoadTask *task = malloc(sizeof(LoadTask));
+
+        task->path = kv_A(*list, i);
+        task->results = results;
+        task->index = i;
+
+        ThreadManagerPush(LoadTaskWorker, task);
+    }
+
+    ThreadManagerWait();
+
+    // main thread because gpu is not safe thread
+    for (int32 i = 0; i < count; ++i)
+    {
+        LoadResult *res = &results[i];
+
+        if (!res->success)
+            continue;
+
+        if (res->is_sound)
+            RegisterSoundResult(res);
+        else
+            RegisterTextureResult(res);
+    }
+
+    free(results);
+}
+
+static void AddTextureToArray(const char *path, void *user_data)
+{
+    (void)user_data;
+    kv_push(char *, g_app.asset_manager.texture_list, strdup(path));
+}
+
+void AssetManagerLoadFolder(const char *folder)
 {
 
 #ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
@@ -36,7 +101,15 @@ COLD void AssetManagerLoadFolder(const char *folder)
             LOG_WARNING("No assets files in embedded assets folder '%s'", folder);
             return;
         }
-        LoadEmbeddedFiles();
+        khash_t(EmbeddedAssetHash) *hash = g_app.embedded_asset_manager.embedded_assets_hash;
+        for (khint_t k = kh_begin(hash); k != kh_end(hash); ++k)
+        {
+            if (kh_exist(hash, k))
+            {
+                EmbeddedAsset asset = kh_value(hash, k);
+                AddTextureToArray(asset.name, NULL);
+            }
+        }
     }
 
 #else
@@ -47,76 +120,11 @@ COLD void AssetManagerLoadFolder(const char *folder)
             return;
         }
 
-        DirWalk(folder, LoadFile, NULL);
+        DirWalk(folder, AddTextureToArray, NULL);
     }
 #endif
-}
 
-static COLD void LoadFile(const char *file, void *user_data)
-{
-    (void)user_data;
-
-    bool load_result = false;
-
-    if (FileIsLoadableAudio(file))
-    {
-        load_result = LoadSoundFile(file);
-        if (!load_result)
-            LOG_WARNING("Failed to load asset file '%s'", file);
-        else
-            LOG_DEBUG("Loaded asset file '%s'", file);
-    }
-    else if (FileIsLoadableImage(file))
-    {
-        load_result = LoadTextureFile(file);
-        if (!load_result)
-            LOG_WARNING("Failed to load asset file '%s', SDL error: '%s'", file, SDL_GetError());
-        else
-            LOG_DEBUG("Loaded asset file '%s'", file);
-    }
-    else
-    {
-        LOG_WARNING("Unknown file type in asset folder: '%s'", FileExtension(file));
-    }
-}
-
-static COLD bool LoadEmbeddedFile(const char *name)
-{
-    if (!name)
-        return false;
-
-    if (FileIsLoadableAudio(name))
-    {
-        bool result = LoadSoundFile(name);
-        if (result)
-            LOG_DEBUG("Loaded asset file '%s' (embedded)", name);
-        else
-            LOG_WARNING("Failed to load asset file '%s' (embedded)", name);
-        return result;
-    }
-    else if (FileIsLoadableImage(name))
-    {
-        bool result = LoadTextureFile(name);
-        if (result)
-            LOG_DEBUG("Loaded asset file '%s' (embedded)", name);
-        else
-            LOG_WARNING("Failed to load asset file '%s' (embedded), SDL error: '%s'", name, SDL_GetError());
-        return result;
-    }
-    return false;
-}
-
-static COLD void LoadEmbeddedFiles()
-{
-    khash_t(EmbeddedAssetHash) *hash = g_app.embedded_asset_manager.embedded_assets_hash;
-    for (khint_t k = kh_begin(hash); k != kh_end(hash); ++k)
-    {
-        if (kh_exist(hash, k))
-        {
-            EmbeddedAsset asset = kh_value(hash, k);
-            LoadEmbeddedFile(asset.name);
-        }
-    }
+    LoadFilesMultithreaded();
 }
 
 static COLD int32 EmbeddedFileCountAssets(sqlite3 *db)

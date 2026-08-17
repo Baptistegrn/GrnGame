@@ -3,11 +3,14 @@
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_surface.h"
 #include "grngame/data/data.h"
+#include "grngame/data/json.h"
 #include "grngame/renderer/cielab.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/c_cpp.h"
 #include <khash.h>
 #include <soloud_c.h>
+
+typedef struct LoadResult LoadResult;
 
 BEGIN_DECLARATIONS
 
@@ -33,9 +36,18 @@ struct AppInfo;
 
 typedef struct
 {
+    string_vec_t texture_list; // for multithread
+
     khash_t(SoundMap) * sound_map;
     khash_t(TextureMap) * texture_map;
 } AssetManager;
+
+typedef struct
+{
+    const char *path;
+    LoadResult *results;
+    int32 index;
+} LoadTask;
 
 KHASH_MAP_INIT_STR(EmbeddedAssetHash, EmbeddedAsset);
 
@@ -52,7 +64,7 @@ COLD EmbeddedAssetManager EmbeddedAssetManagerCreate();
 COLD void AssetManagerDestroy(AssetManager *manager);
 COLD void EmbeddedAssetManagerDestroy(EmbeddedAssetManager *manager);
 
-COLD void AssetManagerLoadFolder(const char *folder);
+void AssetManagerLoadFolder(const char *folder);
 COLD void AddDbToEmbeddedAssetManager(sqlite3 *db);
 
 END_DECLARATIONS

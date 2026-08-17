@@ -2,11 +2,16 @@
 #include "SDL3_image/SDL_image.h"
 #include "grngame/assets/asset_manager.h"
 #include "grngame/core/app.h"
+#include "grngame/core/thread.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
 #include "grngame/renderer/renderer.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
+#include <glib.h>
+
+static WavStream *LoadSoundStream(const char *file);
+static bool RegisterSound(char *key, WavStream *stream);
 
 EmbeddedAsset *GetEmbeddedAsset(const char *name)
 {
@@ -17,6 +22,7 @@ EmbeddedAsset *GetEmbeddedAsset(const char *name)
 
     return &kh_val(g_app.embedded_asset_manager.embedded_assets_hash, k);
 }
+
 static SDL_Surface *LoadTextureSurface(const char *file)
 {
 #ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
@@ -49,16 +55,14 @@ static inline uint16 RGB888TORGB565(const SDL_Color *c)
     return (uint16)(((uint16)c->r >> 3 << 11) | ((uint16)c->g >> 2 << 5) | ((uint16)c->b >> 3));
 }
 
-static void InitPaletteRemapLUT(void)
+void InitPaletteRemapLUT(void)
 {
-    memset(lut_table, LUT_EMPTY, sizeof(lut_table));
+    CLEAR(lut_table, LUT_EMPTY);
     lut_table_init = true;
 }
 
 static HOT void ApplyPaletteRemap(SDL_Surface *surface)
 {
-    if (!lut_table_init)
-        InitPaletteRemapLUT();
 
     SDL_Color *palette = g_app.palette_manager.palette_elements.a;
 
@@ -76,7 +80,7 @@ static HOT void ApplyPaletteRemap(SDL_Surface *surface)
                 continue;
 
             uint16 key = RGB888TORGB565(pixel);
-            uint8 idx = lut_table[key];
+            int16 idx = lut_table[key];
 
             if (idx == LUT_EMPTY)
             {
@@ -87,7 +91,8 @@ static HOT void ApplyPaletteRemap(SDL_Surface *surface)
                 if (best < 0 || best >= palette_count)
                     continue;
 
-                idx = (uint8)best;
+                idx = (int16)best;
+
                 lut_table[key] = idx;
             }
 
@@ -124,6 +129,112 @@ static bool RegisterTexture(char *key, SDL_Texture *texture, SDL_Surface *surfac
     kh_value(map, k) = tex;
 
     return true;
+}
+
+LoadResult LoadFileParallel(const char *file)
+{
+    LoadResult result = {0};
+
+    if (FileIsLoadableAudio(file))
+    {
+        result.is_sound = true;
+        result.key = FileStem(file);
+
+        WavStream *stream = LoadSoundStream(file);
+        if (!stream)
+        {
+            LOG_WARNING("Failed to load sound file '%s'", file);
+            free(result.key);
+            result.key = NULL;
+            return result;
+        }
+
+        result.stream = stream;
+        result.success = true;
+        return result;
+    }
+
+    if (FileIsLoadableImage(file))
+    {
+        result.is_sound = false;
+        result.key = FileStem(file);
+
+        SDL_Surface *surface = LoadTextureSurface(file);
+        if (!surface)
+        {
+            LOG_WARNING("Failed to load texture file '%s', SDL error: '%s'", file, SDL_GetError());
+            free(result.key);
+            result.key = NULL;
+            return result;
+        }
+
+        SDL_Surface *rgba = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32);
+        SDL_DestroySurface(surface);
+
+        if (UNLIKELY(!rgba))
+        {
+            free(result.key);
+            result.key = NULL;
+            return result;
+        }
+
+        result.surface_copy = SDL_DuplicateSurface(rgba);
+        ApplyPaletteRemap(rgba);
+        result.pixels = rgba;
+        result.success = true;
+        return result;
+    }
+
+    LOG_WARNING("Unknown file type in asset folder: '%s'", FileExtension(file));
+    return result;
+}
+
+void RegisterTextureResult(LoadResult *res)
+{
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(g_app.renderer.renderer, res->pixels);
+    SDL_DestroySurface(res->pixels);
+
+    if (!texture)
+    {
+        LOG_WARNING("Failed to create texture for '%s', SDL error: '%s'", res->key, SDL_GetError());
+        SDL_DestroySurface(res->surface_copy);
+        free(res->key);
+        return;
+    }
+
+    float32 tex_w, tex_h;
+    if (!SDL_GetTextureSize(texture, &tex_w, &tex_h))
+    {
+        SDL_DestroyTexture(texture);
+        SDL_DestroySurface(res->surface_copy);
+        free(res->key);
+        return;
+    }
+
+    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+
+    if (!RegisterTexture(res->key, texture, res->surface_copy, (int16)tex_w, (int16)tex_h))
+    {
+        SDL_DestroyTexture(texture);
+        SDL_DestroySurface(res->surface_copy);
+        free(res->key);
+        return;
+    }
+
+    LOG_DEBUG("Loaded texture file '%s'", res->key);
+}
+
+void RegisterSoundResult(LoadResult *res)
+{
+    if (!RegisterSound(res->key, res->stream))
+    {
+        WavStream_destroy(res->stream);
+        free(res->key);
+        return;
+    }
+
+    LOG_DEBUG("Loaded sound file '%s' (parallel)", res->key);
 }
 
 static WavStream *LoadSoundStream(const char *file)
@@ -191,7 +302,6 @@ bool LoadSoundFile(const char *file)
 
     if (!stream)
     {
-        LOG_ERROR("Failed to load sound '%s'", file);
         free(key);
         return false;
     }
@@ -214,7 +324,6 @@ bool LoadTextureFile(const char *file)
 
     if (!surface)
     {
-        LOG_ERROR("Failed to load texture '%s'", file);
         free(key);
         return false;
     }
@@ -389,35 +498,75 @@ bool UnloadAllTextureFiles(void)
     return true;
 }
 
+static void ReloadTaskWorker(void *data)
+{
+    ReloadTask *task = (ReloadTask *)data;
+
+    SDL_Surface *rgba = NULL;
+
+    if (task->tex->surface)
+    {
+        rgba = SDL_ConvertSurface(task->tex->surface, SDL_PIXELFORMAT_RGBA32);
+
+        if (rgba)
+            ApplyPaletteRemap(rgba);
+    }
+
+    task->results[task->index].remapped = rgba;
+
+    free(task);
+}
+
 bool ReloadAllTexturesWithPalette(void)
 {
     ClearPaletteRemapCache();
+    InitPaletteRemapLUT();
+
     khash_t(TextureMap) *map = g_app.asset_manager.texture_map;
 
-    bool success = true;
-    // multithread
+    int32 count = (int32)kh_size(map);
+
+    if (count == 0)
+        return true;
+
+    Texture **texture_ptrs = malloc(sizeof(Texture *) * count);
+    ReloadResult *results = malloc(count * sizeof(ReloadResult));
+    CLEAR_PTR(results, 0);
+
+    int32 idx = 0;
     for (khiter_t k = kh_begin(map); k != kh_end(map); ++k)
     {
         if (!kh_exist(map, k))
             continue;
 
         Texture *tex = &kh_value(map, k);
+        texture_ptrs[idx] = tex;
 
-        if (!tex->surface)
-        {
-            success = false;
-            continue;
-        }
+        ReloadTask *task = malloc(sizeof(ReloadTask));
 
-        SDL_Surface *rgba = SDL_ConvertSurface(tex->surface, SDL_PIXELFORMAT_RGBA32);
+        task->tex = tex;
+        task->results = results;
+        task->index = idx;
+
+        ThreadManagerPush(ReloadTaskWorker, task);
+
+        idx++;
+    }
+
+    ThreadManagerWait();
+
+    bool success = true;
+
+    for (int32 i = 0; i < count; ++i)
+    {
+        SDL_Surface *rgba = results[i].remapped;
+        Texture *tex = texture_ptrs[i];
 
         if (!rgba)
         {
             success = false;
             continue;
         }
-
-        ApplyPaletteRemap(rgba);
 
         SDL_Texture *new_texture = SDL_CreateTextureFromSurface(g_app.renderer.renderer, rgba);
 
@@ -435,6 +584,9 @@ bool ReloadAllTexturesWithPalette(void)
         SDL_DestroyTexture(tex->texture);
         tex->texture = new_texture;
     }
+
+    free(texture_ptrs);
+    free(results);
 
     return success;
 }
