@@ -8,10 +8,6 @@
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 
-KHASH_MAP_INIT_INT(PixelHashmap, SDL_Color)
-
-static khash_t(PixelHashmap) *pixel_hash_map = NULL;
-
 EmbeddedAsset *GetEmbeddedAsset(const char *name)
 {
     khint_t k = kh_get(EmbeddedAssetHash, g_app.embedded_asset_manager.embedded_assets_hash, name);
@@ -43,11 +39,30 @@ static SDL_Surface *LoadTextureSurface(const char *file)
 #endif
 }
 
+#define LUT_EMPTY -1
+
+static int16 lut_table[32 * 64 * 32];
+static bool lut_table_init;
+
+static inline uint16 RGB888TORGB565(const SDL_Color *c)
+{
+    return (uint16)(((uint16)c->r >> 3 << 11) | ((uint16)c->g >> 2 << 5) | ((uint16)c->b >> 3));
+}
+
+static void InitPaletteRemapLUT(void)
+{
+    memset(lut_table, LUT_EMPTY, sizeof(lut_table));
+    lut_table_init = true;
+}
+
 static HOT void ApplyPaletteRemap(SDL_Surface *surface)
 {
+    if (!lut_table_init)
+        InitPaletteRemapLUT();
 
-    if (pixel_hash_map == NULL)
-        pixel_hash_map = kh_init(PixelHashmap);
+    SDL_Color *palette = g_app.palette_manager.palette_elements.a;
+
+    int32 palette_count = (int32)kv_size(g_app.palette_manager.palette_elements);
 
     for (int32 y = 0; y < surface->h; ++y)
     {
@@ -57,39 +72,30 @@ static HOT void ApplyPaletteRemap(SDL_Surface *surface)
         {
             SDL_Color *pixel = &row[x];
 
-            if (pixel->a == 0)
+            if (UNLIKELY(pixel->a == 0))
                 continue;
 
-            uint32 color_key = ((uint32)pixel->r << 16) | ((uint32)pixel->g << 8) | (uint32)pixel->b;
+            uint16 key = RGB888TORGB565(pixel);
+            uint8 idx = lut_table[key];
 
-            khiter_t k = kh_get(PixelHashmap, pixel_hash_map, color_key);
-
-            if (k != kh_end(pixel_hash_map))
+            if (idx == LUT_EMPTY)
             {
-                SDL_Color best_color = kh_value(pixel_hash_map, k);
+                ColorLAB lab = RgbToLab(pixel);
 
-                pixel->r = best_color.r;
-                pixel->g = best_color.g;
-                pixel->b = best_color.b;
+                int32 best = FindBestPaletteColorCIEDE2000(&lab);
 
-                continue;
+                if (best < 0 || best >= palette_count)
+                    continue;
+
+                idx = (uint8)best;
+                lut_table[key] = idx;
             }
-            ColorLAB lab = RgbToLab(pixel);
-            int32 best_idx = FindBestPaletteColorCIEDE2000(&lab);
 
-            if (best_idx >= 0 && best_idx < (int32)kv_size(g_app.palette_manager.palette_elements))
-            {
-                SDL_Color best_color = g_app.palette_manager.palette_elements.a[best_idx];
-                int32 ret;
-                k = kh_put(PixelHashmap, pixel_hash_map, color_key, &ret);
+            SDL_Color color = palette[idx];
 
-                if (ret >= 0)
-                    kh_value(pixel_hash_map, k) = best_color;
-
-                pixel->r = best_color.r;
-                pixel->g = best_color.g;
-                pixel->b = best_color.b;
-            }
+            pixel->r = color.r;
+            pixel->g = color.g;
+            pixel->b = color.b;
         }
     }
 }
@@ -302,11 +308,7 @@ bool UnloadAllSoundFiles(void)
 
 static void ClearPaletteRemapCache(void)
 {
-    if (pixel_hash_map != NULL)
-    {
-        kh_destroy(PixelHashmap, pixel_hash_map);
-        pixel_hash_map = NULL;
-    }
+    lut_table_init = false;
 }
 
 bool ReloadTextureWithPalette(const char *file)

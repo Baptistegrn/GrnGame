@@ -34,7 +34,7 @@ static float32 PivotXYZ(float32 n)
     }
 }
 
-static ColorXYZ RgbToXyz(SDL_Color *rgb)
+static HOT ColorXYZ RgbToXyz(SDL_Color *rgb)
 {
     float32 r = srgb_linear_lut[rgb->r];
     float32 g = srgb_linear_lut[rgb->g];
@@ -65,7 +65,7 @@ static ColorLAB XyzToLab(ColorXYZ *xyz)
     return lab;
 }
 
-ColorLAB RgbToLab(SDL_Color *color)
+ColorLAB HOT RgbToLab(SDL_Color *color)
 {
     ColorXYZ temp_xyz = RgbToXyz(color);
     return XyzToLab(&temp_xyz);

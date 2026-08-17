@@ -2,6 +2,7 @@
 
 #include "SDL3/SDL_pixels.h"
 #include "grngame/math/types.h"
+#include "grngame/utils/attributes.h"
 
 typedef struct
 {
@@ -14,5 +15,5 @@ typedef struct
 } ColorLAB;
 
 void InitLinearLut();
-ColorLAB RgbToLab(SDL_Color *color);
+HOT ColorLAB RgbToLab(SDL_Color *color);
 int32 FindBestPaletteColorCIEDE2000(ColorLAB *target_pixel);
