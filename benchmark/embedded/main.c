@@ -1,4 +1,4 @@
-#include "../grngame/assets/embedded_asset.h"
+#include "grngame/assets/embedded_asset.h"
 #include "grngame/utils/time.h"
 #include <stdio.h>
 

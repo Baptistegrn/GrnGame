@@ -1,0 +1,31 @@
+﻿import "std/wren/math/vec2" for Vec2
+import "std/wren/input/pad/pad" for Pad
+import "std/wren/input/pad/pad_button" for PadButton
+import "std/wren/input/pad/pad_axis" for PadAxis
+import "std/wren/input/input_event" for InputEvent
+
+import "std/wren/dev/log" for Log
+
+import "std/wren/audio/sound" for Sound
+import "std/wren/audio/sound_info" for SoundInfo
+import "std/wren/audio/filter_def" for FilterDef
+
+import "std/wren/input/keyboard/key_code" for KeyCode
+import "std/wren/input/keyboard/keyboard" for Keyboard
+import "std/wren/renderer/primitive" for Primitive
+import "std/wren/renderer/texture" for Texture
+
+class Main {
+    static on_start() {
+    }
+
+    static on_update(dt) {
+
+    }
+
+    static on_fixed_update(dt) {}
+    static on_render() {
+        Texture.draw("image_palette_1",30,30,4)
+    }
+    static on_destroy() {}
+}

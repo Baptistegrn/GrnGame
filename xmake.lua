@@ -197,6 +197,26 @@ target("EmbeddedBenchmark")
     set_languages("c17", "cxx17")
     set_kind("binary")
     set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "EmbeddedBenchmark"))
-    add_files("benchmark/main.c")
+    add_files("benchmark/embedded/main.c")
     add_headerfiles("grngame/**.h")
     add_deps("GrnGame")
+
+target("LoadTextureFolderBenchmark")
+    set_languages("c17", "cxx17")
+    set_kind("binary")
+    set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "WrenTest"))
+    add_files("benchmark/load_texture_folder/scripts/main.c")
+    add_deps("GrnGame")
+
+    if not is_plat("wasm") then
+        add_deps("Embedded")
+    end
+
+    after_build(function(target)
+        os.execv(asset_pipeline_python, {
+            "scripts/asset_pipeline.py",
+            "benchmark/load_texture_folder",
+            target:targetdir()
+        })
+        os.cp("grngame/input/gamecontrollerdb.txt", target:targetdir())
+    end)

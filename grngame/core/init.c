@@ -263,7 +263,7 @@ COLD void InitializeAssets(void)
     float64 deb = TimeNow();
     AssetManagerLoadFolder(asset_path);
     float64 fin = TimeNow();
-    LOG_CRITICAL("%lf", fin - deb);
+    LOG_INFO("time to load textures : %lf", fin - deb);
     free(asset_path);
 }
 
