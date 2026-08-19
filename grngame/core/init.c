@@ -151,7 +151,7 @@ void InitAppConfig(void)
     g_app.info.asset_db = DbCreate("Assets.pak");
     AddDbToEmbeddedAssetManager(g_app.info.asset_db);
 
-    const EmbeddedAsset *asset = GetEmbeddedAsset("test_game/config.json");
+    const EmbeddedAsset *asset = GetEmbeddedAsset("./config.json");
 
     if (asset != NULL)
     {
@@ -171,7 +171,7 @@ static SDL_IOStream *LoadControllerDatabase(void)
 {
 #ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
     {
-        const EmbeddedAsset *asset = GetEmbeddedAsset("grngame/input/gamecontrollerdb.txt");
+        const EmbeddedAsset *asset = GetEmbeddedAsset("./gamecontrollerdb.txt");
         if (!asset)
             return NULL;
         return SDL_IOFromConstMem(asset->data, asset->size);

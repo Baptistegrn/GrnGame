@@ -45,7 +45,11 @@ if is_plat("wasm") then
 end
 
 -- render + input
-add_requires("libsdl3fix",       {version = "3.4.0"},      {configs = {shared = false}})
+if is_plat("wasm") then
+    add_requires("libsdl3fix",       {version = "3.4.0"},      {configs = {shared = false}})
+else
+    add_requires("libsdl3",       {version = "3.4.0"},      {configs = {shared = false}})
+end
 add_requires("libsdl3_image", {version = "3.2.0"},      {configs = {shared = false}})
 add_requires("libsdl3_ttf",   {version = "3.2.2"},      {configs = {shared = false, freetype = false}, system = false})
 
@@ -90,13 +94,15 @@ target("GrnGame")
 
     -- packages
     add_packages(
-        "libsdl3fix", "libsdl3_image", "libsdl3_ttf",
+         "libsdl3_image", "libsdl3_ttf",
         "klib", "cglm", "soloud", "tinydir",
         "wren", "freetype", "sqlite3", "highway", "Libimagequant", "cjson",
         {public = true}
     )
     if not is_plat("wasm") then
-        add_packages("quill", "efsw", {public = true})
+        add_packages("quill", "efsw","libsdl3", {public = true})
+    else
+        add_packages("libsdl3fix", {public = true})
     end
     if has_config("tracy") then
         add_packages("tracy", {public = true})
@@ -151,82 +157,35 @@ target("GrnGame")
     end
 
 
-
-target("Editor")
-    set_languages("c17", "cxx17")
-    set_kind("binary")
-    set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "Editor"))
-    add_files("editor/main.c")
-    add_headerfiles("grngame/**.h")
-    add_deps("GrnGame")
-    after_build(function(target)
-        local scripts_dir = path.join(target:targetdir(), "scripts")
-        os.mkdir(scripts_dir)
-        os.cp("editor/main.wren", path.join(scripts_dir, "main.wren"))
-        os.cp("grngame/input/gamecontrollerdb.txt", target:targetdir())
-    end)
+local plat = get_config("plat") or os.host()
+local arch = get_config("arch") or os.arch()
+local mode = get_config("mode") or "release"
 
 if not is_plat("wasm") then
-    target("Embedded")
+    target("Embedded-" .. plat .. "-" .. arch .. "-" .. mode)
         set_languages("c17", "cxx17")
         set_kind("binary")
-        set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "Embedded"))
+        set_targetdir(path.join("$(builddir)", "Embedded"))
         add_files("embedded/main.c")
         add_headerfiles("grngame/**.h")
         add_deps("GrnGame")
-end
 
-target("WrenTest")
+    target("EmbeddedBenchmark-" .. plat .. "-" .. arch .. "-" .. mode)
     set_languages("c17", "cxx17")
     set_kind("binary")
-    set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "WrenTest"))
-    add_files("test_game/scripts/main.c")
-    add_deps("GrnGame")
-
-    if not is_plat("wasm") then
-        add_deps("Embedded")
-    end
-
-    after_build(function(target)
-        os.execv(asset_pipeline_python, {
-            "scripts/asset_pipeline.py",
-            "test_game",
-            target:targetdir()
-        })
-        os.cp("grngame/input/gamecontrollerdb.txt", target:targetdir())
-    end)
-
-target("SqlTest")
-    set_languages("c17", "cxx17")
-    set_kind("binary")
-    set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "SqlTest"))
-    add_deps("GrnGame")
-    add_files("test_sql/main.c")
-
-target("EmbeddedBenchmark")
-    set_languages("c17", "cxx17")
-    set_kind("binary")
-    set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "EmbeddedBenchmark"))
+    set_targetdir(path.join("$(builddir)", "EmbeddedBenchmark"))
     add_files("benchmark/embedded/main.c")
     add_headerfiles("grngame/**.h")
     add_deps("GrnGame")
+end
 
-target("LoadTextureFolderBenchmark")
+target("Runtime-" .. plat .. "-" .. arch .. "-" .. mode)
     set_languages("c17", "cxx17")
     set_kind("binary")
-    set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "LoadTextureFolderBenchmark"))
-    add_files("benchmark/load_texture_folder/scripts/main.c")
+    set_targetdir(path.join("$(builddir)", "Runtime"))
+    add_files("runtime/main.c")
     add_deps("GrnGame")
 
     if not is_plat("wasm") then
-        add_deps("Embedded")
+        add_deps("Embedded-" .. plat .. "-" .. arch .. "-" .. mode)
     end
-
-    after_build(function(target)
-        os.execv(asset_pipeline_python, {
-            "scripts/asset_pipeline.py",
-            "benchmark/load_texture_folder",
-            target:targetdir()
-        })
-        os.cp("grngame/input/gamecontrollerdb.txt", target:targetdir())
-    end)

@@ -546,11 +546,8 @@ bool WrenInit()
     WrenSetLoadModuleFn(LoadModuleFn);
     WrenStartVM();
     WrenSetCallHandle();
-#ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
-    const char *link = "test_game/scripts/main.wren";
-#else
+
     const char *link = "scripts/main.wren";
-#endif
 
     if (!WrenInterpret(link))
     {
