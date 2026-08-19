@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  # compilation
+  # NATIVE NATIVE BINARIES COMPILATION
   build:
     strategy:
       fail-fast: false
@@ -65,9 +65,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: "${{ matrix.platform }}-${{ matrix.buildtype }}-embed${{ matrix.embed }}"
-          path: build/*/*/${{ matrix.buildtype }}/
+          # Corrected path to grab the custom directories specified in xmake.lua
+          path: |
+            build/Embedded/
+            build/Runtime/
 
-  #compilation wasm
+  # WEBASSEMBLY MODULE COMPILATION
   build-wasm:
     runs-on: ubuntu-22.04
     name: "wasm | release | embed=true"
@@ -100,9 +103,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: "wasm-release-embedtrue"
-          path: build/*/*/release/
+          # WASM only builds the Runtime target
+          path: build/Runtime/
 
-  # creation of the release
+  # RELEASE CREATION AND PACKAGING
   release:
     name: Create GitHub Release
     needs: [build, build-wasm]
@@ -129,6 +133,7 @@ jobs:
           TAG="${GITHUB_REF_NAME}"
 
           for platform in $PLATFORMS; do
+            # Temporary working directory for this architecture
             STAGE_DIR="staging_${platform}"
             MODEL_DIR="${STAGE_DIR}/project_model"
 
@@ -147,29 +152,28 @@ jobs:
             if [[ "$platform" == *"windows"* ]]; then
               cp ressources/batch/project.bat "${STAGE_DIR}/project.bat"
               cp ressources/batch/* "${MODEL_DIR}/" 2>/dev/null || true
-              rm -f "${MODEL_DIR}/project.bat" # On évite de le copier en double
+              rm -f "${MODEL_DIR}/project.bat"
             else
               cp ressources/bash/project.sh "${STAGE_DIR}/project.sh"
               chmod +x "${STAGE_DIR}/project.sh"
               cp ressources/bash/* "${MODEL_DIR}/" 2>/dev/null || true
-              rm -f "${MODEL_DIR}/project.sh" # On évite le doublon
+              rm -f "${MODEL_DIR}/project.sh"
               chmod +x "${MODEL_DIR}"/*.sh 2>/dev/null || true
             fi
 
             for artifact_dir in artifacts/${platform}-*; do
               if [ -d "$artifact_dir" ]; then
+                # Find all files recursively and copy them flat into project_model/
                 find "$artifact_dir" -type f -exec cp {} "${MODEL_DIR}/" \;
               fi
             done
 
             ARCHIVE_NAME="${platform}-${TAG}.zip"
-            echo "Zipper le tout dans ${ARCHIVE_NAME}..."
 
             cd "${STAGE_DIR}"
             zip -r "../release-assets/${ARCHIVE_NAME}" .
             cd ..
 
-            # --- ETAPE G : Nettoyage ---
             rm -rf "${STAGE_DIR}"
           done
 
