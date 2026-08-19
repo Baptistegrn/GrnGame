@@ -8,7 +8,6 @@
 #include "grngame/renderer/renderer.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
-#include <glib.h>
 
 static WavStream *LoadSoundStream(const char *file);
 static bool RegisterSound(char *key, WavStream *stream);

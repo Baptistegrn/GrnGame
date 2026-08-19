@@ -1,5 +1,7 @@
 -- custom package from a pull request
 includes("packages/s/soloud/xmake.lua")
+-- fix from official package because in wasm pthread option is force set to 0
+includes("packages/l/libsdl3fix/xmake.lua")
 
 add_rules("mode.debug", "mode.release")
 
@@ -32,15 +34,24 @@ if has_config("tracy") then
     add_requires("tracy")
 end
 
+if is_plat("wasm") then
+    add_requireconfs("**", {
+        configs = {
+            cflags   = {"-pthread", "-matomics", "-mbulk-memory"},
+            cxxflags = {"-pthread", "-matomics", "-mbulk-memory"},
+            ldflags  = {"-pthread"}
+        }
+    })
+end
+
 -- render + input
-add_requires("libsdl3",       {version = "3.4.0"},      {configs = {shared = false}})
+add_requires("libsdl3fix",       {version = "3.4.0"},      {configs = {shared = false}})
 add_requires("libsdl3_image", {version = "3.2.0"},      {configs = {shared = false}})
 add_requires("libsdl3_ttf",   {version = "3.2.2"},      {configs = {shared = false, freetype = false}, system = false})
 
 -- maths
 add_requires("klib",          {version = "2024.06.03"}, {configs = {shared = false}})
 add_requires("cglm",          {version = "v0.9.6"},     {configs = {shared = false}})
-add_requires("glib",    {version = "2.89.2"},   {configs = {shared = false}})
 
 -- song
 add_requires("soloud pr402", {configs = {shared = false, cxflags = is_arch("arm64") and "-DDR_MP3_NO_SIMD" or nil }})
@@ -79,9 +90,9 @@ target("GrnGame")
 
     -- packages
     add_packages(
-        "libsdl3", "libsdl3_image", "libsdl3_ttf",
+        "libsdl3fix", "libsdl3_image", "libsdl3_ttf",
         "klib", "cglm", "soloud", "tinydir",
-        "wren", "freetype", "sqlite3", "highway", "Libimagequant", "cjson","glib",
+        "wren", "freetype", "sqlite3", "highway", "Libimagequant", "cjson",
         {public = true}
     )
     if not is_plat("wasm") then
@@ -127,17 +138,16 @@ target("GrnGame")
 
     if is_plat("wasm") then
         add_defines("GRNGAME_WASM")
-
+        add_cxflags("-pthread", {public = true, force = true})
         add_ldflags(
             "--shell-file", "grngame/web/shell.html",
             "-sFORCE_FILESYSTEM=1",
             "-sASYNCIFY",
-            "-sALLOW_MEMORY_GROWTH=1",
-            {force = true}
+            "-sALLOW_MEMORY_GROWTH=0",
+            "-sPTHREAD_POOL_SIZE=navigator.hardwareConcurrency",
+            "-pthread",
+            {public = true, force = true}
         )
-
-        add_ldflags("-s USE_SDL=3")
-        add_cxflags("-s USE_SDL=3")
     end
 
 
@@ -204,7 +214,7 @@ target("EmbeddedBenchmark")
 target("LoadTextureFolderBenchmark")
     set_languages("c17", "cxx17")
     set_kind("binary")
-    set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "WrenTest"))
+    set_targetdir(path.join("$(builddir)", "$(plat)", "$(arch)", "$(mode)", "LoadTextureFolderBenchmark"))
     add_files("benchmark/load_texture_folder/scripts/main.c")
     add_deps("GrnGame")
 

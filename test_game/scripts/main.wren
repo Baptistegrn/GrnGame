@@ -41,8 +41,6 @@ class Main {
     static on_fixed_update(dt) {}
     static on_render() {
         Primitive.rect_fill(__y,__x,48,48,1,255)
-        Texture.draw("Slice 17",30,30,4)
-        Texture.draw("Tree Full spritesheet2",30,100,3)
     }
     static on_destroy() {}
 }

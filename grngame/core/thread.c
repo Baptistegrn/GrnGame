@@ -1,119 +1,164 @@
 #include "thread.h"
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
+#include <SDL3/SDL.h>
 #include <stdlib.h>
 
-typedef struct
+static int32 ThreadPoolWorker(void *user_data)
 {
-    ThreadJobFunc func;
-    void *data;
-} ThreadJob;
+    ThreadManager *manager = (ThreadManager *)user_data;
+    while (1)
+    {
+        SDL_LockMutex(manager->mutex);
+        while (manager->job_queue_head == NULL && !manager->shutdown)
+        {
+            SDL_WaitCondition(manager->queue_cond, manager->mutex);
+        }
+        if (manager->shutdown && manager->job_queue_head == NULL)
+        {
+            SDL_UnlockMutex(manager->mutex);
+            break;
+        }
 
-static void ThreadPoolWorker(gpointer data, gpointer user_data)
-{
-    (void)user_data;
-    ThreadManager *manager = &g_app.thread_manager;
-    ThreadJob *job = (ThreadJob *)data;
+        ThreadJobNode *job = manager->job_queue_head;
+        if (job != NULL)
+        {
+            manager->job_queue_head = job->next;
+            if (manager->job_queue_head == NULL)
+            {
+                manager->job_queue_tail = NULL;
+            }
+        }
 
-    job->func(job->data);
+        SDL_UnlockMutex(manager->mutex);
+        if (job != NULL)
+        {
+            job->func(job->data);
+            free(job);
+            SDL_LockMutex(manager->mutex);
+            manager->pending_jobs--;
+            if (manager->pending_jobs == 0)
+            {
+                SDL_BroadcastCondition(manager->wait_cond);
+            }
 
-    free(job);
+            SDL_UnlockMutex(manager->mutex);
+        }
+    }
 
-    g_mutex_lock(&manager->mutex);
-
-    manager->pending_jobs--;
-
-    if (manager->pending_jobs == 0)
-        g_cond_broadcast(&manager->cond);
-
-    g_mutex_unlock(&manager->mutex);
+    return 0;
 }
 
-COLD ThreadManager ThreadManagerCreate(void)
+COLD void ThreadManagerCreate(void)
 {
-    guint num_threads = g_get_num_processors();
+    int32 num_threads = SDL_GetNumLogicalCPUCores();
 
     if (num_threads < 1)
         num_threads = 1;
 
     ThreadManager manager = {0};
 
-    g_mutex_init(&manager.mutex);
-    g_cond_init(&manager.cond);
+    manager.mutex = SDL_CreateMutex();
+    manager.queue_cond = SDL_CreateCondition();
+    manager.wait_cond = SDL_CreateCondition();
+    manager.shutdown = false;
+    manager.num_workers = num_threads;
 
-    GError *error = NULL;
+    manager.workers = malloc(sizeof(SDL_Thread *) * num_threads);
 
-    manager.pool = g_thread_pool_new(ThreadPoolWorker, NULL, (gint)num_threads, TRUE, &error);
+    g_app.thread_manager = manager;
 
-    if (!manager.pool)
+    for (int32 i = 0; i < num_threads; i++)
     {
-        LOG_ERROR("Failed to create thread pool: %s", error->message);
-        g_error_free(error);
 
-        g_cond_clear(&manager.cond);
-        g_mutex_clear(&manager.mutex);
-    }
-    else
-    {
-        LOG_DEBUG("ThreadManager: pool created with %u threads", num_threads);
+        g_app.thread_manager.workers[i] = SDL_CreateThread(ThreadPoolWorker, "", &g_app.thread_manager);
+
+        if (!g_app.thread_manager.workers[i])
+        {
+            LOG_ERROR("Failed to create thread %d: %s", i, SDL_GetError());
+        }
     }
 
-    return manager;
+    LOG_DEBUG("ThreadManager: pool created with %d threads", num_threads);
 }
 
 COLD void ThreadManagerDestroy(ThreadManager *manager)
 {
-    if (!manager || !manager->pool)
+    if (!manager || !manager->workers)
         return;
 
-    g_thread_pool_free(manager->pool, FALSE, TRUE);
+    SDL_LockMutex(manager->mutex);
+    manager->shutdown = true;
+    SDL_BroadcastCondition(manager->queue_cond);
+    SDL_UnlockMutex(manager->mutex);
 
-    manager->pool = NULL;
+    for (int32 i = 0; i < manager->num_workers; i++)
+    {
+        if (manager->workers[i])
+        {
+            SDL_WaitThread(manager->workers[i], NULL);
+        }
+    }
 
-    g_cond_clear(&manager->cond);
-    g_mutex_clear(&manager->mutex);
+    free(manager->workers);
+    manager->workers = NULL;
+
+    ThreadJobNode *current = manager->job_queue_head;
+    while (current != NULL)
+    {
+        ThreadJobNode *next = current->next;
+        free(current);
+        current = next;
+    }
+
+    manager->job_queue_head = NULL;
+    manager->job_queue_tail = NULL;
+
+    SDL_DestroyCondition(manager->wait_cond);
+    SDL_DestroyCondition(manager->queue_cond);
+    SDL_DestroyMutex(manager->mutex);
 }
 
 void ThreadManagerPush(ThreadJobFunc func, void *data)
 {
     ThreadManager *manager = &g_app.thread_manager;
 
-    ThreadJob *job = malloc(sizeof(ThreadJob));
+    ThreadJobNode *job = malloc(sizeof(ThreadJobNode));
 
     job->func = func;
     job->data = data;
+    job->next = NULL;
 
-    g_mutex_lock(&manager->mutex);
+    SDL_LockMutex(manager->mutex);
+
     manager->pending_jobs++;
-    g_mutex_unlock(&manager->mutex);
 
-    GError *error = NULL;
-
-    if (!g_thread_pool_push(manager->pool, job, &error))
+    if (manager->job_queue_tail == NULL)
     {
-        LOG_ERROR("ThreadManagerPush failed: %s", error->message);
-        g_error_free(error);
-
-        free(job);
-
-        g_mutex_lock(&manager->mutex);
-        manager->pending_jobs--;
-
-        if (manager->pending_jobs == 0)
-            g_cond_broadcast(&manager->cond);
-
-        g_mutex_unlock(&manager->mutex);
+        manager->job_queue_head = job;
+        manager->job_queue_tail = job;
     }
+    else
+    {
+        manager->job_queue_tail->next = job;
+        manager->job_queue_tail = job;
+    }
+
+    SDL_SignalCondition(manager->queue_cond);
+
+    SDL_UnlockMutex(manager->mutex);
 }
 
 void ThreadManagerWait(void)
 {
     ThreadManager *manager = &g_app.thread_manager;
 
-    g_mutex_lock(&manager->mutex);
+    SDL_LockMutex(manager->mutex);
 
     while (manager->pending_jobs > 0)
-        g_cond_wait(&manager->cond, &manager->mutex);
+    {
+        SDL_WaitCondition(manager->wait_cond, manager->mutex);
+    }
 
-    g_mutex_unlock(&manager->mutex);
+    SDL_UnlockMutex(manager->mutex);
 }

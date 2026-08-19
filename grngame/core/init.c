@@ -214,7 +214,7 @@ static void HandleWrenFailure(void)
     SetTaskBarIconErrorProgress(100.0);
 }
 
-COLD InitResult InitializeWindow(void)
+InitResult InitializeWindow(void)
 {
     g_app.info.offset_x = 0;
     g_app.info.offset_y = 0;
@@ -232,7 +232,7 @@ COLD InitResult InitializeWindow(void)
     return INIT_OK;
 }
 
-COLD InitResult InitializeManagers(void)
+InitResult InitializeManagers(void)
 {
     g_app.asset_manager = AssetManagerCreate();
     g_app.input_manager = InputManagerCreate();
@@ -243,12 +243,12 @@ COLD InitResult InitializeManagers(void)
     return INIT_OK;
 }
 
-COLD void InitializeJson(void)
+void InitializeJson(void)
 {
     g_app.json_manager = JsonManagerCreate();
 }
 
-COLD void InitializePalette(void)
+void InitializePalette(void)
 {
     InitLinearLut();
     g_app.palette_manager = PaletteManagerCreate();
@@ -257,7 +257,7 @@ COLD void InitializePalette(void)
     // PaletteRead();
 }
 
-COLD void InitializeAssets(void)
+void InitializeAssets(void)
 {
     char *asset_path = PathFromExecutableDirectory(g_app.info.asset_folder);
     float64 deb = TimeNow();
@@ -267,7 +267,7 @@ COLD void InitializeAssets(void)
     free(asset_path);
 }
 
-COLD void InitializeScripts(void)
+void InitializeScripts(void)
 {
     if (!WrenInit())
     {
@@ -278,7 +278,7 @@ COLD void InitializeScripts(void)
     LOG_INFO("Wren runtime initialized successfully with script 'main.wren'");
 }
 
-COLD InitResult InitAll(void)
+InitResult InitAll(void)
 {
     if (g_initialized)
     {
@@ -292,7 +292,7 @@ COLD InitResult InitAll(void)
     InitResult result = InitializeLogging();
     if (result != INIT_OK)
         return result;
-    g_app.thread_manager = ThreadManagerCreate();
+    ThreadManagerCreate();
     ConfigureSDLHints();
 
     result = InitializeSDL();

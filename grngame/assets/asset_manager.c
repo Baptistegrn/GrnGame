@@ -14,6 +14,7 @@
 #include <stdlib.h>
 
 static void AddTextureToArray(const char *path, void *user_data);
+static void AddAssetFileToArray(const char *path, void *user_data);
 static void LoadTaskWorker(void *data);
 static void LoadFilesMultithreaded(void);
 
@@ -91,6 +92,19 @@ static void AddTextureToArray(const char *path, void *user_data)
     kv_push(char *, g_app.asset_manager.texture_list, strdup(path));
 }
 
+static void AddAssetFileToArray(const char *path, void *user_data)
+{
+    int32 *count = (int32 *)user_data;
+
+    if (!FileIsLoadableImage(path) && !FileIsLoadableAudio(path))
+        return;
+
+    if (count)
+        (*count)++;
+
+    kv_push(char *, g_app.asset_manager.texture_list, strdup(path));
+}
+
 void AssetManagerLoadFolder(const char *folder)
 {
 
@@ -107,20 +121,22 @@ void AssetManagerLoadFolder(const char *folder)
             if (kh_exist(hash, k))
             {
                 EmbeddedAsset asset = kh_value(hash, k);
-                AddTextureToArray(asset.name, NULL);
+                if (FileIsLoadableImage(asset.name) || FileIsLoadableAudio(asset.name))
+                    AddTextureToArray(asset.name, NULL);
             }
         }
     }
 
 #else
     {
-        if (DirAssetFileCount(folder) == 0)
+        int32 asset_count = 0;
+        DirWalk(folder, AddAssetFileToArray, &asset_count);
+
+        if (asset_count == 0)
         {
             LOG_WARNING("No assets files in asset folder '%s'", folder);
             return;
         }
-
-        DirWalk(folder, AddTextureToArray, NULL);
     }
 #endif
 
