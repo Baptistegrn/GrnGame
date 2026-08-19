@@ -34,6 +34,11 @@ if has_config("tracy") then
     add_requires("tracy")
 end
 
+local suffix = ""
+if has_config("embed_assets") then
+    suffix = "embedded"
+end
+
 if is_plat("wasm") then
     add_requireconfs("**", {
         configs = {
@@ -179,7 +184,7 @@ if not is_plat("wasm") then
     add_deps("GrnGame")
 end
 
-target("Runtime-" .. plat .. "-" .. arch .. "-" .. mode)
+target("Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix)
     set_languages("c17", "cxx17")
     set_kind("binary")
     set_targetdir(path.join("$(builddir)", "Runtime"))
