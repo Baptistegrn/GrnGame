@@ -171,7 +171,7 @@ if not is_plat("wasm") then
         set_languages("c17", "cxx17")
         set_kind("binary")
         set_targetdir(path.join("$(builddir)", "Embedded"))
-        add_files("embedded/main.c")
+        add_files("grngame/assets/embedded_main.c")
         add_headerfiles("grngame/**.h")
         add_deps("GrnGame")
 
