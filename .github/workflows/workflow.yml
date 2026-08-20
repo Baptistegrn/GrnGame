@@ -127,14 +127,16 @@ jobs:
           for platform in $PLATFORMS; do
             STAGE_DIR="staging_${platform}"
             MODEL_DIR="${STAGE_DIR}/project_model"
-            RUNTIME_DIR="${STAGE_DIR}/runtime"
+            RUNTIME_DIR="${MODEL_DIR}/runtime"
 
             mkdir -p "${MODEL_DIR}/assets"
             mkdir -p "${MODEL_DIR}/scripts"
+            mkdir -p "${MODEL_DIR}/data"
+            mkdir -p "${MODEL_DIR}/config"
             mkdir -p "${RUNTIME_DIR}"
 
-            cp ressources/config.json "${MODEL_DIR}/"
-            cp grngame/input/gamecontrollerdb.txt "${MODEL_DIR}/data"
+            cp ressources/config/config.json "${MODEL_DIR}/"
+            cp grngame/input/gamecontrollerdb.txt "${MODEL_DIR}/data/"
             cp scripts/server.py "${MODEL_DIR}/"
             cp -r std "${MODEL_DIR}/std"
 
@@ -161,11 +163,14 @@ jobs:
                 -exec cp {} "${MODEL_DIR}/" \;
             fi
 
-            if [ -d "artifacts/${platform}-release-embedtrue" ]; then
-              find "artifacts/${platform}-release-embedtrue" -type f -name "Runtime*" \
-                ! -name "*.lib" ! -name "*.exp" ! -name "*.pdb" ! -name "*.a" ! -name "*.ilk" \
-                -exec cp {} "${RUNTIME_DIR}/" \;
-            fi
+            for rt_platform in $PLATFORMS; do
+              RT_SRC_DIR="artifacts/${rt_platform}-release-embedtrue"
+              if [ -d "${RT_SRC_DIR}" ]; then
+                find "${RT_SRC_DIR}" -type f \
+                  ! -name "*.lib" ! -name "*.exp" ! -name "*.pdb" ! -name "*.a" ! -name "*.ilk" \
+                  -exec cp {} "${RUNTIME_DIR}/" \;
+              fi
+            done
 
             ARCHIVE_NAME="${platform}-${TAG}.zip"
 

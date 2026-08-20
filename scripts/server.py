@@ -14,5 +14,5 @@ class ThreadingHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     daemon_threads = True
 
 with ThreadingHTTPServer(("", PORT), Handler) as httpd:
-    print("server on : http://localhost:{PORT}")
+    print(f"server on : http://localhost:{PORT}")
     httpd.serve_forever()
