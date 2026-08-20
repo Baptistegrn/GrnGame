@@ -134,11 +134,10 @@ jobs:
             mkdir -p "${RUNTIME_DIR}"
 
             cp ressources/config.json "${MODEL_DIR}/"
-            cp data/gamecontrollerdb.txt "${MODEL_DIR}/"
+            cp grngame/input/gamecontrollerdb.txt "${MODEL_DIR}/data"
             cp scripts/server.py "${MODEL_DIR}/"
             cp -r std "${MODEL_DIR}/std"
 
-            # WASM goes to project_model and we remove static libs if any exist
             if [ -d "artifacts/wasm-release-embedtrue" ]; then
               cp -r artifacts/wasm-release-embedtrue/* "${MODEL_DIR}/"
               find "${MODEL_DIR}" -name "*.a" -type f -delete
