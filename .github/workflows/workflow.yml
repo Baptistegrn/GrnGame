@@ -7,28 +7,22 @@ on:
   pull_request:
 
 jobs:
-  # NATIVE NATIVE BINARIES COMPILATION
+  # compilation
   build:
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { os: ubuntu-22.04, runner: ubuntu-22.04, platform: linux-x64, buildtype: debug, embed: false }
           - { os: ubuntu-22.04, runner: ubuntu-22.04, platform: linux-x64, buildtype: release, embed: false }
           - { os: ubuntu-22.04, runner: ubuntu-22.04, platform: linux-x64, buildtype: release, embed: true }
-          - { os: ubuntu-22.04-arm, runner: ubuntu-22.04-arm, platform: linux-arm64, buildtype: debug, embed: false }
           - { os: ubuntu-22.04-arm, runner: ubuntu-22.04-arm, platform: linux-arm64, buildtype: release, embed: false }
           - { os: ubuntu-22.04-arm, runner: ubuntu-22.04-arm, platform: linux-arm64, buildtype: release, embed: true }
-          - { os: macos-latest, runner: macos-latest, platform: macos-arm64, buildtype: debug, embed: false }
           - { os: macos-latest, runner: macos-latest, platform: macos-arm64, buildtype: release, embed: false }
           - { os: macos-latest, runner: macos-latest, platform: macos-arm64, buildtype: release, embed: true }
-          - { os: macos-15-intel, runner: macos-15-intel, platform: macos-x64, buildtype: debug, embed: false }
           - { os: macos-15-intel, runner: macos-15-intel, platform: macos-x64, buildtype: release, embed: false }
           - { os: macos-15-intel, runner: macos-15-intel, platform: macos-x64, buildtype: release, embed: true }
-          - { os: windows-latest, runner: windows-latest, platform: windows-x64, buildtype: debug, embed: false }
           - { os: windows-latest, runner: windows-latest, platform: windows-x64, buildtype: release, embed: false }
           - { os: windows-latest, runner: windows-latest, platform: windows-x64, buildtype: release, embed: true }
-          - { os: windows-11-arm, runner: windows-11-arm, platform: windows-arm64, buildtype: debug, embed: false }
           - { os: windows-11-arm, runner: windows-11-arm, platform: windows-arm64, buildtype: release, embed: false }
           - { os: windows-11-arm, runner: windows-11-arm, platform: windows-arm64, buildtype: release, embed: true }
 
@@ -65,12 +59,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: "${{ matrix.platform }}-${{ matrix.buildtype }}-embed${{ matrix.embed }}"
-          # Corrected path to grab the custom directories specified in xmake.lua
           path: |
             build/Embedded/
             build/Runtime/
 
-  # WEBASSEMBLY MODULE COMPILATION
+  # compilation wasm
   build-wasm:
     runs-on: ubuntu-22.04
     name: "wasm | release | embed=true"
@@ -103,10 +96,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: "wasm-release-embedtrue"
-          # WASM only builds the Runtime target
           path: build/Runtime/
 
-  # RELEASE CREATION AND PACKAGING
+  # creation of the release
   release:
     name: Create GitHub Release
     needs: [build, build-wasm]
@@ -133,20 +125,23 @@ jobs:
           TAG="${GITHUB_REF_NAME}"
 
           for platform in $PLATFORMS; do
-            # Temporary working directory for this architecture
             STAGE_DIR="staging_${platform}"
             MODEL_DIR="${STAGE_DIR}/project_model"
+            RUNTIME_DIR="${STAGE_DIR}/runtime"
 
             mkdir -p "${MODEL_DIR}/assets"
             mkdir -p "${MODEL_DIR}/scripts"
+            mkdir -p "${RUNTIME_DIR}"
 
             cp ressources/config.json "${MODEL_DIR}/"
-            cp grngame/input/gamecontrollerdb.txt "${MODEL_DIR}/"
+            cp data/gamecontrollerdb.txt "${MODEL_DIR}/"
             cp scripts/server.py "${MODEL_DIR}/"
             cp -r std "${MODEL_DIR}/std"
 
+            # WASM goes to project_model and we remove static libs if any exist
             if [ -d "artifacts/wasm-release-embedtrue" ]; then
               cp -r artifacts/wasm-release-embedtrue/* "${MODEL_DIR}/"
+              find "${MODEL_DIR}" -name "*.a" -type f -delete
             fi
 
             if [[ "$platform" == *"windows"* ]]; then
@@ -161,19 +156,23 @@ jobs:
               chmod +x "${MODEL_DIR}"/*.sh 2>/dev/null || true
             fi
 
-            for artifact_dir in artifacts/${platform}-*; do
-              if [ -d "$artifact_dir" ]; then
-                # Find all files recursively and copy them flat into project_model/
-                find "$artifact_dir" -type f -exec cp {} "${MODEL_DIR}/" \;
-              fi
-            done
+            if [ -d "artifacts/${platform}-release-embedfalse" ]; then
+              find "artifacts/${platform}-release-embedfalse" -type f \
+                ! -name "*.lib" ! -name "*.exp" ! -name "*.pdb" ! -name "*.a" ! -name "*.ilk" \
+                -exec cp {} "${MODEL_DIR}/" \;
+            fi
+
+            if [ -d "artifacts/${platform}-release-embedtrue" ]; then
+              find "artifacts/${platform}-release-embedtrue" -type f -name "Runtime*" \
+                ! -name "*.lib" ! -name "*.exp" ! -name "*.pdb" ! -name "*.a" ! -name "*.ilk" \
+                -exec cp {} "${RUNTIME_DIR}/" \;
+            fi
 
             ARCHIVE_NAME="${platform}-${TAG}.zip"
 
             cd "${STAGE_DIR}"
             zip -r "../release-assets/${ARCHIVE_NAME}" .
             cd ..
-
             rm -rf "${STAGE_DIR}"
           done
 
