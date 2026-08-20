@@ -77,7 +77,7 @@ static InitResult SetSDLMetadata(void)
     do                                                                                                                 \
     {                                                                                                                  \
         const char *tmp = NULL;                                                                                        \
-        if (!JsonGetString(&g_app.json_manager, "config.json", key, &tmp))                                             \
+        if (!JsonGetString(&g_app.json_manager, "config/config.json", key, &tmp))                                      \
         {                                                                                                              \
             LOG_ERROR("Using default value for : " key);                                                               \
             tmp = default_val;                                                                                         \
@@ -89,7 +89,7 @@ static InitResult SetSDLMetadata(void)
     do                                                                                                                 \
     {                                                                                                                  \
         double tmp = 0.0;                                                                                              \
-        if (!JsonGetNumber(&g_app.json_manager, "config.json", key, &tmp))                                             \
+        if (!JsonGetNumber(&g_app.json_manager, "config/config.json", key, &tmp))                                      \
         {                                                                                                              \
             LOG_ERROR("Using default value for : " key);                                                               \
             tmp = (double)(default_val);                                                                               \
@@ -101,7 +101,7 @@ static InitResult SetSDLMetadata(void)
     do                                                                                                                 \
     {                                                                                                                  \
         bool tmp = false;                                                                                              \
-        if (!JsonGetBool(&g_app.json_manager, "config.json", key, &tmp))                                               \
+        if (!JsonGetBool(&g_app.json_manager, "config/config.json", key, &tmp))                                        \
         {                                                                                                              \
             LOG_ERROR("Using default value for : " key);                                                               \
             tmp = default_val;                                                                                         \
@@ -112,9 +112,9 @@ static InitResult SetSDLMetadata(void)
 static void LoadAppConfig(const unsigned char *text)
 {
 #ifndef EMBEDDED_ASSETS_DATA_AVAILABLE
-    OpenJsonFile(&g_app.json_manager, "config.json", 0, 0);
+    OpenJsonFile(&g_app.json_manager, "config/config.json", 0, 0);
 #else
-    OpenJsonFileFromMemory(&g_app.json_manager, "config.json", text, 0, 0);
+    OpenJsonFileFromMemory(&g_app.json_manager, "config/config.json", text, 0, 0);
 #endif
 
     GET_CONFIG_BOOL("Config.enableLogs", g_app.info.enable_logs, true);
@@ -151,7 +151,7 @@ void InitAppConfig(void)
     g_app.info.asset_db = DbCreate("Assets.pak");
     AddDbToEmbeddedAssetManager(g_app.info.asset_db);
 
-    const EmbeddedAsset *asset = GetEmbeddedAsset("./config.json");
+    const EmbeddedAsset *asset = GetEmbeddedAsset("config/config.json");
 
     if (asset != NULL)
     {
@@ -171,14 +171,14 @@ static SDL_IOStream *LoadControllerDatabase(void)
 {
 #ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
     {
-        const EmbeddedAsset *asset = GetEmbeddedAsset("./gamecontrollerdb.txt");
+        const EmbeddedAsset *asset = GetEmbeddedAsset("data/gamecontrollerdb.txt");
         if (!asset)
             return NULL;
         return SDL_IOFromConstMem(asset->data, asset->size);
     }
 #else
 
-    char *path = PathFromExecutableDirectory("gamecontrollerdb.txt");
+    char *path = PathFromExecutableDirectory("data/gamecontrollerdb.txt");
     SDL_IOStream *stream = SDL_IOFromFile(path, "rb");
     free(path);
     return stream;

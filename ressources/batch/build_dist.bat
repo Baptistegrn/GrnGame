@@ -15,7 +15,7 @@ set EMBEDDED_BIN=
 for %%F in (Embedded*.exe) do set EMBEDDED_BIN=%%F
 if "!EMBEDDED_BIN!"=="" set EMBEDDED_BIN=embedded.exe
 
-"!EMBEDDED_BIN!" Assets.pak assets scripts std .
+"!EMBEDDED_BIN!" Assets.pak assets scripts std data config
 
 for %%P in (%PLATFORMS%) do (
     copy Assets.pak "dist\%%P\" >nul

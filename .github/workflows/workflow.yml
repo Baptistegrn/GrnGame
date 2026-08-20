@@ -135,7 +135,7 @@ jobs:
             mkdir -p "${MODEL_DIR}/config"
             mkdir -p "${RUNTIME_DIR}"
 
-            cp ressources/config/config.json "${MODEL_DIR}/"
+            cp ressources/config.json "${MODEL_DIR}/config/"
             cp grngame/input/gamecontrollerdb.txt "${MODEL_DIR}/data/"
             cp scripts/server.py "${MODEL_DIR}/"
             cp -r std "${MODEL_DIR}/std"
