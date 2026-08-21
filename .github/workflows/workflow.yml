@@ -33,12 +33,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Force GitHub for xmake-repo (Bypass GitLab 403)
+        run: git config --global url."https://github.com/xmake-io/xmake-repo.git".insteadOf "https://gitlab.com/tboox/xmake-repo.git"
+
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
-          actions-cache-folder: '.xmake-cache-v2'
-          package-cache: false
+          actions-cache-folder: '.xmake-cache-${{ matrix.platform }}-embed-${{ matrix.embed }}'
+          package-cache: true
           build-cache: true
 
       - name: Remove homebrew freetype
@@ -72,12 +75,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Force GitHub for xmake-repo (Bypass GitLab 403)
+        run: git config --global url."https://github.com/xmake-io/xmake-repo.git".insteadOf "https://gitlab.com/tboox/xmake-repo.git"
+
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
-          actions-cache-folder: '.xmake-cache-v2'
-          package-cache: false
+          actions-cache-folder: '.xmake-cache-wasm'
+          package-cache: true
           build-cache: true
 
       - name: Setup emsdk
