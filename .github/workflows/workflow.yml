@@ -37,9 +37,7 @@ jobs:
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
-          # Création d'un dossier de cache unique par OS/Architecture/Embed pour éviter les écrasements
           actions-cache-folder: '.xmake-cache-${{ matrix.platform }}-embed-${{ matrix.embed }}'
-          # Activation du cache des paquets pour éviter les requêtes réseau
           package-cache: true
           build-cache: true
 
