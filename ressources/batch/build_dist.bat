@@ -21,11 +21,11 @@ for %%P in (%PLATFORMS%) do (
     copy Assets.pak "dist\%%P\" >nul
 )
 
-copy server.py dist\server\ >nul
+copy runtime/server.py dist\server\ >nul
 copy Assets.pak dist\server\ >nul
 
-copy *.js dist\server\ >nul 2>&1
-copy *.wasm dist\server\ >nul 2>&1
-copy *.html dist\server\ >nul 2>&1
+copy runtime/*.js dist\server\ >nul 2>&1
+copy runtime/*.wasm dist\server\ >nul 2>&1
+copy runtime/*.html dist\server\ >nul 2>&1
 
 pause

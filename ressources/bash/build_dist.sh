@@ -15,14 +15,14 @@ if [ -z "$EMBEDDED_BIN" ]; then
     EMBEDDED_BIN="./embedded"
 fi
 
-$EMBEDDED_BIN Assets.pak assets scripts std .
+$EMBEDDED_BIN Assets.pak assets scripts std data config
 
 for plat in "${PLATFORMS[@]}"; do
     cp Assets.pak "dist/$plat/"
 done
 
-cp server.py dist/server/
+cp runtime/server.py dist/server/
 cp Assets.pak dist/server/
 
-cp *.js *.wasm *.html dist/server/ 2>/dev/null || true
+cp runtime/*.js runtime/*.wasm runtime/*.html dist/server/ 2>/dev/null || true
 

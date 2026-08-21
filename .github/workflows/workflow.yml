@@ -141,7 +141,7 @@ jobs:
             cp -r std "${MODEL_DIR}/std"
 
             if [ -d "artifacts/wasm-release-embedtrue" ]; then
-              cp -r artifacts/wasm-release-embedtrue/* "${MODEL_DIR}/"
+              cp -r artifacts/wasm-release-embedtrue/* "${RUNTIME_DIR}/"
               find "${MODEL_DIR}" -name "*.a" -type f -delete
             fi
 
@@ -166,7 +166,7 @@ jobs:
             for rt_platform in $PLATFORMS; do
               RT_SRC_DIR="artifacts/${rt_platform}-release-embedtrue"
               if [ -d "${RT_SRC_DIR}" ]; then
-                find "${RT_SRC_DIR}" -type f \
+                find "${RT_SRC_DIR}" -path "*/Runtime/*" -type f \
                   ! -name "*.lib" ! -name "*.exp" ! -name "*.pdb" ! -name "*.a" ! -name "*.ilk" \
                   -exec cp {} "${RUNTIME_DIR}/" \;
               fi

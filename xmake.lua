@@ -5,7 +5,6 @@ includes("packages/l/libsdl3fix/xmake.lua")
 
 add_rules("mode.debug", "mode.release")
 
-
 if is_plat("windows") then
     local msvcRuntime = is_mode("debug") and "MTd" or "MT"
     set_runtimes(msvcRuntime)
@@ -50,11 +49,7 @@ if is_plat("wasm") then
 end
 
 -- render + input
-if is_plat("wasm") then
-    add_requires("libsdl3fix",       {version = "3.4.0"},      {configs = {shared = false}})
-else
-    add_requires("libsdl3",       {version = "3.4.0"},      {configs = {shared = false}})
-end
+add_requires("libsdl3fix",       {version = "3.4.0"},      {configs = {shared = false}})
 add_requires("libsdl3_image", {version = "3.2.0"},      {configs = {shared = false}})
 add_requires("libsdl3_ttf",   {version = "3.2.2"},      {configs = {shared = false, freetype = false}, system = false})
 
@@ -94,21 +89,21 @@ target("GrnGame")
     set_kind("static")
 
     add_files("grngame/**.c", "grngame/**.cpp")
+    remove_files("grngame/assets/embedded_main.c")
     add_headerfiles("grngame/**.h")
     add_includedirs(".", {public = true})
 
     -- packages
-    add_packages(
+    add_packages("libsdl3fix",
          "libsdl3_image", "libsdl3_ttf",
         "klib", "cglm", "soloud", "tinydir",
         "wren", "freetype", "sqlite3", "highway", "Libimagequant", "cjson",
         {public = true}
     )
     if not is_plat("wasm") then
-        add_packages("quill", "efsw","libsdl3", {public = true})
-    else
-        add_packages("libsdl3fix", {public = true})
+        add_packages("quill", "efsw", {public = true})
     end
+
     if has_config("tracy") then
         add_packages("tracy", {public = true})
     end
@@ -149,7 +144,6 @@ target("GrnGame")
 
     if is_plat("wasm") then
         add_defines("GRNGAME_WASM")
-        add_cxflags("-pthread", {public = true, force = true})
         add_ldflags(
             "--shell-file", "grngame/web/shell.html",
             "-sFORCE_FILESYSTEM=1",

@@ -15,35 +15,39 @@ typedef void (*ModuleRegisterFn)(void);
 extern ModuleRegisterFn g_moduleRegistry[MAX_MODULES];
 extern int g_moduleCount;
 
-static inline void RegisterModuleEntry(ModuleRegisterFn fn) {
+static inline void RegisterModuleEntry(ModuleRegisterFn fn)
+{
     g_moduleRegistry[g_moduleCount++] = fn;
 }
 
-
 #define WREN_MODULE(fn)
 
-typedef enum {
+typedef enum
+{
     CB_ARG_NUM,
     CB_ARG_BOOL,
     CB_ARG_STRING,
 } CallbackArgType;
 
-typedef struct {
+typedef struct
+{
     CallbackArgType type;
     union {
-        double      num;
-        bool        boolean;
-        const char* string;
+        double num;
+        bool boolean;
+        const char *string;
     } as;
 } CallbackArg;
 
-typedef struct {
+typedef struct
+{
     bool is_registered;
     WrenHandle *handle;
     uint8 arity;
 } WrenCallback;
 
-typedef struct {
+typedef struct
+{
     WrenCallback callbacks[4];
 } WrenCallbackRegistry;
 
@@ -59,8 +63,8 @@ typedef struct
     WrenHandle *on_render;
     WrenHandle *on_destroy;
 
-    WrenHandle* arity;
-    WrenHandle* call[17];
+    WrenHandle *arity;
+    WrenHandle *call[17];
 
     WrenCallbackRegistry registry;
 
@@ -79,7 +83,7 @@ void UpdateMaximised(void);
 void UpdateEnableLogs(void);
 void UpdateLogDestination(void);
 
-bool CallWrenCallback(int16 index, void* data, uint8 arg_count);
+bool CallWrenCallback(int16 index, void *data, uint8 arg_count);
 
 bool WrenGetVariable(const char *module, const char *variable);
 const char *WrenGetString(const char *module, const char *variable, const char *field);

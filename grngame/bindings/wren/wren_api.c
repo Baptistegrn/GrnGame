@@ -213,7 +213,7 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
 #else
     {
         char script_path[MODULE_SIZE_MAX_NAME + 15];
-        snprintf(script_path, sizeof(script_path), "scripts/%s", filename);
+        snprintf(script_path, sizeof(script_path), "%s", filename);
 
         char *path = PathFromExecutableDirectory(script_path);
         if (path)

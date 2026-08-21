@@ -55,7 +55,7 @@ void PaletteManagerDestroy(PaletteManager *manager)
 void PaletteSetFromConfig()
 {
     string_vec_t palette;
-    if (!JsonGetStringArray(&g_app.json_manager, "config.json", "Config.palette", &palette))
+    if (!JsonGetStringArray(&g_app.json_manager, "config/config.json", "Config.palette", &palette))
     {
         LOG_ERROR("Using default value for : Config.palette");
     }
