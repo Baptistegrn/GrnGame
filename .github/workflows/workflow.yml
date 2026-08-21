@@ -33,20 +33,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Force GitHub for xmake repositories (Strict Prefix)
-        run: |
-          git config --global url."https://github.com/xmake-io/xmake-repo".insteadOf "https://gitlab.com/tboox/xmake-repo"
-          git config --global url."https://github.com/xmake-io/xmake-repo".insteadOf "https://gitee.com/tboox/xmake-repo"
-          git config --global url."https://github.com/xmake-mirror/build-artifacts".insteadOf "https://gitlab.com/tboox/build-artifacts"
-          git config --global url."https://github.com/xmake-mirror/build-artifacts".insteadOf "https://gitee.com/tboox/build-artifacts"
-          git config --global url."https://github.com/xmake-mirror/build-artifacts".insteadOf "https://gitlab.com/xmake-mirror/build-artifacts"
-          git config --global url."https://github.com/xmake-mirror/build-artifacts".insteadOf "https://gitee.com/xmake-mirror/build-artifacts"
-
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
+          # Création d'un dossier de cache unique par OS/Architecture/Embed pour éviter les écrasements
           actions-cache-folder: '.xmake-cache-${{ matrix.platform }}-embed-${{ matrix.embed }}'
+          # Activation du cache des paquets pour éviter les requêtes réseau
           package-cache: true
           build-cache: true
 
@@ -80,15 +73,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Force GitHub for xmake repositories (Strict Prefix)
-        run: |
-          git config --global url."https://github.com/xmake-io/xmake-repo".insteadOf "https://gitlab.com/tboox/xmake-repo"
-          git config --global url."https://github.com/xmake-io/xmake-repo".insteadOf "https://gitee.com/tboox/xmake-repo"
-          git config --global url."https://github.com/xmake-mirror/build-artifacts".insteadOf "https://gitlab.com/tboox/build-artifacts"
-          git config --global url."https://github.com/xmake-mirror/build-artifacts".insteadOf "https://gitee.com/tboox/build-artifacts"
-          git config --global url."https://github.com/xmake-mirror/build-artifacts".insteadOf "https://gitlab.com/xmake-mirror/build-artifacts"
-          git config --global url."https://github.com/xmake-mirror/build-artifacts".insteadOf "https://gitee.com/xmake-mirror/build-artifacts"
 
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
