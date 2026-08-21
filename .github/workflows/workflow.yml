@@ -36,7 +36,10 @@ jobs:
       - name: Force GitHub for xmake repositories 
         run: |
           git config --global url."https://github.com/xmake-io/xmake-repo.git".insteadOf "https://gitlab.com/tboox/xmake-repo.git"
+          git config --global url."https://github.com/xmake-io/xmake-repo.git".insteadOf "https://gitee.com/tboox/xmake-repo.git"
           git config --global url."https://github.com/xmake-mirror/build-artifacts.git".insteadOf "https://gitlab.com/tboox/build-artifacts.git"
+          git config --global url."https://github.com/xmake-mirror/build-artifacts.git".insteadOf "https://gitlab.com/xmake-mirror/build-artifacts.git"
+          git config --global url."https://github.com/xmake-mirror/build-artifacts.git".insteadOf "https://gitee.com/xmake-mirror/build-artifacts.git"
 
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
@@ -80,7 +83,10 @@ jobs:
       - name: Force GitHub for xmake repositories 
         run: |
           git config --global url."https://github.com/xmake-io/xmake-repo.git".insteadOf "https://gitlab.com/tboox/xmake-repo.git"
+          git config --global url."https://github.com/xmake-io/xmake-repo.git".insteadOf "https://gitee.com/tboox/xmake-repo.git"
           git config --global url."https://github.com/xmake-mirror/build-artifacts.git".insteadOf "https://gitlab.com/tboox/build-artifacts.git"
+          git config --global url."https://github.com/xmake-mirror/build-artifacts.git".insteadOf "https://gitlab.com/xmake-mirror/build-artifacts.git"
+          git config --global url."https://github.com/xmake-mirror/build-artifacts.git".insteadOf "https://gitee.com/xmake-mirror/build-artifacts.git"
 
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
