@@ -33,8 +33,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Force GitHub for xmake-repo (Bypass GitLab 403)
-        run: git config --global url."https://github.com/xmake-io/xmake-repo.git".insteadOf "https://gitlab.com/tboox/xmake-repo.git"
+      - name: Force GitHub for xmake repositories 
+        run: |
+          git config --global url."https://github.com/xmake-io/xmake-repo.git".insteadOf "https://gitlab.com/tboox/xmake-repo.git"
+          git config --global url."https://github.com/xmake-mirror/build-artifacts.git".insteadOf "https://gitlab.com/tboox/build-artifacts.git"
 
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
@@ -75,8 +77,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Force GitHub for xmake-repo (Bypass GitLab 403)
-        run: git config --global url."https://github.com/xmake-io/xmake-repo.git".insteadOf "https://gitlab.com/tboox/xmake-repo.git"
+      - name: Force GitHub for xmake repositories 
+        run: |
+          git config --global url."https://github.com/xmake-io/xmake-repo.git".insteadOf "https://gitlab.com/tboox/xmake-repo.git"
+          git config --global url."https://github.com/xmake-mirror/build-artifacts.git".insteadOf "https://gitlab.com/tboox/build-artifacts.git"
 
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
