@@ -3,6 +3,7 @@
 #include "SDL3/SDL_gamepad.h"
 #include "SDL3/SDL_joystick.h"
 #include "SDL3/SDL_stdinc.h"
+#include "grngame/bindings/wren/wren_event.h"
 #include "grngame/core/param.h"
 #include "grngame/dev/logging.h"
 #include "grngame/math/math.h"
@@ -81,7 +82,8 @@ bool ControllerOpen()
     SDL_JoystickID *pads = NULL;
     int32 count = ControllerConnectedCountptr(&pads);
 
-    if (UNLIKELY(count == 0)) return false;
+    if (UNLIKELY(count == 0))
+        return false;
 
     SDL_JoystickID new_pad_id = 0;
     bool found = false;
@@ -98,13 +100,16 @@ bool ControllerOpen()
 
     if (UNLIKELY(!found))
     {
-        if (LIKELY(pads)) SDL_free(pads);
+        if (LIKELY(pads))
+            SDL_free(pads);
         return false;
     }
 
     SDL_Gamepad *gp = GamepadOpen(new_pad_id);
-    if (LIKELY(pads)) SDL_free(pads);
-    if (UNLIKELY(!gp)) return false;
+    if (LIKELY(pads))
+        SDL_free(pads);
+    if (UNLIKELY(!gp))
+        return false;
 
     SDL_Joystick *joy = GamepadGetJoystick(gp);
     const char *name = GamepadGetName(gp) ? GamepadGetName(gp) : "Unknown";
@@ -122,14 +127,16 @@ bool ControllerOpen()
         }
 
         JoystickMapAdd(&g_app.input_manager.joystick_map, new_pad_id, index);
-        
-        // [WREN] APPEL ICI : L'index vient d'être créé.
-        // ex: Wren_TriggerEvent(EVENT_PAD_FIRST_CONNECT, index);
+
+        CallbackArg args[1] = {{.type = CB_ARG_NUM, .as.num = index}};
+
+        CallWrenCallback(PAD_CONNECT, args, 1);
     }
     else
     {
-        // [WREN] APPEL ICI : L'index existait déjà et était inactif, on le réveille.
-        // ex: Wren_TriggerEvent(EVENT_PAD_RECONNECT, index);
+        CallbackArg args[1] = {{.type = CB_ARG_NUM, .as.num = index}};
+
+        CallWrenCallback(PAD_CONNECT, args, 1);
     }
 
     g_app.input_manager.controllers[index].gamepad = gp;
@@ -166,15 +173,19 @@ void ControllerClose(int16 index)
         const char *name = GamepadGetName(c->gamepad);
         LOG_INFO("Closing gamepad %d: %s", index, name ? name : "Unknown");
 
-        // wren event 
+        // wren event
         JoystickMapRemove(&g_app.input_manager.joystick_map, c->id);
-        
+
         GamepadClose(c->gamepad);
-        
+
         c->gamepad = NULL;
         c->joystick = NULL;
         c->id = 0;
         c->name = NULL;
+
+        CallbackArg args[1] = {{.type = CB_ARG_NUM, .as.num = index}};
+
+        CallWrenCallback(PAD_DISCONNECT, args, 1);
     }
 }
 
@@ -190,8 +201,7 @@ bool PadJustPressed(int32 button, int16 index)
 
 bool PadPressed(int32 button, int16 index)
 {
-    if (UNLIKELY(index < 0 || index >= MAX_CONTROLLERS ||
-                 button < 0 || button >= SDL_GAMEPAD_BUTTON_COUNT))
+    if (UNLIKELY(index < 0 || index >= MAX_CONTROLLERS || button < 0 || button >= SDL_GAMEPAD_BUTTON_COUNT))
     {
         LOG_WARNING("Invalid pad button %d or index %d", button, index);
         return false;

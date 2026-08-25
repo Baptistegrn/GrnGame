@@ -63,7 +63,6 @@ typedef struct
     WrenHandle *on_render;
     WrenHandle *on_destroy;
 
-    WrenHandle *arity;
     WrenHandle *call[17];
 
     WrenCallbackRegistry registry;

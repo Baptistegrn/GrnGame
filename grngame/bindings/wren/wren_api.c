@@ -41,6 +41,7 @@ void RegisterRendererModule(void);
 void RegisterSoundModule(void);
 void RegisterTimeModule(void);
 void RegisterWindowModule(void);
+void RegisterEventModule(void);
 
 static const char *CALL_SIGNATURES[17] = {"call()",
                                           "call(_)",
@@ -532,6 +533,7 @@ static void RegisterWrenModules(void)
     RegisterSoundModule();
     RegisterTimeModule();
     RegisterWindowModule();
+    RegisterEventModule();
 }
 
 bool WrenInit()
@@ -622,7 +624,6 @@ bool WrenLoadMainHandles(const char *main_module_name)
     g_app.wren_manager.on_fixed_update = wrenMakeCallHandle(g_app.wren_manager.vm, "on_fixed_update(_)");
     g_app.wren_manager.on_render = wrenMakeCallHandle(g_app.wren_manager.vm, "on_render()");
     g_app.wren_manager.on_destroy = wrenMakeCallHandle(g_app.wren_manager.vm, "on_destroy()");
-    g_app.wren_manager.arity = wrenMakeCallHandle(g_app.wren_manager.vm, "arity");
     return true;
 }
 
@@ -683,7 +684,6 @@ void WrenFree()
     SafeReleaseHandle(g_app.wren_manager.vm, &g_app.wren_manager.on_fixed_update);
     SafeReleaseHandle(g_app.wren_manager.vm, &g_app.wren_manager.on_render);
     SafeReleaseHandle(g_app.wren_manager.vm, &g_app.wren_manager.on_destroy);
-    SafeReleaseHandle(g_app.wren_manager.vm, &g_app.wren_manager.arity);
 
     for (int i = 0; i < 4; i++)
     {

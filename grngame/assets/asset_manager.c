@@ -236,7 +236,7 @@ COLD void AssetManagerDestroy(AssetManager *manager)
 
     UnloadAllTextureFiles();
     UnloadAllSoundFiles();
-
+    PaletteFreeStringVec(&manager->texture_list);
     kh_destroy(TextureMap, manager->texture_map);
     kh_destroy(SoundMap, manager->sound_map);
 

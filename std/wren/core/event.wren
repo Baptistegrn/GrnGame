@@ -1,5 +1,9 @@
 class Event {
     static PadConnect    { 0 }
     static PadDisconnect { 1 }
-    foreign static callback(event, fn)
+    static callback(index, fn) {
+            callback_a(index, fn, fn.arity)
+        }
+
+    foreign static callback_a(index, fn, arity)
 }
