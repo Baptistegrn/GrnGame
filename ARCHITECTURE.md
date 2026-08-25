@@ -1,11 +1,20 @@
 # Files
 Each .h / .c duo should have **one clear job**.
 
-## /app
+## /runtime
 What launches your game
 
 ## /tests
 Temp tests used throughout the dev process
+
+## /benchmark
+critical speed test projects
+
+## /ressources
+ressources for project system
+
+## /scripts
+scripts for build system etc ..
 
 ## /grngame
 
@@ -31,13 +40,14 @@ Wrappers over OS specific functionality (eg. filepaths)
 Functions and utilites related to math that are not found in cglm
 
 ### /bindings
-Binding everything to Lua/Dascript
+Binding everything to Wren
 
 ### /renderer
 Rendering related functions and structs
 
-### /build 
-create a build for commercials games (cryption etc...)
+### /data
+sqlite , file system , json etc ...
+
 
 # Naming conventions
 ## Casing
