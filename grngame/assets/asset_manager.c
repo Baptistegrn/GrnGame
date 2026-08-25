@@ -4,6 +4,7 @@
 #include "grngame/core/thread.h"
 #include "grngame/data/data.h"
 #include "grngame/dev/logging.h"
+#include "grngame/dev/tracy.h"
 #include "grngame/platform/directories.h"
 #include "grngame/platform/paths.h"
 #include "grngame/utils/attributes.h"
@@ -107,6 +108,7 @@ static void AddAssetFileToArray(const char *path, void *user_data)
 
 void AssetManagerLoadFolder(const char *folder)
 {
+    PROFILE_FUNCTION("LoadFolder");
 
 #ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
     {

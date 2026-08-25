@@ -10,6 +10,7 @@
 #include "grngame/data/data.h"
 #include "grngame/data/json.h"
 #include "grngame/dev/logging.h"
+#include "grngame/dev/tracy.h"
 #include "grngame/platform/paths.h"
 #include "grngame/renderer/cielab.h"
 #include "grngame/renderer/palette.h"
@@ -260,10 +261,7 @@ void InitializePalette(void)
 void InitializeAssets(void)
 {
     char *asset_path = PathFromExecutableDirectory(g_app.info.asset_folder);
-    float64 deb = TimeNow();
     AssetManagerLoadFolder(asset_path);
-    float64 fin = TimeNow();
-    LOG_INFO("time to load textures : %lf", fin - deb);
     free(asset_path);
 }
 
@@ -280,6 +278,8 @@ void InitializeScripts(void)
 
 InitResult InitAll(void)
 {
+    PROFILE_FUNCTION("initialization");
+
     if (g_initialized)
     {
         LOG_INFO("Engine already initialized");

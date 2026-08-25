@@ -107,6 +107,7 @@ static void DestroyRenderer()
 
 static COLD void CleanupAppResources(void)
 {
+    PROFILE_FUNCTION("Cleanup");
     ShutdownScripts();
     DestroyWindow();
     DestroyRenderer();
@@ -216,6 +217,9 @@ static COLD void MainLoop(void)
 
 void ReloadConfig(void)
 {
+
+    PROFILE_FUNCTION("Reload");
+
     JsonCloseFile(&g_app.json_manager, "config.json");
     InitAppConfig();
     WindowApplyConfig(&g_app.info);

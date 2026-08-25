@@ -127,13 +127,14 @@ jobs:
           for platform in $PLATFORMS; do
             STAGE_DIR="staging_${platform}"
             MODEL_DIR="${STAGE_DIR}/project_model"
-            RUNTIME_DIR="${MODEL_DIR}/runtime"
+            RUNTIME_DIR="${STAGE_DIR}/runtime"
+            SCRIPT_DIR="${STAGE_DIR}/scripts"
 
             mkdir -p "${MODEL_DIR}/assets"
-            mkdir -p "${MODEL_DIR}/scripts"
             mkdir -p "${MODEL_DIR}/data"
             mkdir -p "${MODEL_DIR}/config"
             mkdir -p "${RUNTIME_DIR}"
+            mkdir -p "${SCRIPT_DIR}"
 
             cp ressources/config.json "${MODEL_DIR}/config/"
             cp grngame/input/gamecontrollerdb.txt "${MODEL_DIR}/data/"
@@ -146,15 +147,13 @@ jobs:
             fi
 
             if [[ "$platform" == *"windows"* ]]; then
-              cp ressources/batch/project.bat "${STAGE_DIR}/project.bat"
-              cp ressources/batch/* "${MODEL_DIR}/" 2>/dev/null || true
-              rm -f "${MODEL_DIR}/project.bat"
+              cp ressources/batch/setup.bat "${STAGE_DIR}/setup.bat"
+              find ressources/batch -maxdepth 1 -type f ! -name "setup.bat" -exec cp {} "${SCRIPT_DIR}/" \;
             else
-              cp ressources/bash/project.sh "${STAGE_DIR}/project.sh"
-              chmod +x "${STAGE_DIR}/project.sh"
-              cp ressources/bash/* "${MODEL_DIR}/" 2>/dev/null || true
-              rm -f "${MODEL_DIR}/project.sh"
-              chmod +x "${MODEL_DIR}"/*.sh 2>/dev/null || true
+              cp ressources/bash/setup.sh "${STAGE_DIR}/setup.sh"
+              chmod +x "${STAGE_DIR}/setup.sh"
+              find ressources/bash -maxdepth 1 -type f ! -name "setup.sh" -exec cp {} "${SCRIPT_DIR}/" \;
+              chmod +x "${SCRIPT_DIR}"/*.sh 2>/dev/null || true
             fi
 
             if [ -d "artifacts/${platform}-release-embedfalse" ]; then
