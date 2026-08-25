@@ -213,7 +213,7 @@ void RenderEmitter(ParticleEmitter *emit)
 
     SDL_Renderer *renderer = g_app.renderer.renderer;
 
-    int32 palette_size = kv_size(g_app.palette_manager.palette_elements);
+    int32 palette_size =(int32) kv_size(g_app.palette_manager.palette_elements);
 
     SDL_Vertex *verts = STACK_ALLOC(SDL_Vertex, emit->alive_count * 4);
     int32 *indices = STACK_ALLOC(int32, emit->alive_count * 6);

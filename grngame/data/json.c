@@ -402,7 +402,7 @@ bool JsonSetBoolArray(JsonManager *manager, const char *fileKey, const char *key
         return false;
     }
 
-    for (size_t i = 0; i < kv_size(*values); i++)
+    for (uint64 i = 0; i < kv_size(*values); i++)
     {
         cJSON *item = cJSON_CreateBool(kv_A(*values, i));
         if (UNLIKELY(item == NULL))
@@ -429,7 +429,7 @@ bool JsonSetStringArray(JsonManager *manager, const char *fileKey, const char *k
 
     cJSON_DeleteItemFromObjectCaseSensitive(parent, leaf);
 
-    cJSON *array = cJSON_CreateStringArray((const char *const *)values->a, (int)kv_size(*values));
+    cJSON *array = cJSON_CreateStringArray((const char *const *)values->a, (int32)kv_size(*values));
     if (UNLIKELY(array == NULL))
     {
         LOG_ERROR("Impossible to create string array for key : %s", key);
@@ -511,11 +511,11 @@ bool JsonGetStringArray(JsonManager *manager, const char *fileKey, const char *k
         {
             LOG_ERROR("Invalid string at index %lld for key : %s", (long long)i, key);
 
-            for (size_t j = 0; j < kv_size(*out); ++j)
+            for (uint64 j = 0; j < kv_size(*out); ++j)
                 free(kv_A(*out, j));
 
             kv_destroy(*out);
-            kv_init(*out); // on laisse un vecteur valide mais vide
+            kv_init(*out);
 
             return false;
         }
