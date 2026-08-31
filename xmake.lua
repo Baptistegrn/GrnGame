@@ -188,3 +188,41 @@ target("Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix)
     if not is_plat("wasm") then
         add_deps("Embedded-" .. plat .. "-" .. arch .. "-" .. mode)
     end
+
+
+
+local test_target = "tests/pad_event"
+
+target(test_target)
+    set_kind("phony")
+
+    on_run(function (target)
+        import("lib.detect.find_tool")
+
+        local python = find_tool("python") or find_tool("python3")
+        assert(python, "Python not found!")
+
+        local target_name = target:name()
+
+        os.execv(python.program, {
+            "scripts/asset_pipeline.py",
+            target_name,
+            path.join("build", target_name)
+        })
+
+        local plat = get_config("plat")
+        local arch = get_config("arch")
+        local mode = get_config("mode") or "release"
+        local suffix = ""
+
+        local ext = is_host("windows") and ".exe" or ""
+
+        local runtime_path = path.join(
+            "build",
+            "tests",
+            "pad_event",
+            "Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix .. ext
+        )
+
+        os.execv(runtime_path)
+    end)

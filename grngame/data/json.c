@@ -15,6 +15,7 @@
 #include "grngame/input/poll_events.h"
 #include "grngame/math/types.h"
 #include "grngame/platform/check_type.h"
+#include "grngame/platform/paths.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/random.h"
@@ -63,7 +64,7 @@ bool JsonObjectContains(JsonManager *manager, const char *key)
 
 bool OpenJsonFile(JsonManager *manager, const char *path, uint64 min, uint64 max)
 {
-    char *text = ReturnFileString(path);
+    char *text = ReturnFileString(PathFromExecutableDirectory(path));
     if (UNLIKELY(text == NULL))
     {
         return false;

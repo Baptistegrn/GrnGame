@@ -18,7 +18,7 @@ typedef struct
 KHASH_MAP_INIT_STR(JsonObjects, JsonObject)
 typedef khash_t(JsonObjects) JsonManager;
 
-#define JSON_PATH_MAX_LEN 512
+#define JSON_PATH_MAX_LEN 1024
 
 // to avoid macro conflit
 typedef kvec_t(float64) float64_vec_t;

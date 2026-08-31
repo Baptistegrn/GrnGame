@@ -2,7 +2,7 @@
 
 #include "grngame/math/types.h"
 
-#define DROP_FILE_PATH_MAX 512
+#define DROP_FILE_PATH_MAX 1024
 
 const char *InputTextGet();
 void InputTextClear();
