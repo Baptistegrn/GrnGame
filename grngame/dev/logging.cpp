@@ -1,6 +1,6 @@
 #include "logging.h"
 #include "grngame/core/app.h"
-
+#include "grngame/platform/paths.h"
 #include <cstdarg>
 #include <cstdio>
 #include <vector>
@@ -87,6 +87,7 @@ extern "C"
 
         {
             auto console_sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("sink_console");
+
             s_logger_console = quill::Frontend::create_or_get_logger("con", console_sink);
         }
 
@@ -117,9 +118,13 @@ extern "C"
             return false;
 
         const LogSeverity default_severity = LogSeverityForBuildType();
+
         s_current_severity = default_severity;
+
         s_logger_console->set_log_level(LogSeverityToLogLevel(default_severity));
+
         s_logger_file->set_log_level(LogSeverityToLogLevel(default_severity));
+
         s_logger_json->set_log_level(LogSeverityToLogLevel(default_severity));
 
         return LogSetDestination(log_destination);

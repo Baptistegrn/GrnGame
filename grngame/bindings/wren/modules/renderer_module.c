@@ -1,5 +1,5 @@
-#include "grngame/bindings/wren/wren_bind.h"
-#include "grngame/bindings/wren/wren_callback.h"
+#include "grngame/bindings/wren/wren_api.h"
+
 #include "grngame/math/types.h"
 #include "grngame/renderer/palette.h"
 #include "grngame/renderer/particule.h"

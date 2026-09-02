@@ -1,5 +1,4 @@
 #include "grngame/bindings/wren/wren_api.h"
-#include "grngame/bindings/wren/wren_callback.h"
 #include "grngame/input/keyboard.h"
 #include "wren.h"
 

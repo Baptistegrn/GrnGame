@@ -1,5 +1,6 @@
 -- custom package from a pull request
 includes("packages/s/soloud/xmake.lua")
+includes("packages/w/wren/xmake.lua")
 -- fix from official package because in wasm pthread option is force set to 0
 includes("packages/l/libsdl3fix/xmake.lua")
 
@@ -67,7 +68,7 @@ if not is_plat("wasm") then
 end
 
 -- scripting
-add_requires("wren",          {version = "0.4.0"},      {configs = {shared = false}})
+add_requires("wren Map-api",          {version = "Map-api"},      {configs = {shared = false}})
 
 -- simd
 add_requires("highway",       {version = "1.3.0"},      {configs = {shared = false}})
@@ -191,7 +192,7 @@ target("Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix)
 
 
 
-local test_target = "tests/pad_event"
+local test_target = "tests/json"
 
 target(test_target)
     set_kind("phony")
@@ -220,7 +221,7 @@ target(test_target)
         local runtime_path = path.join(
             "build",
             "tests",
-            "pad_event",
+            "json",
             "Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix .. ext
         )
 

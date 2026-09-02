@@ -3,24 +3,28 @@
 #include "SDL3/SDL_timer.h"
 #include "SDL3/SDL_video.h"
 #include "grngame/audio/sound.h"
-#include "grngame/bindings/wren/wren_bind.h"
-#include "grngame/bindings/wren/wren_handle.h"
+#include "grngame/bindings/wren/wren_api.h"
+
 #include "grngame/core/app.h"
 #include "grngame/core/init.h"
 #include "grngame/core/param.h"
 #include "grngame/core/thread.h"
 #include "grngame/core/window.h"
+#include "grngame/data/json.h"
 #include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
 #include "grngame/dev/tracy.h"
 #include "grngame/input/input_data.h"
 #include "grngame/input/poll_events.h"
+#include "grngame/math/math.h"
+#include "grngame/math/types.h"
 #include "grngame/platform/check_type.h"
 #include "grngame/renderer/palette.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/random.h"
 #include "grngame/utils/time.h"
+#include "kvec.h"
 
 #ifdef GRNGAME_WASM
 #include "grngame/web/web.h"
@@ -142,22 +146,38 @@ static HOT void RenderFrame(void)
 
     PROFILE_ZONE_END(render_zone);
 }
+
+static void UpdateEngineTime(float64 frame_start_time)
+{
+    float64 frame_elapsed_time = TimeNow() - frame_start_time;
+    float64 target_frame_time = 1.0 / (float64)g_app.info.fps;
+    if (frame_elapsed_time < target_frame_time)
+    {
+        float64 remaining_time = target_frame_time - frame_elapsed_time;
+        JsonSaveObjects(&g_app.json_manager, remaining_time);
+        frame_elapsed_time = TimeNow() - frame_start_time;
+
+        if (frame_elapsed_time < target_frame_time)
+        {
+            float64 delay_sec = target_frame_time - frame_elapsed_time;
+
+            SDL_Delay((uint32)(delay_sec * 1000.0));
+        }
+    }
+
+    g_app.info.dt = (float32)(TimeNow() - frame_start_time);
+}
+
 static HOT void MainLoopIteration(void *arg)
 {
-
     (void)arg;
 
     if (!s_is_running)
         return;
 
     PROFILE_FRAME_MARK();
-
     PROFILE_ZONE_START(main_loop_work_zone, "MainLoop");
-
-    uint64 frame_start_ticks = SDL_GetTicks();
-
-    float32 frame_dt = 1.0f / (float32)g_app.info.fps;
-    g_app.info.dt = frame_dt;
+    float64 frame_start_time = TimeNow();
 
     RunGarbageCollector();
 
@@ -170,7 +190,7 @@ static HOT void MainLoopIteration(void *arg)
     PROFILE_ZONE_END(poll_events_zone);
 
     PROFILE_ZONE_START(wren_update_zone, "Wren.OnUpdate");
-    WrenCallOnUpdate(frame_dt);
+    WrenCallOnUpdate(g_app.info.dt);
     PROFILE_ZONE_END(wren_update_zone);
 
     PROFILE_ZONE_START(wren_fixed_zone, "Wren.OnFixedUpdate");
@@ -183,14 +203,7 @@ static HOT void MainLoopIteration(void *arg)
     g_app.info.frame_count++;
 
     PROFILE_ZONE_END(main_loop_work_zone);
-
-    uint64 frame_elapsed_ticks = SDL_GetTicks() - frame_start_ticks;
-    uint64 target_frame_ticks = 1000 / g_app.info.fps;
-
-    if (frame_elapsed_ticks < target_frame_ticks)
-    {
-        SDL_Delay((uint32)(target_frame_ticks - frame_elapsed_ticks));
-    }
+    UpdateEngineTime(frame_start_time);
     EngineRequestStop();
 }
 
@@ -220,7 +233,8 @@ void ReloadConfig(void)
 
     PROFILE_FUNCTION("Reload");
 
-    JsonCloseFile(&g_app.json_manager, "config.json");
+    JsonManagerDestroy(&g_app.json_manager);
+    g_app.json_manager = JsonManagerCreate();
     InitAppConfig();
     WindowApplyConfig(&g_app.info);
     LogApplyConfig(&g_app.info);

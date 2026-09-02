@@ -1,10 +1,10 @@
 
-#include "grngame/bindings/wren/wren_bind.h"
-#include "grngame/bindings/wren/wren_callback.h"
+#include "grngame/bindings/wren/wren_api.h"
 #include "grngame/input/controller.h"
 #include "grngame/math/types.h"
 #include "grngame/utils/attributes.h"
 #include "wren.h"
+
 
 static void controller_pad_pressed(WrenVM *vm)
 {
@@ -115,7 +115,6 @@ static void controller_pad_sticks_triggers(WrenVM *vm)
     wrenSetSlotDouble(vm, 1, PadTriggerR(index));
     wrenInsertInList(vm, 0, -1, 1);
 }
-
 
 void RegisterControllerModule()
 {

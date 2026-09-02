@@ -1,12 +1,10 @@
-#include "grngame/bindings/wren/wren_bind.h"
-#include "grngame/bindings/wren/wren_callback.h"
+#include "grngame/bindings/wren/wren_api.h"
 #include "grngame/data/file.h"
 #include "grngame/dev/logging.h"
 #include "wren.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-
 
 static void file_exists(WrenVM *vm)
 {

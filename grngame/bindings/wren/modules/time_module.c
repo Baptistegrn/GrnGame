@@ -1,11 +1,10 @@
 #include "grngame/bindings/wren/wren_api.h"
-#include "grngame/bindings/wren/wren_callback.h"
 #include "grngame/utils/time.h"
 #include "wren.h"
 
 static void time_now_w(WrenVM *vm)
 {
-    wrenSetSlotDouble(vm, 1, TimeNow());
+    wrenSetSlotDouble(vm, 0, TimeNow());
 }
 
 void RegisterTimeModule()

@@ -3,8 +3,7 @@
 #include "grngame/assets/asset_manager.h"
 #include "grngame/assets/load.h"
 #include "grngame/audio/sound.h"
-#include "grngame/bindings/wren/wren_bind.h"
-#include "grngame/bindings/wren/wren_get.h"
+#include "grngame/bindings/wren/wren_api.h"
 #include "grngame/core/app.h"
 #include "grngame/core/window.h"
 #include "grngame/data/data.h"
@@ -17,6 +16,7 @@
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/taskbar_icon.h"
 #include "grngame/utils/time.h"
+#include "kvec.h"
 
 #include <SDL3/SDL.h>
 #include <stdlib.h>
@@ -113,9 +113,9 @@ static InitResult SetSDLMetadata(void)
 static void LoadAppConfig(const unsigned char *text)
 {
 #ifndef EMBEDDED_ASSETS_DATA_AVAILABLE
-    OpenJsonFile(&g_app.json_manager, "config/config.json", 0, 0);
+    OpenJsonObject(&g_app.json_manager, "config/config.json", 0, 0);
 #else
-    OpenJsonFileFromMemory(&g_app.json_manager, "config/config.json", text, 0, 0);
+    OpenJsonObjectFromMemory(&g_app.json_manager, "config/config.json", text, 0, 0);
 #endif
 
     GET_CONFIG_BOOL("Config.enableLogs", g_app.info.enable_logs, true);
@@ -287,6 +287,7 @@ InitResult InitAll(void)
     }
 
     g_app = (App){0};
+
     InitializeJson();
     InitAppConfig();
     InitResult result = InitializeLogging();

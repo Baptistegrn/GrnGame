@@ -4,7 +4,7 @@
 
 #include <math.h>
 
-// Pixel coordinate mode:
+// pixel coordinate mode:
 // - 1: force integer-aligned drawing (useful for pixel-art rendering)
 // - 0: allow floating-point positions
 #define PIXEL_INT_ONLY 0
@@ -15,18 +15,18 @@
 #define PIXEL_ALIGN(x) (x)
 #endif
 
-// Fixed-update loop frequency
+// fixed-update loop frequency
 #define FIXED_UPDATE_LOOP 60.0f
 
 #define FIXED_DT (1.0 / FIXED_UPDATE_LOOP)
 
-// Maximum number of simultaneously supported controllers/gamepads
+// maximum number of simultaneously supported controllers/gamepads
 #define MAX_CONTROLLERS 8
 
-// Default dead zone applied to controller axes (range: 0.0 - 1.0).
+// default dead zone applied to controller axes (range: 0.0 - 1.0).
 #define DEFAULT_DEAD_ZONE 0.1f
 
-// Number of seconds (in frames multiplier) between garbage collector runs.
+// number of seconds (in frames multiplier) between garbage collector runs.
 #define GARBAGE_COLLECTOR_TIME_TO_REFRESH 180
 
 // fps on web for rendering

@@ -4,7 +4,7 @@
 #include "SDL3/SDL_pixels.h"
 #include "grngame/assets/asset_manager.h"
 #include "grngame/audio/sound_manager.h"
-#include "grngame/bindings/wren/wren_bind.h"
+#include "grngame/bindings/wren/wren_api.h"
 #include "grngame/data/data.h"
 #include "grngame/data/json.h"
 #include "grngame/dev/hotreload.h"
@@ -12,6 +12,7 @@
 #include "grngame/renderer/cielab.h"
 #include "grngame/renderer/palette.h"
 #include "grngame/renderer/renderer.h"
+#include "grngame/utils/macro.h"
 #include "khash.h"
 #include "kvec.h"
 #include "thread.h"
@@ -57,6 +58,7 @@ typedef struct AppInfo
     int32 render_clear;
 
     string_vec_t palette;
+
 } AppInfo;
 
 typedef struct

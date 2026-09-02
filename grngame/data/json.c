@@ -1,38 +1,29 @@
 #include "json.h"
-#include "SDL3/SDL_timer.h"
-#include "SDL3/SDL_video.h"
+#include "cjson/cJSON.h"
 #include "file.h"
-#include "grngame/audio/sound.h"
-#include "grngame/bindings/wren/wren_bind.h"
-#include "grngame/bindings/wren/wren_handle.h"
+#include "grngame/bindings/wren/wren_api.h"
+#include "grngame/bindings/wren/wren_event.h"
 #include "grngame/core/app.h"
-#include "grngame/core/init.h"
-#include "grngame/core/window.h"
-#include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
-#include "grngame/dev/tracy.h"
 #include "grngame/input/input_data.h"
-#include "grngame/input/poll_events.h"
 #include "grngame/math/types.h"
-#include "grngame/platform/check_type.h"
 #include "grngame/platform/paths.h"
 #include "grngame/utils/attributes.h"
-#include "grngame/utils/clear.h"
-#include "grngame/utils/random.h"
 #include "grngame/utils/string_compat.h"
 #include "grngame/utils/time.h"
 #include "kvec.h"
+#include <stdlib.h>
 
 COLD JsonManager JsonManagerCreate(void)
 {
     return *kh_init(JsonObjects);
 }
 
-void JsonObjectAdd(JsonManager *manager, const char *key, JsonObject value)
+static void JsonObjectAdd(JsonManager *manager, const char *key, JsonObject value)
 {
     int32 ret;
 
-    size_t len = strlen(key) + 1;
+    uint64 len = strlen(key) + 1;
     char *copy = malloc(len);
 
     memcpy(copy, key, len);
@@ -62,7 +53,7 @@ bool JsonObjectContains(JsonManager *manager, const char *key)
     return kh_get(JsonObjects, manager, key) != kh_end(manager);
 }
 
-bool OpenJsonFile(JsonManager *manager, const char *path, uint64 min, uint64 max)
+bool OpenJsonObject(JsonManager *manager, const char *path, uint64 min, uint64 max)
 {
     char *text = ReturnFileString(PathFromExecutableDirectory(path));
     if (UNLIKELY(text == NULL))
@@ -85,7 +76,7 @@ bool OpenJsonFile(JsonManager *manager, const char *path, uint64 min, uint64 max
     return true;
 }
 
-bool OpenJsonFileFromMemory(JsonManager *manager, const char *path, const unsigned char *text, uint64 min, uint64 max)
+bool OpenJsonObjectFromMemory(JsonManager *manager, const char *path, const unsigned char *text, uint64 min, uint64 max)
 {
     cJSON *json = cJSON_Parse((const char *)text);
     if (json == NULL)
@@ -95,7 +86,7 @@ bool OpenJsonFileFromMemory(JsonManager *manager, const char *path, const unsign
         return false;
     }
 
-    JsonObject j = (JsonObject){.min = min, .max = max, .json = json, .dirty = false};
+    JsonObject j = (JsonObject){.min = min, .max = max, .json = json};
     JsonObjectAdd(manager, path, j);
     return true;
 }
@@ -120,21 +111,13 @@ static cJSON *JsonNavigateToParent(cJSON *root, char *path_copy, char **out_leaf
         {
             if (!create)
             {
-                LOG_ERROR("Path segment not found : %s", token);
                 return NULL;
             }
-
             child = cJSON_CreateObject();
-            if (UNLIKELY(child == NULL))
-            {
-                LOG_ERROR("Impossible to create object for segment : %s", token);
-                return NULL;
-            }
             cJSON_AddItemToObject(current, token, child);
         }
         else if (UNLIKELY(!cJSON_IsObject(child)))
         {
-            LOG_ERROR("Path segment is not an object : %s", token);
             return NULL;
         }
 
@@ -165,72 +148,6 @@ static cJSON *JsonResolve(JsonManager *manager, const char *fileKey, const char 
     path_copy[JSON_PATH_MAX_LEN - 1] = '\0';
 
     return JsonNavigateToParent(entry->json, path_copy, out_leaf, create);
-}
-
-bool JsonSetNumber(JsonManager *manager, const char *fileKey, const char *key, float64 value)
-{
-    char *leaf = NULL;
-    cJSON *parent = JsonResolve(manager, fileKey, key, &leaf, true);
-    if (UNLIKELY(parent == NULL))
-        return false;
-
-    cJSON_DeleteItemFromObjectCaseSensitive(parent, leaf);
-
-    cJSON *item = cJSON_CreateNumber(value);
-    if (UNLIKELY(item == NULL))
-    {
-        LOG_ERROR("Impossible to create number for key : %s", key);
-        return false;
-    }
-
-    cJSON_AddItemToObject(parent, leaf, item);
-    JsonObject *entry = JsonObjectGet(manager, fileKey);
-    entry->dirty = true;
-    return true;
-}
-
-bool JsonSetBool(JsonManager *manager, const char *fileKey, const char *key, bool value)
-{
-    char *leaf = NULL;
-    cJSON *parent = JsonResolve(manager, fileKey, key, &leaf, true);
-    if (UNLIKELY(parent == NULL))
-        return false;
-
-    cJSON_DeleteItemFromObjectCaseSensitive(parent, leaf);
-
-    cJSON *item = cJSON_CreateBool(value);
-    if (UNLIKELY(item == NULL))
-    {
-        LOG_ERROR("Impossible to create bool for key : %s", key);
-        return false;
-    }
-
-    cJSON_AddItemToObject(parent, leaf, item);
-    JsonObject *entry = JsonObjectGet(manager, fileKey);
-    entry->dirty = true;
-    return true;
-}
-
-bool JsonSetString(JsonManager *manager, const char *fileKey, const char *key, const char *value)
-{
-    char *leaf = NULL;
-    cJSON *parent = JsonResolve(manager, fileKey, key, &leaf, true);
-    if (UNLIKELY(parent == NULL))
-        return false;
-
-    cJSON_DeleteItemFromObjectCaseSensitive(parent, leaf);
-
-    cJSON *item = cJSON_CreateString(value);
-    if (UNLIKELY(item == NULL))
-    {
-        LOG_ERROR("Impossible to create string for key : %s", key);
-        return false;
-    }
-
-    cJSON_AddItemToObject(parent, leaf, item);
-    JsonObject *entry = JsonObjectGet(manager, fileKey);
-    entry->dirty = true;
-    return true;
 }
 
 bool JsonGetNumber(JsonManager *manager, const char *fileKey, const char *key, float64 *out)
@@ -287,27 +204,6 @@ bool JsonGetString(JsonManager *manager, const char *fileKey, const char *key, c
     return true;
 }
 
-bool JsonSetNumberArray(JsonManager *manager, const char *fileKey, const char *key, const float64_vec_t *vec)
-{
-    char *leaf = NULL;
-    cJSON *parent = JsonResolve(manager, fileKey, key, &leaf, true);
-    if (UNLIKELY(parent == NULL))
-        return false;
-
-    cJSON_DeleteItemFromObjectCaseSensitive(parent, leaf);
-
-    cJSON *array = cJSON_CreateDoubleArray(vec->a, kv_size(*vec));
-    if (UNLIKELY(array == NULL))
-    {
-        LOG_ERROR("Impossible to create number array for key : %s", key);
-        return false;
-    }
-
-    cJSON_AddItemToObject(parent, leaf, array);
-    JsonObject *entry = JsonObjectGet(manager, fileKey);
-    entry->dirty = true;
-    return true;
-}
 bool JsonGetNumberArray(JsonManager *manager, const char *fileKey, const char *key, float64_vec_t *out)
 {
     kv_init(*out);
@@ -349,7 +245,24 @@ bool JsonGetNumberArray(JsonManager *manager, const char *fileKey, const char *k
     return true;
 }
 
-bool JsonSaveFile(JsonManager *manager, const char *fileKey)
+typedef struct
+{
+    char *key;
+    char *text;
+} FileWriteJob;
+
+static void FileWriteJobRun(void *user_data)
+{
+    FileWriteJob *job = user_data;
+
+    WriteFileString(job->key, job->text, false);
+
+    free(job->key);
+    free(job->text);
+    free(job);
+}
+
+bool JsonSaveObject(JsonManager *manager, const char *fileKey)
 {
     JsonObject *entry = JsonObjectGet(manager, fileKey);
     if (UNLIKELY(entry == NULL))
@@ -358,88 +271,24 @@ bool JsonSaveFile(JsonManager *manager, const char *fileKey)
         return false;
     }
 
-    char *text = cJSON_Print(entry->json);
-    if (UNLIKELY(text == NULL))
+    FileWriteJob *job = malloc(sizeof(*job));
+    if (UNLIKELY(job == NULL))
+        return false;
+
+    job->key = PathFromExecutableDirectory(fileKey);
+    job->text = cJSON_Print(entry->json);
+
+    if (UNLIKELY(job->key == NULL || job->text == NULL))
     {
-        LOG_ERROR("Impossible to serialize json file : %s", fileKey);
+        LOG_ERROR("Impossible to prepare json file : %s", fileKey);
+        free(job->key);
+        free(job->text);
+        free(job);
         return false;
     }
-
-    FILE *f = fopen(fileKey, "wb");
-    if (UNLIKELY(f == NULL))
-    {
-        LOG_ERROR("Impossible to open json file for writing : %s", fileKey);
-        free(text);
-        return false;
-    }
-
-    size_t len = strlen(text);
-    size_t written = fwrite(text, 1, len, f);
-    fclose(f);
-    free(text);
-
-    if (UNLIKELY(written != len))
-    {
-        LOG_ERROR("Impossible to write full content to json file : %s", fileKey);
-        return false;
-    }
-
-    return true;
-}
-
-bool JsonSetBoolArray(JsonManager *manager, const char *fileKey, const char *key, const bool_vec_t *values)
-{
-    char *leaf = NULL;
-    cJSON *parent = JsonResolve(manager, fileKey, key, &leaf, true);
-    if (UNLIKELY(parent == NULL))
-        return false;
-
-    cJSON_DeleteItemFromObjectCaseSensitive(parent, leaf);
-
-    cJSON *array = cJSON_CreateArray();
-    if (UNLIKELY(array == NULL))
-    {
-        LOG_ERROR("Impossible to create bool array for key : %s", key);
-        return false;
-    }
-
-    for (uint64 i = 0; i < kv_size(*values); i++)
-    {
-        cJSON *item = cJSON_CreateBool(kv_A(*values, i));
-        if (UNLIKELY(item == NULL))
-        {
-            LOG_ERROR("Impossible to create bool item %lld for key : %s", (long long)i, key);
-            cJSON_Delete(array);
-            return false;
-        }
-        cJSON_AddItemToArray(array, item);
-    }
-
-    cJSON_AddItemToObject(parent, leaf, array);
-    JsonObject *entry = JsonObjectGet(manager, fileKey);
-    entry->dirty = true;
-    return true;
-}
-
-bool JsonSetStringArray(JsonManager *manager, const char *fileKey, const char *key, const string_vec_t *values)
-{
-    char *leaf = NULL;
-    cJSON *parent = JsonResolve(manager, fileKey, key, &leaf, true);
-    if (UNLIKELY(parent == NULL))
-        return false;
-
-    cJSON_DeleteItemFromObjectCaseSensitive(parent, leaf);
-
-    cJSON *array = cJSON_CreateStringArray((const char *const *)values->a, (int32)kv_size(*values));
-    if (UNLIKELY(array == NULL))
-    {
-        LOG_ERROR("Impossible to create string array for key : %s", key);
-        return false;
-    }
-
-    cJSON_AddItemToObject(parent, leaf, array);
-    JsonObject *entry = JsonObjectGet(manager, fileKey);
-    entry->dirty = true;
+    // Safe asynchronous operation: the file is read once during initialization,
+    // and writes occur at most once per second.
+    ThreadManagerPush(FileWriteJobRun, job);
     return true;
 }
 
@@ -528,7 +377,7 @@ bool JsonGetStringArray(JsonManager *manager, const char *fileKey, const char *k
     return true;
 }
 
-bool JsonCloseFile(JsonManager *manager, const char *fileKey)
+static bool JsonCloseObject(JsonManager *manager, const char *fileKey)
 {
     khiter_t it = kh_get(JsonObjects, manager, fileKey);
 
@@ -560,10 +409,62 @@ COLD void JsonManagerDestroy(JsonManager *manager)
         if (it == kh_end(manager))
             break;
         const char *key = kh_key(manager, it);
-        JsonCloseFile(manager, key);
+        JsonCloseObject(manager, key);
     }
 
     free(manager->keys);
     free(manager->flags);
     free(manager->vals);
+}
+
+void JsonSaveObjects(JsonManager *manager, float64 budget)
+{
+
+    uint64 current_time_sec = g_app.info.frame_count / (uint64)g_app.info.fps;
+    uint64 start_ticks = TimeNow();
+
+    float64 max_time_ms = budget * 0.8;
+
+    for (khiter_t it = kh_begin(manager); it != kh_end(manager); ++it)
+    {
+        if (!kh_exist(manager, it))
+            continue;
+
+        JsonObject *json = &kh_value(manager, it);
+        if ((json->min > json->max) || (json->min == 0 && json->max == 0))
+            continue;
+        uint64 elapsed_sec = current_time_sec - json->last_save_time;
+
+        bool is_mandatory = elapsed_sec >= json->max;
+        bool should_save = is_mandatory || elapsed_sec >= json->min;
+
+        if (!should_save)
+            continue;
+
+        uint64 elapsed_ms = TimeNow() - start_ticks;
+
+        if (!is_mandatory && elapsed_ms >= max_time_ms)
+            continue;
+
+        const char *key = kh_key(manager, it);
+        LOG_INFO(key);
+        CallbackArg args[1] = {{.type = CB_ARG_STRING, .as.string = key}};
+        CallWrenCallback(JSON_SAVE, args, 1);
+
+        json->last_save_time = current_time_sec;
+    }
+}
+
+bool WriteInJsonObject(JsonManager *manager, const char *key, cJSON *object)
+{
+    JsonObject *entry = JsonObjectGet(manager, key);
+    if (UNLIKELY(entry == NULL))
+    {
+        LOG_ERROR("Unknown json file : %s", key);
+        return NULL;
+    }
+    cJSON_Delete(entry->json);
+    entry->json = NULL;
+    entry->json = object;
+    return true;
 }

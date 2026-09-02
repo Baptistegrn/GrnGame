@@ -1,9 +1,6 @@
 #include "grngame/bindings/wren/wren_api.h"
-#include "grngame/bindings/wren/wren_bind.h"
-#include "grngame/bindings/wren/wren_callback.h"
 #include "grngame/input/input_text.h"
 #include "wren.h"
-
 
 static void input_text_get(WrenVM *vm)
 {

@@ -1,7 +1,7 @@
 #include "kvec.h"
 #if defined(GRNGAME_HOT_RELOAD_ENABLE)
 #include "grngame/assets/load.h"
-#include "grngame/bindings/wren/wren_bind.h"
+#include "grngame/bindings/wren/wren_api.h"
 #include "grngame/core/app.h"
 #include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
@@ -14,7 +14,6 @@
 #include <filesystem>
 #include <memory>
 #include <string>
-
 
 // note : we use mutex and queue because somes functions of sdl dosn't work on another thread
 static std::unique_ptr<efsw::FileWatcher> g_fileWatcher;

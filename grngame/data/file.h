@@ -1,5 +1,4 @@
 #pragma once
-// todo : make the same system of json
 #include "grngame/utils/c_cpp.h"
 #include <stdbool.h>
 

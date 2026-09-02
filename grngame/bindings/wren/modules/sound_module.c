@@ -3,15 +3,14 @@
 #include "grngame/audio/sound_info.h"
 #include "grngame/audio/speech.h"
 #include "grngame/bindings/wren/wren_api.h"
-#include "grngame/bindings/wren/wren_bind.h"
-#include "grngame/bindings/wren/wren_callback.h"
 #include "grngame/core/param.h"
 #include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
 #include "wren.h"
+#include <math.h>
 #include <stdbool.h>
 #include <string.h>
-#include <math.h>
+
 
 static void filter_def_new(WrenVM *vm)
 {
