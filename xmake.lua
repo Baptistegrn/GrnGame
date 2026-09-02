@@ -78,9 +78,7 @@ add_requires("sqlite3",       {version = "3-3.53.0+0"}, {configs = {shared = fal
 add_requires("cjson",{configs = {shared = false}})
 
 --logs
-if not is_plat("wasm") then
-    add_requires("quill", {version = "v11.0.2"}, {configs = {shared = false}})
-end
+add_requires("haclog", {version = "v0.4.4"}, {configs = {shared = false}})
 
 set_warnings("all", "extra")
 
@@ -98,11 +96,11 @@ target("GrnGame")
     add_packages("libsdl3fix",
          "libsdl3_image", "libsdl3_ttf",
         "klib", "cglm", "soloud", "tinydir",
-        "wren", "freetype", "sqlite3", "highway", "Libimagequant", "cjson",
+        "wren", "freetype", "sqlite3", "highway", "Libimagequant", "cjson","haclog",
         {public = true}
     )
     if not is_plat("wasm") then
-        add_packages("quill", "efsw", {public = true})
+        add_packages( "efsw", {public = true})
     end
 
     if has_config("tracy") then

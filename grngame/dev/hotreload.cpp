@@ -7,6 +7,7 @@
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
 #include "grngame/renderer/palette.h"
+#include "logging.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
 #include <cstring>
@@ -41,7 +42,7 @@ class UpdateListener : public efsw::FileWatchListener
             break;
 
         case efsw::Actions::Delete:
-            elem.action = DELETE;
+            elem.action = DELETE_;
             break;
 
         case efsw::Actions::Modified:
@@ -159,7 +160,7 @@ void ProcessHotreloadQueue(void)
             break;
         }
 
-        case DELETE: {
+        case DELETE_: {
             LOG_DEBUG("Asset deleted '%s'", cpath);
 
             if (FileIsLoadableScript(cpath))

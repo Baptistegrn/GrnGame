@@ -555,7 +555,7 @@ void RegisterRendererModule()
     const char *spr_module = "std/wren/renderer/sprite";
     const char *spr_cls = "Sprite";
 
-    RegisterClass(spr_module, spr_cls, sprite_allocate, sprite_finalize);
+    RegisterClass_(spr_module, spr_cls, sprite_allocate, sprite_finalize);
     RegisterMethod(spr_module, spr_cls, false, "name", sprite_get_name);
     RegisterMethod(spr_module, spr_cls, false, "name=(_)", sprite_set_name);
     RegisterMethod(spr_module, spr_cls, false, "w", sprite_get_w);
@@ -567,7 +567,7 @@ void RegisterRendererModule()
     const char *emit_module = "std/wren/renderer/particule";
     const char *emit_cls = "ParticleEmitter";
 
-    RegisterClass(emit_module, emit_cls, emitter_allocate, emitter_finalize);
+    RegisterClass_(emit_module, emit_cls, emitter_allocate, emitter_finalize);
 
     // RegisterMethod(emit_module, emit_cls, false, "spawn()", emitter_spawn);
 

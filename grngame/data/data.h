@@ -15,7 +15,7 @@ typedef enum
     FLOAT_ = 1,
     TEXT = 2,
     DATA = 3,
-    VOID = 4
+    VOID_ = 4
 } DbType;
 
 typedef struct

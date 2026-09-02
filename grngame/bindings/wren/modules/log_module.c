@@ -34,22 +34,6 @@ static void log_critical(WrenVM *vm)
     LOG_CRITICAL(message);
 }
 
-static void apply_config(WrenVM *vm)
-{
-    LogInfoSetEnable(wrenGetSlotBool(vm, 1));
-    LogInfoSetDestination((int32)wrenGetSlotDouble(vm, 2));
-    LogApplyConfig(&g_app.info);
-}
-
-static void log_get_level(WrenVM *vm)
-{
-    wrenSetSlotDouble(vm, 0, LogGetLevel());
-}
-
-static void log_set_lvl(WrenVM *vm)
-{
-    LogSetLevel((int32)wrenGetSlotDouble(vm, 1));
-}
 void RegisterLogModule()
 {
     const char *module = "std/wren/dev/log";
@@ -61,9 +45,6 @@ void RegisterLogModule()
     RegisterMethod(module, cls, is_static, "warning(_)", log_warning);
     RegisterMethod(module, cls, is_static, "debug(_)", log_debug);
     RegisterMethod(module, cls, is_static, "critical(_)", log_critical);
-    RegisterMethod(module, cls, is_static, "apply_config(_,_)", apply_config);
-    RegisterMethod(module, cls, is_static, "set_lvl(_)", log_set_lvl);
-    RegisterMethod(module, cls, is_static, "get_level()", log_get_level);
 }
 
 WREN_MODULE(RegisterLogModule)

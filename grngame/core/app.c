@@ -91,7 +91,7 @@ void EngineStop(void)
     CleanupAppResources();
 }
 
-static void DestroyWindow()
+static void DestroyWindow_()
 {
     if (g_app.window)
     {
@@ -113,7 +113,7 @@ static COLD void CleanupAppResources(void)
 {
     PROFILE_FUNCTION("Cleanup");
     ShutdownScripts();
-    DestroyWindow();
+    DestroyWindow_();
     DestroyRenderer();
     PaletteFreeStringVec(&g_app.info.palette);
     PaletteManagerDestroy(&g_app.palette_manager);
@@ -237,7 +237,6 @@ void ReloadConfig(void)
     g_app.json_manager = JsonManagerCreate();
     InitAppConfig();
     WindowApplyConfig(&g_app.info);
-    LogApplyConfig(&g_app.info);
     SetRenderColor(g_app.info.render_clear);
     PaletteReload();
     LOG_INFO("sucessfuly reload config");

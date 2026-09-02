@@ -2,11 +2,12 @@
 #pragma once
 
 #include "grngame/utils/c_cpp.h"
+#include "stdbool.h"
 
 typedef enum
 {
     ADD,
-    DELETE,
+    DELETE_,
     MODIFIED,
     MOVED,
 } Action;

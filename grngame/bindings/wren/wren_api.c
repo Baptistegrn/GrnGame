@@ -98,8 +98,8 @@ void RegisterMethod(const char *module, const char *className, bool isStatic, co
     kh_value(g_methods, k) = fn;
 }
 
-void RegisterClass(const char *module, const char *className, WrenForeignMethodFn allocateFn,
-                   WrenFinalizerFn finalizeFn)
+void RegisterClass_(const char *module, const char *className, WrenForeignMethodFn allocateFn,
+                    WrenFinalizerFn finalizeFn)
 {
     char key[KEY_SIZE];
     MakeClassKey(key, sizeof(key), module, className);

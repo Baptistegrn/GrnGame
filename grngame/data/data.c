@@ -136,7 +136,7 @@ static DbResult DbResultGet(sqlite3_stmt *stmt)
                 break;
             }
             case SQLITE_NULL:
-                v.type = VOID;
+                v.type = VOID_;
                 break;
             }
 
@@ -186,7 +186,7 @@ void DbResultPrint(DbResult *res)
             case DATA:
                 printf("[BLOB size=%llu]\n", v.value.blob.size);
                 break;
-            case VOID:
+            case VOID_:
                 printf("NULL\n");
                 break;
             }

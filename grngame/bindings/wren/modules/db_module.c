@@ -157,7 +157,7 @@ static void db_stmt_run(WrenVM *vm)
                 break;
             case WREN_TYPE_NULL:
             default:
-                arg.type = VOID;
+                arg.type = VOID_;
                 break;
             }
 
@@ -183,8 +183,8 @@ void RegisterDbModule()
 {
     const char *module_db = "std/wren/data/db";
     const char *module_stmt = "std/wren/data/stmt";
-    RegisterClass(module_db, "Db", db_allocate, db_finalize);
-    RegisterClass(module_stmt, "DbStmt", db_stmt_allocate, db_stmt_finalize);
+    RegisterClass_(module_db, "Db", db_allocate, db_finalize);
+    RegisterClass_(module_stmt, "DbStmt", db_stmt_allocate, db_stmt_finalize);
 
     RegisterMethod(module_db, "Db", false, "open(_)", db_open);
     RegisterMethod(module_db, "Db", false, "prepare(_)", db_prepare);

@@ -11,7 +11,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-
 static void filter_def_new(WrenVM *vm)
 {
     FilterDef *f = (FilterDef *)wrenSetSlotNewForeign(vm, 0, 0, sizeof(FilterDef));
@@ -219,7 +218,7 @@ void RegisterSoundModule()
     const char *filter_mod = "std/wren/audio/filter_def";
     const char *filter_cls = "FilterDef";
 
-    RegisterClass(filter_mod, filter_cls, filter_def_new, NULL);
+    RegisterClass_(filter_mod, filter_cls, filter_def_new, NULL);
 
     RegisterMethod(filter_mod, filter_cls, false, "init new()", filter_def_init);
     RegisterMethod(filter_mod, filter_cls, false, "type", filter_def_get_type);

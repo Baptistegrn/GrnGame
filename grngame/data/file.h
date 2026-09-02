@@ -2,7 +2,7 @@
 #include "grngame/utils/c_cpp.h"
 #include <stdbool.h>
 
-#define MAX_PATH 1024
+#define MAX_PATH_ 1024
 
 BEGIN_DECLARATIONS
 

@@ -100,8 +100,8 @@ WrenForeignMethodFn BindMethodFn(WrenVM *vm, const char *module, const char *cla
 WrenForeignClassMethods BindClassFn(WrenVM *vm, const char *module, const char *className);
 WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name);
 void InitBindingSystem();
-void RegisterClass(const char *module, const char *className, WrenForeignMethodFn allocateFn,
-                   WrenFinalizerFn finalizeFn);
+void RegisterClass_(const char *module, const char *className, WrenForeignMethodFn allocateFn,
+                    WrenFinalizerFn finalizeFn);
 void RegisterMethod(const char *module, const char *className, bool isStatic, const char *signature,
                     WrenForeignMethodFn fn);
 
