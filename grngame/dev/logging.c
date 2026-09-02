@@ -2,6 +2,7 @@
 #include "grngame/platform/paths.h"
 #include "grngame/utils/clear.h"
 #include <stdbool.h>
+#include <string.h>
 
 static bool add_console_handler()
 {

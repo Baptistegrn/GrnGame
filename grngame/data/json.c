@@ -447,7 +447,6 @@ void JsonSaveObjects(JsonManager *manager, float64 budget)
             continue;
 
         const char *key = kh_key(manager, it);
-        LOG_INFO(key);
         CallbackArg args[1] = {{.type = CB_ARG_STRING, .as.string = key}};
         CallWrenCallback(JSON_SAVE, args, 1);
 

@@ -84,7 +84,7 @@ set_warnings("all", "extra")
 
 target("GrnGame")
     add_defines("WITH_SDL3_STATIC")
-    set_languages("c17", "cxx20")
+    set_languages("c23", "cxx20")
     set_kind("static")
 
     add_files("grngame/**.c", "grngame/**.cpp")

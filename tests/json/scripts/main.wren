@@ -19,7 +19,7 @@ static on_start() {
     Json.set("big.json",big_map)
     Json.save("big.json")
     var end = Time.now()
-    System.print("%(end-start)")
+    //System.print("%(end-start)")
     
 }
 

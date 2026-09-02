@@ -7,31 +7,31 @@
 static void log_error(WrenVM *vm)
 {
     const char *message = wrenGetSlotString(vm, 1);
-    LOG_ERROR(message);
+    LOG_ERROR("%s", message);
 }
 
 static void log_debug(WrenVM *vm)
 {
     const char *message = wrenGetSlotString(vm, 1);
-    LOG_DEBUG(message);
+    LOG_DEBUG("%s", message);
 }
 
 static void log_info(WrenVM *vm)
 {
     const char *message = wrenGetSlotString(vm, 1);
-    LOG_INFO(message);
+    LOG_INFO("%s", message);
 }
 
 static void log_warning(WrenVM *vm)
 {
     const char *message = wrenGetSlotString(vm, 1);
-    LOG_WARNING(message);
+    LOG_WARNING("%s", message);
 }
 
 static void log_critical(WrenVM *vm)
 {
     const char *message = wrenGetSlotString(vm, 1);
-    LOG_CRITICAL(message);
+    LOG_CRITICAL("%s", message);
 }
 
 void RegisterLogModule()
