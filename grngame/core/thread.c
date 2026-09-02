@@ -6,6 +6,7 @@
 
 static int32 ThreadPoolWorker(void *user_data)
 {
+    haclog_thread_context_init();
     ThreadManager *manager = (ThreadManager *)user_data;
     while (1)
     {
@@ -45,7 +46,7 @@ static int32 ThreadPoolWorker(void *user_data)
             SDL_UnlockMutex(manager->mutex);
         }
     }
-
+    haclog_thread_context_cleanup();
     return 0;
 }
 
