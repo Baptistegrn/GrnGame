@@ -145,7 +145,7 @@ target("GrnGame")
     end
 
     if is_plat("wasm") then
-        add_defines("GRNGAME_WASM")
+        add_defines("GRNGAME_WASM", {public = true})
         add_ldflags(
             "--shell-file", "grngame/web/shell.html",
             "-sFORCE_FILESYSTEM=1",

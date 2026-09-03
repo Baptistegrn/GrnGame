@@ -3,7 +3,13 @@
 #include "grngame/utils/c_cpp.h"
 
 #ifndef GRNGAME_WASM
+
 #include "haclog/haclog.h"
+
+#else
+
+#include <emscripten/emscripten.h>
+
 #endif
 
 #include <stdbool.h>
@@ -31,7 +37,7 @@ bool LogInit(LogDestination log_destination);
 #else
 
 #define LOG_DEBUG(fmt, ...) emscripten_log(EM_LOG_CONSOLE, fmt, ##__VA_ARGS__)
-#define LOG_INFO(fmt, ...) emscripten_log(fmt, ##__VA_ARGS__)
+#define LOG_INFO(fmt, ...) emscripten_log(EM_LOG_CONSOLE, fmt, ##__VA_ARGS__)
 #define LOG_WARNING(fmt, ...) emscripten_log(EM_LOG_WARN, fmt, ##__VA_ARGS__)
 #define LOG_ERROR(fmt, ...) emscripten_log(EM_LOG_ERROR, fmt, ##__VA_ARGS__)
 #define LOG_CRITICAL(fmt, ...) emscripten_log(EM_LOG_ERROR, fmt, ##__VA_ARGS__)

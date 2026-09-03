@@ -6,7 +6,9 @@
 
 static int32 ThreadPoolWorker(void *user_data)
 {
+#ifndef GRNGAME_WASM
     haclog_thread_context_init();
+#endif
     ThreadManager *manager = (ThreadManager *)user_data;
     while (1)
     {
@@ -46,7 +48,10 @@ static int32 ThreadPoolWorker(void *user_data)
             SDL_UnlockMutex(manager->mutex);
         }
     }
+#ifndef GRNGAME_WASM
     haclog_thread_context_cleanup();
+#endif
+
     return 0;
 }
 

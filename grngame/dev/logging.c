@@ -3,7 +3,9 @@
 #include "grngame/platform/paths.h"
 #include "grngame/utils/clear.h"
 #include <stdbool.h>
+#include <stdlib.h>
 #include <string.h>
+
 
 int WriteMeta(struct haclog_handler *handler, haclog_meta_info_t *meta)
 {
@@ -83,6 +85,8 @@ bool LogInit(LogDestination log_destination)
 }
 
 #else
+
+#include "grngame/dev/logging.h"
 
 bool LogInit(LogDestination log_destination)
 {
