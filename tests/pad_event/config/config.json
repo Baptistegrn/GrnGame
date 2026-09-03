@@ -12,7 +12,7 @@
         "maximised": false,
         "bordered": true,
         "enableLogs": true,
-        "logDestination": 0,
+        "logDestination": 1,
         "forceUniverseScale": false,
         "renderClear": 0,
         "assetFolder": "assets",

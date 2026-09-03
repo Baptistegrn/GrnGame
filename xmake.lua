@@ -1,8 +1,10 @@
--- custom package from a pull request
+-- official package from a pull request
 includes("packages/s/soloud/xmake.lua")
 includes("packages/w/wren/xmake.lua")
 -- fix from official package because in wasm pthread option is force set to 0
-includes("packages/l/libsdl3fix/xmake.lua")
+includes("packages/l/libsdl3/xmake.lua")
+-- official package from my repo with custom settings
+includes("packages/h/haclog/xmake.lua")
 
 add_rules("mode.debug", "mode.release")
 
@@ -50,7 +52,7 @@ if is_plat("wasm") then
 end
 
 -- render + input
-add_requires("libsdl3fix",       {version = "3.4.0"},      {configs = {shared = false}})
+add_requires("libsdl3",       {version = "3.4.0"},      {configs = {shared = false}})
 add_requires("libsdl3_image", {version = "3.2.0"},      {configs = {shared = false}})
 add_requires("libsdl3_ttf",   {version = "3.2.2"},      {configs = {shared = false, freetype = false}, system = false})
 
@@ -78,8 +80,9 @@ add_requires("sqlite3",       {version = "3-3.53.0+0"}, {configs = {shared = fal
 add_requires("cjson",{configs = {shared = false}})
 
 --logs
-add_requires("haclog", {version = "v0.4.4"}, {configs = {shared = false}})
-
+if not is_plat("wasm") then
+    add_requires("haclog", {version = "color_fix"}, {configs = {shared = false}})
+end
 set_warnings("all", "extra")
 
 target("GrnGame")
@@ -93,14 +96,14 @@ target("GrnGame")
     add_includedirs(".", {public = true})
 
     -- packages
-    add_packages("libsdl3fix",
+    add_packages("libsdl3",
          "libsdl3_image", "libsdl3_ttf",
         "klib", "cglm", "soloud", "tinydir",
         "wren", "freetype", "sqlite3", "highway", "Libimagequant", "cjson","haclog",
         {public = true}
     )
     if not is_plat("wasm") then
-        add_packages( "efsw", {public = true})
+        add_packages( "efsw","haclog", {public = true})
     end
 
     if has_config("tracy") then
