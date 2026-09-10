@@ -7,6 +7,30 @@ on:
   pull_request:
 
 jobs:
+
+# clang-format
+format:
+  runs-on: ubuntu-22.04
+  name: "clang-format"
+
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install clang-format
+      run: sudo apt-get update && sudo apt-get install -y clang-format
+
+    - name: Apply formatting
+      shell: bash
+      run: |
+        find llsql -type f \( -name '*.c' -o -name '*.h' \) -print0 \
+          | xargs -0 -r clang-format -i
+
+    - name: Check for unformatted changes
+      shell: bash
+      run: |
+        git diff --exit-code
+
   # compilation
   build:
     strategy:
