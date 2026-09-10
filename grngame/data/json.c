@@ -415,6 +415,7 @@ COLD void JsonManagerDestroy(JsonManager *manager)
     free(manager->keys);
     free(manager->flags);
     free(manager->vals);
+    free(manager);
 }
 
 void JsonSaveObjects(JsonManager *manager, float64 budget)

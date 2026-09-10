@@ -31,7 +31,7 @@ class UpdateListener : public efsw::FileWatchListener
         std::filesystem::path fullPath = std::filesystem::path(dir) / filename;
         std::string path = fullPath.lexically_normal().string();
 
-        HotreloadQueueElement elem = {0};
+        HotreloadQueueElement elem = {};
         elem.new_file = strdup(path.c_str());
         elem.old_file = nullptr;
 

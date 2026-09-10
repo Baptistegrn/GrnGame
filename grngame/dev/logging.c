@@ -5,9 +5,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "grngame/math/types.h"
 
-
-int WriteMeta(struct haclog_handler *handler, haclog_meta_info_t *meta)
+int32 WriteMeta(struct haclog_handler *handler, haclog_meta_info_t *meta)
 {
     const char *level = haclog_level_to_str(meta->loc->level);
 
@@ -17,8 +17,8 @@ int WriteMeta(struct haclog_handler *handler, haclog_meta_info_t *meta)
     struct tm t;
     gmtime_r(&meta->ts.tv_sec, &t);
 
-    return handler->writev(handler, "%s|%s:%u|%s|%llu - ", level, filename, (unsigned int)meta->loc->line,
-                           meta->loc->func, (unsigned long long)meta->tid);
+    return handler->writev(handler, "%s|%s:%u|%s - ", level, filename, (uint32)meta->loc->line,
+                           meta->loc->func);
 }
 
 static bool add_console_handler()

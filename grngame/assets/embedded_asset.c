@@ -15,7 +15,7 @@ static int32 IsEmbeddableFile(const char *path)
            FileIsLoadableText(path) || !(strstr(path, "config.json") == NULL);
 }
 
-static unsigned char *LoadFileBinary(const char *path, long *out_size)
+static unsigned char *LoadFileBinary(const char *path, int64 *out_size)
 {
     FILE *file = fopen(path, "rb");
     if (!file)
@@ -54,7 +54,7 @@ static void EmbedCallback(const char *path, void *userdata)
         info->asset_count++;
     info->file_count++;
 
-    long size;
+    int64 size;
     unsigned char *data = LoadFileBinary(path, &size);
     if (!data)
     {
@@ -104,11 +104,11 @@ void create_embedded_structure(int32 num_dirs, const char **dirs, const char *ou
 
     char sql_buffer[256];
     snprintf(sql_buffer, sizeof(sql_buffer),
-             "INSERT INTO embedded_assets_info (key, value) VALUES ('file_count', %lld);", info.file_count);
+             "INSERT INTO embedded_assets_info (key, value) VALUES ('file_count', %lu);", info.file_count);
     DataWrite(db, sql_buffer);
 
     snprintf(sql_buffer, sizeof(sql_buffer),
-             "INSERT INTO embedded_assets_info (key, value) VALUES ('asset_count', %lld);", info.asset_count);
+             "INSERT INTO embedded_assets_info (key, value) VALUES ('asset_count', %lu);", info.asset_count);
     DataWrite(db, sql_buffer);
 
     DbCommit(db);
