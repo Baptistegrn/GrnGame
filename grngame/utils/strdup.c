@@ -2,7 +2,6 @@
 #include "string.h"
 #include <stdlib.h>
 
-
 char *StrDupSafe(const char *s)
 {
     if (!s)

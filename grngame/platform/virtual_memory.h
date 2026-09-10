@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-
 /// reserves a contiguous virtual address range without allocating RAM
 void *VirtualMemoryReserve(uint64 size);
 

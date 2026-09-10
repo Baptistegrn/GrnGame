@@ -86,7 +86,7 @@ jobs:
   # compilation wasm
   build-wasm:
     runs-on: ubuntu-22.04
-    name: "wasm | release | embed=true"
+    name: "wasm / release"
 
     steps:
       - name: Checkout

@@ -2,7 +2,6 @@
 #include "grngame/math/types.h"
 #include "grngame/platform/virtual_memory.h"
 
-
 static uint64 RoundUpToPage(uint64 size);
 static bool EnsureCommitted(BumpAllocator *allocator, uint64 needed);
 

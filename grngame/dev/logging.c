@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 int32 WriteMeta(struct haclog_handler *handler, haclog_meta_info_t *meta)
 {
     const char *level = haclog_level_to_str(meta->loc->level);

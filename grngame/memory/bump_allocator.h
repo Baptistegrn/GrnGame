@@ -4,7 +4,6 @@
 #include <stddef.h>
 #include <string.h>
 
-
 typedef struct
 {
     void *base;
