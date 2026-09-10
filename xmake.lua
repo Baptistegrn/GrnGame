@@ -83,6 +83,7 @@ add_requires("cjson",{configs = {shared = false}})
 if not is_plat("wasm") then
     add_requires("haclog", {version = "color_fix"}, {configs = {shared = false}})
 end
+
 set_warnings("all", "extra")
 
 target("GrnGame")
@@ -193,9 +194,9 @@ target("Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix)
 
 
 
-local test_target = "tests/json"
+-- all tests are here
 
-target(test_target)
+target("tests/json")
     set_kind("phony")
 
     on_run(function (target)
@@ -205,7 +206,7 @@ target(test_target)
         assert(python, "Python not found!")
 
         local target_name = target:name()
-
+        os.execv("xmake")
         os.execv(python.program, {
             "scripts/asset_pipeline.py",
             target_name,
@@ -223,6 +224,40 @@ target(test_target)
             "build",
             "tests",
             "json",
+            "Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix .. ext
+        )
+
+        os.execv(runtime_path)
+    end)
+
+target("tests/pad_event")
+    set_kind("phony")
+
+    on_run(function (target)
+        import("lib.detect.find_tool")
+
+        local python = find_tool("python") or find_tool("python3")
+        assert(python, "Python not found!")
+
+        local target_name = target:name()
+        os.execv("xmake")
+        os.execv(python.program, {
+            "scripts/asset_pipeline.py",
+            target_name,
+            path.join("build", target_name)
+        })
+
+        local plat = get_config("plat")
+        local arch = get_config("arch")
+        local mode = get_config("mode") or "release"
+        local suffix = ""
+
+        local ext = is_host("windows") and ".exe" or ""
+
+        local runtime_path = path.join(
+            "build",
+            "tests",
+            "pad_event",
             "Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix .. ext
         )
 

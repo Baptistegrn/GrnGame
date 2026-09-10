@@ -27,7 +27,7 @@ jobs:
           - { os: windows-11-arm, runner: windows-11-arm, platform: windows-arm64, buildtype: release, embed: true }
 
     runs-on: ${{ matrix.runner }}
-    name: "${{ matrix.platform }} | ${{ matrix.buildtype }} | embed=${{ matrix.embed }}"
+    name: "${{ matrix.platform }} / ${{ matrix.buildtype }} / embedded = ${{ matrix.embed }}"
 
     steps:
       - name: Checkout

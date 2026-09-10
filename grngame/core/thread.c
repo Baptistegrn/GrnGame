@@ -85,7 +85,7 @@ COLD void ThreadManagerCreate(void)
         }
     }
 
-    LOG_DEBUG("ThreadManager: pool created with %d threads", num_threads);
+    LOG_DEBUG("Pool created with %d threads", num_threads);
 }
 
 COLD void ThreadManagerDestroy(ThreadManager *manager)

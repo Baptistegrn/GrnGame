@@ -202,7 +202,7 @@ void open_json_file(WrenVM *vm)
     uint64 min = (uint64)wrenGetSlotDouble(vm, 2);
     uint64 max = (uint64)wrenGetSlotDouble(vm, 3);
 #ifndef EMBEDDED_ASSETS_DATA_AVAILABLE
-    OpenJsonObject(&g_app.json_manager, key, min, max);
+    OpenJsonObject(g_app.json_manager, key, min, max);
 #else
     const EmbeddedAsset *asset = GetEmbeddedAsset(key);
     OpenJsonObjectFromMemory(&g_app.json_manager, key, asset->data, min, max);
@@ -213,7 +213,7 @@ void json_contains(WrenVM *vm)
 {
     const char *key = wrenGetSlotString(vm, 1);
 
-    bool contains = JsonObjectContains(&g_app.json_manager, key);
+    bool contains = JsonObjectContains(g_app.json_manager, key);
     wrenSetSlotBool(vm, 0, contains);
 }
 
@@ -221,7 +221,7 @@ void json_get(WrenVM *vm)
 {
     const char *key = wrenGetSlotString(vm, 1);
 
-    JsonObject *object = JsonObjectGet(&g_app.json_manager, key);
+    JsonObject *object = JsonObjectGet(g_app.json_manager, key);
 
     if (object == NULL)
     {
@@ -239,7 +239,7 @@ void json_set(WrenVM *vm)
     const char *key = wrenGetSlotString(vm, 1);
     cJSON *value = JsonParseValueFromSlot(vm, 2);
 
-    bool success = WriteInJsonObject(&g_app.json_manager, key, value);
+    bool success = WriteInJsonObject(g_app.json_manager, key, value);
     if (!success)
     {
         cJSON_Delete(value);
@@ -252,7 +252,7 @@ void json_save(WrenVM *vm)
 {
     const char *key = wrenGetSlotString(vm, 1);
 
-    bool success = JsonSaveObject(&g_app.json_manager, key);
+    bool success = JsonSaveObject(g_app.json_manager, key);
 
     wrenSetSlotBool(vm, 0, success);
 }

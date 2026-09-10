@@ -175,9 +175,26 @@ static MusicState *GetOrCreateMusicState(const char *name)
 
     MusicState state = {0};
     kv_init(state.active_filters);
+
     int32 ret;
-    k = kh_put(MusicStateMap, s_music_states, strdup(name), &ret);
+
+    char *dup_key = strdup(name);
+
+    k = kh_put(MusicStateMap, s_music_states, dup_key, &ret);
+
+    if (UNLIKELY(ret < 0))
+    {
+        free(dup_key);
+        return NULL;
+    }
+
+    if (ret == 0)
+    {
+        free(dup_key);
+    }
+
     kh_value(s_music_states, k) = state;
+
     return &kh_value(s_music_states, k);
 }
 

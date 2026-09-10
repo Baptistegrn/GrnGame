@@ -3,6 +3,7 @@
 
 #include "grngame/data/data.h"
 #include "grngame/utils/attributes.h"
+#include "grngame/utils/clear.h"
 #include "wren.h"
 #include <stdbool.h>
 #include <stdlib.h>
@@ -129,7 +130,7 @@ static void db_stmt_run(WrenVM *vm)
         {
             wrenGetListElement(vm, 1, i, 2);
             DbArg arg;
-            memset(&arg, 0, sizeof(DbArg));
+            CLEAR(arg, 0);
 
             switch (wrenGetSlotType(vm, 2))
             {

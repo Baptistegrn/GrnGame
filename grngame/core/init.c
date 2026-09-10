@@ -78,7 +78,7 @@ static InitResult SetSDLMetadata(void)
     do                                                                                                                 \
     {                                                                                                                  \
         const char *tmp = NULL;                                                                                        \
-        if (!JsonGetString(&g_app.json_manager, "config/config.json", key, &tmp))                                      \
+        if (!JsonGetString(g_app.json_manager, "config/config.json", key, &tmp))                                       \
         {                                                                                                              \
             LOG_ERROR("Using default value for : " key);                                                               \
             tmp = default_val;                                                                                         \
@@ -90,7 +90,7 @@ static InitResult SetSDLMetadata(void)
     do                                                                                                                 \
     {                                                                                                                  \
         double tmp = 0.0;                                                                                              \
-        if (!JsonGetNumber(&g_app.json_manager, "config/config.json", key, &tmp))                                      \
+        if (!JsonGetNumber(g_app.json_manager, "config/config.json", key, &tmp))                                       \
         {                                                                                                              \
             LOG_ERROR("Using default value for : " key);                                                               \
             tmp = (double)(default_val);                                                                               \
@@ -102,7 +102,7 @@ static InitResult SetSDLMetadata(void)
     do                                                                                                                 \
     {                                                                                                                  \
         bool tmp = false;                                                                                              \
-        if (!JsonGetBool(&g_app.json_manager, "config/config.json", key, &tmp))                                        \
+        if (!JsonGetBool(g_app.json_manager, "config/config.json", key, &tmp))                                         \
         {                                                                                                              \
             LOG_ERROR("Using default value for : " key);                                                               \
             tmp = default_val;                                                                                         \
@@ -113,9 +113,9 @@ static InitResult SetSDLMetadata(void)
 static void LoadAppConfig(const unsigned char *text)
 {
 #ifndef EMBEDDED_ASSETS_DATA_AVAILABLE
-    OpenJsonObject(&g_app.json_manager, "config/config.json", 0, 0);
+    OpenJsonObject(g_app.json_manager, "config/config.json", 0, 0);
 #else
-    OpenJsonObjectFromMemory(&g_app.json_manager, "config/config.json", text, 0, 0);
+    OpenJsonObjectFromMemory(g_app.json_manager, "config/config.json", text, 0, 0);
 #endif
 
     GET_CONFIG_BOOL("Config.enableLogs", g_app.info.enable_logs, true);

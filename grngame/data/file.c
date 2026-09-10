@@ -26,18 +26,29 @@ char *ReturnFileString(const char *name)
     }
 
     fseek(file, 0, SEEK_END);
-    uint64 size = ftell(file);
+    int64 size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    char *buffer = malloc(size + 1);
+    if (size < 0)
+    {
+        LOG_WARNING("Failed to read size or empty file %s", name);
+        fclose(file);
+        return NULL;
+    }
 
-    uint64 read_count = fread(buffer, 1, size, file);
+    char *buffer = malloc((uint64)size + 1);
 
+    uint64 read_count = fread(buffer, 1, (uint64)size, file);
     fclose(file);
+
+    if (read_count > (uint64)size)
+    {
+        read_count = (uint64)size;
+    }
+
     buffer[read_count] = '\0';
     return buffer;
 }
-
 bool WriteFileString(const char *name, const char *content, bool append)
 {
     const char *mode = append ? "ab" : "wb";

@@ -94,7 +94,21 @@ void RegisterMethod(const char *module, const char *className, bool isStatic, co
     MakeMethodKey(key, sizeof(key), module, className, isStatic, signature);
 
     int32 ret;
-    khint_t k = kh_put(wren_method_map, g_methods, strdup(key), &ret);
+    char *dup_key = strdup(key);
+
+    khint_t k = kh_put(wren_method_map, g_methods, dup_key, &ret);
+
+    if (UNLIKELY(ret < 0))
+    {
+        free(dup_key);
+        return;
+    }
+
+    if (ret == 0)
+    {
+        free(dup_key);
+    }
+
     kh_value(g_methods, k) = fn;
 }
 
@@ -105,7 +119,20 @@ void RegisterClass_(const char *module, const char *className, WrenForeignMethod
     MakeClassKey(key, sizeof(key), module, className);
 
     int32 ret;
-    khint_t k = kh_put(wren_class_map, g_classes, strdup(key), &ret);
+    char *dup_key = strdup(key);
+
+    khint_t k = kh_put(wren_class_map, g_classes, dup_key, &ret);
+
+    if (UNLIKELY(ret < 0))
+    {
+        free(dup_key);
+        return;
+    }
+
+    if (ret == 0)
+    {
+        free(dup_key);
+    }
 
     WrenForeignClassMethods methods;
     methods.allocate = allocateFn;

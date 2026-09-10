@@ -534,7 +534,6 @@ bool ReloadAllTexturesWithPalette(void)
     CLEAR_PTR(results, 0);
     CLEAR_ARRAY(texture_ptrs, 0, count);
 
-
     int32 idx = 0;
     for (khiter_t k = kh_begin(map); k != kh_end(map); ++k)
     {
@@ -583,11 +582,14 @@ bool ReloadAllTexturesWithPalette(void)
         SDL_SetTextureScaleMode(new_texture, SDL_SCALEMODE_NEAREST);
         SDL_SetTextureBlendMode(new_texture, SDL_BLENDMODE_BLEND);
 
-        if(tex->texture !=NULL){
-            SDL_DestroyTexture(tex->texture);
+        if (UNLIKELY(tex != NULL))
+        {
+            if (tex->texture != NULL)
+            {
+                SDL_DestroyTexture(tex->texture);
+            }
+            tex->texture = new_texture;
         }
-        
-        tex->texture = new_texture;
     }
 
     free(texture_ptrs);

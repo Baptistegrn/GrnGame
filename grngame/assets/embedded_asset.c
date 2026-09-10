@@ -104,11 +104,11 @@ void create_embedded_structure(int32 num_dirs, const char **dirs, const char *ou
 
     char sql_buffer[256];
     snprintf(sql_buffer, sizeof(sql_buffer),
-             "INSERT INTO embedded_assets_info (key, value) VALUES ('file_count', %lu);", info.file_count);
+             "INSERT INTO embedded_assets_info (key, value) VALUES ('file_count', %llu);", info.file_count);
     DataWrite(db, sql_buffer);
 
     snprintf(sql_buffer, sizeof(sql_buffer),
-             "INSERT INTO embedded_assets_info (key, value) VALUES ('asset_count', %lu);", info.asset_count);
+             "INSERT INTO embedded_assets_info (key, value) VALUES ('asset_count', %llu);", info.asset_count);
     DataWrite(db, sql_buffer);
 
     DbCommit(db);

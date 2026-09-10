@@ -5,6 +5,7 @@
 #include "grngame/core/param.h"
 #include "grngame/math/math.h"
 #include "grngame/utils/attributes.h"
+#include "grngame/utils/clear.h"
 #include "grngame/utils/random.h"
 #include "kvec.h"
 #include <math.h>
@@ -23,7 +24,7 @@ ParticleEmitter ParticleEmitterCreate(int32 capacity)
     emit.capacity = capacity;
 
     emit.particles = malloc((uint64)capacity * sizeof(Particle));
-    memset(emit.particles, 0, (uint64)capacity * sizeof(Particle));
+    CLEAR_ARRAY(emit.particles, 0, capacity);
 
     emit.lifetime = 1.0f;
     emit.direction = 0.0f;
@@ -213,7 +214,7 @@ void RenderEmitter(ParticleEmitter *emit)
 
     SDL_Renderer *renderer = g_app.renderer.renderer;
 
-    int32 palette_size =(int32) kv_size(g_app.palette_manager.palette_elements);
+    int32 palette_size = (int32)kv_size(g_app.palette_manager.palette_elements);
 
     SDL_Vertex *verts = STACK_ALLOC(SDL_Vertex, emit->alive_count * 4);
     int32 *indices = STACK_ALLOC(int32, emit->alive_count * 6);

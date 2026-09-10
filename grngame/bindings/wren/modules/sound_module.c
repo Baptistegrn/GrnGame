@@ -6,6 +6,7 @@
 #include "grngame/core/param.h"
 #include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
+#include "grngame/utils/clear.h"
 #include "wren.h"
 #include <math.h>
 #include <stdbool.h>
@@ -14,7 +15,7 @@
 static void filter_def_new(WrenVM *vm)
 {
     FilterDef *f = (FilterDef *)wrenSetSlotNewForeign(vm, 0, 0, sizeof(FilterDef));
-    memset(f, 0, sizeof(FilterDef));
+    CLEAR_PTR(f, 0);
 }
 
 COLD static void filter_def_init(WrenVM *vm)
@@ -125,7 +126,7 @@ static void parse_sound_info(WrenVM *vm, SoundInfo *info)
     info->position.y = (float32)wrenGetSlotDouble(vm, 8);
 
     int32 filter_count = 0;
-    memset(static_filters, 0, sizeof(static_filters));
+    CLEAR(static_filters, 0);
 
     if (wrenGetSlotType(vm, 9) == WREN_TYPE_LIST)
     {
