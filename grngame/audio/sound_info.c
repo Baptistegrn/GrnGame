@@ -1,12 +1,11 @@
 #include "sound_info.h"
-#include "grngame/core/app.h"
+#include "grngame/math/types.h"
 #include "sound.c"
 #include <cglm/types-struct.h>
 #include <khash.h>
 #include <kvec.h>
 #include <math.h>
 #include <stddef.h>
-#include "grngame/math/types.h"
 
 SoundInfo SoundInfoDefault()
 {
@@ -20,6 +19,10 @@ SoundInfo SoundInfoDefault()
                        .filter_count = 0};
 }
 
+// todo : implement
 SoundInfo SoundInfoAt(float32 x, float32 y)
 {
+    (void)x;
+    (void)y;
+    return SoundInfoDefault();
 }

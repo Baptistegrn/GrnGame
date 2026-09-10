@@ -1,10 +1,8 @@
-
 #include "grngame/bindings/wren/wren_api.h"
 #include "grngame/input/controller.h"
 #include "grngame/math/types.h"
 #include "grngame/utils/attributes.h"
 #include "wren.h"
-
 
 static void controller_pad_pressed(WrenVM *vm)
 {

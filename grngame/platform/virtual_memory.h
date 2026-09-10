@@ -1,7 +1,8 @@
 #pragma once
+#include "grngame/math/types.h"
 #include <stdbool.h>
 #include <stddef.h>
-#include "grngame/math/types.h"
+
 
 /// reserves a contiguous virtual address range without allocating RAM
 void *VirtualMemoryReserve(uint64 size);

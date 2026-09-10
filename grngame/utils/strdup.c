@@ -1,6 +1,7 @@
+#include "grngame/math/types.h"
 #include "string.h"
 #include <stdlib.h>
-#include "grngame/math/types.h"
+
 
 char *StrDupSafe(const char *s)
 {

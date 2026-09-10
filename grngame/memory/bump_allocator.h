@@ -1,8 +1,9 @@
 #pragma once
+#include "grngame/math/types.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-#include "grngame/math/types.h"
+
 
 typedef struct
 {

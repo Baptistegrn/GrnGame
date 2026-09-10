@@ -3,7 +3,6 @@
 #include "grngame/math/types.h"
 #include "grngame/utils/c_cpp.h"
 
-
 BEGIN_DECLARATIONS
 
 typedef void (*FileCallback)(const char *path, void *userdata);

@@ -5,7 +5,6 @@
 #include <cglm/types-struct.h>
 #include <stdbool.h>
 
-
 BEGIN_DECLARATIONS
 
 typedef struct
