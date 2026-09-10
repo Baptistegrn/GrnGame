@@ -9,28 +9,28 @@ on:
 jobs:
 
   # clang-format
-format:
-  runs-on: ubuntu-22.04
-  name: "clang-format"
+  format:
+    runs-on: ubuntu-22.04
+    name: "clang-format"
 
-  steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Install clang-format 23
-      run: |
-        wget https://apt.llvm.org/llvm.sh
-        chmod +x llvm.sh
-        sudo ./llvm.sh 23
+      - name: Install clang-format 23
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 23
 
-    - name: Check clang-format version
-      run: clang-format-23 --version
+      - name: Check clang-format version
+        run: clang-format-23 --version
 
-    - name: Check formatting
-      shell: bash
-      run: |
-        find grngame -type f \( -name '*.c' -o -name '*.h' \) -print0 \
-          | xargs -0 -r clang-format-23 --dry-run --Werror
+      - name: Check formatting
+        shell: bash
+        run: |
+          find grngame -type f \( -name '*.c' -o -name '*.h' \) -print0 \
+            | xargs -0 -r clang-format-23 --dry-run --Werror
 
 
 
