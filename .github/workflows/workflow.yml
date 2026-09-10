@@ -20,16 +20,12 @@ jobs:
       - name: Install clang-format
         run: sudo apt-get update && sudo apt-get install -y clang-format
 
-      - name: Apply formatting
+      - name: Check formatting
         shell: bash
         run: |
           find grngame -type f \( -name '*.c' -o -name '*.h' \) -print0 \
-            | xargs -0 -r clang-format -i
+            | xargs -0 -r clang-format --dry-run --Werror=
 
-      - name: Check for unformatted changes
-        shell: bash
-        run: |
-          git diff --exit-code
 
   # compilation
   build:
