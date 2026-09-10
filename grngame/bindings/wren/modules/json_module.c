@@ -205,7 +205,7 @@ void open_json_file(WrenVM *vm)
     OpenJsonObject(g_app.json_manager, key, min, max);
 #else
     const EmbeddedAsset *asset = GetEmbeddedAsset(key);
-    OpenJsonObjectFromMemory(&g_app.json_manager, key, asset->data, min, max);
+    OpenJsonObjectFromMemory(g_app.json_manager, key, asset->data, min, max);
 #endif
 }
 
