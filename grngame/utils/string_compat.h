@@ -22,7 +22,7 @@ static inline char *strdup(const char *s)
     return p;
 }
 
-staitc inline int32 strcasecmp(const char *s1, const char *s2)
+static inline int32 strcasecmp(const char *s1, const char *s2)
 {
     while (*s1 && *s2) {
         unsigned char c1 = (unsigned char)*s1++;
