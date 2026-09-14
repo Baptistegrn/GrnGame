@@ -143,9 +143,7 @@
             path: artifacts/
 
         - name: Install dyneeded
-          run: | 
-            curl --proto '=https' --tlsv1.2 -LsSf https://github.com/barbeldotorg/dyneeded/releases/download/v0.5.5/dyneeded-installer.sh | sh
-            chmod +x dyneeded
+          run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/barbeldotorg/dyneeded/releases/download/v0.5.5/dyneeded-installer.sh | sh
 
         - name: Convert json 
           run: |
