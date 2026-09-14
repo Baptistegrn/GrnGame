@@ -2,10 +2,8 @@
 #include "grngame/math/types.h"
 #include "grngame/platform/directories.h"
 #include "grngame/utils/string_compat.h"
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <grngame/utils/string_compat.h>
 
 char *FileStem(const char *path)
 {
