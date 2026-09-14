@@ -157,14 +157,14 @@
         - name: Install dyneeded
           run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/barbeldotorg/dyneeded/releases/download/v0.5.5/dyneeded-installer.sh | sh
 
-        - name: Convert json 
+        - name: Convert json + Check dependencies
           run: |
             for binary in $(find artifacts/ -type f); do
               "$HOME/.cargo/bin/dyneeded" "$binary" -f json >> dependencies.json
+              python scripts/check_dependencies.py dependencies.json
+              rm -f dependencies.json
             done
 
-        - name: Check dependencies
-          run: python scripts/check_dependencies.py dependencies.json
             
       
 
