@@ -1,261 +1,202 @@
-  name: Build
+name: Build
 
-  on:
-    push:
-      branches: ["**"]
-      tags: ["v*.*.*"]
-    pull_request:
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*.*.*"]
+  pull_request:
 
-  jobs:
+jobs:
+  format:
+    runs-on: ubuntu-24.04
+    name: "clang-format"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    # clang-format
-    format:
-      runs-on: ubuntu-24.04
-      name: "clang-format"
+      - name: Install clang-format 23
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 23
 
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
+      - name: Check clang-format version
+        run: clang-format --version
 
-        - name: Install clang-format 23
-          run: |
-            wget https://apt.llvm.org/llvm.sh
-            chmod +x llvm.sh
-            sudo ./llvm.sh 23
+      - name: Check formatting
+        shell: bash
+        run: |
+          find grngame -type f \( -name '*.c' -o -name '*.h' \) -print0 \
+            | xargs -0 -r clang-format --dry-run --Werror
 
-        - name: Check clang-format version
-          run: clang-format --version
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-22.04, runner: ubuntu-22.04, platform: linux-x64, buildtype: release, embed: false }
+          - { os: ubuntu-22.04, runner: ubuntu-22.04, platform: linux-x64, buildtype: release, embed: true }
+          - { os: ubuntu-22.04-arm, runner: ubuntu-22.04-arm, platform: linux-arm64, buildtype: release, embed: false }
+          - { os: ubuntu-22.04-arm, runner: ubuntu-22.04-arm, platform: linux-arm64, buildtype: release, embed: true }
+          - { os: macos-latest, runner: macos-latest, platform: macos-arm64, buildtype: release, embed: false }
+          - { os: macos-latest, runner: macos-latest, platform: macos-arm64, buildtype: release, embed: true }
+          - { os: macos-15-intel, runner: macos-15-intel, platform: macos-x64, buildtype: release, embed: false }
+          - { os: macos-15-intel, runner: macos-15-intel, platform: macos-x64, buildtype: release, embed: true }
+          - { os: windows-latest, runner: windows-latest, platform: windows-x64, buildtype: release, embed: false }
+          - { os: windows-latest, runner: windows-latest, platform: windows-x64, buildtype: release, embed: true }
+          - { os: windows-11-arm, runner: windows-11-arm, platform: windows-arm64, buildtype: release, embed: false }
+          - { os: windows-11-arm, runner: windows-11-arm, platform: windows-arm64, buildtype: release, embed: true }
 
-        - name: Check formatting
-          shell: bash
-          run: |
-            find grngame -type f \( -name '*.c' -o -name '*.h' \) -print0 \
-              | xargs -0 -r clang-format --dry-run --Werror
+    runs-on: ${{ matrix.runner }}
+    name: "${{ matrix.platform }} / ${{ matrix.buildtype }} / embedded = ${{ matrix.embed }}"
 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    # compilation
-    build:
-      strategy:
-        fail-fast: false
-        matrix:
-          include:
-            - { os: ubuntu-22.04, runner: ubuntu-22.04, platform: linux-x64, buildtype: release, embed: false }
-            - { os: ubuntu-22.04, runner: ubuntu-22.04, platform: linux-x64, buildtype: release, embed: true }
-            - { os: ubuntu-22.04-arm, runner: ubuntu-22.04-arm, platform: linux-arm64, buildtype: release, embed: false }
-            - { os: ubuntu-22.04-arm, runner: ubuntu-22.04-arm, platform: linux-arm64, buildtype: release, embed: true }
-            - { os: macos-latest, runner: macos-latest, platform: macos-arm64, buildtype: release, embed: false }
-            - { os: macos-latest, runner: macos-latest, platform: macos-arm64, buildtype: release, embed: true }
-            - { os: macos-15-intel, runner: macos-15-intel, platform: macos-x64, buildtype: release, embed: false }
-            - { os: macos-15-intel, runner: macos-15-intel, platform: macos-x64, buildtype: release, embed: true }
-            - { os: windows-latest, runner: windows-latest, platform: windows-x64, buildtype: release, embed: false }
-            - { os: windows-latest, runner: windows-latest, platform: windows-x64, buildtype: release, embed: true }
-            - { os: windows-11-arm, runner: windows-11-arm, platform: windows-arm64, buildtype: release, embed: false }
-            - { os: windows-11-arm, runner: windows-11-arm, platform: windows-arm64, buildtype: release, embed: true }
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+          actions-cache-folder: '.xmake-cache-${{ matrix.platform }}-embed-${{ matrix.embed }}'
+          package-cache: true
+          build-cache: true
 
-      runs-on: ${{ matrix.runner }}
-      name: "${{ matrix.platform }} / ${{ matrix.buildtype }} / embedded = ${{ matrix.embed }}"
+      - name: Remove homebrew freetype
+        if: runner.os == 'macOS'
+        run: brew uninstall --ignore-dependencies freetype
 
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
+      - name: Configure
+        run: >
+          xmake config --clean
+          -m ${{ matrix.buildtype }}
+          -y -vv
+          --embed_assets=${{ matrix.embed }}
 
-        - name: Setup xmake
-          uses: xmake-io/github-action-setup-xmake@v1
-          with:
-            xmake-version: latest
-            actions-cache-folder: '.xmake-cache-${{ matrix.platform }}-embed-${{ matrix.embed }}'
-            package-cache: true
-            build-cache: true
+      - name: Build
+        run: xmake build -y -vv
 
-        - name: Remove homebrew freetype
-          if: runner.os == 'macOS'
-          run: brew uninstall --ignore-dependencies freetype
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "${{ matrix.platform }}-${{ matrix.buildtype }}-embed${{ matrix.embed }}"
+          path: |
+            build/Embedded/
+            build/Runtime/
 
-        - name: Configure
-          run: >
-            xmake config --clean
-            -m ${{ matrix.buildtype }}
-            -y -vv
-            --embed_assets=${{ matrix.embed }}
+  dynamic:
+    runs-on: ubuntu-24.04
+    name: "dynamic libs check"
+    needs: [build]
 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-        - name: Build
-          run: xmake build -y -vv
+      - name: Download native artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+          merge-multiple: false
+      #test
+      - name: Inspect artifacts
+        run: |
+          echo "Artifacts downloaded:"
+          find artifacts/ -type f -print
 
-        - name: Upload artifact
-          uses: actions/upload-artifact@v4
-          with:
-            name: "${{ matrix.platform }}-${{ matrix.buildtype }}-embed${{ matrix.embed }}"
-            path: |
-              build/Embedded/
-              build/Runtime/
+      - name: Install dyneeded
+        run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/barbeldotorg/dyneeded/releases/download/v0.5.5/dyneeded-installer.sh | sh
 
+      - name: Convert json + Check dependencies
+        run: |
+          for binary in $(find artifacts/ -type f); do
+            "$HOME/.cargo/bin/dyneeded" "$binary" -f json >> dependencies.json
+            python scripts/check_dependencies.py dependencies.json
+            rm -f dependencies.json
+          done
 
+  release:
+    name: Create GitHub Release
+    needs: [build]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    # compilation wasm
-    build-wasm:
-      runs-on: ubuntu-22.04
-      name: "wasm / release"
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
 
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
+      - name: Package artifacts per architecture
+        shell: bash
+        run: |
+          mkdir -p release-assets
 
-        - name: Setup xmake
-          uses: xmake-io/github-action-setup-xmake@v1
-          with:
-            xmake-version: latest
-            actions-cache-folder: '.xmake-cache-wasm'
-            package-cache: true
-            build-cache: true
+          PLATFORMS="linux-x64 linux-arm64 macos-x64 macos-arm64 windows-x64 windows-arm64"
+          TAG="${GITHUB_REF_NAME}"
 
-        - name: Setup emsdk
-          uses: mymindstorm/setup-emsdk@v14
+          for platform in $PLATFORMS; do
+            STAGE_DIR="staging_${platform}"
+            MODEL_DIR="${STAGE_DIR}/project_model"
+            RUNTIME_DIR="${STAGE_DIR}/runtime"
+            SCRIPT_DIR="${STAGE_DIR}/scripts"
 
-        - name: Configure
-          run: >
-            xmake f -p wasm -c
-            -y -vv
-            --embed_assets=y
+            mkdir -p "${MODEL_DIR}/assets"
+            mkdir -p "${MODEL_DIR}/data"
+            mkdir -p "${MODEL_DIR}/config"
+            mkdir -p "${RUNTIME_DIR}"
+            mkdir -p "${SCRIPT_DIR}"
 
-        - name: Build
-          run: xmake build -y -vv
+            cp ressources/config.json "${MODEL_DIR}/config/"
+            cp grngame/input/gamecontrollerdb.txt "${MODEL_DIR}/data/"
+            cp scripts/server.py "${MODEL_DIR}/"
+            cp -r std "${MODEL_DIR}/std"
 
-        - name: Upload artifact
-          uses: actions/upload-artifact@v4
-          with:
-            name: "wasm-release-embedtrue"
-            path: build/Runtime/
+            if [[ "$platform" == *"windows"* ]]; then
+              cp ressources/batch/setup.bat "${STAGE_DIR}/setup.bat"
+              find ressources/batch -maxdepth 1 -type f ! -name "setup.bat" -exec cp {} "${SCRIPT_DIR}/" \;
+            else
+              cp ressources/bash/setup.sh "${STAGE_DIR}/setup.sh"
+              chmod +x "${STAGE_DIR}/setup.sh"
+              find ressources/bash -maxdepth 1 -type f ! -name "setup.sh" -exec cp {} "${SCRIPT_DIR}/" \;
+              chmod +x "${SCRIPT_DIR}"/*.sh 2>/dev/null || true
+            fi
 
-  # dynamic libs check 
-    dynamic:
-      runs-on: ubuntu-24.04
-      name: "dynamic libs check"
-      needs: [build]
+            if [ -d "artifacts/${platform}-release-embedfalse" ]; then
+              find "artifacts/${platform}-release-embedfalse" -type f \
+                ! -name "*.lib" ! -name "*.exp" ! -name "*.pdb" ! -name "*.a" ! -name "*.ilk" \
+                -exec cp {} "${MODEL_DIR}/" \;
+            fi
 
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-
-        - name: Download native artifacts
-          uses: actions/download-artifact@v4
-          with:
-            path: artifacts/
-            pattern: |
-              linux-*
-              macos-*
-              windows-*
-            merge-multiple: false
-        #test
-        - name: Inspect artifacts
-          run: |
-            echo "Artifacts downloaded:"
-            find artifacts/ -type f -print
-
-
-        - name: Install dyneeded
-          run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/barbeldotorg/dyneeded/releases/download/v0.5.5/dyneeded-installer.sh | sh
-
-        - name: Convert json + Check dependencies
-          run: |
-            for binary in $(find artifacts/ -type f); do
-              "$HOME/.cargo/bin/dyneeded" "$binary" -f json >> dependencies.json
-              python scripts/check_dependencies.py dependencies.json
-              rm -f dependencies.json
-            done
-
-            
-      
-
-    # creation of the release
-    release:
-      name: Create GitHub Release
-      needs: [build, build-wasm]
-      if: startsWith(github.ref, 'refs/tags/v')
-      runs-on: ubuntu-22.04
-      permissions:
-        contents: write
-
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
-
-        - name: Download all artifacts
-          uses: actions/download-artifact@v4
-          with:
-            path: artifacts/
-
-        - name: Package artifacts per architecture
-          shell: bash
-          run: |
-            mkdir -p release-assets
-
-            PLATFORMS="linux-x64 linux-arm64 macos-x64 macos-arm64 windows-x64 windows-arm64"
-            TAG="${GITHUB_REF_NAME}"
-
-            for platform in $PLATFORMS; do
-              STAGE_DIR="staging_${platform}"
-              MODEL_DIR="${STAGE_DIR}/project_model"
-              RUNTIME_DIR="${STAGE_DIR}/runtime"
-              SCRIPT_DIR="${STAGE_DIR}/scripts"
-
-              mkdir -p "${MODEL_DIR}/assets"
-              mkdir -p "${MODEL_DIR}/data"
-              mkdir -p "${MODEL_DIR}/config"
-              mkdir -p "${RUNTIME_DIR}"
-              mkdir -p "${SCRIPT_DIR}"
-
-              cp ressources/config.json "${MODEL_DIR}/config/"
-              cp grngame/input/gamecontrollerdb.txt "${MODEL_DIR}/data/"
-              cp scripts/server.py "${MODEL_DIR}/"
-              cp -r std "${MODEL_DIR}/std"
-
-              if [ -d "artifacts/wasm-release-embedtrue" ]; then
-                cp -r artifacts/wasm-release-embedtrue/* "${RUNTIME_DIR}/"
-                find "${MODEL_DIR}" -name "*.a" -type f -delete
-              fi
-
-              if [[ "$platform" == *"windows"* ]]; then
-                cp ressources/batch/setup.bat "${STAGE_DIR}/setup.bat"
-                find ressources/batch -maxdepth 1 -type f ! -name "setup.bat" -exec cp {} "${SCRIPT_DIR}/" \;
-              else
-                cp ressources/bash/setup.sh "${STAGE_DIR}/setup.sh"
-                chmod +x "${STAGE_DIR}/setup.sh"
-                find ressources/bash -maxdepth 1 -type f ! -name "setup.sh" -exec cp {} "${SCRIPT_DIR}/" \;
-                chmod +x "${SCRIPT_DIR}"/*.sh 2>/dev/null || true
-              fi
-
-              if [ -d "artifacts/${platform}-release-embedfalse" ]; then
-                find "artifacts/${platform}-release-embedfalse" -type f \
+            for rt_platform in $PLATFORMS; do
+              RT_SRC_DIR="artifacts/${rt_platform}-release-embedtrue"
+              if [ -d "${RT_SRC_DIR}" ]; then
+                find "${RT_SRC_DIR}" -path "*/Runtime/*" -type f \
                   ! -name "*.lib" ! -name "*.exp" ! -name "*.pdb" ! -name "*.a" ! -name "*.ilk" \
-                  -exec cp {} "${MODEL_DIR}/" \;
+                  -exec cp {} "${RUNTIME_DIR}/" \;
               fi
-
-              for rt_platform in $PLATFORMS; do
-                RT_SRC_DIR="artifacts/${rt_platform}-release-embedtrue"
-                if [ -d "${RT_SRC_DIR}" ]; then
-                  find "${RT_SRC_DIR}" -path "*/Runtime/*" -type f \
-                    ! -name "*.lib" ! -name "*.exp" ! -name "*.pdb" ! -name "*.a" ! -name "*.ilk" \
-                    -exec cp {} "${RUNTIME_DIR}/" \;
-                fi
-              done
-
-              ARCHIVE_NAME="${platform}-${TAG}.zip"
-
-              cd "${STAGE_DIR}"
-              zip -r "../release-assets/${ARCHIVE_NAME}" .
-              cd ..
-              rm -rf "${STAGE_DIR}"
             done
 
-            ls -lh release-assets/
+            ARCHIVE_NAME="${platform}-${TAG}.zip"
 
-        - name: Create GitHub Release
-          uses: softprops/action-gh-release@v2
-          with:
-            name: "Release ${{ github.ref_name }}"
-            draft: false
-            prerelease: ${{ contains(github.ref_name, '-') }}
-            generate_release_notes: true
-            files: release-assets/*.zip
+            cd "${STAGE_DIR}"
+            zip -r "../release-assets/${ARCHIVE_NAME}" .
+            cd ..
+            rm -rf "${STAGE_DIR}"
+          done
+
+          ls -lh release-assets/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Release ${{ github.ref_name }}"
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: true
+          files: release-assets/*.zip
