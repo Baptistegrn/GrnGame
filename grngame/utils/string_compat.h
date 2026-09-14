@@ -2,6 +2,8 @@
 
 #include "grngame/math/types.h"
 #include <string.h>
+#include "stdio.h"
+#include "stdlib.h"
 
 #ifdef _MSC_VER
 #define strcasecmp _stricmp
