@@ -12,7 +12,7 @@
 #define strdup _strdup
 #endif
 
-#ifdef WASM
+#ifdef GRNGAME_WASM
 
 static inline char *strdup(const char *s)
 {

@@ -138,10 +138,13 @@
         - name: Checkout
           uses: actions/checkout@v4
 
-        - name: Download all artifacts
+        - name: Download native artifacts
           uses: actions/download-artifact@v4
           with:
             path: artifacts/
+            pattern: "linux-*;macos-*;windows-*"
+            merge-multiple: false
+
 
         - name: Install dyneeded
           run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/barbeldotorg/dyneeded/releases/download/v0.5.5/dyneeded-installer.sh | sh
