@@ -32,12 +32,12 @@ int32 strncpy_s(char *dst, uint64 dst_size, const char *src, uint64 count);
 // Provide an internal-linkage fallback for platforms where strdup
 // may not be available or to avoid multiply-defined symbols when
 // this header is included in many translation units (Emscripten).
-#ifdef __EMSCRIPTEN__
+#ifdef WASM
 
 static inline char *strdup(const char *s)
 {
     uint64 len = strlen(s) + 1;
-    char *p = (char *)malloc(len);
+    char *p = malloc(len);
     memcpy(p, s, len);
     return p;
 }

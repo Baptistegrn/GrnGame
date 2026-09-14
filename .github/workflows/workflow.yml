@@ -76,7 +76,8 @@
             xmake config --clean
             -m ${{ matrix.buildtype }}
             -y -vv
-            --embed_assets=${{ matrix.embed }}
+            --embed_assets=${{ matrix.embed }}"$HOME/.cargo/bin/dyneeded" "$binary"
+
 
         - name: Build
           run: xmake build -y -vv
@@ -148,7 +149,7 @@
         - name: Convert json 
           run: |
             for binary in $(find artifacts/ -type f); do
-              ./dyneeded "$binary" -f json >> dependencies.json
+              "$HOME/.cargo/bin/dyneeded" "$binary" -f json >> dependencies.json
             done
 
         - name: Check dependencies
