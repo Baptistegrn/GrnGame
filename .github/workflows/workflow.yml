@@ -142,8 +142,16 @@
           uses: actions/download-artifact@v4
           with:
             path: artifacts/
-            pattern: "linux-*;macos-*;windows-*"
+            pattern: |
+              linux-*
+              macos-*
+              windows-*
             merge-multiple: false
+        #test
+        - name: Inspect artifacts
+          run: |
+            echo "Artifacts downloaded:"
+            find artifacts/ -type f -print
 
 
         - name: Install dyneeded
