@@ -2,12 +2,11 @@
 #include "file.h"
 #include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
-#include "grngame/utils/strdup.c"
 #include "kvec.h"
 #include "wren.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <grngame/utils/string_compat.h>
 
 static sqlite3_stmt *DbPrepareInternal(sqlite3 *db, const char *sql)
 {
@@ -111,7 +110,7 @@ static DbResult DbResultGet(sqlite3_stmt *stmt)
         for (int32 i = 0; i < colCount; i++)
         {
             DbValue v = {0};
-            v.name = StrDupSafe(sqlite3_column_name(stmt, i));
+            v.name = strdup(sqlite3_column_name(stmt, i));
 
             switch (sqlite3_column_type(stmt, i))
             {
@@ -125,7 +124,7 @@ static DbResult DbResultGet(sqlite3_stmt *stmt)
                 break;
             case SQLITE_TEXT:
                 v.type = TEXT;
-                v.value.s = StrDupSafe((const char *)sqlite3_column_text(stmt, i));
+                v.value.s = strdup((const char *)sqlite3_column_text(stmt, i));
                 break;
             case SQLITE_BLOB: {
                 v.type = DATA;

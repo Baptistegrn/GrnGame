@@ -3,6 +3,7 @@
 #include "controller.h"
 #include "grngame/core/param.h"
 #include "grngame/core/window.h"
+#include "grngame/input/input_text.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 // dont moove string compat
@@ -163,7 +164,7 @@ HOT void PollEvents()
         case SDL_EVENT_DROP_FILE:
             if (event.drop.data)
             {
-                strncpy_s(im->drop_file, DROP_FILE_PATH_MAX, event.drop.data, DROP_FILE_PATH_MAX - 1);
+                strncpy(im->drop_file,  event.drop.data,DROP_FILE_PATH_MAX);
                 im->drop_file[DROP_FILE_PATH_MAX - 1] = '\0';
             }
             break;

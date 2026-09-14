@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <grngame/utils/string_compat.h>
 
 char *FileStem(const char *path)
 {

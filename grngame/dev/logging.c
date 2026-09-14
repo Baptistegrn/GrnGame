@@ -5,7 +5,7 @@
 #include "grngame/utils/clear.h"
 #include <stdbool.h>
 #include <stdlib.h>
-#include <string.h>
+#include <grngame/utils/string_compat.h>
 
 int32 WriteMeta(struct haclog_handler *handler, haclog_meta_info_t *meta)
 {

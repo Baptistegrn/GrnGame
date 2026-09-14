@@ -11,7 +11,7 @@
 #include <SDL3/SDL_events.h>
 #include <math.h>
 #include <stdio.h>
-#include <string.h>
+#include <grngame/utils/string_compat.h>
 
 // sdl wrappent
 SDL_Gamepad *GamepadOpen(SDL_JoystickID id)

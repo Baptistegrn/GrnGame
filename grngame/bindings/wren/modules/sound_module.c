@@ -10,7 +10,7 @@
 #include "wren.h"
 #include <math.h>
 #include <stdbool.h>
-#include <string.h>
+#include <grngame/utils/string_compat.h>
 
 static void filter_def_new(WrenVM *vm)
 {

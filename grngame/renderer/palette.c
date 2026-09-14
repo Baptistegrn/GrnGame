@@ -10,7 +10,7 @@
 #include <math.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <string.h>
+#include <grngame/utils/string_compat.h>
 
 // todo move
 void PaletteFreeStringVec(string_vec_t *vec)

@@ -7,7 +7,7 @@
 #include "wren.h"
 #include <stdbool.h>
 #include <stdlib.h>
-#include <string.h>
+#include <grngame/utils/string_compat.h>
 
 static void db_allocate(WrenVM *vm)
 {
