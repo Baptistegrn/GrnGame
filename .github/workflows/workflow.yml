@@ -84,41 +84,40 @@ jobs:
             build/Embedded/
             build/Runtime/
 
+  # compilation wasm
+  build-wasm:
+    runs-on: ubuntu-22.04
+    name: "wasm / release"
 
-    # compilation wasm
-    build-wasm:
-      runs-on: ubuntu-22.04
-      name: "wasm / release"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+          actions-cache-folder: '.xmake-cache-wasm'
+          package-cache: true
+          build-cache: true
 
-        - name: Setup xmake
-          uses: xmake-io/github-action-setup-xmake@v1
-          with:
-            xmake-version: latest
-            actions-cache-folder: '.xmake-cache-wasm'
-            package-cache: true
-            build-cache: true
+      - name: Setup emsdk
+        uses: mymindstorm/setup-emsdk@v14
 
-        - name: Setup emsdk
-          uses: mymindstorm/setup-emsdk@v14
+      - name: Configure
+        run: >
+          xmake f -p wasm -c
+          -y -vv
+          --embed_assets=y
 
-        - name: Configure
-          run: >
-            xmake f -p wasm -c
-            -y -vv
-            --embed_assets=y
+      - name: Build
+        run: xmake build -y -vv
 
-        - name: Build
-          run: xmake build -y -vv
-
-        - name: Upload artifact
-          uses: actions/upload-artifact@v4
-          with:
-            name: "wasm-release-embedtrue"
-            path: build/Runtime/
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "wasm-release-embedtrue"
+          path: build/Runtime/
 
   dynamic:
     runs-on: ubuntu-24.04
