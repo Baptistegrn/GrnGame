@@ -20,9 +20,9 @@
 
 #include "khash.h"
 
+#include <grngame/utils/string_compat.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <grngame/utils/string_compat.h>
 
 #define KEY_SIZE 1024
 #define MODULE_SIZE_MAX_NAME 512

@@ -9,9 +9,9 @@
 #include "grngame/math/math.h"
 #include "grngame/utils/attributes.h"
 #include <SDL3/SDL_events.h>
+#include <grngame/utils/string_compat.h>
 #include <math.h>
 #include <stdio.h>
-#include <grngame/utils/string_compat.h>
 
 // sdl wrappent
 SDL_Gamepad *GamepadOpen(SDL_JoystickID id)

@@ -2,9 +2,9 @@
 #include "grngame/data/file.h"
 #include "grngame/dev/logging.h"
 #include "wren.h"
+#include <grngame/utils/string_compat.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <grngame/utils/string_compat.h>
 
 static void file_exists(WrenVM *vm)
 {

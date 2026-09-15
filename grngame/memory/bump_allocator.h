@@ -1,8 +1,8 @@
 #pragma once
 #include "grngame/math/types.h"
+#include <grngame/utils/string_compat.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include <grngame/utils/string_compat.h>
 
 typedef struct
 {

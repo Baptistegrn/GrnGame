@@ -14,6 +14,7 @@ typedef struct
     uint64 max;
     uint64 last_save_time;
     cJSON *json;
+    bool embedded; // is present in db ? work only on target embedded
 } JsonObject;
 
 KHASH_MAP_INIT_STR(JsonObjects, JsonObject)

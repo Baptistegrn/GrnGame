@@ -5,9 +5,9 @@
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 #include "wren.h"
+#include <grngame/utils/string_compat.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <grngame/utils/string_compat.h>
 
 static void db_allocate(WrenVM *vm)
 {

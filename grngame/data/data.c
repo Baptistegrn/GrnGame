@@ -4,9 +4,9 @@
 #include "grngame/utils/attributes.h"
 #include "kvec.h"
 #include "wren.h"
+#include <grngame/utils/string_compat.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <grngame/utils/string_compat.h>
 
 static sqlite3_stmt *DbPrepareInternal(sqlite3 *db, const char *sql)
 {

@@ -164,7 +164,7 @@ HOT void PollEvents()
         case SDL_EVENT_DROP_FILE:
             if (event.drop.data)
             {
-                strncpy(im->drop_file,  event.drop.data,DROP_FILE_PATH_MAX);
+                strncpy(im->drop_file, event.drop.data, DROP_FILE_PATH_MAX);
                 im->drop_file[DROP_FILE_PATH_MAX - 1] = '\0';
             }
             break;

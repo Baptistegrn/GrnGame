@@ -275,13 +275,11 @@ bool JsonSaveObject(JsonManager manager, const char *fileKey)
     }
 
     FileWriteJob *job = malloc(sizeof(*job));
-    if (UNLIKELY(job == NULL))
-        return false;
 
     job->key = PathFromExecutableDirectory(fileKey);
     job->text = cJSON_Print(entry->json);
 
-    if (UNLIKELY(job->key == NULL || job->text == NULL))
+    if (job->text == NULL)
     {
         LOG_ERROR("Impossible to prepare json file : %s", fileKey);
         free(job->key);
@@ -289,9 +287,16 @@ bool JsonSaveObject(JsonManager manager, const char *fileKey)
         free(job);
         return false;
     }
-    // Safe asynchronous operation: the file is read once during initialization,
-    // and writes occur at most once per second.
-    ThreadManagerPush(FileWriteJobRun, job);
+
+    if (!entry->embedded)
+    {
+        // Safe asynchronous operation: the file is read once during initialization,
+        // and writes occur at most once per second.
+        ThreadManagerPush(FileWriteJobRun, job);
+    }
+    else
+    {
+    }
     return true;
 }
 

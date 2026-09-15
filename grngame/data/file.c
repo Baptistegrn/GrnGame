@@ -2,10 +2,10 @@
 
 #include "grngame/dev/logging.h"
 #include "grngame/math/types.h"
+#include <grngame/utils/string_compat.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <grngame/utils/string_compat.h>
 
 bool FileExist(const char *name)
 {
