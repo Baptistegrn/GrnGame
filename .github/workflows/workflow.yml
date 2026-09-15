@@ -84,6 +84,42 @@ jobs:
             build/Embedded/
             build/Runtime/
 
+
+    # compilation wasm
+    build-wasm:
+      runs-on: ubuntu-22.04
+      name: "wasm / release"
+
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+
+        - name: Setup xmake
+          uses: xmake-io/github-action-setup-xmake@v1
+          with:
+            xmake-version: latest
+            actions-cache-folder: '.xmake-cache-wasm'
+            package-cache: true
+            build-cache: true
+
+        - name: Setup emsdk
+          uses: mymindstorm/setup-emsdk@v14
+
+        - name: Configure
+          run: >
+            xmake f -p wasm -c
+            -y -vv
+            --embed_assets=y
+
+        - name: Build
+          run: xmake build -y -vv
+
+        - name: Upload artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: "wasm-release-embedtrue"
+            path: build/Runtime/
+
   dynamic:
     runs-on: ubuntu-24.04
     name: "dynamic libs check"
@@ -109,11 +145,17 @@ jobs:
 
       - name: Convert json + Check dependencies
         run: |
-          for binary in $(find artifacts/ -type f); do
+          for binary in $(find artifacts/ -type f \
+            ! -name '*.a' \
+            ! -name '*.lib' \
+            ! -name '*.wasm' \
+            ! -name '*.js' \
+            ! -name '*.html'); do
             "$HOME/.cargo/bin/dyneeded" "$binary" -f json >> dependencies.json
             python scripts/check_dependencies.py dependencies.json
             rm -f dependencies.json
           done
+
 
   release:
     name: Create GitHub Release
