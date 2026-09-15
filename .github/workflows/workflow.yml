@@ -149,6 +149,7 @@ jobs:
             ! -name '*.lib' \
             ! -name '*.wasm' \
             ! -name '*.js' \
+            ! -name '*.exp' \
             ! -name '*.html'); do
             "$HOME/.cargo/bin/dyneeded" "$binary" -f json >> dependencies.json
             python scripts/check_dependencies.py dependencies.json
