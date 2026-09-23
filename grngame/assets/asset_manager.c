@@ -181,17 +181,23 @@ static COLD int32 EmbeddedFileCount(sqlite3 *db)
     return count;
 }
 
-COLD void AddDbToEmbeddedAssetManager(sqlite3 *db)
+COLD bool AddDbToEmbeddedAssetManager(sqlite3 *db)
 {
     sqlite3_stmt *stmt = NULL;
 
     g_app.embedded_asset_manager.embedded_assets_count = EmbeddedFileCountAssets(db);
     g_app.embedded_asset_manager.embedded_count = EmbeddedFileCount(db);
 
+    // if count file is 0 db structure isnt good
+    if(g_app.embedded_asset_manager.embedded_count == 0){
+        LOG_ERROR("%s","Assets.pak structure isn't correct");
+        return false;
+    }
+
     if (sqlite3_prepare_v2(db, "SELECT path, data FROM embedded_assets;", -1, &stmt, NULL) != SQLITE_OK)
     {
-        LOG_ERROR("Failed to init asset cache: %s", sqlite3_errmsg(db));
-        return;
+        LOG_ERROR("%s","Assets.pak structure isn't correct");
+        return false;
     }
 
     khash_t(EmbeddedAssetHash) *hash = g_app.embedded_asset_manager.embedded_assets_hash;
@@ -229,6 +235,7 @@ COLD void AddDbToEmbeddedAssetManager(sqlite3 *db)
 
     sqlite3_finalize(stmt);
     DbClose(db);
+    return true;
 }
 
 COLD void AssetManagerDestroy(AssetManager *manager)

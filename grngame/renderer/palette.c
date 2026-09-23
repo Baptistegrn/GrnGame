@@ -52,16 +52,6 @@ void PaletteManagerDestroy(PaletteManager *manager)
     }
 }
 
-void PaletteSetFromConfig()
-{
-    string_vec_t palette;
-    if (!JsonGetStringArray(g_app.json_manager, "config/config.json", "Config.palette", &palette))
-    {
-        LOG_ERROR("Using default value for : Config.palette");
-    }
-    g_app.info.palette = palette;
-}
-
 void PaletteAddColor(SDL_Color color)
 {
     kv_push(SDL_Color, g_app.palette_manager.palette_elements, color);
@@ -145,9 +135,7 @@ void PaletteReload()
     PaletteManagerDestroy(&g_app.palette_manager);
     PaletteFreeStringVec(&g_app.info.palette);
     g_app.palette_manager = PaletteManagerCreate();
-    PaletteSetFromConfig();
     PaletteParse(&g_app.info.palette);
-
     ReloadAllTexturesWithPalette();
 }
 
