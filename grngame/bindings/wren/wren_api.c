@@ -14,7 +14,7 @@
 #include "grngame/utils/clear.h"
 #include "grngame/utils/string_compat.h"
 
-#ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
+#ifdef GRNGAME_EMBED_ASSETS
 #include "grngame/assets/load.h"
 #endif
 
@@ -222,7 +222,7 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
     char filename[MODULE_SIZE_MAX_NAME];
     snprintf(filename, sizeof(filename), "%s.wren", name);
 
-#ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
+#ifdef GRNGAME_EMBED_ASSETS
     {
         EmbeddedAsset *asset = GetEmbeddedAsset(filename);
 
@@ -484,7 +484,7 @@ static void WrenStartVM()
 static bool WrenInterpret(const char *filename)
 {
     char *module_name = FileStem(filename);
-#ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
+#ifdef GRNGAME_EMBED_ASSETS
     {
         EmbeddedAsset *asset = GetEmbeddedAsset(filename);
         if (!asset)

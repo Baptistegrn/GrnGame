@@ -6,7 +6,7 @@
 
 static int32 ThreadPoolWorker(void *user_data)
 {
-#ifndef GRNGAME_WASM
+#if !defined(GRNGAME_WASM) && !defined(__ANDROID__)
     haclog_thread_context_init();
 #endif
     ThreadManager *manager = (ThreadManager *)user_data;
@@ -48,7 +48,7 @@ static int32 ThreadPoolWorker(void *user_data)
             SDL_UnlockMutex(manager->mutex);
         }
     }
-#ifndef GRNGAME_WASM
+#if !defined(GRNGAME_WASM) && !defined(__ANDROID__)
     haclog_thread_context_cleanup();
 #endif
 

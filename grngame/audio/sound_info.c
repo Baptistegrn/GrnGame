@@ -1,6 +1,5 @@
 #include "sound_info.h"
 #include "grngame/math/types.h"
-#include "sound.c"
 #include <cglm/types-struct.h>
 #include <khash.h>
 #include <kvec.h>

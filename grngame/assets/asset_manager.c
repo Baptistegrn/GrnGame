@@ -110,7 +110,7 @@ void AssetManagerLoadFolder(const char *folder)
 {
     PROFILE_FUNCTION("LoadFolder");
 
-#ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
+#ifdef GRNGAME_EMBED_ASSETS
     {
         if (UNLIKELY(g_app.embedded_asset_manager.embedded_assets_count == 0))
         {

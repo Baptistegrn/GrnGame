@@ -5,6 +5,8 @@
 #include "grngame/audio/sound.h"
 #include "grngame/bindings/wren/wren_api.h"
 
+#include "grngame/audio/sound_info.h"
+#include "grngame/audio/speech.h"
 #include "grngame/core/app.h"
 #include "grngame/core/init.h"
 #include "grngame/core/param.h"
@@ -20,6 +22,7 @@
 #include "grngame/math/types.h"
 #include "grngame/platform/check_type.h"
 #include "grngame/renderer/palette.h"
+#include "grngame/renderer/primitive.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/random.h"
@@ -68,7 +71,6 @@ void EngineStart()
 
     InitResult res = InitAll();
     EnsureInitSucceeded(res);
-
     MainLoop();
 }
 
@@ -201,7 +203,6 @@ static HOT void MainLoopIteration(void *arg)
     ClearAll();
 
     g_app.info.frame_count++;
-
     PROFILE_ZONE_END(main_loop_work_zone);
     UpdateEngineTime(frame_start_time);
     EngineRequestStop();
@@ -232,7 +233,6 @@ void ReloadConfig(void)
 {
 
     PROFILE_FUNCTION("Reload");
-
     JsonManagerDestroy(g_app.json_manager);
     g_app.json_manager = JsonManagerCreate();
     InitAppConfig();

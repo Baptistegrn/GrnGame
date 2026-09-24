@@ -19,10 +19,6 @@
 
 BEGIN_DECLARATIONS
 
-#if defined(GRNGAME_EMBED_ASSETS)
-#define EMBEDDED_ASSETS_DATA_AVAILABLE
-#endif
-
 typedef struct AppInfo
 {
     sqlite3 *asset_db;

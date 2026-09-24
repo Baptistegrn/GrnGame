@@ -1,6 +1,9 @@
 #include "directories.h"
 #include "SDL3/SDL_filesystem.h"
 #include "grngame/platform/paths.h"
+
+#ifndef GRNGAME_EMBED_ASSETS
+
 #include <tinydir.h>
 
 void DirWalk(const char *dir_path, FileCallback callback, void *userdata)
@@ -64,6 +67,25 @@ int32 DirAssetFileCount(const char *dir_path)
     DirWalk(dir_path, count_asset_file_callback, &count);
     return count;
 }
+
+#else
+
+void DirWalk(const char *dir_path, FileCallback callback, void *userdata)
+{
+    return;
+}
+
+int32 DirFileCount(const char *dir_path)
+{
+    return 1;
+}
+
+int32 DirAssetFileCount(const char *dir_path)
+{
+    return 1;
+}
+
+#endif
 
 const char *DirOfExecutable()
 {

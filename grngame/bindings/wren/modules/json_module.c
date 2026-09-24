@@ -201,7 +201,7 @@ void open_json_file(WrenVM *vm)
     const char *key = wrenGetSlotString(vm, 1);
     uint64 min = (uint64)wrenGetSlotDouble(vm, 2);
     uint64 max = (uint64)wrenGetSlotDouble(vm, 3);
-#ifndef EMBEDDED_ASSETS_DATA_AVAILABLE
+#ifndef GRNGAME_EMBED_ASSETS
     OpenJsonObject(g_app.json_manager, key, min, max);
 #else
     const EmbeddedAsset *asset = GetEmbeddedAsset(key);

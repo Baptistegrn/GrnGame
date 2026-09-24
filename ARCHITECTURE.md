@@ -7,8 +7,8 @@ What launches your game
 ## /tests
 Temp tests used throughout the dev process
 
-## /benchmark
-critical speed test projects
+## /android-build
+build to create android applications 
 
 ## /ressources
 ressources for project system

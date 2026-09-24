@@ -20,10 +20,15 @@ set_description("Enable Tracy profiler instrumentation")
 option_end()
 
 option("embed_assets")
-set_default(is_plat("wasm"))
+set_default(is_plat("wasm") or is_plat("android"))
 set_showmenu(true)
 set_description("Generate embedded assets before building game (auto-enabled for wasm)")
 option_end()
+
+if is_plat("android") then
+    add_ldflags("-Wl,--export-dynamic", "-rdynamic", {force = true})
+    add_ldflags("-u", "JNI_OnLoad", "-u", "SDL_main", {force = true})
+end
 
 if is_arch("x64") then
 	add_defines("GRNGAME_X64")
@@ -49,7 +54,8 @@ if is_plat("wasm") then
 end
 
 -- render + input
-add_requires("libsdl3", { configs = { shared = false,threads=true } })
+-- if we update sdl version we need to update android-build because its based on sdl build
+add_requires("libsdl3",{version = "3.4.12"}, { configs = { shared = false,threads=true } })
 add_requires("libsdl3_image", { configs = { shared = false } })
 add_requires("libsdl3_ttf", { configs = { shared = false, freetype = false }, system = false })
 
@@ -61,8 +67,11 @@ add_requires("cglm", { configs = { shared = false } })
 add_requires("soloud pr402", { configs = { shared = false, cxflags = is_arch("arm64") and "-DDR_MP3_NO_SIMD" or nil } })
 
 -- folder
-add_requires("tinydir", { configs = { shared = false } })
-if not is_plat("wasm") then
+if not is_plat("wasm") and not is_plat("android") then 
+	add_requires("tinydir", { configs = { shared = false } })
+end 
+
+if not is_plat("wasm") and not is_plat("android") then
 	add_requires("efsw", { configs = { shared = false }, system = false })
 end
 
@@ -77,15 +86,25 @@ add_requires("sqlite3", { configs = { shared = false }, system = false })
 add_requires("cjson", { configs = { shared = false } })
 
 --logs
-if not is_plat("wasm") then
+if not is_plat("wasm") and not is_plat("android") then
 	add_requires("haclog", { version = "color_fix" }, { configs = { shared = false } })
 end
 
 set_warnings("all", "extra")
 
+-- log in android
+if is_plat("android") then
+    add_syslinks("log")
+end
+
 target("GrnGame")
+
+    if is_plat("android") then
+        add_cflags("-fPIC")
+    end
+
 add_defines("WITH_SDL3_STATIC")
-set_languages("c23", "cxx20")
+set_languages("c11", "cxx20")
 set_kind("static")
 
 add_files("grngame/**.c", "grngame/**.cpp")
@@ -127,6 +146,8 @@ elseif is_plat("windows") then
 	add_defines("GRNGAME_WINDOWS", { public = true })
 elseif is_plat("macosx") then
 	add_defines("GRNGAME_MACOS", { public = true })
+elseif is_plat("android") then
+	add_defines("GRNGAME_ANDROID", { public = true })
 end
 
 -- mode defines
@@ -171,33 +192,31 @@ local plat = get_config("plat") or os.host()
 local arch = get_config("arch") or os.arch()
 local mode = get_config("mode") or "release"
 
-if not is_plat("wasm") then
+if not is_plat("wasm") and not is_plat("android") then
 	target("Embedded-" .. plat .. "-" .. arch .. "-" .. mode)
-	set_languages("c17", "cxx17")
+	set_languages("c11", "cxx20")
 	set_kind("binary")
 	set_targetdir(path.join("$(builddir)", "Embedded"))
 	add_files("grngame/assets/embedded_main.c")
 	add_headerfiles("grngame/**.h")
 	add_deps("GrnGame")
-
-	target("EmbeddedBenchmark-" .. plat .. "-" .. arch .. "-" .. mode)
-	set_languages("c17", "cxx17")
-	set_kind("binary")
-	set_targetdir(path.join("$(builddir)", "EmbeddedBenchmark"))
-	add_files("benchmark/embedded/main.c")
-	add_headerfiles("grngame/**.h")
-	add_deps("GrnGame")
 end
 
-target("Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix)
-set_languages("c17", "cxx17")
-set_kind("binary")
-set_targetdir(path.join("$(builddir)", "Runtime"))
-add_files("runtime/main.c")
-add_deps("GrnGame")
-
-if not is_plat("wasm") then
-	add_deps("Embedded-" .. plat .. "-" .. arch .. "-" .. mode)
+if is_plat("android") then
+    target("Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix)
+        set_kind("shared")
+        set_basename("GrnGame")  
+        set_languages("c17", "cxx20")
+        set_targetdir(path.join("$(builddir)", "Runtime"))
+        add_files("runtime/main.c")
+        add_deps("GrnGame")
+else
+    target("Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix)
+        set_kind("binary")
+        set_languages("c17", "cxx20")
+        set_targetdir(path.join("$(builddir)", "Runtime"))
+        add_files("runtime/main.c")
+        add_deps("GrnGame")
 end
 
 -- all tests are here

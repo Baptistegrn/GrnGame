@@ -112,7 +112,7 @@ static InitResult SetSDLMetadata(void)
 
 static void LoadAppConfig(const unsigned char *text)
 {
-#ifndef EMBEDDED_ASSETS_DATA_AVAILABLE
+#ifndef GRNGAME_EMBED_ASSETS
     OpenJsonObject(g_app.json_manager, "config/config.json", 0, 0);
 #else
     OpenJsonObjectFromMemory(g_app.json_manager, "config/config.json", text, 0, 0);
@@ -126,10 +126,10 @@ static void LoadAppConfig(const unsigned char *text)
     GET_CONFIG_INT("Config.fps", g_app.info.fps, 60);
     GET_CONFIG_INT("Config.windowWidth", g_app.info.window_width, 1280);
     GET_CONFIG_INT("Config.windowHeight", g_app.info.window_height, 720);
-    GET_CONFIG_INT("Config.universeWidth", g_app.info.window_universe_width, 1280);
-    GET_CONFIG_INT("Config.universeHeight", g_app.info.window_universe_height, 720);
+    GET_CONFIG_INT("Config.universeWidth", g_app.info.window_universe_width, 200);
+    GET_CONFIG_INT("Config.universeHeight", g_app.info.window_universe_height, 100);
 
-    GET_CONFIG_BOOL("Config.resizable", g_app.info.window_resizable, true);
+    GET_CONFIG_BOOL("Config.resizable", g_app.info.window_resizable, false);
     GET_CONFIG_BOOL("Config.fullscreen", g_app.info.window_fullscreen, false);
     GET_CONFIG_BOOL("Config.maximised", g_app.info.window_maximised, false);
     GET_CONFIG_BOOL("Config.bordered", g_app.info.bordered, true);
@@ -145,11 +145,11 @@ static void LoadAppConfig(const unsigned char *text)
 
 void InitAppConfig(void)
 {
-#ifndef EMBEDDED_ASSETS_DATA_AVAILABLE
+#ifndef GRNGAME_EMBED_ASSETS
     LoadAppConfig(NULL);
 #else
     g_app.embedded_asset_manager = EmbeddedAssetManagerCreate();
-    g_app.info.asset_db = DbCreate("Assets.pak");
+    g_app.info.asset_db = DbCreate(PathFromExecutableDirectory("Assets.pak"));
     AddDbToEmbeddedAssetManager(g_app.info.asset_db);
 
     const EmbeddedAsset *asset = GetEmbeddedAsset("config/config.json");
@@ -170,7 +170,7 @@ void InitAppConfig(void)
 
 static SDL_IOStream *LoadControllerDatabase(void)
 {
-#ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
+#ifdef GRNGAME_EMBED_ASSETS
     {
         const EmbeddedAsset *asset = GetEmbeddedAsset("data/gamecontrollerdb.txt");
         if (!asset)
@@ -291,14 +291,13 @@ InitResult InitAll(void)
     InitializeJson();
     InitAppConfig();
     InitResult result = InitializeLogging();
+    result = InitializeSDL();
+    if (result != INIT_OK)
+        return result;
     if (result != INIT_OK)
         return result;
     ThreadManagerCreate();
     ConfigureSDLHints();
-
-    result = InitializeSDL();
-    if (result != INIT_OK)
-        return result;
 
     result = SetSDLMetadata();
     if (result != INIT_OK)

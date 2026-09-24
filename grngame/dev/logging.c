@@ -1,4 +1,4 @@
-#ifndef GRNGAME_WASM
+#if !defined(GRNGAME_WASM) && !defined(__ANDROID__)
 #include "grngame/dev/logging.h"
 #include "grngame/math/types.h"
 #include "grngame/platform/paths.h"

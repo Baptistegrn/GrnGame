@@ -28,10 +28,14 @@ COLD void JsonManagerDestroy(JsonManager manager);
 JsonObject *JsonObjectGet(JsonManager manager, const char *key);
 bool JsonObjectContains(JsonManager manager, const char *key);
 
+// need file system
 bool OpenJsonObject(JsonManager manager, const char *key, uint64 min, uint64 max);
+
 bool OpenJsonObjectFromMemory(JsonManager manager, const char *path, const unsigned char *text, uint64 min, uint64 max);
 
+// need file system
 bool JsonSaveObject(JsonManager manager, const char *fileKey);
+
 void JsonSaveObjects(JsonManager manager, float64 budget);
 
 bool JsonGetNumber(JsonManager manager, const char *fileKey, const char *key, float64 *out);

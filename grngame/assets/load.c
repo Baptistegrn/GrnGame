@@ -24,7 +24,7 @@ EmbeddedAsset *GetEmbeddedAsset(const char *name)
 
 static SDL_Surface *LoadTextureSurface(const char *file)
 {
-#ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
+#ifdef GRNGAME_EMBED_ASSETS
     {
         const EmbeddedAsset *asset = GetEmbeddedAsset(file);
 
@@ -243,7 +243,7 @@ static WavStream *LoadSoundStream(const char *file)
     if (!stream)
         return NULL;
 
-#ifdef EMBEDDED_ASSETS_DATA_AVAILABLE
+#ifdef GRNGAME_EMBED_ASSETS
     {
         const EmbeddedAsset *asset = GetEmbeddedAsset(file);
 
