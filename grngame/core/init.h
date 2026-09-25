@@ -3,7 +3,6 @@
 #include <soloud_c.h>
 #include <stdbool.h>
 
-
 typedef enum
 {
     INIT_OK,

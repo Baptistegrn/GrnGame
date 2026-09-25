@@ -3,7 +3,6 @@
 #include "grngame/core/app.h"
 #include "grngame/math/types.h"
 
-
 int32 MessageBoxWindow(const char *text)
 {
     return SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "GrnGame", text, g_app.window);
