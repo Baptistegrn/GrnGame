@@ -74,95 +74,137 @@ static InitResult SetSDLMetadata(void)
     return INIT_OK;
 }
 
-#define GET_CONFIG_STR(key, dest, default_val)                                                                         \
-    do                                                                                                                 \
-    {                                                                                                                  \
-        const char *tmp = NULL;                                                                                        \
-        if (!JsonGetString(g_app.json_manager, "config/config.json", key, &tmp))                                       \
-        {                                                                                                              \
-            LOG_ERROR("Using default value for : " key);                                                               \
-            tmp = default_val;                                                                                         \
-        }                                                                                                              \
-        dest = tmp;                                                                                                    \
-    } while (0)
-
-#define GET_CONFIG_INT(key, dest, default_val)                                                                         \
-    do                                                                                                                 \
-    {                                                                                                                  \
-        double tmp = 0.0;                                                                                              \
-        if (!JsonGetNumber(g_app.json_manager, "config/config.json", key, &tmp))                                       \
-        {                                                                                                              \
-            LOG_ERROR("Using default value for : " key);                                                               \
-            tmp = (double)(default_val);                                                                               \
-        }                                                                                                              \
-        dest = (int)tmp;                                                                                               \
-    } while (0)
-
-#define GET_CONFIG_BOOL(key, dest, default_val)                                                                        \
-    do                                                                                                                 \
-    {                                                                                                                  \
-        bool tmp = false;                                                                                              \
-        if (!JsonGetBool(g_app.json_manager, "config/config.json", key, &tmp))                                         \
-        {                                                                                                              \
-            LOG_ERROR("Using default value for : " key);                                                               \
-            tmp = default_val;                                                                                         \
-        }                                                                                                              \
-        dest = tmp;                                                                                                    \
-    } while (0)
-
-static void LoadAppConfig(const unsigned char *text)
+static bool ParseConfig()
 {
-#ifndef GRNGAME_EMBED_ASSETS
-    OpenJsonObject(g_app.json_manager, "config/config.json", 0, 0);
-#else
-    OpenJsonObjectFromMemory(g_app.json_manager, "config/config.json", text, 0, 0);
-#endif
+    bool success = false;
+    const char *fileKey = "config/config.json";
 
-    GET_CONFIG_BOOL("Config.enableLogs", g_app.info.enable_logs, true);
-    GET_CONFIG_INT("Config.logDestination", g_app.info.log_destination, 0);
+    success = JsonGetBool(g_app.json_manager, fileKey, "Config.enableLogs", &g_app.info.enable_logs);
+    if (!success)
+        return false;
+    success = JsonGetBool(g_app.json_manager, fileKey, "Config.resizable", &g_app.info.window_resizable);
+    if (!success)
+        return false;
+    success = JsonGetBool(g_app.json_manager, fileKey, "Config.fullscreen", &g_app.info.window_fullscreen);
+    if (!success)
+        return false;
+    success = JsonGetBool(g_app.json_manager, fileKey, "Config.maximised", &g_app.info.window_maximised);
+    if (!success)
+        return false;
+    success = JsonGetBool(g_app.json_manager, fileKey, "Config.bordered", &g_app.info.bordered);
+    if (!success)
+        return false;
+    success = JsonGetBool(g_app.json_manager, fileKey, "Config.forceUniverseScale", &g_app.info.force_universe_scale);
+    if (!success)
+        return false;
+    float64 tmp_num = 0.0;
 
-    GET_CONFIG_STR("Config.name", g_app.info.name, "App");
-    GET_CONFIG_STR("Config.version", g_app.info.version, "1.0.0");
-    GET_CONFIG_INT("Config.fps", g_app.info.fps, 60);
-    GET_CONFIG_INT("Config.windowWidth", g_app.info.window_width, 1280);
-    GET_CONFIG_INT("Config.windowHeight", g_app.info.window_height, 720);
-    GET_CONFIG_INT("Config.universeWidth", g_app.info.window_universe_width, 200);
-    GET_CONFIG_INT("Config.universeHeight", g_app.info.window_universe_height, 100);
+    success = JsonGetNumber(g_app.json_manager, fileKey, "Config.logDestination", &tmp_num);
+    if (!success)
+        return false;
+    g_app.info.log_destination = (int32)tmp_num;
 
-    GET_CONFIG_BOOL("Config.resizable", g_app.info.window_resizable, false);
-    GET_CONFIG_BOOL("Config.fullscreen", g_app.info.window_fullscreen, false);
-    GET_CONFIG_BOOL("Config.maximised", g_app.info.window_maximised, false);
-    GET_CONFIG_BOOL("Config.bordered", g_app.info.bordered, true);
+    success = JsonGetNumber(g_app.json_manager, fileKey, "Config.fps", &tmp_num);
+    if (!success)
+        return false;
+    g_app.info.fps = (int32)tmp_num;
 
-    GET_CONFIG_BOOL("Config.forceUniverseScale", g_app.info.force_universe_scale, false);
-    GET_CONFIG_INT("Config.renderClear", g_app.info.render_clear, 0);
-    GET_CONFIG_STR("Config.assetFolder", g_app.info.asset_folder, "assets");
+    success = JsonGetNumber(g_app.json_manager, fileKey, "Config.windowWidth", &tmp_num);
+    if (!success)
+        return false;
+    g_app.info.window_width = (int32)tmp_num;
+
+    success = JsonGetNumber(g_app.json_manager, fileKey, "Config.windowHeight", &tmp_num);
+    if (!success)
+        return false;
+    g_app.info.window_height = (int32)tmp_num;
+
+    success = JsonGetNumber(g_app.json_manager, fileKey, "Config.universeWidth", &tmp_num);
+    if (!success)
+        return false;
+    g_app.info.window_universe_width = (int32)tmp_num;
+
+    success = JsonGetNumber(g_app.json_manager, fileKey, "Config.universeHeight", &tmp_num);
+    if (!success)
+        return false;
+    g_app.info.window_universe_height = (int32)tmp_num;
+
+    success = JsonGetNumber(g_app.json_manager, fileKey, "Config.renderClear", &tmp_num);
+    if (!success)
+        return false;
+    g_app.info.render_clear = (int32)tmp_num;
+
+    const char *tmp_str = NULL;
+
+    success = JsonGetString(g_app.json_manager, fileKey, "Config.name", &tmp_str);
+    if (!success)
+        return false;
+    g_app.info.name = tmp_str;
+
+    success = JsonGetString(g_app.json_manager, fileKey, "Config.version", &tmp_str);
+    if (!success)
+        return false;
+    g_app.info.version = tmp_str;
+
+    success = JsonGetString(g_app.json_manager, fileKey, "Config.assetFolder", &tmp_str);
+    if (!success)
+        return false;
+    g_app.info.asset_folder = tmp_str;
+
+    string_vec_t palette;
+    success = JsonGetStringArray(g_app.json_manager, fileKey, "Config.palette", &palette);
+    if (!success)
+        return false;
+    g_app.info.palette = palette;
+
+    return true;
 }
 
-#undef GET_CONFIG_STR
-#undef GET_CONFIG_INT
-#undef GET_CONFIG_BOOL
-
-void InitAppConfig(void)
+static InitResult LoadAppConfig()
 {
-#ifndef GRNGAME_EMBED_ASSETS
-    LoadAppConfig(NULL);
-#else
-    g_app.embedded_asset_manager = EmbeddedAssetManagerCreate();
-    g_app.info.asset_db = DbCreate(PathFromExecutableDirectory("Assets.pak"));
-    AddDbToEmbeddedAssetManager(g_app.info.asset_db);
 
+    bool json_open = OpenJsonObject(g_app.json_manager, "config/config.json", 0, 0);
+    if (!json_open)
+    {
+        LOG_ERROR("%s", "Failed to open config.json");
+        return INIT_CONFIG_FAILED;
+    }
+    if (!ParseConfig())
+    {
+        LOG_ERROR("%s", "Failed to parse config.json : somes parameters arent here");
+        return INIT_CONFIG_FAILED;
+    }
+    return INIT_OK;
+}
+
+static InitResult LoadAppConfigEmbedded()
+{
     const EmbeddedAsset *asset = GetEmbeddedAsset("config/config.json");
+    if (!asset)
+    {
+        LOG_ERROR("%s", "Failed to get config.json");
+        return INIT_CONFIG_FAILED;
+    }
+    bool json_open = OpenJsonObjectFromMemory(g_app.json_manager, "config/config.json", asset->data, 0, 0);
+    if (!json_open)
+    {
+        LOG_ERROR("%s", "Failed to open config.json");
+        return INIT_CONFIG_FAILED;
+    }
+    if (!ParseConfig())
+    {
+        LOG_ERROR("%s", "Failed to parse config.json : somes parameters arent here");
+        return INIT_CONFIG_FAILED;
+    }
+    return INIT_OK;
+}
 
-    if (asset != NULL)
-    {
-        LoadAppConfig(asset->data);
-    }
-    else
-    {
-        LOG_ERROR("Embedded config file not found! Falling back to defaults.");
-        LoadAppConfig(NULL);
-    }
+InitResult InitAppConfig(void)
+{
+#ifdef GRNGAME_EMBED_ASSETS
+    return LoadAppConfigEmbedded();
+#else
+    return LoadAppConfig();
 #endif
 }
 
@@ -253,7 +295,6 @@ void InitializePalette(void)
 {
     InitLinearLut();
     g_app.palette_manager = PaletteManagerCreate();
-    PaletteSetFromConfig();
     PaletteParse(&g_app.info.palette);
     // PaletteRead();
 }
@@ -288,14 +329,26 @@ InitResult InitAll(void)
 
     g_app = (App){0};
 
+#ifdef GRNGAME_EMBED_ASSETS
+    g_app.embedded_asset_manager = EmbeddedAssetManagerCreate();
+    g_app.info.asset_db = DbCreate("Assets.pak");
+    bool res = AddDbToEmbeddedAssetManager(g_app.info.asset_db);
+    if (!res)
+    {
+        return INIT_OPEN_GAME_DATA_FAILED;
+    }
+#endif
+
     InitializeJson();
-    InitAppConfig();
-    InitResult result = InitializeLogging();
-    result = InitializeSDL();
+
+    InitResult result = InitAppConfig();
     if (result != INIT_OK)
         return result;
+
+    result = InitializeLogging();
     if (result != INIT_OK)
         return result;
+
     ThreadManagerCreate();
     ConfigureSDLHints();
 

@@ -3,8 +3,6 @@
 #include <soloud_c.h>
 #include <stdbool.h>
 
-// later this function will grow when we will need to initialize more (stuff related to logging, app icon...),
-// so the arguments are given in a struct and the result is as an enum
 
 typedef enum
 {
@@ -12,9 +10,11 @@ typedef enum
     INIT_SDL_FAILED,
     INIT_LOG_FAILED,
     INIT_SOUND_FAILED,
+    INIT_CONFIG_FAILED,
+    INIT_OPEN_GAME_DATA_FAILED,
     INIT_ALREADY, // already initialized
 } InitResult;
 
 InitResult InitAll();
 
-void InitAppConfig(void);
+InitResult InitAppConfig(void);

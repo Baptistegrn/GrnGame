@@ -4,10 +4,11 @@ package("haclog")
     set_license("MIT")
 
     add_urls("https://github.com/Baptistegrn/haclog.git", {
-        branch = "master"
+        branch = "add_colors_options"
     })
-    add_versions("color_fix", "0ba7db67b12f6f237770281ba2a7d9c80e589c8e")
 
+    add_versions("add_colors_options", "d801a48bc434a79813f0ee246a3c486dfe9a2ca1")
+    
     if is_plat("linux", "bsd") then
         add_syslinks("pthread")
     end

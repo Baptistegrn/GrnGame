@@ -28,6 +28,7 @@
 #include "grngame/utils/random.h"
 #include "grngame/utils/time.h"
 #include "kvec.h"
+#include "message.h"
 
 #ifdef GRNGAME_WASM
 #include "grngame/web/web.h"
@@ -52,12 +53,29 @@ static COLD void CleanupAppResources(void);
 static COLD void EnsureInitSucceeded(InitResult res)
 {
     if (UNLIKELY(res == INIT_SDL_FAILED))
+    {
+        MessageBox_("Failed to initialize SDL.");
         exit(1);
+    }
 
     if (UNLIKELY(res == INIT_LOG_FAILED))
+    {
+        MessageBoxWindow("Failed to initialize the logging system.");
         exit(2);
-}
+    }
 
+    if (UNLIKELY(res == INIT_CONFIG_FAILED))
+    {
+        MessageBoxWindow("Failed to load or parse the configuration file.");
+        exit(3);
+    }
+
+    if (UNLIKELY(res == INIT_OPEN_GAME_DATA_FAILED))
+    {
+        MessageBoxWindow("Failed to open game data.");
+        exit(4);
+    }
+}
 COLD void ShutdownScripts(void)
 {
     WrenCallOnDestroy();

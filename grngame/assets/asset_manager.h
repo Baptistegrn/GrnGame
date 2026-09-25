@@ -65,6 +65,6 @@ COLD void AssetManagerDestroy(AssetManager *manager);
 COLD void EmbeddedAssetManagerDestroy(EmbeddedAssetManager *manager);
 
 void AssetManagerLoadFolder(const char *folder);
-COLD void AddDbToEmbeddedAssetManager(sqlite3 *db);
+COLD bool AddDbToEmbeddedAssetManager(sqlite3 *db);
 
 END_DECLARATIONS

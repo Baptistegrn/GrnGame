@@ -2,10 +2,12 @@
 
 #include "grngame/utils/c_cpp.h"
 
-#if defined(__ANDROID__)
+#if defined(GRNGAME_ANDROID)
 #include <android/log.h>
+
 #elif !defined(GRNGAME_WASM)
 #include "haclog/haclog.h"
+
 #else
 #include <emscripten/emscripten.h>
 #endif
@@ -24,7 +26,7 @@ typedef enum
 
 bool LogInit(LogDestination log_destination);
 
-#if defined(__ANDROID__)
+#if defined(GRNGAME_ANDROID)
 
 #define LOG_DEBUG(fmt, ...) __android_log_print(ANDROID_LOG_DEBUG, "GrnGame", fmt, ##__VA_ARGS__)
 #define LOG_INFO(fmt, ...) __android_log_print(ANDROID_LOG_INFO, "GrnGame", fmt, ##__VA_ARGS__)

@@ -1,4 +1,4 @@
-#if !defined(GRNGAME_WASM) && !defined(__ANDROID__)
+#ifdef GRNGAME_DESKTOP
 #include "grngame/dev/logging.h"
 #include "grngame/math/types.h"
 #include "grngame/platform/paths.h"
@@ -30,10 +30,11 @@ static bool add_console_handler()
     }
     haclog_handler_set_fn_write_meta((haclog_handler_t *)&handler, WriteMeta);
 #ifdef GRNGAME_RELEASE
-    haclog_handler_set_level((haclog_handler_t *)&handler, HACLOG_LEVEL_INFO);
+    haclog_handler_set_level((haclog_handler_t *)&handler, HACLOG_LEVEL_DEBUG);
 #else
     haclog_handler_set_level((haclog_handler_t *)&handler, HACLOG_LEVEL_DEBUG);
 #endif
+
     haclog_context_add_handler((haclog_handler_t *)&handler);
     return true;
 }
