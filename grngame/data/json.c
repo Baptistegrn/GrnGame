@@ -19,6 +19,15 @@ COLD JsonManager JsonManagerCreate(void)
     return kh_init(JsonObjects);
 }
 
+static void JsonObjectDestroy(JsonObject *object)
+{
+    if (object->json != NULL)
+    {
+        cJSON_Delete(object->json);
+        object->json = NULL;
+    }
+}
+
 static void JsonObjectAdd(JsonManager manager, const char *key, JsonObject value)
 {
     int32 ret;
@@ -35,7 +44,11 @@ static void JsonObjectAdd(JsonManager manager, const char *key, JsonObject value
 
     if (ret == 0)
     {
+        // free the existing key and value
         free(dup_key);
+        JsonObject *old = &kh_value(manager, it);
+        cJSON_Delete(old->json);
+        old->json = NULL;
     }
 
     kh_value(manager, it) = value;

@@ -46,12 +46,9 @@ typedef struct AppInfo
     int16 offset_x;
     int16 offset_y;
 
-    bool enable_logs;
     LogDestination log_destination;
 
     bool force_universe_scale; // apply black stripes to the window
-
-    int32 render_clear;
 
     string_vec_t palette;
 
@@ -70,11 +67,7 @@ typedef struct
     EmbeddedAssetManager embedded_asset_manager;
     PaletteManager palette_manager;
     ThreadManager thread_manager;
-
-#if defined(GRNGAME_HOT_RELOAD_ENABLE)
     kvec_t(HotreloadQueueElement) queue;
-#endif
-
     AppInfo info;
 
 } App;

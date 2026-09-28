@@ -1,4 +1,3 @@
-#if defined(GRNGAME_HOT_RELOAD_ENABLE)
 #pragma once
 
 #include "grngame/utils/c_cpp.h"
@@ -22,11 +21,8 @@ typedef struct
 
 BEGIN_DECLARATIONS
 
-void StartAssetHotReload(const char *directory, bool recursive);
-void ProcessHotreloadQueue();
+void HotReloadInit(const char *folder);
+void HotReloadDestroy();
+void ProcessHotreloadQueue(void);
 
-void HotReloadInitQueue();
-void HotReloadDestroyQueue();
 END_DECLARATIONS
-
-#endif

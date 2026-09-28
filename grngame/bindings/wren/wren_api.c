@@ -601,7 +601,7 @@ bool WrenInit()
     return true;
 }
 
-bool ReloadWrenScript(const char *filename)
+bool ReloadWrenScript()
 {
 
     if (g_app.wren_manager.vm)

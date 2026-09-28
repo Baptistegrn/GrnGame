@@ -84,6 +84,12 @@ bool LogInit(LogDestination log_destination)
     return true;
 }
 
+void LogDestroy(void)
+{
+    // no clear function in haclog
+    return;
+}
+
 #else
 
 #include "grngame/dev/logging.h"
@@ -92,6 +98,11 @@ bool LogInit(LogDestination log_destination)
 {
     (void)log_destination;
     return true;
+}
+
+void LogDestroy(void)
+{
+    return;
 }
 
 #endif

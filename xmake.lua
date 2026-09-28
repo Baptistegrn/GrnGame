@@ -82,7 +82,6 @@ add_requires("cjson", { configs = { shared = false } })
 
 if dev_mode then
 	add_requires("tinydir", { configs = { shared = false } })
-	add_requires("efsw", { configs = { shared = false }, system = false })
 end
 
 if is_desktop then 
@@ -102,10 +101,10 @@ target("GrnGame")
 	end
 
 	add_defines("WITH_SDL3_STATIC")
-	set_languages("c11", "cxx20")
+	set_languages("c17")
 	set_kind("static")
 
-	add_files("grngame/**.c", "grngame/**.cpp")
+	add_files("grngame/**.c")
 	remove_files("grngame/assets/embedded_main.c")
 	add_headerfiles("grngame/**.h")
 	add_includedirs(".", { public = true })
@@ -127,7 +126,7 @@ target("GrnGame")
 	)
 
 	if dev_mode then
-		add_packages("tinydir", "efsw")
+		add_packages("tinydir")
 		add_defines("GRNGAME_DEV_MODE", { public = true })
 	end
 
@@ -199,7 +198,7 @@ local mode = get_config("mode") or "release"
 
 if is_desktop then
 	target("Embedded-" .. plat .. "-" .. arch .. "-" .. mode)
-		set_languages("c11", "cxx20")
+		set_languages("c17")
 		set_kind("binary")
 		set_targetdir(path.join("$(builddir)", "Embedded"))
 		add_files("grngame/assets/embedded_main.c")
@@ -211,14 +210,14 @@ if is_plat("android") then
 	target("Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix)
 		set_kind("shared")
 		set_basename("GrnGame")
-		set_languages("c17", "cxx20")
+		set_languages("c17")
 		set_targetdir(path.join("$(builddir)", "Runtime"))
 		add_files("runtime/main.c")
 		add_deps("GrnGame")
 else
 	target("Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix)
 		set_kind("binary")
-		set_languages("c17", "cxx20")
+		set_languages("c17")
 		set_targetdir(path.join("$(builddir)", "Runtime"))
 		add_files("runtime/main.c")
 		add_deps("GrnGame")

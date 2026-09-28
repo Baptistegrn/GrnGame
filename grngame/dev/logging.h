@@ -25,6 +25,7 @@ typedef enum
 } LogDestination;
 
 bool LogInit(LogDestination log_destination);
+void LogDestroy(void);
 
 #if defined(GRNGAME_ANDROID)
 

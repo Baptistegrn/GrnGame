@@ -143,6 +143,8 @@ static COLD void CleanupAppResources(void)
     SoundManagerDestroy(&g_app.sound_manager);
     ThreadManagerDestroy(&g_app.thread_manager);
     JsonManagerDestroy(g_app.json_manager);
+    HotReloadDestroy();
+    LogDestroy();
     g_app = (App){0};
 }
 
@@ -200,14 +202,12 @@ static HOT void MainLoopIteration(void *arg)
     float64 frame_start_time = TimeNow();
 
     RunGarbageCollector();
-
-    PROFILE_ZONE_START(poll_events_zone, "PollEvents");
-#if defined(GRNGAME_HOT_RELOAD_ENABLE)
     ProcessHotreloadQueue();
-#endif
+    PROFILE_ZONE_START(poll_events_zone, "PollEvents");
     PollEvents();
-    SoundUpdate();
     PROFILE_ZONE_END(poll_events_zone);
+
+    SoundUpdate();
 
     PROFILE_ZONE_START(wren_update_zone, "Wren.OnUpdate");
     WrenCallOnUpdate(g_app.info.dt);
@@ -251,11 +251,10 @@ void ReloadConfig(void)
 {
 
     PROFILE_FUNCTION("Reload");
-    JsonManagerDestroy(g_app.json_manager);
-    g_app.json_manager = JsonManagerCreate();
     InitAppConfig();
+    LogDestroy();
+    LogInit(g_app.info.log_destination);
     WindowApplyConfig(&g_app.info);
-    SetRenderColor(g_app.info.render_clear);
     PaletteReload();
     LOG_INFO("sucessfuly reload config");
 }

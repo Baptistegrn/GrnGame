@@ -13,11 +13,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-static void set_render_color(WrenVM *vm)
-{
-    SetRenderColor((int32)wrenGetSlotDouble(vm, 1));
-}
-
 static void palette_reload(WrenVM *vm)
 {
     PaletteReload();
@@ -652,7 +647,6 @@ void RegisterRendererModule()
     RegisterMethod(prim_module, prim_cls, true, "rect_fill(_,_,_,_,_,_)", primitive_rect_fill);
     RegisterMethod(prim_module, prim_cls, true, "circle(_,_,_,_,_)", primitive_circle);
     RegisterMethod(prim_module, prim_cls, true, "circle_fill(_,_,_,_,_)", primitive_circle_fill);
-    RegisterMethod(prim_module, prim_cls, true, "set_render_color(_)", set_render_color);
     RegisterMethod(prim_module, prim_cls, true, "palette_reload()", palette_reload);
 }
 

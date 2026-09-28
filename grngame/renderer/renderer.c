@@ -30,13 +30,7 @@ COLD bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
 
 HOT void RendererClear(const Renderer *renderer)
 {
-    SDL_Color color = {255, 255, 255, 255};
-    if (kv_size(g_app.palette_manager.palette_elements) > 0)
-    {
-        color = kv_A(g_app.palette_manager.palette_elements,
-                     Math_ClampInt(g_app.info.render_clear, 0, kv_size(g_app.palette_manager.palette_elements) - 1));
-    }
-    RendererSetColor(color.r, color.g, color.b, 255);
+    RendererSetColor(255, 255, 255, 255);
     if (UNLIKELY(!SDL_RenderClear(renderer->renderer)))
         LOG_ERROR("Failed to clear renderer: %s", SDL_GetError());
 }
@@ -93,8 +87,4 @@ bool OffScreen(float32 x, float32 y, float32 w, float32 h)
     float32 off_x = g_app.info.offset_x;
     float32 off_y = g_app.info.offset_y;
     return (x + w <= -off_x) || (x >= view_w + off_x) || (y + h <= -off_y) || (y >= view_h + off_y);
-}
-void SetRenderColor(int32 index)
-{
-    g_app.info.render_clear = index;
 }

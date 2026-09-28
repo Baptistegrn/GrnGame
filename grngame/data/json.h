@@ -48,3 +48,5 @@ bool JsonGetStringArray(JsonManager manager, const char *fileKey, const char *ke
 
 // for wren
 bool WriteInJsonObject(JsonManager manager, const char *key, cJSON *object);
+
+// for config

@@ -6,20 +6,20 @@
 
 static int32 ThreadPoolWorker(void *user_data)
 {
-#if !defined(GRNGAME_WASM) && !defined(__ANDROID__)
+#ifdef GRNGAME_DESKTOP
     haclog_thread_context_init();
 #endif
     ThreadManager *manager = (ThreadManager *)user_data;
     while (1)
     {
-        SDL_LockMutex(manager->mutex);
+        LOCK_MUTEX(manager->mutex);
         while (manager->job_queue_head == NULL && !manager->shutdown)
         {
             SDL_WaitCondition(manager->queue_cond, manager->mutex);
         }
         if (manager->shutdown && manager->job_queue_head == NULL)
         {
-            SDL_UnlockMutex(manager->mutex);
+            UNLOCK_MUTEX(manager->mutex);
             break;
         }
 
@@ -33,22 +33,22 @@ static int32 ThreadPoolWorker(void *user_data)
             }
         }
 
-        SDL_UnlockMutex(manager->mutex);
+        UNLOCK_MUTEX(manager->mutex);
         if (job != NULL)
         {
             job->func(job->data);
             free(job);
-            SDL_LockMutex(manager->mutex);
+            LOCK_MUTEX(manager->mutex);
             manager->pending_jobs--;
             if (manager->pending_jobs == 0)
             {
                 SDL_BroadcastCondition(manager->wait_cond);
             }
 
-            SDL_UnlockMutex(manager->mutex);
+            UNLOCK_MUTEX(manager->mutex);
         }
     }
-#if !defined(GRNGAME_WASM) && !defined(__ANDROID__)
+#ifdef GRNGAME_DESKTOP
     haclog_thread_context_cleanup();
 #endif
 
@@ -93,10 +93,10 @@ COLD void ThreadManagerDestroy(ThreadManager *manager)
     if (!manager || !manager->workers)
         return;
 
-    SDL_LockMutex(manager->mutex);
+    LOCK_MUTEX(manager->mutex);
     manager->shutdown = true;
     SDL_BroadcastCondition(manager->queue_cond);
-    SDL_UnlockMutex(manager->mutex);
+    UNLOCK_MUTEX(manager->mutex);
 
     for (int32 i = 0; i < manager->num_workers; i++)
     {
@@ -135,7 +135,7 @@ void ThreadManagerPush(ThreadJobFunc func, void *data)
     job->data = data;
     job->next = NULL;
 
-    SDL_LockMutex(manager->mutex);
+    LOCK_MUTEX(manager->mutex);
 
     manager->pending_jobs++;
 
@@ -152,19 +152,19 @@ void ThreadManagerPush(ThreadJobFunc func, void *data)
 
     SDL_SignalCondition(manager->queue_cond);
 
-    SDL_UnlockMutex(manager->mutex);
+    UNLOCK_MUTEX(manager->mutex);
 }
 
 void ThreadManagerWait(void)
 {
     ThreadManager *manager = &g_app.thread_manager;
 
-    SDL_LockMutex(manager->mutex);
+    LOCK_MUTEX(manager->mutex);
 
     while (manager->pending_jobs > 0)
     {
         SDL_WaitCondition(manager->wait_cond, manager->mutex);
     }
 
-    SDL_UnlockMutex(manager->mutex);
+    UNLOCK_MUTEX(manager->mutex);
 }

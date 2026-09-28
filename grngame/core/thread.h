@@ -32,6 +32,9 @@ typedef struct
     bool shutdown;
 } ThreadManager;
 
+#define LOCK_MUTEX(obj) SDL_LockMutex(obj)
+#define UNLOCK_MUTEX(obj) SDL_UnlockMutex(obj)
+
 void ThreadManagerCreate(void);
 void ThreadManagerDestroy(ThreadManager *manager);
 

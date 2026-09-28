@@ -8,6 +8,7 @@
 #include "grngame/core/window.h"
 #include "grngame/data/data.h"
 #include "grngame/data/json.h"
+#include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
 #include "grngame/dev/tracy.h"
 #include "grngame/platform/paths.h"
@@ -25,8 +26,6 @@ static bool g_initialized = false;
 
 static InitResult InitializeLogging(void)
 {
-    if (!g_app.info.enable_logs)
-        return INIT_OK;
 
     if (!LogInit(g_app.info.log_destination))
     {
@@ -79,9 +78,6 @@ static bool ParseConfig()
     bool success = false;
     const char *fileKey = "config/config.json";
 
-    success = JsonGetBool(g_app.json_manager, fileKey, "Config.enableLogs", &g_app.info.enable_logs);
-    if (!success)
-        return false;
     success = JsonGetBool(g_app.json_manager, fileKey, "Config.resizable", &g_app.info.window_resizable);
     if (!success)
         return false;
@@ -128,11 +124,6 @@ static bool ParseConfig()
     if (!success)
         return false;
     g_app.info.window_universe_height = (int32)tmp_num;
-
-    success = JsonGetNumber(g_app.json_manager, fileKey, "Config.renderClear", &tmp_num);
-    if (!success)
-        return false;
-    g_app.info.render_clear = (int32)tmp_num;
 
     const char *tmp_str = NULL;
 
@@ -252,8 +243,7 @@ static void LoadControllerMappings(void)
 static void HandleWrenFailure(void)
 {
     SDL_Color red = {255, 0, 0, 255};
-    ColorLAB red_lab = RgbToLab(&red);
-    SetRenderColor(FindBestPaletteColorCIEDE2000(&red_lab));
+    RendererSetColor(red.r, red.g, red.b, red.a);
     SetTaskBarIconErrorProgress(100.0);
 }
 
@@ -296,7 +286,6 @@ void InitializePalette(void)
     InitLinearLut();
     g_app.palette_manager = PaletteManagerCreate();
     PaletteParse(&g_app.info.palette);
-    // PaletteRead();
 }
 
 void InitializeAssets(void)
@@ -349,6 +338,10 @@ InitResult InitAll(void)
     if (result != INIT_OK)
         return result;
 
+    result = InitializeSDL();
+    if (result != INIT_OK)
+        return result;
+
     ThreadManagerCreate();
     ConfigureSDLHints();
 
@@ -376,10 +369,7 @@ InitResult InitAll(void)
 
     InitializeScripts();
 
-#if defined(GRNGAME_HOT_RELOAD_ENABLE)
-    HotReloadInitQueue();
-    StartAssetHotReload(".", true);
-#endif
+    HotReloadInit(PathFromExecutableDirectory("."));
 
     LOG_INFO("All engine subsystems initialized");
 

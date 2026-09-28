@@ -69,7 +69,7 @@ typedef struct
 
 } WrenManager;
 
-bool ReloadWrenScript(const char *filename);
+bool ReloadWrenScript();
 
 bool WrenInit(void);
 

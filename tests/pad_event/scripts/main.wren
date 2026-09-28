@@ -9,15 +9,16 @@ import "std/wren/core/event" for Event
 class Main {
     static on_start() {
         Event.callback(Event.PadConnect, Fn.new {|index|
-            System.println("%(index)")
+            Log.warn("%(index)")
         })
 
         Event.callback(Event.PadDisconnect, Fn.new {|index|
-            System.println("%(index)")
+            Log.warn("%(index)")
         })
     }
 
-    static on_update(dt) {}
+    static on_update(dt) {            
+    }
     static on_fixed_update(dt) {}
     static on_render() {}
     static on_destroy() {}

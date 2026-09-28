@@ -1,122 +1,85 @@
-#include "kvec.h"
 #if defined(GRNGAME_HOT_RELOAD_ENABLE)
+#include "grngame/dev/hotreload.h"
 #include "grngame/assets/load.h"
 #include "grngame/bindings/wren/wren_api.h"
 #include "grngame/core/app.h"
-#include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
-#include "grngame/renderer/palette.h"
+#include "grngame/utils/string_compat.h"
 #include "logging.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
-#include <cstring>
-#include <efsw/efsw.hpp>
-#include <filesystem>
-#include <memory>
-#include <string>
+#include <string.h>
 
-// note : we use mutex and queue because somes functions of sdl dosn't work on another thread
-static std::unique_ptr<efsw::FileWatcher> g_fileWatcher;
-static SDL_Mutex *g_queueMutex = nullptr;
+#define DMON_IMPL
+#include "packages/d/dmon.h"
 
-class UpdateListener : public efsw::FileWatchListener
+static void HotReloadInitQueue()
 {
-  public:
-    void handleFileAction(efsw::WatchID watchid, const std::string &dir, const std::string &filename,
-                          efsw::Action action, const std::string &oldFilename) override
-    {
-        (void)watchid;
+    kv_init(g_app.queue);
+}
 
-        std::filesystem::path fullPath = std::filesystem::path(dir) / filename;
-        std::string path = fullPath.lexically_normal().string();
-
-        HotreloadQueueElement elem = {};
-        elem.new_file = strdup(path.c_str());
-        elem.old_file = nullptr;
-
-        switch (action)
-        {
-        case efsw::Actions::Add:
-            elem.action = ADD;
-            break;
-
-        case efsw::Actions::Delete:
-            elem.action = DELETE_;
-            break;
-
-        case efsw::Actions::Modified:
-            elem.action = MODIFIED;
-            break;
-
-        case efsw::Actions::Moved:
-            elem.action = MOVED;
-            {
-                std::filesystem::path oldPath = std::filesystem::path(dir) / oldFilename;
-                elem.old_file = strdup(oldPath.lexically_normal().string().c_str());
-            }
-            break;
-
-        default:
-            free((void *)elem.new_file);
-            return;
-        }
-
-        if (g_queueMutex)
-            SDL_LockMutex(g_queueMutex);
-
-        bool is_duplicate = false;
-        uint64 current_queue_size = kv_size(g_app.queue);
-
-        for (uint64 i = 0; i < current_queue_size; ++i)
-        {
-            HotreloadQueueElement existing = kv_A(g_app.queue, i);
-
-            if (existing.action == elem.action && strcmp(existing.new_file, elem.new_file) == 0)
-            {
-                is_duplicate = true;
-                break;
-            }
-        }
-
-        if (!is_duplicate)
-        {
-            kv_push(HotreloadQueueElement, g_app.queue, elem);
-        }
-        else
-        {
-            if (elem.new_file)
-                free((void *)elem.new_file);
-            if (elem.old_file)
-                free((void *)elem.old_file);
-        }
-
-        if (g_queueMutex)
-            SDL_UnlockMutex(g_queueMutex);
-    }
-};
-
-static UpdateListener g_updateListener;
-
-void StartAssetHotReload(const char *directory, bool recursive)
+static void HotReloadDestroyQueue()
 {
-    if (g_fileWatcher)
+    kv_destroy(g_app.queue);
+}
+
+static SDL_Mutex *g_queue_mutex = NULL;
+
+static void watch_callback(dmon_watch_id watch_id, dmon_action action, const char *rootdir, const char *filepath,
+                           const char *oldfilepath, void *user)
+{
+    if (!filepath)
         return;
 
-    if (!g_queueMutex)
-        g_queueMutex = SDL_CreateMutex();
+    HotreloadQueueElement elem = {0};
+    switch (action)
+    {
+    case DMON_ACTION_CREATE:
+        elem.action = ADD;
+        break;
+    case DMON_ACTION_DELETE:
+        elem.action = DELETE_;
+        break;
+    case DMON_ACTION_MODIFY:
+        elem.action = MODIFIED;
+        break;
+    case DMON_ACTION_MOVE:
+        elem.action = MOVED;
+        break;
+    }
 
-    g_fileWatcher = std::make_unique<efsw::FileWatcher>(false);
+    elem.new_file = strdup(filepath);
+    if (oldfilepath)
+        elem.old_file = strdup(oldfilepath);
+    else
+        elem.old_file = NULL;
+    if (g_queue_mutex)
+        LOCK_MUTEX(g_queue_mutex);
 
-    g_fileWatcher->addWatch(directory, &g_updateListener, recursive);
+    kv_push(HotreloadQueueElement, g_app.queue, elem);
 
-    g_fileWatcher->watch();
+    if (g_queue_mutex)
+        UNLOCK_MUTEX(g_queue_mutex);
+}
+
+void HotReloadInit(const char *folder)
+{
+    HotReloadInitQueue();
+    dmon_init();
+    dmon_watch(folder, watch_callback, DMON_WATCHFLAGS_RECURSIVE, NULL);
+}
+
+void HotReloadDestroy()
+{
+    dmon_deinit();
+    HotReloadDestroyQueue();
 }
 
 void ProcessHotreloadQueue(void)
 {
-    if (g_queueMutex)
-        SDL_LockMutex(g_queueMutex);
+    if (g_queue_mutex)
+        LOCK_MUTEX(g_queue_mutex);
 
     uint64 count = kv_size(g_app.queue);
 
@@ -129,17 +92,18 @@ void ProcessHotreloadQueue(void)
         switch (elem.action)
         {
         case ADD: {
-            LOG_DEBUG("Asset added '%s'", cpath);
+            LOG_DEBUG("File added '%s'", cpath);
 
             if (FileIsLoadableScript(cpath))
             {
                 LOG_INFO("Detected new script '%s'", cpath);
-                if (!ReloadWrenScript(cpath))
+                if (!(ReloadWrenScript()))
                     LOG_WARNING("Failed to reload script '%s'", cpath);
             }
 
             if (FileIsLoadableAudio(cpath))
             {
+                LOG_INFO("Detected new audio '%s'", cpath);
                 bool load_result = LoadSoundFile(cpath);
 
                 if (!load_result)
@@ -150,6 +114,7 @@ void ProcessHotreloadQueue(void)
 
             if (FileIsLoadableImage(cpath))
             {
+                LOG_INFO("Detected new image '%s'", cpath);
                 bool load_result = LoadTextureFile(cpath);
 
                 if (!load_result)
@@ -166,12 +131,13 @@ void ProcessHotreloadQueue(void)
             if (FileIsLoadableScript(cpath))
             {
                 LOG_INFO("Detected deleted script '%s'", cpath);
-                if (!ReloadWrenScript(cpath))
+                if (!ReloadWrenScript())
                     LOG_WARNING("Failed to reload script '%s'", cpath);
             }
 
             if (FileIsLoadableAudio(cpath))
             {
+                LOG_INFO("Detected deleted audio '%s'", cpath);
                 bool unload_result = UnloadSoundFile(cpath);
 
                 if (!unload_result)
@@ -182,6 +148,7 @@ void ProcessHotreloadQueue(void)
 
             if (FileIsLoadableImage(cpath))
             {
+                LOG_INFO("Detected deleted image '%s'", cpath);
                 bool unload_result = UnloadTextureFile(cpath);
 
                 if (!unload_result)
@@ -193,23 +160,25 @@ void ProcessHotreloadQueue(void)
         }
 
         case MODIFIED: {
+            // logs always modified
             if (strstr(cpath, "grngame.log") == NULL)
-                LOG_DEBUG("Asset modified '%s'", cpath);
+                LOG_DEBUG("File modified '%s'", cpath);
 
             if (FileIsLoadableScript(cpath))
             {
                 LOG_INFO("Detected modified script '%s'", cpath);
-                if (!ReloadWrenScript(cpath))
+                if (!ReloadWrenScript())
                     LOG_WARNING("Failed to reload script '%s'", cpath);
             }
-
-            if (!(strstr(cpath, "config.json") == NULL))
+            // we can reload the config
+            if (strstr(cpath, "config.json") != NULL)
             {
                 ReloadConfig();
             }
 
             if (FileIsLoadableAudio(cpath))
             {
+                LOG_INFO("Detected modified audio '%s'", cpath);
                 bool unload_result = UnloadSoundFile(cpath);
 
                 if (!unload_result)
@@ -225,6 +194,7 @@ void ProcessHotreloadQueue(void)
 
             if (FileIsLoadableImage(cpath))
             {
+                LOG_INFO("Detected modified image '%s'", cpath);
                 bool unload_result = UnloadTextureFile(cpath);
 
                 if (!unload_result)
@@ -245,6 +215,7 @@ void ProcessHotreloadQueue(void)
 
             if (FileIsLoadableAudio(oldCPath))
             {
+                LOG_INFO("Detected moved audio '%s'", cpath);
                 bool unload_result = UnloadSoundFile(oldCPath);
 
                 if (!unload_result)
@@ -253,8 +224,8 @@ void ProcessHotreloadQueue(void)
 
             if (FileIsLoadableImage(oldCPath))
             {
+                LOG_INFO("Detected moved image '%s'", cpath);
                 bool unload_result = UnloadTextureFile(oldCPath);
-
                 if (!unload_result)
                     LOG_WARNING("Failed to unload moved texture file '%s'", oldCPath);
             }
@@ -262,7 +233,7 @@ void ProcessHotreloadQueue(void)
             if (FileIsLoadableScript(cpath))
             {
                 LOG_INFO("Detected moved script '%s'", cpath);
-                if (!ReloadWrenScript(cpath))
+                if (!ReloadWrenScript())
                     LOG_WARNING("Failed to reload script '%s'", cpath);
             }
 
@@ -297,18 +268,25 @@ void ProcessHotreloadQueue(void)
 
     kv_size(g_app.queue) = 0;
 
-    if (g_queueMutex)
-        SDL_UnlockMutex(g_queueMutex);
+    if (g_queue_mutex)
+        UNLOCK_MUTEX(g_queue_mutex);
 }
 
-void HotReloadInitQueue()
+#else
+
+void HotReloadInit(const char *folder)
 {
-    kv_init(g_app.queue);
+    (void)folder;
 }
 
-void HotReloadDestroyQueue()
+void HotReloadDestroy()
 {
-    kv_destroy(g_app.queue);
+    return;
+}
+
+void ProcessHotreloadQueue(void)
+{
+    return;
 }
 
 #endif
