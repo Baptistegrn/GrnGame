@@ -110,38 +110,43 @@ void AssetManagerLoadFolder(const char *folder)
 {
     PROFILE_FUNCTION("LoadFolder");
 
-#ifdef GRNGAME_EMBED_ASSETS
+    if (UNLIKELY(g_app.embedded_asset_manager.embedded_assets_count == 0))
     {
-        if (UNLIKELY(g_app.embedded_asset_manager.embedded_assets_count == 0))
+        LOG_WARNING("No assets files in embedded assets folder '%s'", folder);
+        return;
+    }
+    khash_t(EmbeddedAssetHash) *hash = g_app.embedded_asset_manager.embedded_assets_hash;
+    for (khint_t k = kh_begin(hash); k != kh_end(hash); ++k)
+    {
+        if (kh_exist(hash, k))
         {
-            LOG_WARNING("No assets files in embedded assets folder '%s'", folder);
-            return;
-        }
-        khash_t(EmbeddedAssetHash) *hash = g_app.embedded_asset_manager.embedded_assets_hash;
-        for (khint_t k = kh_begin(hash); k != kh_end(hash); ++k)
-        {
-            if (kh_exist(hash, k))
-            {
-                EmbeddedAsset asset = kh_value(hash, k);
-                if (FileIsLoadableImage(asset.name) || FileIsLoadableAudio(asset.name))
-                    AddTextureToArray(asset.name, NULL);
-            }
+            EmbeddedAsset asset = kh_value(hash, k);
+            if (FileIsLoadableImage(asset.name) || FileIsLoadableAudio(asset.name))
+                AddTextureToArray(asset.name, NULL);
         }
     }
 
-#else
-    {
-        int32 asset_count = 0;
-        DirWalk(folder, AddAssetFileToArray, &asset_count);
+    LoadFilesMultithreaded();
+}
 
-        if (asset_count == 0)
+void AssetManagerLoadFolderFromMemory(const char *folder)
+{
+    PROFILE_FUNCTION("LoadFolder");
+    if (UNLIKELY(g_app.embedded_asset_manager.embedded_assets_count == 0))
+    {
+        LOG_WARNING("No assets files in embedded assets folder '%s'", folder);
+        return;
+    }
+    khash_t(EmbeddedAssetHash) *hash = g_app.embedded_asset_manager.embedded_assets_hash;
+    for (khint_t k = kh_begin(hash); k != kh_end(hash); ++k)
+    {
+        if (kh_exist(hash, k))
         {
-            LOG_WARNING("No assets files in asset folder '%s'", folder);
-            return;
+            EmbeddedAsset asset = kh_value(hash, k);
+            if (FileIsLoadableImage(asset.name) || FileIsLoadableAudio(asset.name))
+                AddTextureToArray(asset.name, NULL);
         }
     }
-#endif
-
     LoadFilesMultithreaded();
 }
 

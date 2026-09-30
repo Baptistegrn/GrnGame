@@ -26,12 +26,19 @@ static bool g_initialized = false;
 
 static InitResult InitializeLogging(void)
 {
-
-    if (!LogInit(g_app.info.log_destination))
+#ifdef GRNGAME_EMBED_ASSETS
+    if (!LogInit(LOG_TO_FILE))
     {
         LOG_ERROR("Failed to initialize logging");
         return INIT_LOG_FAILED;
     }
+#else
+    if (!LogInit(LOG_TO_CONSOLE))
+    {
+        LOG_ERROR("Failed to initialize logging");
+        return INIT_LOG_FAILED;
+    }
+#endif
 
     return INIT_OK;
 }
@@ -157,7 +164,7 @@ static InitResult LoadAppConfig()
     bool json_open = OpenJsonObject("config/config.json", 0, 0);
     if (!json_open)
     {
-        LOG_ERROR("%s", "Failed to open config.json");
+        LOG_ERROR("%s", "Failed to open config.json,it is present in config/config.json ?");
         return INIT_CONFIG_FAILED;
     }
     if (!ParseConfig())
@@ -173,13 +180,13 @@ static InitResult LoadAppConfigEmbedded()
     const EmbeddedAsset *asset = GetEmbeddedAsset("config/config.json");
     if (!asset)
     {
-        LOG_ERROR("%s", "Failed to get config.json");
+        LOG_ERROR("%s", "Failed to get config.json in Assets.pak.Did you delete it before package your app ?");
         return INIT_CONFIG_FAILED;
     }
     bool json_open = OpenJsonObjectFromMemory("config/config.json", asset->data, 0, 0);
     if (!json_open)
     {
-        LOG_ERROR("%s", "Failed to open config.json");
+        LOG_ERROR("%s", "Failed to parse config.json in Assets.pak");
         return INIT_CONFIG_FAILED;
     }
     if (!ParseConfig())
@@ -207,7 +214,10 @@ static SDL_IOStream *LoadControllerDatabase(void)
     {
         const EmbeddedAsset *asset = GetEmbeddedAsset("data/gamecontrollerdb.txt");
         if (!asset)
+        {
+            LOG_ERROR("Failed to get gamecontrollerdb.txt in Assets.pak,did you delete it before package your app?");
             return NULL;
+        }
         return SDL_IOFromConstMem(asset->data, asset->size);
     }
 #else
@@ -291,7 +301,11 @@ void InitializePalette(void)
 void InitializeAssets(void)
 {
     char *asset_path = PathFromExecutableDirectory(g_app.info.asset_folder);
+#ifndef GRNGAME_EMBED_ASSETS
     AssetManagerLoadFolder(asset_path);
+#else
+    AssetManagerLoadFolderFromMemory(asset_path);
+#endif
     free(asset_path);
 }
 
@@ -310,13 +324,11 @@ InitResult InitAll(void)
 {
     PROFILE_FUNCTION("initialization");
 
-    if (g_initialized)
-    {
-        LOG_INFO("Engine already initialized");
-        return INIT_ALREADY;
-    }
-
     g_app = (App){0};
+
+    InitResult result = InitializeLogging();
+    if (result != INIT_OK)
+        return result;
 
 #ifdef GRNGAME_EMBED_ASSETS
     g_app.embedded_asset_manager = EmbeddedAssetManagerCreate();
@@ -332,11 +344,7 @@ InitResult InitAll(void)
 
     InitializeJson();
 
-    InitResult result = InitAppConfig();
-    if (result != INIT_OK)
-        return result;
-
-    result = InitializeLogging();
+    result = InitAppConfig();
     if (result != INIT_OK)
         return result;
 
@@ -361,9 +369,7 @@ InitResult InitAll(void)
 
     SoundInit();
 
-#ifndef GRNGAME_WASM
     LoadControllerMappings();
-#endif
 
     InitializePalette();
 
