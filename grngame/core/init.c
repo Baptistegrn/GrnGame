@@ -375,7 +375,5 @@ InitResult InitAll(void)
 
     LOG_INFO("All engine subsystems initialized");
 
-    g_initialized = true;
-
     return INIT_OK;
 }
