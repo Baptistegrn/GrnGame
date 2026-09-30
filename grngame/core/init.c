@@ -320,7 +320,9 @@ InitResult InitAll(void)
 
 #ifdef GRNGAME_EMBED_ASSETS
     g_app.embedded_asset_manager = EmbeddedAssetManagerCreate();
-    g_app.info.asset_db = DbCreate("Assets.pak");
+    char *path_asset = PathFromExecutableDirectory("Assets.pak");
+    g_app.info.asset_db = DbCreate(path_asset);
+    free(path_asset);
     bool res = AddDbToEmbeddedAssetManager(g_app.info.asset_db);
     if (!res)
     {

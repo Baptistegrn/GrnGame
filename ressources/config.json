@@ -11,10 +11,8 @@
         "fullscreen": false,
         "maximised": false,
         "bordered": true,
-        "enableLogs": true,
         "logDestination": 0,
         "forceUniverseScale": false,
-        "renderClear": 0,
         "assetFolder": "assets",
         "palette": [
             "#000000",

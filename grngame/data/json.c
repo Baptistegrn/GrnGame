@@ -1,6 +1,7 @@
 #include "json.h"
 #include "cjson/cJSON.h"
 #include "file.h"
+#include "grngame/assets/load.h"
 #include "grngame/bindings/wren/wren_api.h"
 #include "grngame/bindings/wren/wren_event.h"
 #include "grngame/core/app.h"
@@ -13,6 +14,7 @@
 #include "grngame/utils/time.h"
 #include "kvec.h"
 #include <stdlib.h>
+#include <string.h>
 
 COLD JsonManager JsonManagerCreate(void)
 {
@@ -26,6 +28,44 @@ static void JsonObjectDestroy(JsonObject *object)
         cJSON_Delete(object->json);
         object->json = NULL;
     }
+}
+
+bool JsonExist(const char *key)
+{
+    char *key_ = PathFromExecutableDirectory(key);
+    bool exist = FileExist(key_);
+    free(key_);
+    return exist;
+}
+
+bool JsonExistFromMemory(const char *key)
+{
+    return EmbeddedAssetExists(key);
+}
+
+bool JsonCreate(const char *key, const char *text)
+{
+    char *path = PathFromExecutableDirectory(key);
+    bool result = WriteFileString(path, text, false);
+    free(path);
+    return result;
+}
+
+bool JsonCreateFromMemory(const char *key, const char *text)
+{
+
+    uint64 size = strlen(text);
+    if (!EmbeddedFileWrite(key, text, size))
+    {
+        return false;
+    }
+    // need to update asset manager because if we open the json file we need to have is content
+    if (!EmbeddedAssetManagerUpdate(key, text, size))
+    {
+        return false;
+    }
+
+    return true;
 }
 
 static void JsonObjectAdd(JsonManager manager, const char *key, JsonObject value)
@@ -71,7 +111,9 @@ bool JsonObjectContains(JsonManager manager, const char *key)
 
 bool OpenJsonObject(JsonManager manager, const char *path, uint64 min, uint64 max)
 {
-    char *text = ReturnFileString(PathFromExecutableDirectory(path));
+    char *path_ = PathFromExecutableDirectory(path);
+    char *text = ReturnFileString(path_);
+    free(path_);
     if (UNLIKELY(text == NULL))
     {
         return false;
@@ -311,6 +353,29 @@ bool JsonSaveObject(JsonManager manager, const char *fileKey)
     {
     }
     return true;
+}
+
+bool JsonSaveObjectFromMemory(JsonManager manager, const char *fileKey)
+{
+    JsonObject *entry = JsonObjectGet(manager, fileKey);
+    if (UNLIKELY(entry == NULL))
+    {
+        LOG_ERROR("Unknown json file : %s", fileKey);
+        return false;
+    }
+
+    char *text = cJSON_Print(entry->json);
+    if (UNLIKELY(text == NULL))
+    {
+        LOG_ERROR("Impossible to prepare json file : %s", fileKey);
+        return false;
+    }
+
+    bool result = EmbeddedFileWrite(fileKey, text, strlen(text));
+
+    free(text);
+
+    return result;
 }
 
 bool JsonGetBoolArray(JsonManager manager, const char *fileKey, const char *key, bool_vec_t *out)

@@ -12,6 +12,7 @@
 static int32 IsEmbeddableFile(const char *path)
 {
     return FileIsLoadableScript(path) || FileIsLoadableAudio(path) || FileIsLoadableImage(path) ||
+           // we dont had every json data from the game make, because it's can be a source of error
            FileIsLoadableText(path) || !(strstr(path, "config.json") == NULL);
 }
 

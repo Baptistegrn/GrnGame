@@ -223,6 +223,7 @@ COLD bool AddDbToEmbeddedAssetManager(sqlite3 *db)
         int ret;
         khiter_t k = kh_put(EmbeddedAssetHash, hash, asset.name, &ret);
 
+        // impossible
         if (UNLIKELY(ret == 0))
         {
             free((char *)kh_key(hash, k));
@@ -235,7 +236,6 @@ COLD bool AddDbToEmbeddedAssetManager(sqlite3 *db)
     }
 
     sqlite3_finalize(stmt);
-    DbClose(db);
     return true;
 }
 
@@ -276,4 +276,101 @@ COLD void EmbeddedAssetManagerDestroy(EmbeddedAssetManager *manager)
 
     manager->embedded_assets_count = 0;
     manager->embedded_count = 0;
+}
+
+bool EmbeddedFileWrite(const char *key, const void *data, uint64 size)
+{
+
+    /*
+     * Check whether the file already exists.
+     * file_count must only be incremented for a new file.
+     */
+    DbStmt exists_stmt = DbStmtPrepare(g_app.info.asset_db, "SELECT 1 FROM embedded_assets WHERE path = ? LIMIT 1;");
+
+    DbArg exists_arg;
+    exists_arg.type = TEXT;
+    exists_arg.value.s = key;
+
+    bool exists = DbStmtRun(&exists_stmt, &exists_arg, 1);
+
+    DbStmtFree(&exists_stmt);
+
+    /*
+     * Insert or overwrite.
+     */
+    DbStmt stmt = DbStmtPrepare(g_app.info.asset_db, "INSERT INTO embedded_assets (path, data) "
+                                                     "VALUES (?, ?) "
+                                                     "ON CONFLICT(path) DO UPDATE SET data = excluded.data;");
+
+    DbArg args[2];
+
+    args[0].type = TEXT;
+    args[0].value.s = key;
+
+    args[1].type = DATA;
+    args[1].value.blob.data = (void *)data;
+    args[1].value.blob.size = size;
+
+    bool result = DbStmtRun(&stmt, args, 2);
+
+    DbStmtFree(&stmt);
+
+    if (UNLIKELY(!result))
+        return false;
+
+    /*
+     * Only increment the file count for a new key.
+     */
+    if (!exists)
+    {
+        DataWrite(g_app.info.asset_db, "UPDATE embedded_assets_info "
+                                       "SET value = value + 1 "
+                                       "WHERE key = 'file_count';");
+    }
+
+    return true;
+}
+
+bool EmbeddedAssetManagerUpdate(const char *key, const void *data, uint64 size)
+{
+
+    EmbeddedAsset asset = {
+        .name = strdup(key),
+        .size = size,
+        .data = malloc(size),
+    };
+
+    if (UNLIKELY(!asset.name || !asset.data))
+    {
+        free(asset.name);
+        free(asset.data);
+        return false;
+    }
+
+    memcpy(asset.data, data, size);
+
+    khash_t(EmbeddedAssetHash) *hash = g_app.embedded_asset_manager.embedded_assets_hash;
+
+    int ret;
+    khiter_t k = kh_put(EmbeddedAssetHash, hash, asset.name, &ret);
+
+    if (UNLIKELY(ret < 0))
+    {
+        free(asset.name);
+        free(asset.data);
+        return false;
+    }
+    /*
+     * Existing entry: completely replace it.
+     */
+    if (ret == 0)
+    {
+        free((char *)kh_key(hash, k));
+        free((void *)kh_value(hash, k).data);
+    }
+    kh_key(hash, k) = asset.name;
+    kh_value(hash, k) = asset;
+
+    g_app.embedded_asset_manager.embedded_count = EmbeddedFileCount(g_app.info.asset_db);
+    return true;
 }

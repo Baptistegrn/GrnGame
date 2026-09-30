@@ -26,6 +26,10 @@ option("embed_assets")
 	set_description("Generate embedded assets before building game (forced on for wasm/android/iOS)")
 option_end()
 
+option("build_embedded_on_differents_platforms")
+	set_default(false)
+	set_description("Allow to build Embedded target on differents platforms from the host build")
+option_end()
 
 local embedded = has_config("embed_assets") 
 local dev_mode = is_desktop and not embedded 
@@ -196,14 +200,16 @@ local arch = get_config("arch") or os.arch()
 local mode = get_config("mode") or "release"
 
 
-if is_desktop then
-	target("Embedded-" .. plat .. "-" .. arch .. "-" .. mode)
-		set_languages("c17")
-		set_kind("binary")
-		set_targetdir(path.join("$(builddir)", "Embedded"))
-		add_files("grngame/assets/embedded_main.c")
-		add_headerfiles("grngame/**.h")
-		add_deps("GrnGame")
+if dev_mode then
+	if get_config("plat") == os.host() and get_config("arch") == os.arch() or has_config("build_embedded_on_differents_platforms") then
+		target("Embedded-" .. plat .. "-" .. arch .. "-" .. mode)
+			set_languages("c17")
+			set_kind("binary")
+			set_targetdir(path.join("$(builddir)", "Embedded"))
+			add_files("grngame/assets/embedded_main.c")
+			add_headerfiles("grngame/**.h")
+			add_deps("GrnGame")
+	end
 end
 
 if is_plat("android") then
@@ -240,6 +246,14 @@ target("tests/json")
 				target_name,
 				path.join("build", target_name),
 			})
+		else
+			os.execv(python.program, {
+				"scripts/embedded.py",
+				target_name,
+				path.join("build", target_name),
+				os.projectdir(),
+				path.join("build", "Embedded"),
+			})
 		end
 
 		local plat = get_config("plat")
@@ -269,6 +283,14 @@ target("tests/pad_event")
 				"scripts/asset_pipeline.py",
 				target_name,
 				path.join("build", target_name),
+			})
+		else
+			os.execv(python.program, {
+				"scripts/embedded.py",
+				target_name,
+				path.join("build", target_name),
+				os.projectdir(),
+				path.join("build", "Embedded"),
 			})
 		end
 

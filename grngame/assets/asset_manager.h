@@ -65,6 +65,10 @@ COLD void AssetManagerDestroy(AssetManager *manager);
 COLD void EmbeddedAssetManagerDestroy(EmbeddedAssetManager *manager);
 
 void AssetManagerLoadFolder(const char *folder);
+
+// update or set db
 COLD bool AddDbToEmbeddedAssetManager(sqlite3 *db);
+bool EmbeddedFileWrite(const char *key, const void *data, uint64 size);
+bool EmbeddedAssetManagerUpdate(const char *key, const void *data, uint64 size);
 
 END_DECLARATIONS

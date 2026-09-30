@@ -12,6 +12,7 @@
 #include "grngame/core/param.h"
 #include "grngame/core/thread.h"
 #include "grngame/core/window.h"
+#include "grngame/data/data.h"
 #include "grngame/data/json.h"
 #include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
@@ -145,6 +146,7 @@ static COLD void CleanupAppResources(void)
     JsonManagerDestroy(g_app.json_manager);
     HotReloadDestroy();
     LogDestroy();
+    DbClose(g_app.info.asset_db);
     g_app = (App){0};
 }
 

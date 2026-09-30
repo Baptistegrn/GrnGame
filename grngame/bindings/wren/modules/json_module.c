@@ -1,3 +1,4 @@
+#include "grngame/assets/asset_manager.h"
 #include "grngame/assets/load.h"
 #include "grngame/bindings/wren/wren_api.h"
 #include "grngame/core/app.h"
@@ -201,10 +202,18 @@ void open_json_file(WrenVM *vm)
     const char *key = wrenGetSlotString(vm, 1);
     uint64 min = (uint64)wrenGetSlotDouble(vm, 2);
     uint64 max = (uint64)wrenGetSlotDouble(vm, 3);
+
 #ifndef GRNGAME_EMBED_ASSETS
     OpenJsonObject(g_app.json_manager, key, min, max);
 #else
-    const EmbeddedAsset *asset = GetEmbeddedAsset(key);
+    if (!EmbeddedAssetExists(key))
+    {
+        LOG_ERROR("File %s isn't present in game data.", key);
+        return;
+    }
+
+    EmbeddedAsset *asset = GetEmbeddedAsset(key);
+
     OpenJsonObjectFromMemory(g_app.json_manager, key, asset->data, min, max);
 #endif
 }
@@ -251,10 +260,48 @@ void json_set(WrenVM *vm)
 void json_save(WrenVM *vm)
 {
     const char *key = wrenGetSlotString(vm, 1);
+    bool success = false;
+#ifndef GRNGAME_EMBED_ASSETS
+    success = JsonSaveObject(g_app.json_manager, key);
+#else
+    success = JsonSaveObjectFromMemory(g_app.json_manager, key);
+#endif
+    wrenSetSlotBool(vm, 0, success);
+}
 
-    bool success = JsonSaveObject(g_app.json_manager, key);
+void create_json_file(WrenVM *vm)
+{
+    const char *key = wrenGetSlotString(vm, 1);
+
+    cJSON *value = JsonParseValueFromSlot(vm, 2);
+    if (UNLIKELY(value == NULL))
+    {
+        wrenSetSlotBool(vm, 0, false);
+        return;
+    }
+
+    char *text = cJSON_Print(value);
+    cJSON_Delete(value);
+
+#ifndef GRNGAME_EMBED_ASSETS
+    bool success = JsonCreate(key, text);
+#else
+    bool success = JsonCreateFromMemory(key, text);
+#endif
+
+    free(text);
 
     wrenSetSlotBool(vm, 0, success);
+}
+
+void json_file_exist(WrenVM *vm)
+{
+    const char *key = wrenGetSlotString(vm, 1);
+#ifndef GRNGAME_EMBED_ASSETS
+    wrenSetSlotBool(vm, 0, JsonExist(key));
+#else
+    wrenSetSlotBool(vm, 0, JsonExistFromMemory(key));
+#endif
 }
 
 void RegisterJsonModule()
@@ -262,9 +309,10 @@ void RegisterJsonModule()
     const char *module = "std/wren/data/json";
     const char *cls = "Json";
     const bool is_static = true;
-
+    RegisterMethod(module, cls, is_static, "create(_,_)", create_json_file);
     RegisterMethod(module, cls, is_static, "open(_,_,_)", open_json_file);
     RegisterMethod(module, cls, is_static, "contains(_)", json_contains);
+    RegisterMethod(module, cls, is_static, "exist(_)", json_file_exist);
     RegisterMethod(module, cls, is_static, "get(_)", json_get);
     RegisterMethod(module, cls, is_static, "set(_,_)", json_set);
     RegisterMethod(module, cls, is_static, "save(_)", json_save);

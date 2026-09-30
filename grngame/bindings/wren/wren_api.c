@@ -245,11 +245,9 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
         snprintf(script_path, sizeof(script_path), "%s", filename);
 
         char *path = PathFromExecutableDirectory(script_path);
-        if (path)
-        {
-            result.source = ReturnFileString(path);
-            free(path);
-        }
+
+        result.source = ReturnFileString(path);
+        free(path);
 
         if (!result.source)
         {
@@ -513,8 +511,6 @@ static bool WrenInterpret(const char *filename)
 #else
     {
         char *path = PathFromExecutableDirectory(filename);
-        if (!path)
-            return false;
 
         char *file_content = ReturnFileString(path);
         free(path);

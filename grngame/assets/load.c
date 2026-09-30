@@ -22,6 +22,14 @@ EmbeddedAsset *GetEmbeddedAsset(const char *name)
     return &kh_val(g_app.embedded_asset_manager.embedded_assets_hash, k);
 }
 
+bool EmbeddedAssetExists(const char *name)
+{
+    if (GetEmbeddedAsset(name) == NULL)
+        return false;
+    else
+        return true;
+}
+
 static SDL_Surface *LoadTextureSurface(const char *file)
 {
 #ifdef GRNGAME_EMBED_ASSETS

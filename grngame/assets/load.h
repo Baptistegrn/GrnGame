@@ -41,8 +41,11 @@ bool UnloadSoundFile(const char *file);
 bool UnloadTextureFile(const char *file);
 bool UnloadAllSoundFiles(void);
 bool UnloadAllTextureFiles(void);
-EmbeddedAsset *GetEmbeddedAsset(const char *name);
+
 bool ReloadAllTexturesWithPalette(void);
 bool ReloadTextureWithPalette(const char *file);
+
+EmbeddedAsset *GetEmbeddedAsset(const char *name);
+bool EmbeddedAssetExists(const char *name);
 
 END_DECLARATIONS
