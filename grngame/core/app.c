@@ -178,7 +178,7 @@ static void UpdateEngineTime(float64 frame_start_time)
     if (frame_elapsed_time < target_frame_time)
     {
         float64 remaining_time = target_frame_time - frame_elapsed_time;
-        JsonSaveObjects(g_app.json_manager, remaining_time);
+        JsonSaveObjects(remaining_time);
         frame_elapsed_time = TimeNow() - frame_start_time;
 
         if (frame_elapsed_time < target_frame_time)

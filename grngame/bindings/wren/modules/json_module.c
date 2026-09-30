@@ -3,6 +3,7 @@
 #include "grngame/bindings/wren/wren_api.h"
 #include "grngame/core/app.h"
 #include "grngame/data/json.h"
+#include "grngame/dev/logging.h"
 #include "wren.h"
 
 #define MAP_KEY_SIZE 255
@@ -204,17 +205,28 @@ void open_json_file(WrenVM *vm)
     uint64 max = (uint64)wrenGetSlotDouble(vm, 3);
 
 #ifndef GRNGAME_EMBED_ASSETS
-    OpenJsonObject(g_app.json_manager, key, min, max);
+    int32 error = OpenJsonObject(key, min, max);
+    if (error == 1)
+    {
+        LOG_ERROR("Failed to open Json content :%s,did you write the correct path ?", key);
+    }
+    else if (error == 2)
+    {
+        LOG_ERROR("Failed to parse Json content :%s,your file isnt json...", key);
+    }
 #else
     if (!EmbeddedAssetExists(key))
     {
-        LOG_ERROR("File %s isn't present in game data.", key);
+        LOG_ERROR("Failed to get %s in Assets.pak,you need to create the file first.", key);
         return;
     }
 
     EmbeddedAsset *asset = GetEmbeddedAsset(key);
 
-    OpenJsonObjectFromMemory(g_app.json_manager, key, asset->data, min, max);
+    if (!OpenJsonObjectFromMemory(key, asset->data, min, max))
+    {
+        LOG_ERROR("Failed to parse Json content :%s,your file isnt json...", key);
+    }
 #endif
 }
 
@@ -222,7 +234,7 @@ void json_contains(WrenVM *vm)
 {
     const char *key = wrenGetSlotString(vm, 1);
 
-    bool contains = JsonObjectContains(g_app.json_manager, key);
+    bool contains = JsonObjectContains(key);
     wrenSetSlotBool(vm, 0, contains);
 }
 
@@ -230,10 +242,11 @@ void json_get(WrenVM *vm)
 {
     const char *key = wrenGetSlotString(vm, 1);
 
-    JsonObject *object = JsonObjectGet(g_app.json_manager, key);
+    JsonObject *object = JsonObjectGet(key);
 
     if (object == NULL)
     {
+        LOG_ERROR("Failed to get Json content from %s.Did you forget to open Json ?", key);
         wrenSetSlotNull(vm, 0);
         return;
     }
@@ -248,9 +261,10 @@ void json_set(WrenVM *vm)
     const char *key = wrenGetSlotString(vm, 1);
     cJSON *value = JsonParseValueFromSlot(vm, 2);
 
-    bool success = WriteInJsonObject(g_app.json_manager, key, value);
+    bool success = WriteInJsonObject(key, value);
     if (!success)
     {
+        LOG_ERROR("Failed to get Json object from %s.Did you forget to open Json ?", key);
         cJSON_Delete(value);
     }
 
@@ -262,9 +276,17 @@ void json_save(WrenVM *vm)
     const char *key = wrenGetSlotString(vm, 1);
     bool success = false;
 #ifndef GRNGAME_EMBED_ASSETS
-    success = JsonSaveObject(g_app.json_manager, key);
+    success = JsonSaveObject(key);
+    if (!success)
+    {
+        LOG_ERROR("Failed to get Json object from %s.Did you forget to open Json ?", key);
+    }
 #else
-    success = JsonSaveObjectFromMemory(g_app.json_manager, key);
+    success = JsonSaveObjectFromMemory(key);
+    if (!success)
+    {
+        LOG_ERROR("Failed to get Json object from %s in Assets.pak.Did you forget to open Json ?", key);
+    }
 #endif
     wrenSetSlotBool(vm, 0, success);
 }
@@ -285,8 +307,16 @@ void create_json_file(WrenVM *vm)
 
 #ifndef GRNGAME_EMBED_ASSETS
     bool success = JsonCreate(key, text);
+    if (!success)
+    {
+        LOG_ERROR("Failed to write completely %s at the creation.", key);
+    }
 #else
     bool success = JsonCreateFromMemory(key, text);
+    if (!success)
+    {
+        LOG_ERROR("Failed to write completely %s in Assets.pak at the creation.", key);
+    }
 #endif
 
     free(text);

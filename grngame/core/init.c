@@ -78,72 +78,72 @@ static bool ParseConfig()
     bool success = false;
     const char *fileKey = "config/config.json";
 
-    success = JsonGetBool(g_app.json_manager, fileKey, "Config.resizable", &g_app.info.window_resizable);
+    success = JsonGetBool(fileKey, "Config.resizable", &g_app.info.window_resizable);
     if (!success)
         return false;
-    success = JsonGetBool(g_app.json_manager, fileKey, "Config.fullscreen", &g_app.info.window_fullscreen);
+    success = JsonGetBool(fileKey, "Config.fullscreen", &g_app.info.window_fullscreen);
     if (!success)
         return false;
-    success = JsonGetBool(g_app.json_manager, fileKey, "Config.maximised", &g_app.info.window_maximised);
+    success = JsonGetBool(fileKey, "Config.maximised", &g_app.info.window_maximised);
     if (!success)
         return false;
-    success = JsonGetBool(g_app.json_manager, fileKey, "Config.bordered", &g_app.info.bordered);
+    success = JsonGetBool(fileKey, "Config.bordered", &g_app.info.bordered);
     if (!success)
         return false;
-    success = JsonGetBool(g_app.json_manager, fileKey, "Config.forceUniverseScale", &g_app.info.force_universe_scale);
+    success = JsonGetBool(fileKey, "Config.forceUniverseScale", &g_app.info.force_universe_scale);
     if (!success)
         return false;
     float64 tmp_num = 0.0;
 
-    success = JsonGetNumber(g_app.json_manager, fileKey, "Config.logDestination", &tmp_num);
+    success = JsonGetNumber(fileKey, "Config.logDestination", &tmp_num);
     if (!success)
         return false;
     g_app.info.log_destination = (int32)tmp_num;
 
-    success = JsonGetNumber(g_app.json_manager, fileKey, "Config.fps", &tmp_num);
+    success = JsonGetNumber(fileKey, "Config.fps", &tmp_num);
     if (!success)
         return false;
     g_app.info.fps = (int32)tmp_num;
 
-    success = JsonGetNumber(g_app.json_manager, fileKey, "Config.windowWidth", &tmp_num);
+    success = JsonGetNumber(fileKey, "Config.windowWidth", &tmp_num);
     if (!success)
         return false;
     g_app.info.window_width = (int32)tmp_num;
 
-    success = JsonGetNumber(g_app.json_manager, fileKey, "Config.windowHeight", &tmp_num);
+    success = JsonGetNumber(fileKey, "Config.windowHeight", &tmp_num);
     if (!success)
         return false;
     g_app.info.window_height = (int32)tmp_num;
 
-    success = JsonGetNumber(g_app.json_manager, fileKey, "Config.universeWidth", &tmp_num);
+    success = JsonGetNumber(fileKey, "Config.universeWidth", &tmp_num);
     if (!success)
         return false;
     g_app.info.window_universe_width = (int32)tmp_num;
 
-    success = JsonGetNumber(g_app.json_manager, fileKey, "Config.universeHeight", &tmp_num);
+    success = JsonGetNumber(fileKey, "Config.universeHeight", &tmp_num);
     if (!success)
         return false;
     g_app.info.window_universe_height = (int32)tmp_num;
 
     const char *tmp_str = NULL;
 
-    success = JsonGetString(g_app.json_manager, fileKey, "Config.name", &tmp_str);
+    success = JsonGetString(fileKey, "Config.name", &tmp_str);
     if (!success)
         return false;
     g_app.info.name = tmp_str;
 
-    success = JsonGetString(g_app.json_manager, fileKey, "Config.version", &tmp_str);
+    success = JsonGetString(fileKey, "Config.version", &tmp_str);
     if (!success)
         return false;
     g_app.info.version = tmp_str;
 
-    success = JsonGetString(g_app.json_manager, fileKey, "Config.assetFolder", &tmp_str);
+    success = JsonGetString(fileKey, "Config.assetFolder", &tmp_str);
     if (!success)
         return false;
     g_app.info.asset_folder = tmp_str;
 
     string_vec_t palette;
-    success = JsonGetStringArray(g_app.json_manager, fileKey, "Config.palette", &palette);
+    success = JsonGetStringArray(fileKey, "Config.palette", &palette);
     if (!success)
         return false;
     g_app.info.palette = palette;
@@ -154,7 +154,7 @@ static bool ParseConfig()
 static InitResult LoadAppConfig()
 {
 
-    bool json_open = OpenJsonObject(g_app.json_manager, "config/config.json", 0, 0);
+    bool json_open = OpenJsonObject("config/config.json", 0, 0);
     if (!json_open)
     {
         LOG_ERROR("%s", "Failed to open config.json");
@@ -176,7 +176,7 @@ static InitResult LoadAppConfigEmbedded()
         LOG_ERROR("%s", "Failed to get config.json");
         return INIT_CONFIG_FAILED;
     }
-    bool json_open = OpenJsonObjectFromMemory(g_app.json_manager, "config/config.json", asset->data, 0, 0);
+    bool json_open = OpenJsonObjectFromMemory("config/config.json", asset->data, 0, 0);
     if (!json_open)
     {
         LOG_ERROR("%s", "Failed to open config.json");

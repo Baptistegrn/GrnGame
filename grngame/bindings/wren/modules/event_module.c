@@ -11,7 +11,7 @@ void Event_callback(WrenVM *vm)
 
     if (UNLIKELY(index < 0 || index >= 4))
     {
-        LOG_WARNING("Event Callback index doesn't exist : %d", index);
+        LOG_WARNING("Event Callback index doesn't exist : %d,set it between 0 and 4", index);
         return;
     }
 

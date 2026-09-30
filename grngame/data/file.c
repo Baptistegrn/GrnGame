@@ -1,6 +1,3 @@
-// todo : make the same system of json
-
-#include "grngame/dev/logging.h"
 #include "grngame/math/types.h"
 #include <grngame/utils/string_compat.h>
 #include <stdbool.h>
@@ -21,7 +18,6 @@ char *ReturnFileString(const char *name)
     FILE *file = fopen(name, "rb");
     if (!file)
     {
-        LOG_WARNING("Impossible to get string from file %s", name);
         return NULL;
     }
 
@@ -31,7 +27,6 @@ char *ReturnFileString(const char *name)
 
     if (size < 0)
     {
-        LOG_WARNING("Failed to read size or empty file %s", name);
         fclose(file);
         return NULL;
     }
@@ -55,7 +50,6 @@ bool WriteFileString(const char *name, const char *content, bool append)
     FILE *file = fopen(name, mode);
     if (!file)
     {
-        LOG_WARNING("Impossible to open file %s for writing", name);
         return false;
     }
     uint64 length = strlen(content);
@@ -65,7 +59,6 @@ bool WriteFileString(const char *name, const char *content, bool append)
 
     if (written != length)
     {
-        LOG_WARNING("Failed to write complete content to %s", name);
         return false;
     }
 

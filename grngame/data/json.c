@@ -68,10 +68,10 @@ bool JsonCreateFromMemory(const char *key, const char *text)
     return true;
 }
 
-static void JsonObjectAdd(JsonManager manager, const char *key, JsonObject value)
+static void JsonObjectAdd(const char *key, JsonObject value)
 {
     int32 ret;
-
+    JsonManager manager = g_app.json_manager;
     char *dup_key = strdup(key);
 
     khiter_t it = kh_put(JsonObjects, manager, dup_key, &ret);
@@ -94,8 +94,9 @@ static void JsonObjectAdd(JsonManager manager, const char *key, JsonObject value
     kh_value(manager, it) = value;
 }
 
-JsonObject *JsonObjectGet(JsonManager manager, const char *key)
+JsonObject *JsonObjectGet(const char *key)
 {
+    JsonManager manager = g_app.json_manager;
     khiter_t it = kh_get(JsonObjects, manager, key);
 
     if (it == kh_end(manager))
@@ -104,19 +105,21 @@ JsonObject *JsonObjectGet(JsonManager manager, const char *key)
     return &kh_value(manager, it);
 }
 
-bool JsonObjectContains(JsonManager manager, const char *key)
+bool JsonObjectContains(const char *key)
 {
+    JsonManager manager = g_app.json_manager;
     return kh_get(JsonObjects, manager, key) != kh_end(manager);
 }
 
-bool OpenJsonObject(JsonManager manager, const char *path, uint64 min, uint64 max)
+int32 OpenJsonObject(const char *path, uint64 min, uint64 max)
 {
     char *path_ = PathFromExecutableDirectory(path);
     char *text = ReturnFileString(path_);
     free(path_);
+
     if (UNLIKELY(text == NULL))
     {
-        return false;
+        return 1;
     }
 
     cJSON *json = cJSON_Parse(text);
@@ -124,28 +127,25 @@ bool OpenJsonObject(JsonManager manager, const char *path, uint64 min, uint64 ma
 
     if (UNLIKELY(json == NULL))
     {
-        const char *err = cJSON_GetErrorPtr();
-        LOG_ERROR("Impossible to parse json file : %s error : %s", path, err != NULL ? err : "unknown");
-        return false;
+
+        return 2;
     }
 
     JsonObject j = (JsonObject){.min = min, .max = max, .json = json};
-    JsonObjectAdd(manager, path, j);
+    JsonObjectAdd(path, j);
     return true;
 }
 
-bool OpenJsonObjectFromMemory(JsonManager manager, const char *path, const unsigned char *text, uint64 min, uint64 max)
+bool OpenJsonObjectFromMemory(const char *path, const unsigned char *text, uint64 min, uint64 max)
 {
     cJSON *json = cJSON_Parse((const char *)text);
     if (json == NULL)
     {
-        const char *err = cJSON_GetErrorPtr();
-        LOG_ERROR("Impossible to parse json from memory : %s error : %s", path, err != NULL ? err : "unknown");
         return false;
     }
 
     JsonObject j = (JsonObject){.min = min, .max = max, .json = json};
-    JsonObjectAdd(manager, path, j);
+    JsonObjectAdd(path, j);
     return true;
 }
 static cJSON *JsonNavigateToParent(cJSON *root, char *path_copy, char **out_leaf, bool create)
@@ -154,7 +154,6 @@ static cJSON *JsonNavigateToParent(cJSON *root, char *path_copy, char **out_leaf
     char *token = strtok_r(path_copy, ".", &saveptr);
     if (UNLIKELY(token == NULL))
     {
-        LOG_ERROR("Empty json path");
         return NULL;
     }
 
@@ -187,19 +186,17 @@ static cJSON *JsonNavigateToParent(cJSON *root, char *path_copy, char **out_leaf
     return current;
 }
 
-static cJSON *JsonResolve(JsonManager manager, const char *fileKey, const char *key, char **out_leaf, bool create)
+static cJSON *JsonResolve(const char *fileKey, const char *key, char **out_leaf, bool create)
 {
-    JsonObject *entry = JsonObjectGet(manager, fileKey);
+    JsonObject *entry = JsonObjectGet(fileKey);
     if (UNLIKELY(entry == NULL))
     {
-        LOG_ERROR("Unknown json file : %s", fileKey);
         return NULL;
     }
 
     static THREAD_LOCAL char path_copy[JSON_PATH_MAX_LEN];
     if (UNLIKELY(strlen(key) >= JSON_PATH_MAX_LEN))
     {
-        LOG_ERROR("Json path too long : %s", key);
         return NULL;
     }
     strncpy(path_copy, key, JSON_PATH_MAX_LEN - 1);
@@ -208,17 +205,16 @@ static cJSON *JsonResolve(JsonManager manager, const char *fileKey, const char *
     return JsonNavigateToParent(entry->json, path_copy, out_leaf, create);
 }
 
-bool JsonGetNumber(JsonManager manager, const char *fileKey, const char *key, float64 *out)
+bool JsonGetNumber(const char *fileKey, const char *key, float64 *out)
 {
     char *leaf = NULL;
-    cJSON *parent = JsonResolve(manager, fileKey, key, &leaf, false);
+    cJSON *parent = JsonResolve(fileKey, key, &leaf, false);
     if (UNLIKELY(parent == NULL))
         return false;
 
     cJSON *item = cJSON_GetObjectItemCaseSensitive(parent, leaf);
     if (UNLIKELY(item == NULL || !cJSON_IsNumber(item)))
     {
-        LOG_ERROR("Missing or invalid number for key : %s", key);
         return false;
     }
 
@@ -226,17 +222,16 @@ bool JsonGetNumber(JsonManager manager, const char *fileKey, const char *key, fl
     return true;
 }
 
-bool JsonGetBool(JsonManager manager, const char *fileKey, const char *key, bool *out)
+bool JsonGetBool(const char *fileKey, const char *key, bool *out)
 {
     char *leaf = NULL;
-    cJSON *parent = JsonResolve(manager, fileKey, key, &leaf, false);
+    cJSON *parent = JsonResolve(fileKey, key, &leaf, false);
     if (UNLIKELY(parent == NULL))
         return false;
 
     cJSON *item = cJSON_GetObjectItemCaseSensitive(parent, leaf);
     if (UNLIKELY(item == NULL || !cJSON_IsBool(item)))
     {
-        LOG_ERROR("Missing or invalid bool for key : %s", key);
         return false;
     }
 
@@ -244,17 +239,16 @@ bool JsonGetBool(JsonManager manager, const char *fileKey, const char *key, bool
     return true;
 }
 
-bool JsonGetString(JsonManager manager, const char *fileKey, const char *key, const char **out)
+bool JsonGetString(const char *fileKey, const char *key, const char **out)
 {
     char *leaf = NULL;
-    cJSON *parent = JsonResolve(manager, fileKey, key, &leaf, false);
+    cJSON *parent = JsonResolve(fileKey, key, &leaf, false);
     if (UNLIKELY(parent == NULL))
         return false;
 
     cJSON *item = cJSON_GetObjectItemCaseSensitive(parent, leaf);
     if (UNLIKELY(item == NULL || !cJSON_IsString(item) || item->valuestring == NULL))
     {
-        LOG_ERROR("Missing or invalid string for key : %s", key);
         return false;
     }
 
@@ -262,19 +256,18 @@ bool JsonGetString(JsonManager manager, const char *fileKey, const char *key, co
     return true;
 }
 
-bool JsonGetNumberArray(JsonManager manager, const char *fileKey, const char *key, float64_vec_t *out)
+bool JsonGetNumberArray(const char *fileKey, const char *key, float64_vec_t *out)
 {
     kv_init(*out);
 
     char *leaf = NULL;
-    cJSON *parent = JsonResolve(manager, fileKey, key, &leaf, false);
+    cJSON *parent = JsonResolve(fileKey, key, &leaf, false);
     if (UNLIKELY(parent == NULL))
         return false;
 
     cJSON *array = cJSON_GetObjectItemCaseSensitive(parent, leaf);
     if (UNLIKELY(array == NULL || !cJSON_IsArray(array)))
     {
-        LOG_ERROR("Missing or invalid number array for key : %s", key);
         return false;
     }
 
@@ -284,19 +277,16 @@ bool JsonGetNumberArray(JsonManager manager, const char *fileKey, const char *ke
     int64 count = cJSON_GetArraySize(array);
     kv_resize(float64, vec, count);
 
-    int64 i = 0;
     cJSON *item = NULL;
     cJSON_ArrayForEach(item, array)
     {
         if (UNLIKELY(!cJSON_IsNumber(item)))
         {
-            LOG_ERROR("Invalid number at index %lld for key : %s", (long long)i, key);
             kv_destroy(vec);
             return false;
         }
 
         kv_push(float64, vec, item->valuedouble);
-        ++i;
     }
 
     *out = vec;
@@ -320,12 +310,11 @@ static void FileWriteJobRun(void *user_data)
     free(job);
 }
 
-bool JsonSaveObject(JsonManager manager, const char *fileKey)
+bool JsonSaveObject(const char *fileKey)
 {
-    JsonObject *entry = JsonObjectGet(manager, fileKey);
+    JsonObject *entry = JsonObjectGet(fileKey);
     if (UNLIKELY(entry == NULL))
     {
-        LOG_ERROR("Unknown json file : %s", fileKey);
         return false;
     }
 
@@ -336,38 +325,30 @@ bool JsonSaveObject(JsonManager manager, const char *fileKey)
 
     if (job->text == NULL)
     {
-        LOG_ERROR("Impossible to prepare json file : %s", fileKey);
         free(job->key);
         free(job->text);
         free(job);
         return false;
     }
 
-    if (!entry->embedded)
-    {
-        // Safe asynchronous operation: the file is read once during initialization,
-        // and writes occur at most once per second.
-        ThreadManagerPush(FileWriteJobRun, job);
-    }
-    else
-    {
-    }
+    // Safe asynchronous operation: the file is read once during initialization,
+    // and writes occur at most once per second.
+    ThreadManagerPush(FileWriteJobRun, job);
+
     return true;
 }
 
-bool JsonSaveObjectFromMemory(JsonManager manager, const char *fileKey)
+bool JsonSaveObjectFromMemory(const char *fileKey)
 {
-    JsonObject *entry = JsonObjectGet(manager, fileKey);
+    JsonObject *entry = JsonObjectGet(fileKey);
     if (UNLIKELY(entry == NULL))
     {
-        LOG_ERROR("Unknown json file : %s", fileKey);
         return false;
     }
 
     char *text = cJSON_Print(entry->json);
     if (UNLIKELY(text == NULL))
     {
-        LOG_ERROR("Impossible to prepare json file : %s", fileKey);
         return false;
     }
 
@@ -378,19 +359,18 @@ bool JsonSaveObjectFromMemory(JsonManager manager, const char *fileKey)
     return result;
 }
 
-bool JsonGetBoolArray(JsonManager manager, const char *fileKey, const char *key, bool_vec_t *out)
+bool JsonGetBoolArray(const char *fileKey, const char *key, bool_vec_t *out)
 {
     kv_init(*out);
 
     char *leaf = NULL;
-    cJSON *parent = JsonResolve(manager, fileKey, key, &leaf, false);
+    cJSON *parent = JsonResolve(fileKey, key, &leaf, false);
     if (UNLIKELY(parent == NULL))
         return false;
 
     cJSON *array = cJSON_GetObjectItemCaseSensitive(parent, leaf);
     if (UNLIKELY(array == NULL || !cJSON_IsArray(array)))
     {
-        LOG_ERROR("Missing or invalid bool array for key : %s", key);
         return false;
     }
 
@@ -400,19 +380,16 @@ bool JsonGetBoolArray(JsonManager manager, const char *fileKey, const char *key,
     int64 count = cJSON_GetArraySize(array);
     kv_resize(bool, vec, count);
 
-    int64 i = 0;
     cJSON *item = NULL;
     cJSON_ArrayForEach(item, array)
     {
         if (UNLIKELY(!cJSON_IsBool(item)))
         {
-            LOG_ERROR("Invalid bool at index %lld for key : %s", (long long)i, key);
             kv_destroy(vec);
             return false;
         }
 
         kv_push(bool, vec, cJSON_IsTrue(item));
-        ++i;
     }
 
     *out = vec;
@@ -420,32 +397,29 @@ bool JsonGetBoolArray(JsonManager manager, const char *fileKey, const char *key,
 }
 
 // need to free every string + the array
-bool JsonGetStringArray(JsonManager manager, const char *fileKey, const char *key, string_vec_t *out)
+bool JsonGetStringArray(const char *fileKey, const char *key, string_vec_t *out)
 {
     kv_init(*out);
 
     char *leaf = NULL;
-    cJSON *parent = JsonResolve(manager, fileKey, key, &leaf, false);
+    cJSON *parent = JsonResolve(fileKey, key, &leaf, false);
     if (UNLIKELY(parent == NULL))
         return false;
 
     cJSON *array = cJSON_GetObjectItemCaseSensitive(parent, leaf);
     if (UNLIKELY(array == NULL || !cJSON_IsArray(array)))
     {
-        LOG_ERROR("Missing or invalid string array for key : %s", key);
         return false;
     }
 
     int64 count = cJSON_GetArraySize(array);
     kv_resize(char *, *out, count);
 
-    int64 i = 0;
     cJSON *item = NULL;
     cJSON_ArrayForEach(item, array)
     {
         if (UNLIKELY(!cJSON_IsString(item) || item->valuestring == NULL))
         {
-            LOG_ERROR("Invalid string at index %lld for key : %s", (long long)i, key);
 
             for (uint64 j = 0; j < kv_size(*out); ++j)
                 free(kv_A(*out, j));
@@ -457,19 +431,18 @@ bool JsonGetStringArray(JsonManager manager, const char *fileKey, const char *ke
         }
 
         kv_push(char *, *out, strdup(item->valuestring));
-        ++i;
     }
 
     return true;
 }
 
-static bool JsonCloseObject(JsonManager manager, const char *fileKey)
+static bool JsonCloseObject(const char *fileKey)
 {
+    JsonManager manager = g_app.json_manager;
     khiter_t it = kh_get(JsonObjects, manager, fileKey);
 
     if (UNLIKELY(it == kh_end(manager)))
     {
-        LOG_ERROR("Unknown json file : %s", fileKey);
         return false;
     }
 
@@ -490,15 +463,15 @@ COLD void JsonManagerDestroy(JsonManager manager)
     for (khiter_t it = kh_begin(manager); it != kh_end(manager); ++it)
     {
         if (kh_exist(manager, it))
-            JsonCloseObject(manager, kh_key(manager, it));
+            JsonCloseObject(kh_key(manager, it));
     }
 
     kh_destroy(JsonObjects, manager);
 }
 
-void JsonSaveObjects(JsonManager manager, float64 budget)
+void JsonSaveObjects(float64 budget)
 {
-
+    JsonManager manager = g_app.json_manager;
     uint64 current_time_sec = g_app.info.frame_count / (uint64)g_app.info.fps;
     uint64 start_ticks = TimeNow();
 
@@ -533,12 +506,11 @@ void JsonSaveObjects(JsonManager manager, float64 budget)
     }
 }
 
-bool WriteInJsonObject(JsonManager manager, const char *key, cJSON *object)
+bool WriteInJsonObject(const char *key, cJSON *object)
 {
-    JsonObject *entry = JsonObjectGet(manager, key);
+    JsonObject *entry = JsonObjectGet(key);
     if (UNLIKELY(entry == NULL))
     {
-        LOG_ERROR("Unknown json file : %s", key);
         return false;
     }
     cJSON_Delete(entry->json);

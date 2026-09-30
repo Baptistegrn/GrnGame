@@ -27,23 +27,23 @@ typedef khash_t(JsonObjects) * JsonManager;
 COLD JsonManager JsonManagerCreate(void);
 COLD void JsonManagerDestroy(JsonManager manager);
 
-JsonObject *JsonObjectGet(JsonManager manager, const char *key);
-bool JsonObjectContains(JsonManager manager, const char *key);
+JsonObject *JsonObjectGet(const char *key);
+bool JsonObjectContains(const char *key);
 
 /* Open JSON from the filesystem. */
-bool OpenJsonObject(JsonManager manager, const char *key, uint64 min, uint64 max);
+int OpenJsonObject(const char *key, uint64 min, uint64 max);
 
 /* Open JSON from embedded memory/database. */
-bool OpenJsonObjectFromMemory(JsonManager manager, const char *path, const unsigned char *text, uint64 min, uint64 max);
+bool OpenJsonObjectFromMemory(const char *path, const unsigned char *text, uint64 min, uint64 max);
 
 /* Save JSON asynchronously to the filesystem. */
-bool JsonSaveObject(JsonManager manager, const char *fileKey);
+bool JsonSaveObject(const char *fileKey);
 
 /* Save JSON objects using the configured time budget. */
-void JsonSaveObjects(JsonManager manager, float64 budget);
+void JsonSaveObjects(float64 budget);
 
 /* Save JSON directly to the embedded database. */
-bool JsonSaveObjectFromMemory(JsonManager manager, const char *fileKey);
+bool JsonSaveObjectFromMemory(const char *fileKey);
 
 /* Create a JSON file on the filesystem. */
 bool JsonCreate(const char *key, const char *text);
@@ -55,17 +55,17 @@ bool JsonExist(const char *key);
 
 bool JsonExistFromMemory(const char *key);
 
-bool JsonGetNumber(JsonManager manager, const char *fileKey, const char *key, float64 *out);
+bool JsonGetNumber(const char *fileKey, const char *key, float64 *out);
 
-bool JsonGetBool(JsonManager manager, const char *fileKey, const char *key, bool *out);
+bool JsonGetBool(const char *fileKey, const char *key, bool *out);
 
-bool JsonGetString(JsonManager manager, const char *fileKey, const char *key, const char **out);
+bool JsonGetString(const char *fileKey, const char *key, const char **out);
 
-bool JsonGetNumberArray(JsonManager manager, const char *fileKey, const char *key, float64_vec_t *out_values);
+bool JsonGetNumberArray(const char *fileKey, const char *key, float64_vec_t *out_values);
 
-bool JsonGetBoolArray(JsonManager manager, const char *fileKey, const char *key, bool_vec_t *out_values);
+bool JsonGetBoolArray(const char *fileKey, const char *key, bool_vec_t *out_values);
 
-bool JsonGetStringArray(JsonManager manager, const char *fileKey, const char *key, string_vec_t *out_values);
+bool JsonGetStringArray(const char *fileKey, const char *key, string_vec_t *out_values);
 
 /* Used by Wren. */
-bool WriteInJsonObject(JsonManager manager, const char *key, cJSON *object);
+bool WriteInJsonObject(const char *key, cJSON *object);

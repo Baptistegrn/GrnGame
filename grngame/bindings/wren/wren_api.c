@@ -32,7 +32,6 @@ int g_moduleCount = 0;
 
 void RegisterControllerModule(void);
 void RegisterDbModule(void);
-void RegisterFileModule(void);
 void RegisterInputTextModule(void);
 void RegisterKeyboardModule(void);
 void RegisterLogModule(void);
@@ -548,7 +547,6 @@ static void RegisterWrenModules(void)
     InitBindingSystem();
     RegisterControllerModule();
     RegisterDbModule();
-    RegisterFileModule();
     RegisterInputTextModule();
     RegisterKeyboardModule();
     RegisterLogModule();

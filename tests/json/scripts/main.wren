@@ -10,7 +10,7 @@ static on_start() {
     }else{
         Log.warn("test.json dont exist")
     }
-
+    Json.open("xx",1,1)
     if(!Json.exist("test2.json")){
         Log.info("test2.json dont exist")
         Json.create("test2.json", {
@@ -24,8 +24,20 @@ static on_start() {
             },
             "resolutions": [1920, 1080, 1280, 720]
         })
+
+        Json.create("test2.json", {
+            "width": 1920,
+            "height": 1080,
+            "fullscreen": true,
+            "name": "My Game",
+            "graphics": {
+                "vsync": true,
+                "quality": "low"
+            },
+            "resolutions": [1920, 1080, 1280, 720]
+        })
         Json.open("test2.json",0,0)
-        __x = Json.get("test2.json")
+        __x = Json.get("test3.json")
         System.print(__x)
     }
 

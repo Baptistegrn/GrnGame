@@ -6,30 +6,46 @@
 
 static void log_error(WrenVM *vm)
 {
+    // to avoid null message
+    if (wrenGetSlotType(vm, 1) != WREN_TYPE_STRING)
+        return;
+
     const char *message = wrenGetSlotString(vm, 1);
     LOG_ERROR("%s", message);
 }
 
 static void log_debug(WrenVM *vm)
 {
+    if (wrenGetSlotType(vm, 1) != WREN_TYPE_STRING)
+        return;
+
     const char *message = wrenGetSlotString(vm, 1);
     LOG_DEBUG("%s", message);
 }
 
 static void log_info(WrenVM *vm)
 {
+    if (wrenGetSlotType(vm, 1) != WREN_TYPE_STRING)
+        return;
+
     const char *message = wrenGetSlotString(vm, 1);
     LOG_INFO("%s", message);
 }
 
 static void log_warning(WrenVM *vm)
 {
+    if (wrenGetSlotType(vm, 1) != WREN_TYPE_STRING)
+        return;
+
     const char *message = wrenGetSlotString(vm, 1);
     LOG_WARNING("%s", message);
 }
 
 static void log_critical(WrenVM *vm)
 {
+    if (wrenGetSlotType(vm, 1) != WREN_TYPE_STRING)
+        return;
+
     const char *message = wrenGetSlotString(vm, 1);
     LOG_CRITICAL("%s", message);
 }
