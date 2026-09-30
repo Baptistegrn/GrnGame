@@ -22,8 +22,6 @@
 #include <SDL3/SDL.h>
 #include <stdlib.h>
 
-static bool g_initialized = false;
-
 static InitResult InitializeLogging(void)
 {
 #ifdef GRNGAME_EMBED_ASSETS
@@ -206,8 +204,6 @@ InitResult InitAppConfig(void)
 #endif
 }
 
-#ifndef GRNGAME_WASM
-
 static SDL_IOStream *LoadControllerDatabase(void)
 {
 #ifdef GRNGAME_EMBED_ASSETS
@@ -247,8 +243,6 @@ static void LoadControllerMappings(void)
 
     LOG_INFO("Loaded %d controller mappings", mapped);
 }
-
-#endif
 
 static void HandleWrenFailure(void)
 {
