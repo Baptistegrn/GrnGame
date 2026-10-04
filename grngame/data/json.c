@@ -125,7 +125,7 @@ int32 OpenJsonObject(const char *path, uint64 min, uint64 max)
 
     JsonObject j = (JsonObject){.min = min, .max = max, .json = json};
     JsonObjectAdd(path, j);
-    return true;
+    return 0;
 }
 
 bool OpenJsonObjectFromMemory(const char *path, const unsigned char *text, uint64 min, uint64 max)

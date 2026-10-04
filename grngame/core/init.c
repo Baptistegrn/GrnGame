@@ -160,7 +160,7 @@ static InitResult LoadAppConfig()
 {
 
     bool json_open = OpenJsonObject("config/config.json", 0, 0);
-    if (!json_open)
+    if (json_open != 0)
     {
         LOG_ERROR("%s", "Failed to open config.json,it is present in config/config.json ?");
         return INIT_CONFIG_FAILED;
