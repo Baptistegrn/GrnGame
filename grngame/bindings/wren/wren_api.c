@@ -13,7 +13,6 @@
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/string_compat.h"
-#include <corecrt_search.h>
 
 #ifdef GRNGAME_EMBED_ASSETS
 #include "grngame/assets/load.h"
