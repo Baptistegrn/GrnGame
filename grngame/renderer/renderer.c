@@ -2,6 +2,7 @@
 #include "../math/types.h"
 #include "SDL3/SDL_error.h"
 #include "SDL3/SDL_pixels.h"
+#include "SDL3/SDL_render.h"
 #include "grngame/core/app.h"
 #include "grngame/data/file.h"
 #include "grngame/dev/logging.h"
@@ -11,31 +12,31 @@
 #include "kvec.h"
 #include <math.h>
 
-COLD bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
+bool RendererTryCreate()
 {
-    renderer->renderer = SDL_CreateRenderer(window, NULL);
-    if (UNLIKELY(!renderer->renderer))
+    g_app.renderer.renderer = SDL_CreateRenderer(g_app.window, NULL);
+    if (UNLIKELY(!g_app.renderer.renderer))
     {
         LOG_ERROR("Failed to create renderer: %s", SDL_GetError());
         return false;
     }
 
-    SDL_SetRenderVSync(renderer->renderer, 0);
+    SDL_SetRenderVSync(g_app.renderer.renderer, 0);
 
     LOG_INFO("Renderer initialized. Driver=\"%s\" Renderer=\"%s\"", SDL_GetCurrentVideoDriver(),
-             SDL_GetRendererName(renderer->renderer));
+             SDL_GetRendererName(g_app.renderer.renderer));
 
     return true;
 }
 
-HOT void RendererClear(const Renderer *renderer)
+void RendererClear()
 {
-    RendererSetColor(255, 255, 255, 255);
-    if (UNLIKELY(!SDL_RenderClear(renderer->renderer)))
+    RendererSetColor(0, 0, 0, 255);
+    if (UNLIKELY(!SDL_RenderClear(g_app.renderer.renderer)))
         LOG_ERROR("Failed to clear renderer: %s", SDL_GetError());
 }
 
-HOT void RendererPresent(const Renderer *renderer)
+void RendererPresent(const Renderer *renderer)
 {
     if (UNLIKELY(!SDL_RenderPresent(renderer->renderer)))
         LOG_ERROR("Failed to present renderer: %s", SDL_GetError());

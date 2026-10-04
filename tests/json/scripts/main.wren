@@ -37,7 +37,7 @@ static on_start() {
             "resolutions": [1920, 1080, 1280, 720]
         })
         Json.open("test2.json",0,0)
-        __x = Json.get("test3.json")
+        __x = Json.get("test2.json")
         System.print(__x)
     }
 

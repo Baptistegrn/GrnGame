@@ -109,7 +109,7 @@ target("GrnGame")
 	set_kind("static")
 
 	add_files("grngame/**.c")
-	remove_files("grngame/assets/embedded_main.c")
+	remove_files("grngame/embedded/embedded_file_generator_main.c")
 	add_headerfiles("grngame/**.h")
 	add_includedirs(".", { public = true })
 
@@ -206,7 +206,7 @@ if dev_mode then
 			set_languages("c17")
 			set_kind("binary")
 			set_targetdir(path.join("$(builddir)", "Embedded"))
-			add_files("grngame/assets/embedded_main.c")
+			add_files("grngame/embedded/embedded_file_generator_main.c")
 			add_headerfiles("grngame/**.h")
 			add_deps("GrnGame")
 	end

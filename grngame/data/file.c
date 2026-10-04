@@ -13,7 +13,7 @@ bool FileExist(const char *name)
     return true;
 }
 
-char *ReturnFileString(const char *name)
+unsigned char *ReturnFileString(const char *name, uint64 *size_out)
 {
     FILE *file = fopen(name, "rb");
     if (!file)
@@ -31,7 +31,7 @@ char *ReturnFileString(const char *name)
         return NULL;
     }
 
-    char *buffer = malloc((uint64)size + 1);
+    unsigned char *buffer = malloc((uint64)size + 1);
 
     uint64 read_count = fread(buffer, 1, (uint64)size, file);
     fclose(file);
@@ -42,6 +42,10 @@ char *ReturnFileString(const char *name)
     }
 
     buffer[read_count] = '\0';
+
+    if (size_out != NULL)
+        *size_out = read_count;
+
     return buffer;
 }
 bool WriteFileString(const char *name, const char *content, bool append)

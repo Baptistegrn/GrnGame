@@ -13,6 +13,7 @@
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 #include "grngame/utils/string_compat.h"
+#include <corecrt_search.h>
 
 #ifdef GRNGAME_EMBED_ASSETS
 #include "grngame/assets/load.h"
@@ -223,7 +224,7 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
 
 #ifdef GRNGAME_EMBED_ASSETS
     {
-        EmbeddedAsset *asset = GetEmbeddedAsset(filename);
+        EmbeddedFile *asset = EmbeddedFileGet(filename);
 
         if (asset)
         {
@@ -245,7 +246,7 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
 
         char *path = PathFromExecutableDirectory(script_path);
 
-        result.source = ReturnFileString(path);
+        result.source = (char *)ReturnFileString(path, NULL);
         free(path);
 
         if (!result.source)
@@ -483,7 +484,7 @@ static bool WrenInterpret(const char *filename)
     char *module_name = FileStem(filename);
 #ifdef GRNGAME_EMBED_ASSETS
     {
-        EmbeddedAsset *asset = GetEmbeddedAsset(filename);
+        EmbeddedFile *asset = EmbeddedFileGet(filename);
         if (!asset)
         {
             LOG_ERROR("Failed to find script '%s' in embedded files", filename);
@@ -511,7 +512,7 @@ static bool WrenInterpret(const char *filename)
     {
         char *path = PathFromExecutableDirectory(filename);
 
-        char *file_content = ReturnFileString(path);
+        char *file_content = (char *)ReturnFileString(path, NULL);
         free(path);
 
         if (!file_content)

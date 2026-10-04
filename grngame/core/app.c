@@ -140,13 +140,13 @@ static COLD void CleanupAppResources(void)
     PaletteManagerDestroy(&g_app.palette_manager);
     InputManagerDestroy(&g_app.input_manager);
     AssetManagerDestroy(&g_app.asset_manager);
-    EmbeddedAssetManagerDestroy(&g_app.embedded_asset_manager);
+    EmbeddedFileManagerDestroy(&g_app.embedded_file_manager);
     SoundManagerDestroy(&g_app.sound_manager);
     ThreadManagerDestroy(&g_app.thread_manager);
     JsonManagerDestroy(g_app.json_manager);
     HotReloadDestroy();
     LogDestroy();
-    DbClose(g_app.info.asset_db);
+    DbClose(g_app.info.file_db);
     g_app = (App){0};
 }
 

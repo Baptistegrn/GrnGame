@@ -1,5 +1,6 @@
 #pragma once
 #include "asset_manager.h"
+#include "embedded_file_manager.h"
 #include "grngame/utils/c_cpp.h"
 #include <SDL3/SDL_surface.h>
 #include <stdbool.h>
@@ -44,8 +45,5 @@ bool UnloadAllTextureFiles(void);
 
 bool ReloadAllTexturesWithPalette(void);
 bool ReloadTextureWithPalette(const char *file);
-
-EmbeddedAsset *GetEmbeddedAsset(const char *name);
-bool EmbeddedAssetExists(const char *name);
 
 END_DECLARATIONS

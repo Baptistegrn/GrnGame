@@ -12,29 +12,11 @@
 static WavStream *LoadSoundStream(const char *file);
 static bool RegisterSound(char *key, WavStream *stream);
 
-EmbeddedAsset *GetEmbeddedAsset(const char *name)
-{
-    khint_t k = kh_get(EmbeddedAssetHash, g_app.embedded_asset_manager.embedded_assets_hash, name);
-
-    if (k == kh_end(g_app.embedded_asset_manager.embedded_assets_hash))
-        return NULL;
-
-    return &kh_val(g_app.embedded_asset_manager.embedded_assets_hash, k);
-}
-
-bool EmbeddedAssetExists(const char *name)
-{
-    if (GetEmbeddedAsset(name) == NULL)
-        return false;
-    else
-        return true;
-}
-
 static SDL_Surface *LoadTextureSurface(const char *file)
 {
 #ifdef GRNGAME_EMBED_ASSETS
     {
-        const EmbeddedAsset *asset = GetEmbeddedAsset(file);
+        const EmbeddedFile *asset = EmbeddedFileGet(file);
 
         if (!asset)
             return NULL;
@@ -253,7 +235,7 @@ static WavStream *LoadSoundStream(const char *file)
 
 #ifdef GRNGAME_EMBED_ASSETS
     {
-        const EmbeddedAsset *asset = GetEmbeddedAsset(file);
+        const EmbeddedFile *asset = EmbeddedFileGet(file);
 
         if (!asset)
         {

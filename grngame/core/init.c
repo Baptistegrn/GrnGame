@@ -1,6 +1,7 @@
 #include "init.h"
 
 #include "grngame/assets/asset_manager.h"
+#include "grngame/assets/embedded_file_manager.h"
 #include "grngame/assets/load.h"
 #include "grngame/audio/sound.h"
 #include "grngame/bindings/wren/wren_api.h"
@@ -18,14 +19,13 @@
 #include "grngame/utils/taskbar_icon.h"
 #include "grngame/utils/time.h"
 #include "kvec.h"
-
 #include <SDL3/SDL.h>
 #include <stdlib.h>
 
 static InitResult InitializeLogging(void)
 {
 #ifdef GRNGAME_EMBED_ASSETS
-    if (!LogInit(LOG_TO_FILE))
+    if (!LogInit(LOG_TO_CONSOLE)) // temp
     {
         LOG_ERROR("Failed to initialize logging");
         return INIT_LOG_FAILED;
@@ -175,7 +175,7 @@ static InitResult LoadAppConfig()
 
 static InitResult LoadAppConfigEmbedded()
 {
-    const EmbeddedAsset *asset = GetEmbeddedAsset("config/config.json");
+    const EmbeddedFile *asset = EmbeddedFileGet("config/config.json");
     if (!asset)
     {
         LOG_ERROR("%s", "Failed to get config.json in Assets.pak.Did you delete it before package your app ?");
@@ -208,7 +208,7 @@ static SDL_IOStream *LoadControllerDatabase(void)
 {
 #ifdef GRNGAME_EMBED_ASSETS
     {
-        const EmbeddedAsset *asset = GetEmbeddedAsset("data/gamecontrollerdb.txt");
+        const EmbeddedFile *asset = EmbeddedFileGet("data/gamecontrollerdb.txt");
         if (!asset)
         {
             LOG_ERROR("Failed to get gamecontrollerdb.txt in Assets.pak,did you delete it before package your app?");
@@ -325,11 +325,11 @@ InitResult InitAll(void)
         return result;
 
 #ifdef GRNGAME_EMBED_ASSETS
-    g_app.embedded_asset_manager = EmbeddedAssetManagerCreate();
+    g_app.embedded_file_manager = EmbeddedFileManagerCreate();
     char *path_asset = PathFromExecutableDirectory("Assets.pak");
-    g_app.info.asset_db = DbCreate(path_asset);
+    g_app.info.file_db = DbCreate(path_asset);
     free(path_asset);
-    bool res = AddDbToEmbeddedAssetManager(g_app.info.asset_db);
+    bool res = EmbeddedFileManagerLoadDb();
     if (!res)
     {
         return INIT_OPEN_GAME_DATA_FAILED;

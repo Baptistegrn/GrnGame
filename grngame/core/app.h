@@ -21,7 +21,7 @@ BEGIN_DECLARATIONS
 
 typedef struct AppInfo
 {
-    sqlite3 *asset_db;
+    sqlite3 *file_db;
 
     const char *name;
     const char *version;
@@ -64,7 +64,7 @@ typedef struct
     InputManager input_manager;
     JsonManager json_manager;
     WrenManager wren_manager;
-    EmbeddedAssetManager embedded_asset_manager;
+    EmbeddedFileManager embedded_file_manager;
     PaletteManager palette_manager;
     ThreadManager thread_manager;
     kvec_t(HotreloadQueueElement) queue;

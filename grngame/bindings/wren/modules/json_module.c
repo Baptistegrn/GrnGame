@@ -215,13 +215,13 @@ void open_json_file(WrenVM *vm)
         LOG_ERROR("Failed to parse Json content :%s,your file isnt json...", key);
     }
 #else
-    if (!EmbeddedAssetExists(key))
+    if (!EmbeddedFileExists(key))
     {
         LOG_ERROR("Failed to get %s in Assets.pak,you need to create the file first.", key);
         return;
     }
 
-    EmbeddedAsset *asset = GetEmbeddedAsset(key);
+    EmbeddedFile *asset = EmbeddedFileGet(key);
 
     if (!OpenJsonObjectFromMemory(key, asset->data, min, max))
     {

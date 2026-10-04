@@ -1,4 +1,4 @@
-#include "grngame/assets/embedded_asset.h"
+#include "embedded_file_generator.h"
 #include "grngame/utils/time.h"
 #include <stdio.h>
 
@@ -13,7 +13,7 @@ int32 main(int32 argc, char **argv)
 
     float64 start_time = TimeNow();
 
-    create_embedded_structure(argc - 2, (const char **)(argv + 2), argv[1]);
+    CreateEmbeddedFileDb(argc - 2, (const char **)(argv + 2), argv[1]);
 
     float64 elapsed_time = TimeNow() - start_time;
 

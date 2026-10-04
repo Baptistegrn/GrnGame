@@ -1,11 +1,13 @@
 #include "json.h"
 #include "cjson/cJSON.h"
 #include "file.h"
+#include "grngame/assets/embedded_file_manager.h"
 #include "grngame/assets/load.h"
 #include "grngame/bindings/wren/wren_api.h"
 #include "grngame/bindings/wren/wren_event.h"
 #include "grngame/core/app.h"
 #include "grngame/dev/logging.h"
+#include "grngame/embedded/embedded_file_generator.h"
 #include "grngame/input/input_data.h"
 #include "grngame/math/types.h"
 #include "grngame/platform/paths.h"
@@ -40,7 +42,7 @@ bool JsonExist(const char *key)
 
 bool JsonExistFromMemory(const char *key)
 {
-    return EmbeddedAssetExists(key);
+    return EmbeddedFileExists(key);
 }
 
 bool JsonCreate(const char *key, const char *text)
@@ -55,17 +57,7 @@ bool JsonCreateFromMemory(const char *key, const char *text)
 {
 
     uint64 size = strlen(text);
-    if (!EmbeddedFileWrite(key, text, size))
-    {
-        return false;
-    }
-    // need to update asset manager because if we open the json file we need to have is content
-    if (!EmbeddedAssetManagerUpdate(key, text, size))
-    {
-        return false;
-    }
-
-    return true;
+    return EmbeddedFilePut(EMBED_KIND_DATA, key, text, size);
 }
 
 static void JsonObjectAdd(const char *key, JsonObject value)
@@ -114,7 +106,7 @@ bool JsonObjectContains(const char *key)
 int32 OpenJsonObject(const char *path, uint64 min, uint64 max)
 {
     char *path_ = PathFromExecutableDirectory(path);
-    char *text = ReturnFileString(path_);
+    char *text = (char *)ReturnFileString(path_, NULL);
     free(path_);
 
     if (UNLIKELY(text == NULL))
@@ -352,7 +344,7 @@ bool JsonSaveObjectFromMemory(const char *fileKey)
         return false;
     }
 
-    bool result = EmbeddedFileWrite(fileKey, text, strlen(text));
+    bool result = EmbeddedFilePutDisk(EMBED_KIND_DATA, fileKey, text, strlen(text));
 
     free(text);
 

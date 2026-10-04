@@ -2,8 +2,7 @@
 #include "../math/types.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_surface.h"
-#include "grngame/data/data.h"
-#include "grngame/data/json.h"
+#include "embedded_file_manager.h"
 #include "grngame/renderer/cielab.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/c_cpp.h"
@@ -13,13 +12,6 @@
 typedef struct LoadResult LoadResult;
 
 BEGIN_DECLARATIONS
-
-typedef struct
-{
-    char *name;
-    unsigned char *data;
-    uint32 size;
-} EmbeddedAsset;
 
 typedef struct
 {
@@ -36,8 +28,7 @@ struct AppInfo;
 
 typedef struct
 {
-    string_vec_t texture_list; // for multithread
-
+    string_vec_t assets_list; // for multithread
     khash_t(SoundMap) * sound_map;
     khash_t(TextureMap) * texture_map;
 } AssetManager;
@@ -49,27 +40,11 @@ typedef struct
     int32 index;
 } LoadTask;
 
-KHASH_MAP_INIT_STR(EmbeddedAssetHash, EmbeddedAsset);
-
-typedef struct
-{
-    khash_t(EmbeddedAssetHash) * embedded_assets_hash;
-    int32 embedded_assets_count;
-    int32 embedded_count;
-} EmbeddedAssetManager;
-
 COLD AssetManager AssetManagerCreate();
-COLD EmbeddedAssetManager EmbeddedAssetManagerCreate();
 
 COLD void AssetManagerDestroy(AssetManager *manager);
-COLD void EmbeddedAssetManagerDestroy(EmbeddedAssetManager *manager);
 
 void AssetManagerLoadFolder(const char *folder);
 void AssetManagerLoadFolderFromMemory(const char *folder);
-
-// update or set db
-COLD bool AddDbToEmbeddedAssetManager(sqlite3 *db);
-bool EmbeddedFileWrite(const char *key, const void *data, uint64 size);
-bool EmbeddedAssetManagerUpdate(const char *key, const void *data, uint64 size);
 
 END_DECLARATIONS
