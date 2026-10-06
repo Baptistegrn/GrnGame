@@ -1,4 +1,4 @@
-name: Build native
+name: Build desktop
 
 on:
   workflow_call:

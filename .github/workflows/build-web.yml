@@ -1,4 +1,4 @@
-name: Build wasm
+name: Build web
 
 on:
   workflow_call:
