@@ -42,6 +42,7 @@ void RegisterTimeModule(void);
 void RegisterWindowModule(void);
 void RegisterEventModule(void);
 void RegisterJsonModule(void);
+void RegisterExitModule();
 
 static const char *CALL_SIGNATURES[17] = {"call()",
                                           "call(_)",
@@ -557,6 +558,7 @@ static void RegisterWrenModules(void)
     RegisterWindowModule();
     RegisterEventModule();
     RegisterJsonModule();
+    RegisterExitModule();
 }
 
 bool WrenInit()

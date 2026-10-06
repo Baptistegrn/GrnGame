@@ -69,11 +69,12 @@ typedef struct
     ThreadManager thread_manager;
     kvec_t(HotreloadQueueElement) queue;
     AppInfo info;
+    bool request_stop;
 
 } App;
 
 void EngineStart();
-void EngineStop();
+void EngineSetStop();
 COLD void ShutdownScripts(void);
 void ReloadConfig(void);
 

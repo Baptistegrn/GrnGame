@@ -40,7 +40,6 @@
 #include <stdlib.h>
 
 static bool s_is_running = false;
-bool request_stop = false;
 
 static HOT void MainLoopIteration(void *arg);
 static COLD void MainLoop(void);
@@ -93,15 +92,7 @@ void EngineStart()
     MainLoop();
 }
 
-void EngineRequestStop(void)
-{
-    if (UNLIKELY(request_stop))
-    {
-        EngineStop();
-    }
-}
-
-void EngineStop(void)
+static void EngineStop(void)
 {
     if (!s_is_running)
         return;
@@ -110,6 +101,19 @@ void EngineStop(void)
 
     s_is_running = false;
     CleanupAppResources();
+}
+
+void EngineRequestStop(void)
+{
+    if (UNLIKELY(g_app.request_stop))
+    {
+        EngineStop();
+    }
+}
+
+void EngineSetStop()
+{
+    g_app.request_stop = true;
 }
 
 static void DestroyWindow_()

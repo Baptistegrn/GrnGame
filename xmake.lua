@@ -280,8 +280,8 @@ function add_test_target(name)
 end
 
 
-target_tests = { "json", "pad_event" }
-auto_tests = {}
+target_tests = { "json", "pad_event","engine_work" }
+auto_tests = {"engine_work"}
 
 for _, name in ipairs(target_tests) do
 	add_test_target(name)
