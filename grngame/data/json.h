@@ -20,7 +20,7 @@ typedef struct
     bool embedded; // Present in embedded database, only available on target
 } JsonObject;
 
-KHASH_MAP_INIT_STR(JsonObjects, JsonObject)
+KHASH_MAP_INIT_STR(JsonObjects, JsonObject *)
 
 typedef khash_t(JsonObjects) * JsonManager;
 

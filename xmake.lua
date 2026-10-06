@@ -26,16 +26,16 @@ option("embed_assets")
 	set_description("Generate embedded assets before building game (forced on for wasm/android/iOS)")
 option_end()
 
-option("github_workflow")
+option("software_renderer")
 	set_default(false)
 	set_showmenu(true)
-	set_description("set renderer on software for github actions")
+	set_description("set renderer on software")
 option_end()
 
 local embedded = has_config("embed_assets") 
 local dev_mode = is_desktop and not embedded 
 
-if has_config("github_workflow") then 
+if has_config("software_renderer") then 
 	add_defines("GRNGAME_SOFTWARE", { public = true })
 end
 
@@ -76,7 +76,7 @@ add_requires("klib", { configs = { shared = false } })
 add_requires("cglm", { configs = { shared = false } })
 
 -- sound
-add_requires("soloud pr402", { configs = { shared = false, cxflags = is_arch("arm64") and "-DDR_MP3_NO_SIMD" or nil } })
+add_requires("libsdl3_mixer", { configs = { shared = false } })
 
 -- scripting
 add_requires("wren Map-api", { version = "Map-api" }, { configs = { shared = false } })
@@ -131,6 +131,7 @@ target("GrnGame")
 		"highway",
 		"Libimagequant",
 		"cjson",
+		"libsdl3_mixer",
 		{ public = true }
 	)
 
@@ -290,7 +291,7 @@ function add_test_target(name)
 end
 
 
-target_tests = { "json", "pad_event","engine_work" }
+target_tests = { "json", "pad_event","engine_work","sound" }
 auto_tests = {"engine_work"}
 
 for _, name in ipairs(target_tests) do

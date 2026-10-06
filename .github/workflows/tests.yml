@@ -50,7 +50,6 @@ jobs:
           -m release
           -y -vv
           --embed_assets=false
-          --github_workflow=true
 
       - name: Run auto tests
         env:

@@ -12,6 +12,7 @@
 #include "grngame/math/types.h"
 #include "grngame/platform/paths.h"
 #include "grngame/utils/attributes.h"
+#include "grngame/utils/clear.h"
 #include "grngame/utils/string_compat.h"
 #include "grngame/utils/time.h"
 #include "kvec.h"
@@ -30,6 +31,7 @@ static void JsonObjectDestroy(JsonObject *object)
         cJSON_Delete(object->json);
         object->json = NULL;
     }
+    free(object);
 }
 
 bool JsonExist(const char *key)
@@ -60,7 +62,7 @@ bool JsonCreateFromMemory(const char *key, const char *text)
     return EmbeddedFilePut(EMBED_KIND_DATA, key, text, size);
 }
 
-static void JsonObjectAdd(const char *key, JsonObject value)
+static void JsonObjectAdd(const char *key, JsonObject *value)
 {
     int32 ret;
     JsonManager manager = g_app.json_manager;
@@ -78,9 +80,8 @@ static void JsonObjectAdd(const char *key, JsonObject value)
     {
         // free the existing key and value
         free(dup_key);
-        JsonObject *old = &kh_value(manager, it);
-        cJSON_Delete(old->json);
-        old->json = NULL;
+        JsonObject *old = kh_value(manager, it);
+        JsonObjectDestroy(old);
     }
 
     kh_value(manager, it) = value;
@@ -94,7 +95,7 @@ JsonObject *JsonObjectGet(const char *key)
     if (it == kh_end(manager))
         return NULL;
 
-    return &kh_value(manager, it);
+    return kh_value(manager, it);
 }
 
 bool JsonObjectContains(const char *key)
@@ -123,7 +124,11 @@ int32 OpenJsonObject(const char *path, uint64 min, uint64 max)
         return 2;
     }
 
-    JsonObject j = (JsonObject){.min = min, .max = max, .json = json};
+    JsonObject *j = malloc(sizeof(JsonObject));
+    CLEAR_PTR(j, 0);
+    j->min = min;
+    j->max = max;
+    j->json = json;
     JsonObjectAdd(path, j);
     return 0;
 }
@@ -136,7 +141,11 @@ bool OpenJsonObjectFromMemory(const char *path, const unsigned char *text, uint6
         return false;
     }
 
-    JsonObject j = (JsonObject){.min = min, .max = max, .json = json};
+    JsonObject *j = malloc(sizeof(JsonObject));
+    CLEAR_PTR(j, 0);
+    j->json = json;
+    j->min = min;
+    j->max = max;
     JsonObjectAdd(path, j);
     return true;
 }
@@ -438,7 +447,7 @@ static bool JsonCloseObject(const char *fileKey)
         return false;
     }
 
-    JsonObject *entry = &kh_value(manager, it);
+    JsonObject *entry = kh_value(manager, it);
 
     cJSON_Delete(entry->json);
     entry->json = NULL;
@@ -474,7 +483,7 @@ void JsonSaveObjects(float64 budget)
         if (!kh_exist(manager, it))
             continue;
 
-        JsonObject *json = &kh_value(manager, it);
+        JsonObject *json = kh_value(manager, it);
         if ((json->min > json->max) || (json->min == 0 && json->max == 0))
             continue;
         uint64 elapsed_sec = current_time_sec - json->last_save_time;

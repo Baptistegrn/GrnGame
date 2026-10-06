@@ -1,359 +1,255 @@
 #include "sound.h"
+#include "filter.h"
 #include "grngame/core/app.h"
 #include "grngame/core/param.h"
 #include "grngame/dev/logging.h"
-#include "grngame/utils/attributes.h"
-#include "grngame/utils/string_compat.h"
-#include <cglm/types-struct.h>
-#include <khash.h>
-#include <kvec.h>
+#include "grngame/math/math.h"
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
 #include <math.h>
+#include <string.h>
 
-typedef struct
+#define SOUND_STOP_FADE_MS 80
+#define SOUND_PITCH_MIN 0.01f
+#define SOUND_PITCH_MAX 100.0f
+#define SOUND_DEPTH 1.0f
+
+typedef void (*SlotAction)(SoundSlot *slot);
+
+static void SlotRefreshPosition(SoundSlot *slot);
+
+static SoundManager *Manager(void)
 {
-    uint32 handle;
-    const char *name;
-    vec2s position;
-} SFXInstance;
-
-// can contain same name sound more than 1 time
-static kvec_t(SFXInstance) s_active_sfx;
-
-typedef struct
-{
-    void *ptr;
-    void (*destroy)(void *);
-} FilterHandle;
-
-typedef struct
-{
-    kvec_t(FilterHandle) active_filters;
-    uint32 handle;
-    bool playing;
-    vec2s position;
-    float32 volume;
-} MusicState;
-
-KHASH_MAP_INIT_STR(MusicStateMap, MusicState)
-static khash_t(MusicStateMap) *s_music_states = NULL;
-
-static vec2s s_listener_pos = {{0.f, 0.f}};
-static float32 s_max_distance = 1000.f;
-
-static MusicState *GetOrCreateMusicState(const char *name);
-static void ClearFilters(MusicState *state, WavStream *stream);
-static void ApplyFilters(MusicState *state, WavStream *stream, const SoundInfo *info);
-static bool IsPositional(vec2s pos);
-
-static bool IsPositional(vec2s pos)
-{
-    return !isnan(pos.x) && !isnan(pos.y);
+    return &g_app.sound_manager;
 }
 
-static bool PositionMatch(vec2s a, float32 x, float32 y)
+static bool HasPosition(vec2s position)
 {
-    float32 dx = a.x - x;
-    float32 dy = a.y - y;
-    return (dx * dx + dy * dy) < (SOUND_POSITION_EPSILON * SOUND_POSITION_EPSILON);
+    return !isnan(position.x) && !isnan(position.y);
 }
 
-static void Apply3dSource(Soloud *soloud, uint32 handle, float32 x, float32 y)
+static bool SamePosition(vec2s a, vec2s b)
 {
-    Soloud_set3dSourceMinMaxDistance(soloud, handle, 1.f, s_max_distance);
-    Soloud_set3dSourceAttenuation(soloud, handle, 1 /* LINEAR_DISTANCE */, 1.f);
-    Soloud_set3dSourcePosition(soloud, handle, x, y, 0.f);
+    return fabsf(a.x - b.x) < SOUND_POSITION_EPSILON && fabsf(a.y - b.y) < SOUND_POSITION_EPSILON;
 }
 
-COLD void SoundInit()
+static bool SlotIsActive(const SoundSlot *slot)
 {
-    kv_init(s_active_sfx);
-    s_music_states = kh_init(MusicStateMap);
-    float32 w = (float32)g_app.info.window_universe_width;
-    float32 h = (float32)g_app.info.window_universe_height;
-    s_max_distance = sqrtf(w * w + h * h);
+    return slot->track && MIX_TrackPlaying(slot->track);
 }
 
-bool SoundPlaySFX(const char *name, const SoundInfo *info)
+static bool SlotIsFree(const SoundSlot *slot)
 {
-    khash_t(SoundMap) *sound_map = g_app.asset_manager.sound_map;
-    Soloud *soloud = g_app.sound_manager.soloud;
+    return !slot->track || (!MIX_TrackPlaying(slot->track) && !MIX_TrackPaused(slot->track));
+}
 
-    khiter_t k = kh_get(SoundMap, sound_map, name);
-    if (k == kh_end(sound_map))
-    {
-        LOG_WARNING("Failed to play SFX: '%s' not found", name);
+static bool SlotMatches(const SoundSlot *slot, const char *name)
+{
+    return SlotIsActive(slot) && strcmp(slot->name, name) == 0;
+}
+
+static void ForEachSlot(SlotAction action)
+{
+    SoundManager *manager = Manager();
+    for (int32 i = 0; i < SOUND_MAX_SLOTS; i++)
+        action(&manager->slots[i]);
+}
+
+static void ForEachNamed(const char *name, SlotAction action)
+{
+    SoundManager *manager = Manager();
+    for (int32 i = 0; i < SOUND_MAX_SLOTS; i++)
+        if (SlotMatches(&manager->slots[i], name))
+            action(&manager->slots[i]);
+}
+
+static SoundSlot *AcquireSlot(void)
+{
+    SoundManager *manager = Manager();
+    for (int32 i = 0; i < SOUND_MAX_SLOTS; i++)
+        if (SlotIsFree(&manager->slots[i]))
+            return &manager->slots[i];
+    return NULL;
+}
+
+static bool SlotEnsureTrack(SoundSlot *slot)
+{
+    if (!slot->track)
+        slot->track = MIX_CreateTrack(Manager()->mixer);
+    return slot->track != NULL;
+}
+
+static void SDLCALL FilterCallback(void *userdata, MIX_Track *track, const SDL_AudioSpec *spec, float *pcm, int samples)
+{
+    FilterChainProcess((FilterChain *)userdata, pcm, samples, spec->channels);
+}
+
+static void SlotClearFilters(SoundSlot *slot)
+{
+    MIX_SetTrackCookedCallback(slot->track, NULL, NULL);
+    FilterChainDestroy(slot->filters);
+    slot->filters = NULL;
+}
+
+static bool SlotApplyFilters(SoundSlot *slot, const SoundInfo *info)
+{
+    SlotClearFilters(slot);
+    if (info->filter_count <= 0)
+        return true;
+
+    SDL_AudioSpec spec;
+    if (!MIX_GetMixerFormat(Manager()->mixer, &spec))
         return false;
-    }
 
-    WavStream *stream = kh_value(sound_map, k);
-    bool positional = IsPositional(info->position);
-
-    uint32 handle;
-    if (positional)
-    {
-        handle = Soloud_play3dEx(soloud, stream, info->position.x, info->position.y, 0.f, 0.f, 0.f, 0.f, info->volume,
-                                 1 /* paused */, 0);
-        Apply3dSource(soloud, handle, info->position.x, info->position.y);
-        Soloud_update3dAudio(soloud);
-        Soloud_setRelativePlaySpeed(soloud, handle, info->pitch);
-        Soloud_setPan(soloud, handle, info->pan);
-        Soloud_setLooping(soloud, handle, info->looping);
-        if (info->fade_in > 0.f)
-            Soloud_fadeVolume(soloud, handle, info->volume, info->fade_in);
-        else
-            Soloud_setVolume(soloud, handle, info->volume);
-        Soloud_setPause(soloud, handle, 0);
-    }
-    else
-    {
-        handle = Soloud_play(soloud, stream);
-        Soloud_setVolume(soloud, handle, info->volume);
-        Soloud_setRelativePlaySpeed(soloud, handle, info->pitch);
-        Soloud_setPan(soloud, handle, info->pan);
-        Soloud_setLooping(soloud, handle, info->looping);
-        if (info->fade_in > 0.f)
-            Soloud_fadeVolume(soloud, handle, info->volume, info->fade_in);
-    }
-
-    SFXInstance instance = {
-        .handle = handle,
-        .name = name,
-        .position = positional ? info->position : (vec2s){{NAN, NAN}},
-    };
-    kv_push(SFXInstance, s_active_sfx, instance);
-
-    return true;
+    slot->filters = FilterChainCreate(info->filters, info->filter_count, &spec);
+    return slot->filters && MIX_SetTrackCookedCallback(slot->track, FilterCallback, slot->filters);
 }
 
-bool SFXIsPlaying(const char *name)
+static bool SlotApplyPan(SoundSlot *slot, float32 pan)
 {
-    Soloud *soloud = g_app.sound_manager.soloud;
-    for (int32 i = 0; i < (int32)kv_size(s_active_sfx); i++)
-    {
-        SFXInstance *inst = &kv_A(s_active_sfx, i);
-        if (strcmp(inst->name, name) == 0 && Soloud_isValidVoiceHandle(soloud, inst->handle))
-            return true;
-    }
-    return false;
+    if (pan == 0.0f)
+        return MIX_SetTrack3DPosition(slot->track, NULL);
+
+    pan = CLAMP(pan, -1.0f, 1.0f);
+    MIX_StereoGains gains = {1.0f - max(pan, 0.0f), 1.0f + min(pan, 0.0f)};
+    return MIX_SetTrackStereo(slot->track, &gains);
 }
 
-bool SFXIsPlayingAt(const char *name, float32 x, float32 y)
+static MIX_Point3D ToSoundSpace(vec2s world)
 {
-    Soloud *soloud = g_app.sound_manager.soloud;
-    for (int32 i = 0; i < (int32)kv_size(s_active_sfx); i++)
-    {
-        SFXInstance *inst = &kv_A(s_active_sfx, i);
-        if (strcmp(inst->name, name) == 0 && Soloud_isValidVoiceHandle(soloud, inst->handle) &&
-            PositionMatch(inst->position, x, y))
-            return true;
-    }
-    return false;
+    SoundManager *manager = Manager();
+    vec2s listener = manager->listener;
+    float32 half_width = max(manager->half_view.x, 1.0f);
+    float32 half_height = max(manager->half_view.y, 1.0f);
+
+    MIX_Point3D point = {(world.x - listener.x) / half_width, (world.y - listener.y) / half_height, -SOUND_DEPTH};
+    return point;
 }
 
-void SoundUpdate()
+void SetSoundViewSize(float32 width, float32 height)
 {
-    Soloud *soloud = g_app.sound_manager.soloud;
-    for (int32 i = 0; i < (int32)kv_size(s_active_sfx); i++)
-    {
-        if (!Soloud_isValidVoiceHandle(soloud, kv_A(s_active_sfx, i).handle))
-        {
-            kv_A(s_active_sfx, i) = kv_A(s_active_sfx, kv_size(s_active_sfx) - 1);
-            kv_size(s_active_sfx)--;
-            i--;
-        }
-    }
+    Manager()->half_view = (vec2s){.x = width * 0.5f, .y = height * 0.5f};
+    ForEachSlot(SlotRefreshPosition);
 }
 
-static MusicState *GetOrCreateMusicState(const char *name)
+static bool SlotApplyPosition(SoundSlot *slot)
 {
-    if (!s_music_states)
-        s_music_states = kh_init(MusicStateMap);
-
-    khiter_t k = kh_get(MusicStateMap, s_music_states, name);
-    if (k != kh_end(s_music_states))
-        return &kh_value(s_music_states, k);
-
-    MusicState state = {0};
-    kv_init(state.active_filters);
-
-    int32 ret;
-
-    char *dup_key = strdup(name);
-
-    k = kh_put(MusicStateMap, s_music_states, dup_key, &ret);
-
-    if (UNLIKELY(ret < 0))
-    {
-        free(dup_key);
-        return NULL;
-    }
-
-    if (ret == 0)
-    {
-        free(dup_key);
-    }
-
-    kh_value(s_music_states, k) = state;
-
-    return &kh_value(s_music_states, k);
+    MIX_Point3D point = ToSoundSpace(slot->position);
+    return MIX_SetTrack3DPosition(slot->track, &point);
 }
 
-static void ClearFilters(MusicState *state, WavStream *stream)
+static bool SlotApplySpatial(SoundSlot *slot, const SoundInfo *info)
 {
-    for (int32 i = 0; i < (int32)kv_size(state->active_filters); i++)
-    {
-        FilterHandle *fh = &kv_A(state->active_filters, i);
-        if (fh->ptr)
-        {
-            WavStream_setFilter(stream, i, NULL);
-            fh->destroy(fh->ptr);
-        }
-    }
-    kv_size(state->active_filters) = 0;
+    slot->position = info->position;
+    return HasPosition(slot->position) ? SlotApplyPosition(slot) : SlotApplyPan(slot, info->pan);
 }
 
-static void ApplyFilters(MusicState *state, WavStream *stream, const SoundInfo *info)
+static void SlotRefreshPosition(SoundSlot *slot)
 {
-
-    ClearFilters(state, stream);
-    for (int32 i = 0; i < info->filter_count && i < MAX_FILTERS; i++)
-    {
-        const FilterDef *def = &info->filters[i];
-        void *filter = NULL;
-        void (*destroy)(void *) = NULL;
-
-        switch (def->type)
-        {
-        case FILTER_REVERB: {
-            FreeverbFilter *r = FreeverbFilter_create();
-            FreeverbFilter_setParams(r, def->reverb.wet, def->reverb.room, def->reverb.damp, def->reverb.width);
-            filter = r;
-            destroy = (void (*)(void *))FreeverbFilter_destroy;
-            break;
-        }
-        case FILTER_ECHO: {
-            EchoFilter *e = EchoFilter_create();
-            EchoFilter_setParamsEx(e, def->echo.delay, def->echo.decay, def->echo.wet);
-            filter = e;
-            destroy = (void (*)(void *))EchoFilter_destroy;
-            break;
-        }
-        case FILTER_BASSBOOST: {
-            BassboostFilter *b = BassboostFilter_create();
-            BassboostFilter_setParams(b, def->bassboost.boost);
-            filter = b;
-            destroy = (void (*)(void *))BassboostFilter_destroy;
-            break;
-        }
-        }
-
-        if (filter)
-        {
-            WavStream_setFilter(stream, i, filter);
-            kv_push(FilterHandle, state->active_filters, ((FilterHandle){filter, destroy}));
-        }
-    }
+    if (SlotIsActive(slot) && HasPosition(slot->position))
+        SlotApplyPosition(slot);
 }
 
-bool SoundPlayMusic(const char *name, const SoundInfo *info)
+static bool SlotConfigure(SoundSlot *slot, MIX_Audio *audio, const char *name, const SoundInfo *info)
 {
-    khash_t(SoundMap) *sound_map = g_app.asset_manager.sound_map;
-    Soloud *soloud = g_app.sound_manager.soloud;
-
-    khiter_t k = kh_get(SoundMap, sound_map, name);
-    if (k == kh_end(sound_map))
-    {
-        LOG_WARNING("Failed to play music: '%s' not found", name);
-        return false;
-    }
-
-    WavStream *stream = kh_value(sound_map, k);
-    MusicState *state = GetOrCreateMusicState(name);
-
-    if (state->playing)
-        MusicStop(name);
-
-    ApplyFilters(state, stream, info);
-
-    bool positional = IsPositional(info->position);
-    uint32 handle;
-    if (positional)
-    {
-        handle = Soloud_play3dEx(soloud, stream, info->position.x, info->position.y, 0.f, 0.f, 0.f, 0.f, info->volume,
-                                 1 /* paused */, 0);
-        Apply3dSource(soloud, handle, info->position.x, info->position.y);
-        Soloud_update3dAudio(soloud);
-        Soloud_setRelativePlaySpeed(soloud, handle, info->pitch);
-        Soloud_setPan(soloud, handle, info->pan);
-        Soloud_setLooping(soloud, handle, info->looping);
-        if (info->fade_in > 0.f)
-            Soloud_fadeVolume(soloud, handle, info->volume, info->fade_in);
-        else
-            Soloud_setVolume(soloud, handle, info->volume);
-        Soloud_setPause(soloud, handle, 0);
-        state->position = info->position;
-    }
-    else
-    {
-        handle = Soloud_play(soloud, stream);
-        Soloud_setVolume(soloud, handle, info->volume);
-        Soloud_setRelativePlaySpeed(soloud, handle, info->pitch);
-        Soloud_setPan(soloud, handle, info->pan);
-        Soloud_setLooping(soloud, handle, info->looping);
-        if (info->fade_in > 0.f)
-            Soloud_fadeVolume(soloud, handle, info->volume, info->fade_in);
-        state->position = (vec2s){{NAN, NAN}};
-    }
-
-    state->handle = handle;
-    state->volume = info->volume;
-    state->playing = true;
-
-    return true;
+    SDL_strlcpy(slot->name, name, sizeof(slot->name));
+    return MIX_SetTrackAudio(slot->track, audio) && MIX_SetTrackGain(slot->track, info->volume) &&
+           MIX_SetTrackFrequencyRatio(slot->track, CLAMP(info->pitch, SOUND_PITCH_MIN, SOUND_PITCH_MAX)) &&
+           SlotApplySpatial(slot, info) && SlotApplyFilters(slot, info);
 }
 
-void MusicStop(const char *name)
+static SDL_PropertiesID PlayOptions(const SoundInfo *info)
 {
-    khiter_t k = kh_get(MusicStateMap, s_music_states, name);
-    if (k == kh_end(s_music_states))
+    SDL_PropertiesID options = SDL_CreateProperties();
+    SDL_SetNumberProperty(options, MIX_PROP_PLAY_LOOPS_NUMBER, info->looping ? -1 : 0);
+    if (info->fade_in > 0.0f)
+        SDL_SetNumberProperty(options, MIX_PROP_PLAY_FADE_IN_MILLISECONDS_NUMBER, (Sint64)(info->fade_in * 1000.0f));
+    return options;
+}
+
+static bool SlotStart(SoundSlot *slot, const SoundInfo *info)
+{
+    SDL_PropertiesID options = PlayOptions(info);
+    bool ok = MIX_PlayTrack(slot->track, options);
+    SDL_DestroyProperties(options);
+    return ok;
+}
+
+static void SlotFadeOut(SoundSlot *slot)
+{
+    MIX_StopTrack(slot->track, MIX_TrackMSToFrames(slot->track, SOUND_STOP_FADE_MS));
+}
+
+static void SlotCut(SoundSlot *slot)
+{
+    MIX_StopTrack(slot->track, 0);
+}
+
+static void SlotDestroy(SoundSlot *slot)
+{
+    if (!slot->track)
         return;
-
-    MusicState *state = &kh_value(s_music_states, k);
-    Soloud_stop(g_app.sound_manager.soloud, state->handle);
-    state->playing = false;
+    SlotClearFilters(slot);
+    MIX_DestroyTrack(slot->track);
+    slot->track = NULL;
 }
 
-bool MusicIsPlaying(const char *name)
+bool SoundPlay(const char *name, const SoundInfo *info)
 {
+    SoundInfo fallback = SoundInfoDefault();
+    if (!info)
+        info = &fallback;
 
-    khiter_t k = kh_get(MusicStateMap, s_music_states, name);
-    if (k == kh_end(s_music_states))
+    MIX_Audio *audio = FindAudio(name);
+    if (!audio)
+    {
+        LOG_WARNING("Sound not found: %s", name);
+        return false;
+    }
+
+    SoundSlot *slot = AcquireSlot();
+    if (!slot || !SlotEnsureTrack(slot))
         return false;
 
-    MusicState *state = &kh_value(s_music_states, k);
-    state->playing = Soloud_isValidVoiceHandle(g_app.sound_manager.soloud, state->handle);
-    return state->playing;
+    return SlotConfigure(slot, audio, name, info) && SlotStart(slot, info);
 }
 
-bool MusicIsPlayingAt(const char *name, float32 x, float32 y)
+void SoundStop(const char *name)
 {
-    khiter_t k = kh_get(MusicStateMap, s_music_states, name);
-    if (k == kh_end(s_music_states))
-        return false;
+    ForEachNamed(name, SlotFadeOut);
+}
 
-    MusicState *state = &kh_value(s_music_states, k);
-    state->playing = Soloud_isValidVoiceHandle(g_app.sound_manager.soloud, state->handle);
-    if (!state->playing)
-        return false;
+void SoundBreak(const char *name)
+{
+    ForEachNamed(name, SlotCut);
+}
 
-    return PositionMatch(state->position, x, y);
+bool SoundIsPlaying(const char *name)
+{
+    SoundManager *manager = Manager();
+    for (int32 i = 0; i < SOUND_MAX_SLOTS; i++)
+        if (SlotMatches(&manager->slots[i], name))
+            return true;
+    return false;
+}
+
+bool SoundIsPlayingAt(const char *name, float32 x, float32 y)
+{
+    SoundManager *manager = Manager();
+    vec2s position = {.x = x, .y = y};
+    for (int32 i = 0; i < SOUND_MAX_SLOTS; i++)
+        if (SlotMatches(&manager->slots[i], name) && SamePosition(manager->slots[i].position, position))
+            return true;
+    return false;
 }
 
 void SetListenerPosition(float32 x, float32 y)
 {
+    Manager()->listener = (vec2s){.x = x, .y = y};
+    ForEachSlot(SlotRefreshPosition);
+}
 
-    s_listener_pos.x = x;
-    s_listener_pos.y = y;
-    Soloud_set3dListenerPosition(g_app.sound_manager.soloud, x, y, 0.f);
-    Soloud_update3dAudio(g_app.sound_manager.soloud);
+void SoundShutdown(void)
+{
+    ForEachSlot(SlotDestroy);
 }

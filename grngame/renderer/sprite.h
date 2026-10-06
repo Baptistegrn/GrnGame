@@ -10,7 +10,8 @@ typedef struct
 {
     uint16 w;
     uint16 h;
-    Texture *tex; // for optimisation
+    Texture tex; // for optimisation
+    bool find;
     const char *name;
 } Sprite;
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "SDL3_mixer/SDL_mixer.h"
 #include "asset_manager.h"
 #include "embedded_file_manager.h"
 #include "grngame/utils/c_cpp.h"
@@ -15,7 +16,7 @@ typedef struct LoadResult
 
     SDL_Surface *pixels;
     SDL_Surface *surface_copy;
-    WavStream *stream;
+    MIX_Audio *stream;
 } LoadResult;
 
 typedef struct

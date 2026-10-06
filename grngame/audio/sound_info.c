@@ -1,27 +1,26 @@
 #include "sound_info.h"
-#include "grngame/math/types.h"
-#include <cglm/types-struct.h>
-#include <khash.h>
-#include <kvec.h>
 #include <math.h>
-#include <stddef.h>
 
 SoundInfo SoundInfoDefault()
 {
-    return (SoundInfo){.volume = 1.0f,
-                       .pitch = 1.0f,
-                       .pan = 0.0f,
-                       .looping = false,
-                       .fade_in = 0.0f,
-                       .position = {.x = NAN, .y = NAN},
-                       .filters = NULL,
-                       .filter_count = 0};
+    SoundInfo info = {0};
+    info.volume = 1.0f;
+    info.pitch = 1.0f;
+    info.position = (vec2s){NAN, NAN};
+    return info;
 }
 
-// todo : implement
-SoundInfo SoundInfoAt(float32 x, float32 y)
+SoundInfo SoundInfoPositional(float32 x, float32 y)
 {
-    (void)x;
-    (void)y;
-    return SoundInfoDefault();
+    SoundInfo info = SoundInfoDefault();
+    info.position = (vec2s){.x = x, .y = y};
+    return info;
+}
+
+SoundInfo SoundInfoMusic()
+{
+    SoundInfo info = SoundInfoDefault();
+    info.looping = true;
+    info.fade_in = 1.0f;
+    return info;
 }

@@ -8,7 +8,6 @@
 
 BEGIN_DECLARATIONS
 
-Texture *TextureGet(const char *name);
 bool TextureDraw(const char *name, float32 x, float32 y, uint8 coefficient, int16 rotation, uint8 alpha);
 ivec2s TextureGetSize(const char *name);
 

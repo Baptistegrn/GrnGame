@@ -1,4 +1,5 @@
 #include "app.h"
+#include "SDL3/SDL_error.h"
 #include "SDL3/SDL_init.h"
 #include "SDL3/SDL_timer.h"
 #include "SDL3/SDL_video.h"
@@ -6,7 +7,6 @@
 #include "grngame/bindings/wren/wren_api.h"
 
 #include "grngame/audio/sound_info.h"
-#include "grngame/audio/speech.h"
 #include "grngame/core/app.h"
 #include "grngame/core/init.h"
 #include "grngame/core/param.h"
@@ -58,6 +58,12 @@ static COLD void EnsureInitSucceeded(InitResult res)
         exit(1);
     }
 
+    if (UNLIKELY(res == INIT_SOUND_FAILED))
+    {
+        MessageBox_("Failed to initialize SDL mixer");
+        exit(1);
+    }
+
     if (UNLIKELY(res == INIT_LOG_FAILED))
     {
         MessageBoxWindow("Failed to initialize the logging system.");
@@ -89,6 +95,7 @@ void EngineStart()
 
     InitResult res = InitAll();
     EnsureInitSucceeded(res);
+
     MainLoop();
 }
 
@@ -214,8 +221,6 @@ static HOT void MainLoopIteration(void *arg)
     PROFILE_ZONE_START(poll_events_zone, "PollEvents");
     PollEvents();
     PROFILE_ZONE_END(poll_events_zone);
-
-    SoundUpdate();
 
     PROFILE_ZONE_START(wren_update_zone, "Wren.OnUpdate");
     WrenCallOnUpdate(g_app.info.dt);

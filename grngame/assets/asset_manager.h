@@ -6,8 +6,8 @@
 #include "grngame/renderer/cielab.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/c_cpp.h"
+#include <SDL3_mixer/SDL_mixer.h>
 #include <khash.h>
-#include <soloud_c.h>
 
 typedef struct LoadResult LoadResult;
 
@@ -21,7 +21,7 @@ typedef struct
     uint16 h;
 } Texture;
 
-KHASH_MAP_INIT_STR(SoundMap, WavStream);
+KHASH_MAP_INIT_STR(SoundMap, MIX_Audio *);
 KHASH_MAP_INIT_STR(TextureMap, Texture);
 
 struct AppInfo;
@@ -31,6 +31,7 @@ typedef struct
     string_vec_t assets_list; // for multithread
     khash_t(SoundMap) * sound_map;
     khash_t(TextureMap) * texture_map;
+    Texture default_texture;
 } AssetManager;
 
 typedef struct
@@ -46,5 +47,8 @@ COLD void AssetManagerDestroy(AssetManager *manager);
 
 void AssetManagerLoadFolder(const char *folder);
 void AssetManagerLoadFolderFromMemory(const char *folder);
+
+Texture FindImage(const char *name, bool *found);
+MIX_Audio *FindAudio(const char *name);
 
 END_DECLARATIONS

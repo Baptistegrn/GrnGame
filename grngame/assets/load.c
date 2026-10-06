@@ -1,5 +1,7 @@
 #include "load.h"
+#include "SDL3/SDL_error.h"
 #include "SDL3_image/SDL_image.h"
+#include "SDL3_mixer/SDL_mixer.h"
 #include "grngame/assets/asset_manager.h"
 #include "grngame/core/app.h"
 #include "grngame/core/thread.h"
@@ -9,8 +11,8 @@
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"
 
-static WavStream *LoadSoundStream(const char *file);
-static bool RegisterSound(char *key, WavStream *stream);
+static MIX_Audio *LoadSoundStream(const char *file);
+static bool RegisterSound(char *key, MIX_Audio *stream);
 
 static SDL_Surface *LoadTextureSurface(const char *file)
 {
@@ -129,10 +131,10 @@ LoadResult LoadFileParallel(const char *file)
         result.is_sound = true;
         result.key = FileStem(file);
 
-        WavStream *stream = LoadSoundStream(file);
-        if (!stream)
+        MIX_Audio *stream = LoadSoundStream(file);
+        if (stream == NULL)
         {
-            LOG_WARNING("Failed to load sound file '%s'", file);
+            LOG_WARNING("Failed to load sound file '%s',SDL_error :%s", file, SDL_GetError());
             free(result.key);
             result.key = NULL;
             return result;
@@ -218,7 +220,7 @@ void RegisterSoundResult(LoadResult *res)
 {
     if (!RegisterSound(res->key, res->stream))
     {
-        WavStream_destroy(res->stream);
+        MIX_DestroyAudio(res->stream);
         free(res->key);
         return;
     }
@@ -226,12 +228,10 @@ void RegisterSoundResult(LoadResult *res)
     LOG_DEBUG("Loaded sound file '%s' (parallel)", res->key);
 }
 
-static WavStream *LoadSoundStream(const char *file)
+static MIX_Audio *LoadSoundStream(const char *file)
 {
-    WavStream *stream = WavStream_create();
 
-    if (!stream)
-        return NULL;
+    MIX_Audio *stream;
 
 #ifdef GRNGAME_EMBED_ASSETS
     {
@@ -239,28 +239,21 @@ static WavStream *LoadSoundStream(const char *file)
 
         if (!asset)
         {
-            WavStream_destroy(stream);
             return NULL;
         }
-
-        WavStream_loadMemEx(stream, (const unsigned char *)asset->data, asset->size, 0, 0);
+        SDL_IOStream *io = SDL_IOFromConstMem(asset->data, asset->size);
+        stream = MIX_LoadAudio_IO(g_app.sound_manager.mixer, io, true, true);
     }
 #else
     {
-        WavStream_load(stream, file);
+        stream = MIX_LoadAudio(g_app.sound_manager.mixer, file, false);
     }
 #endif
-
-    if (WavStream_getLength(stream) <= 0)
-    {
-        WavStream_destroy(stream);
-        return NULL;
-    }
 
     return stream;
 }
 
-static bool RegisterSound(char *key, WavStream *stream)
+static bool RegisterSound(char *key, MIX_Audio *stream)
 {
     khash_t(SoundMap) *map = g_app.asset_manager.sound_map;
 
@@ -275,7 +268,7 @@ static bool RegisterSound(char *key, WavStream *stream)
         free((char *)kh_key(map, k));
         kh_key(map, k) = key;
 
-        WavStream_destroy(kh_value(map, k));
+        MIX_DestroyAudio(kh_value(map, k));
     }
 
     kh_value(map, k) = stream;
@@ -287,7 +280,7 @@ bool LoadSoundFile(const char *file)
 {
     char *key = FileStem(file);
 
-    WavStream *stream = LoadSoundStream(file);
+    MIX_Audio *stream = LoadSoundStream(file);
 
     if (!stream)
     {
@@ -297,7 +290,7 @@ bool LoadSoundFile(const char *file)
 
     if (!RegisterSound(key, stream))
     {
-        WavStream_destroy(stream);
+        MIX_DestroyAudio(stream);
         free(key);
         return false;
     }
@@ -378,7 +371,7 @@ bool UnloadSoundFile(const char *file)
     if (k == kh_end(map))
         return false;
 
-    WavStream_destroy(kh_value(map, k));
+    MIX_DestroyAudio(kh_value(map, k));
     free((char *)kh_key(map, k));
 
     kh_del(SoundMap, map, k);
@@ -395,7 +388,7 @@ bool UnloadAllSoundFiles(void)
         if (!kh_exist(map, k))
             continue;
 
-        WavStream_destroy(kh_value(map, k));
+        MIX_DestroyAudio(kh_value(map, k));
         free((char *)kh_key(map, k));
     }
 

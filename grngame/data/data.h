@@ -55,6 +55,7 @@ sqlite3 *DbCreate(const char *name);
 void DbClose(sqlite3 *db);
 bool DbExists(const char *name);
 
+// db result immutable
 void DbResultPrint(DbResult *res);
 void DbResultFree(DbResult *res);
 

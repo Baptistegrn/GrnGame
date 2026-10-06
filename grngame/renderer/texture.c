@@ -11,46 +11,36 @@
 #include "renderer.h"
 #include <math.h>
 
-Texture *TextureGet(const char *name)
-{
-    khash_t(TextureMap) *texture_map = g_app.asset_manager.texture_map;
-
-    khiter_t k = kh_get(TextureMap, texture_map, name);
-    if (k == kh_end(texture_map))
-        return NULL;
-
-    return &kh_value(texture_map, k);
-}
-
 HOT bool TextureDraw(const char *name, float32 x, float32 y, uint8 c, int16 r, uint8 a)
 {
-    Texture *tex = TextureGet(name);
-    if (!tex)
+    bool find = false;
+    Texture tex = FindImage(name, &find);
+    if (!find)
     {
-        LOG_WARNING("Impossible to get texture: %s", name);
+        LOG_WARNING("Impossible to get texture: %s,default is set to 16x16", name);
         return false;
     }
 
-    if (OffScreen(x, y, (float32)(tex->w * c), (float32)(tex->h * c)))
+    if (OffScreen(x, y, (float32)(tex.w * c), (float32)(tex.h * c)))
     {
         // todo log
         return false;
     }
 
-    SDL_FRect dst = {PIXEL_ALIGN(x + g_app.info.offset_x), PIXEL_ALIGN(y + g_app.info.offset_y), (float32)(tex->w * c),
-                     (float32)(tex->h * c)};
+    SDL_FRect dst = {PIXEL_ALIGN(x + g_app.info.offset_x), PIXEL_ALIGN(y + g_app.info.offset_y), (float32)(tex.w * c),
+                     (float32)(tex.h * c)};
 
     SDL_FPoint center = {dst.w / 2.0f, dst.h / 2.0f};
 
-    RendererSetTextureAlpha(tex->texture, a);
+    RendererSetTextureAlpha(tex.texture, a);
     if (r == 0)
     {
 
-        SDL_RenderTexture(g_app.renderer.renderer, tex->texture, NULL, &dst);
+        SDL_RenderTexture(g_app.renderer.renderer, tex.texture, NULL, &dst);
     }
     else
     {
-        RendererTextureRotated(tex->texture, NULL, &dst, (float64)r, &center, SDL_FLIP_NONE);
+        RendererTextureRotated(tex.texture, NULL, &dst, (float64)r, &center, SDL_FLIP_NONE);
     }
 
     return true;
@@ -58,12 +48,13 @@ HOT bool TextureDraw(const char *name, float32 x, float32 y, uint8 c, int16 r, u
 
 HOT ivec2s TextureGetSize(const char *name)
 {
-    Texture *tex = TextureGet(name);
-    if (!tex)
+    bool find;
+    Texture tex = FindImage(name, &find);
+    if (!find)
     {
-        LOG_WARNING("Impossible to get texture: %s", name);
+        LOG_WARNING("Impossible to get texture: %s,size will be 16x16", name);
         return (ivec2s){{0, 0}};
     }
 
-    return (ivec2s){{(int32)tex->w, (int32)tex->h}};
+    return (ivec2s){{(int32)tex.w, (int32)tex.h}};
 }

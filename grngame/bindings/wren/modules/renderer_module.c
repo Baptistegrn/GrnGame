@@ -1,3 +1,4 @@
+#include "grngame/assets/asset_manager.h"
 #include "grngame/bindings/wren/wren_api.h"
 
 #include "grngame/math/types.h"
@@ -59,7 +60,7 @@ HOT static void sprite_allocate(WrenVM *vm)
     s->name_buf = strdup(name);
     s->sprite.w = (uint16)w;
     s->sprite.h = (uint16)h;
-    s->sprite.tex = NULL;
+    s->sprite.tex = (Texture){0};
     s->sprite.name = s->name_buf;
 }
 
@@ -87,7 +88,7 @@ static void sprite_set_name(WrenVM *vm)
         free(s->name_buf);
     s->name_buf = strdup(name);
     s->sprite.name = s->name_buf;
-    s->sprite.tex = NULL;
+    s->sprite.tex = (Texture){0};
 }
 
 static void sprite_get_w(WrenVM *vm)
@@ -649,5 +650,3 @@ void RegisterRendererModule()
     RegisterMethod(prim_module, prim_cls, true, "circle_fill(_,_,_,_,_)", primitive_circle_fill);
     RegisterMethod(prim_module, prim_cls, true, "palette_reload()", palette_reload);
 }
-
-WREN_MODULE(RegisterRendererModule)

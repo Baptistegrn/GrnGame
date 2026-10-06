@@ -10,7 +10,6 @@
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/c_cpp.h"
 #include <khash.h>
-#include <soloud_c.h>
 
 typedef struct EmbeddedFile
 {
@@ -20,7 +19,7 @@ typedef struct EmbeddedFile
     EmbedKind kind; // orgin table
 } EmbeddedFile;
 
-KHASH_MAP_INIT_STR(EmbeddedFileHash, EmbeddedFile);
+KHASH_MAP_INIT_STR(EmbeddedFileHash, EmbeddedFile *);
 typedef struct EmbeddedFileManager
 {
     khash_t(EmbeddedFileHash) * hash; // only one hash for every tables

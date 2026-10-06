@@ -2,41 +2,25 @@
 #include "grngame/dev/logging.h"
 #include "grngame/math/types.h"
 #include "grngame/utils/attributes.h"
-#include "soloud_c.h"
+#include <SDL3_mixer/SDL_mixer.h>
 
 COLD bool SoundManagerTryCreate(SoundManager *result)
 {
-    result->soloud = NULL;
-    result->speech = NULL;
+    MIX_Init();
 
-    result->soloud = Soloud_create();
-    if (!result->soloud)
-        return false;
+    MIX_Mixer *mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
 
-    int32 err = Soloud_init(result->soloud);
-    if (err != 0)
+    if (!mixer)
     {
-        LOG_ERROR("Failed to initialize SoLoud (error %d)", err);
-        Soloud_destroy(result->soloud);
-        result->soloud = NULL;
         return false;
     }
 
-    result->speech = Speech_create();
-    if (!result->speech)
-    {
-        LOG_ERROR("Failed to create Speech instance");
-        Soloud_deinit(result->soloud);
-        Soloud_destroy(result->soloud);
-        result->soloud = NULL;
-        return false;
-    }
+    *result = (SoundManager){.mixer = mixer, {0}, {.x = 0, .y = 0}, {.x = 0, .y = 0}};
+
     return true;
 }
 
 COLD void SoundManagerDestroy(const SoundManager *sound_manager)
 {
-    Soloud_deinit(sound_manager->soloud);
-    Soloud_destroy(sound_manager->soloud);
-    Speech_destroy(sound_manager->speech);
+    MIX_DestroyMixer(sound_manager->mixer);
 }

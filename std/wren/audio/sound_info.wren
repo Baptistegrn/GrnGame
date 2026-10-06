@@ -5,11 +5,24 @@ class SoundInfo {
     _name = name
     _volume = 1.0
     _pitch = 1.0
-    _pan = 0.0         
+    _pan = 0.0
     _looping = false
-    _fade_in = 0.0     
-    _position = Vec2.new()
+    _fade_in = 0.0
+    _position = Vec2.new(Num.nan, Num.nan)
     _filters = []
+  }
+
+  static positional(name, x, y) {
+    var info = SoundInfo.new(name)
+    info.position = Vec2.new(x, y)
+    return info
+  }
+
+  static music(name) {
+    var info = SoundInfo.new(name)
+    info.looping = true
+    info.fade_in = 1.0
+    return info
   }
 
   name { _name }
@@ -35,13 +48,12 @@ class SoundInfo {
 
   filters { _filters }
   filters=(v) { _filters = v }
-    toString {
-    var filter_str = ""
-    for (f in _filters) {
-        if (filter_str != "") filter_str = filter_str + ", "
-        filter_str = filter_str + f.toString()
-    }
-    return "SoundInfo(name=%(name), volume=%(volume), pitch=%(pitch), pan=%(pan), looping=%(looping), fade_in=%(fade_in), position=%(position.toString), filters=[%(filter_str)])"
-}
-}
 
+  has_position { !_position.x.isNan && !_position.y.isNan }
+
+  toString {
+    var filter_str = _filters.map {|f| f.toString }.join(", ")
+    var pos_str = has_position ? _position.toString : "none"
+    return "SoundInfo(name=%(_name), volume=%(_volume), pitch=%(_pitch), pan=%(_pan), looping=%(_looping), fade_in=%(_fade_in), position=%(pos_str), filters=[%(filter_str)])"
+  }
+}

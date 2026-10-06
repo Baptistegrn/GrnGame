@@ -239,7 +239,7 @@ void RenderEmitter(ParticleEmitter *emit)
         SDL_Color base_color = {0, 0, 0, 255};
         if (LIKELY(palette_size > 0))
         {
-            int32 safe_idx = Math_ClampInt(p->current_color_idx, 0, palette_size - 1);
+            int32 safe_idx = CLAMP(p->current_color_idx, 0, palette_size - 1);
             base_color = kv_A(g_app.palette_manager.palette_elements, safe_idx);
         }
 

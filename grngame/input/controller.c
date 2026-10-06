@@ -241,8 +241,8 @@ bool PadRumble(int16 index, uint8 left_rumble, uint8 right_rumble, uint32 time)
         return false;
     }
 
-    left_rumble = Math_ClampInt(0, left_rumble, 100);
-    right_rumble = Math_ClampInt(0, right_rumble, 100);
+    left_rumble = CLAMP(0, left_rumble, 100);
+    right_rumble = CLAMP(0, right_rumble, 100);
 
     Uint16 sdl_left = (Uint16)((left_rumble * 65535u) / 100u);
     Uint16 sdl_right = (Uint16)((right_rumble * 65535u) / 100u);

@@ -1,6 +1,5 @@
 #pragma once
 #include "app.h"
-#include <soloud_c.h>
 #include <stdbool.h>
 
 typedef enum

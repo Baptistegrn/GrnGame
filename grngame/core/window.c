@@ -4,8 +4,10 @@
 #include "SDL3/SDL_video.h"
 #include "app.h"
 #include "cglm/types-struct.h"
+#include "grngame/audio/sound.h"
 #include "grngame/renderer/renderer.h"
 #include "grngame/utils/attributes.h"
+
 
 static void SetFullscreen(SDL_Window *window, bool fullscreen)
 {
@@ -270,4 +272,6 @@ void WindowApplyConfig(AppInfo *app_info)
                     bounds.y + (bounds.h - app_info->window_height) / 2);
         ApplyResizing(app_info, app_info->window_width, app_info->window_height);
     }
+
+    SetSoundViewSize(app_info->window_universe_width, app_info->window_universe_height);
 }

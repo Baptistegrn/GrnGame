@@ -18,44 +18,35 @@ const char *EmbedKindTable(EmbedKind kind)
 
 static void EmbeddedFileFree(EmbeddedFile *file)
 {
+    if (!file)
+        return;
+
     free((char *)file->name);
     free(file->data);
-    file->name = NULL;
-    file->data = NULL;
-    file->size = 0;
-}
-
-static void EmbeddedFileCopy(EmbeddedFile *out, EmbedKind kind, const char *path, const void *blob, uint64 size)
-{
-    out->name = strdup(path);
-    out->data = malloc(size);
-    out->size = size;
-    out->kind = kind;
-    memcpy(out->data, blob, size);
+    free(file);
 }
 
 /* put an embedded file in memory */
-static void HashPutOwned(EmbeddedFile File)
+static void HashPutOwned(EmbeddedFile *File)
 {
     EmbeddedFileManager *mgr = &g_app.embedded_file_manager;
     int ret;
-    khiter_t k = kh_put(EmbeddedFileHash, mgr->hash, File.name, &ret);
+    khiter_t k = kh_put(EmbeddedFileHash, mgr->hash, File->name, &ret);
 
     if (ret == 0) /* replace if key already exist */
     {
-        EmbeddedFile *old = &kh_value(mgr->hash, k);
+        EmbeddedFile *old = kh_value(mgr->hash, k);
         // need to update numbers of files
         mgr->counts[old->kind]--;
         mgr->total_count--;
 
-        free((char *)kh_key(mgr->hash, k));
-        free(old->data);
+        EmbeddedFileFree(old);
     }
 
-    kh_key(mgr->hash, k) = File.name;
+    kh_key(mgr->hash, k) = File->name;
     kh_value(mgr->hash, k) = File;
 
-    mgr->counts[File.kind]++;
+    mgr->counts[File->kind]++;
     mgr->total_count++;
 }
 
@@ -67,14 +58,13 @@ static bool HashRemove(const char *path)
     if (k == kh_end(mgr->hash))
         return false;
 
-    EmbeddedFile *File = &kh_value(mgr->hash, k);
+    EmbeddedFile *File = kh_value(mgr->hash, k);
 
     mgr->counts[File->kind]--;
     mgr->total_count--;
 
-    free((char *)kh_key(mgr->hash, k));
-    free(File->data);
     kh_del(EmbeddedFileHash, mgr->hash, k);
+    EmbeddedFileFree(File);
     return true;
 }
 
@@ -91,8 +81,8 @@ COLD void EmbeddedFileManagerDestroy(EmbeddedFileManager *manager)
     {
         if (kh_exist(manager->hash, k))
         {
-            EmbeddedFile file = kh_value(manager->hash, k);
-            EmbeddedFileFree(&file);
+            EmbeddedFile *file = kh_value(manager->hash, k);
+            EmbeddedFileFree(file);
         }
     }
 
@@ -131,9 +121,12 @@ static bool LoadTable(EmbedKind kind)
             return false;
         }
 
-        EmbeddedFile file;
-        EmbeddedFileCopy(&file, kind, path->value.s, content->value.blob.data, content->value.blob.size);
-
+        EmbeddedFile *file = malloc(sizeof(*file));
+        file->name = strdup(path->value.s);
+        file->data = malloc(content->value.blob.size);
+        file->size = content->value.blob.size;
+        file->kind = kind;
+        memcpy(file->data, content->value.blob.data, content->value.blob.size);
         HashPutOwned(file);
     }
 
@@ -193,7 +186,7 @@ const EmbeddedFile *EmbeddedFileGet(const char *path)
     EmbeddedFileManager *mgr = &g_app.embedded_file_manager;
 
     khiter_t k = kh_get(EmbeddedFileHash, mgr->hash, path);
-    return (k == kh_end(mgr->hash)) ? NULL : &kh_value(mgr->hash, k);
+    return (k == kh_end(mgr->hash)) ? NULL : kh_value(mgr->hash, k);
 }
 
 bool EmbeddedFileExists(const char *path)
@@ -268,8 +261,12 @@ static bool EmbeddedDbDelete(EmbedKind kind, const char *path)
 void EmbeddedFilePutMemory(EmbedKind kind, const char *path, const void *data, uint64 size)
 {
 
-    EmbeddedFile file;
-    EmbeddedFileCopy(&file, kind, path, data, size);
+    EmbeddedFile *file = malloc(sizeof(*file));
+    file->name = strdup(path);
+    file->data = malloc(size);
+    file->size = size;
+    file->kind = kind;
+    memcpy(file->data, data, size);
     HashPutOwned(file);
 }
 

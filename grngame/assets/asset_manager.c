@@ -20,9 +20,34 @@ static void AddAssetFileToArray(const char *path, void *user_data);
 static void LoadTaskWorker(void *data);
 static void LoadFilesMultithreaded(void);
 
+static Texture CreateDefaultTexture()
+{
+    Texture texture = {0};
+    texture.w = 16;
+    texture.h = 16;
+
+    texture.texture =
+        SDL_CreateTexture(g_app.renderer.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, 16, 16);
+
+    uint32 pixels[16 * 16];
+
+    for (int y = 0; y < 16; y++)
+    {
+        for (int x = 0; x < 16; x++)
+        {
+            bool white = ((x / 4) + (y / 4)) % 2;
+            pixels[y * 16 + x] = white ? 0xFFFFFFFF : 0xFF000000;
+        }
+    }
+
+    SDL_UpdateTexture(texture.texture, NULL, pixels, 16 * sizeof(uint32));
+    return texture;
+}
+
 COLD AssetManager AssetManagerCreate()
 {
-    AssetManager manager = {.sound_map = kh_init(SoundMap), .texture_map = kh_init(TextureMap)};
+    AssetManager manager = {
+        .sound_map = kh_init(SoundMap), .texture_map = kh_init(TextureMap), .default_texture = CreateDefaultTexture()};
 
     kv_init(manager.assets_list);
 
@@ -49,7 +74,7 @@ static void LoadFilesMultithreaded(void)
     InitPaletteRemapLUT();
 
     LoadResult *results = malloc(count * sizeof(LoadResult));
-    CLEAR_PTR(results, 0);
+    CLEAR_ARRAY(results, 0, count);
 
     for (int32 i = 0; i < count; ++i)
     {
@@ -79,12 +104,6 @@ static void LoadFilesMultithreaded(void)
     }
 
     free(results);
-}
-
-static void AddTextureToArray(const char *path, void *user_data)
-{
-    (void)user_data;
-    kv_push(char *, g_app.asset_manager.assets_list, strdup(path));
 }
 
 static void AddAssetFileToArray(const char *path, void *user_data)
@@ -117,6 +136,7 @@ void AssetManagerLoadFolder(const char *folder)
 void AssetManagerLoadFolderFromMemory(const char *folder)
 {
     PROFILE_FUNCTION("LoadFolderFromMemory");
+    int32 asset_count = 0;
     LOG_DEBUG("assets count: %d,scripts count: %d,data count: %d", EmbeddedFileManagerGetCounts(EMBED_KIND_ASSET),
               EmbeddedFileManagerGetCounts(EMBED_KIND_SCRIPT), EmbeddedFileManagerGetCounts(EMBED_KIND_DATA));
 
@@ -130,10 +150,14 @@ void AssetManagerLoadFolderFromMemory(const char *folder)
     {
         if (kh_exist(hash, k))
         {
-            EmbeddedFile asset = kh_value(hash, k);
-            if (FileIsLoadableImage(asset.name) || FileIsLoadableAudio(asset.name))
-                AddTextureToArray(asset.name, NULL);
+            EmbeddedFile *asset = kh_value(hash, k);
+            AddAssetFileToArray(asset->name, &asset_count);
         }
+    }
+    if (asset_count == 0)
+    {
+        LOG_WARNING("No assets files in asset folder '%s'", folder);
+        return;
     }
     LoadFilesMultithreaded();
 }
@@ -143,10 +167,37 @@ void AssetManagerDestroy(AssetManager *manager)
 
     UnloadAllTextureFiles();
     UnloadAllSoundFiles();
+    // Keys are owned by assets_list.
     PaletteFreeStringVec(&manager->assets_list);
     kh_destroy(TextureMap, manager->texture_map);
     kh_destroy(SoundMap, manager->sound_map);
 
-    g_app.asset_manager.texture_map = NULL;
-    g_app.asset_manager.sound_map = NULL;
+    manager->texture_map = NULL;
+    manager->sound_map = NULL;
+}
+
+MIX_Audio *FindAudio(const char *name)
+{
+    khash_t(SoundMap) *map = g_app.asset_manager.sound_map;
+    khiter_t it = kh_get(SoundMap, map, name);
+    return it == kh_end(map) ? NULL : kh_value(map, it);
+}
+
+Texture FindImage(const char *name, bool *found)
+{
+    khash_t(TextureMap) *map = g_app.asset_manager.texture_map;
+    khiter_t it = kh_get(TextureMap, map, name);
+
+    if (it != kh_end(map))
+    {
+        if (found)
+            *found = true;
+
+        return kh_value(map, it);
+    }
+
+    if (found)
+        *found = false;
+
+    return g_app.asset_manager.default_texture;
 }

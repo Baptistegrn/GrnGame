@@ -1,7 +1,6 @@
 #include "grngame/audio/filter.h"
 #include "grngame/audio/sound.h"
 #include "grngame/audio/sound_info.h"
-#include "grngame/audio/speech.h"
 #include "grngame/bindings/wren/wren_api.h"
 #include "grngame/core/param.h"
 #include "grngame/dev/logging.h"
@@ -31,46 +30,6 @@ static void filter_def_get_type(WrenVM *vm)
 static void filter_def_set_type(WrenVM *vm)
 {
     ((FilterDef *)wrenGetSlotForeign(vm, 0))->type = (FilterType)wrenGetSlotDouble(vm, 1);
-}
-
-static void filter_def_get_reverb_room(WrenVM *vm)
-{
-    wrenSetSlotDouble(vm, 0, (float64)((FilterDef *)wrenGetSlotForeign(vm, 0))->reverb.room);
-}
-
-static void filter_def_set_reverb_room(WrenVM *vm)
-{
-    ((FilterDef *)wrenGetSlotForeign(vm, 0))->reverb.room = (float32)wrenGetSlotDouble(vm, 1);
-}
-
-static void filter_def_get_reverb_damp(WrenVM *vm)
-{
-    wrenSetSlotDouble(vm, 0, (float64)((FilterDef *)wrenGetSlotForeign(vm, 0))->reverb.damp);
-}
-
-static void filter_def_set_reverb_damp(WrenVM *vm)
-{
-    ((FilterDef *)wrenGetSlotForeign(vm, 0))->reverb.damp = (float32)wrenGetSlotDouble(vm, 1);
-}
-
-static void filter_def_get_reverb_width(WrenVM *vm)
-{
-    wrenSetSlotDouble(vm, 0, (float64)((FilterDef *)wrenGetSlotForeign(vm, 0))->reverb.width);
-}
-
-static void filter_def_set_reverb_width(WrenVM *vm)
-{
-    ((FilterDef *)wrenGetSlotForeign(vm, 0))->reverb.width = (float32)wrenGetSlotDouble(vm, 1);
-}
-
-static void filter_def_get_reverb_wet(WrenVM *vm)
-{
-    wrenSetSlotDouble(vm, 0, (float64)((FilterDef *)wrenGetSlotForeign(vm, 0))->reverb.wet);
-}
-
-static void filter_def_set_reverb_wet(WrenVM *vm)
-{
-    ((FilterDef *)wrenGetSlotForeign(vm, 0))->reverb.wet = (float32)wrenGetSlotDouble(vm, 1);
 }
 
 static void filter_def_get_echo_delay(WrenVM *vm)
@@ -115,6 +74,31 @@ static void filter_def_set_bassboost_boost(WrenVM *vm)
 
 static FilterDef static_filters[MAX_FILTERS];
 
+static bool filter_is_supported(const FilterDef *filter)
+{
+    return filter->type == FILTER_ECHO || filter->type == FILTER_BASSBOOST;
+}
+
+static int32 parse_filters(WrenVM *vm, int32 list_slot, int32 element_slot)
+{
+    CLEAR(static_filters, 0);
+    if (wrenGetSlotType(vm, list_slot) != WREN_TYPE_LIST)
+        return 0;
+
+    int32 count = wrenGetListCount(vm, list_slot);
+    int32 kept = 0;
+    for (int32 i = 0; i < count && kept < MAX_FILTERS; i++)
+    {
+        wrenGetListElement(vm, list_slot, i, element_slot);
+        const FilterDef *filter = (const FilterDef *)wrenGetSlotForeign(vm, element_slot);
+        if (filter_is_supported(filter))
+            static_filters[kept++] = *filter;
+        else
+            LOG_WARNING("Unsupported filter type %d ignored", (int)filter->type);
+    }
+    return kept;
+}
+
 static void parse_sound_info(WrenVM *vm, SoundInfo *info)
 {
     info->volume = (float32)wrenGetSlotDouble(vm, 2);
@@ -124,87 +108,40 @@ static void parse_sound_info(WrenVM *vm, SoundInfo *info)
     info->fade_in = (float32)wrenGetSlotDouble(vm, 6);
     info->position.x = (float32)wrenGetSlotDouble(vm, 7);
     info->position.y = (float32)wrenGetSlotDouble(vm, 8);
-
-    int32 filter_count = 0;
-    CLEAR(static_filters, 0);
-
-    if (wrenGetSlotType(vm, 9) == WREN_TYPE_LIST)
-    {
-        filter_count = wrenGetListCount(vm, 9);
-        if (filter_count > MAX_FILTERS)
-            filter_count = MAX_FILTERS;
-
-        for (int32 i = 0; i < filter_count; i++)
-        {
-            wrenGetListElement(vm, 9, i, 10);
-            FilterDef *f = (FilterDef *)wrenGetSlotForeign(vm, 10);
-            static_filters[i] = *f;
-        }
-    }
-
+    info->filter_count = parse_filters(vm, 9, 10);
     info->filters = static_filters;
-    info->filter_count = filter_count;
 }
 
-static void sound_play_music(WrenVM *vm)
+static void sound_play(WrenVM *vm)
 {
     wrenEnsureSlots(vm, 11);
     const char *name = wrenGetSlotString(vm, 1);
     SoundInfo info;
     parse_sound_info(vm, &info);
-    wrenSetSlotBool(vm, 0, SoundPlayMusic(name, &info));
+    wrenSetSlotBool(vm, 0, SoundPlay(name, &info));
 }
 
-static void sound_play_sfx(WrenVM *vm)
+static void sound_stop(WrenVM *vm)
 {
-    wrenEnsureSlots(vm, 11);
-    const char *name = wrenGetSlotString(vm, 1);
-    SoundInfo info;
-    parse_sound_info(vm, &info);
-    wrenSetSlotBool(vm, 0, SoundPlaySFX(name, &info));
+    SoundStop(wrenGetSlotString(vm, 1));
 }
 
-static void speech_say(WrenVM *vm)
+static void sound_break(WrenVM *vm)
 {
-    wrenEnsureSlots(vm, 11);
-    const char *name = wrenGetSlotString(vm, 1);
-    SoundInfo info;
-    parse_sound_info(vm, &info);
-    SpeechSay(name, &info);
+    SoundBreak(wrenGetSlotString(vm, 1));
 }
 
-static void music_stop(WrenVM *vm)
+static void sound_is_playing(WrenVM *vm)
 {
-    const char *name = wrenGetSlotString(vm, 1);
-    MusicStop(name);
+    wrenSetSlotBool(vm, 0, SoundIsPlaying(wrenGetSlotString(vm, 1)));
 }
 
-static void music_is_playing(WrenVM *vm)
-{
-    const char *name = wrenGetSlotString(vm, 1);
-    wrenSetSlotBool(vm, 0, MusicIsPlaying(name));
-}
-
-static void music_is_playing_at(WrenVM *vm)
+static void sound_is_playing_at(WrenVM *vm)
 {
     const char *name = wrenGetSlotString(vm, 1);
     float32 x = (float32)wrenGetSlotDouble(vm, 2);
     float32 y = (float32)wrenGetSlotDouble(vm, 3);
-    wrenSetSlotBool(vm, 0, MusicIsPlayingAt(name, x, y));
-}
-
-static void sfx_is_playing(WrenVM *vm)
-{
-    const char *name = wrenGetSlotString(vm, 1);
-    wrenSetSlotBool(vm, 0, SFXIsPlaying(name));
-}
-
-static void sfx_is_playing_at(WrenVM *vm)
-{
-    const char *name = wrenGetSlotString(vm, 1);
-    float32 x = (float32)wrenGetSlotDouble(vm, 2);
-    float32 y = (float32)wrenGetSlotDouble(vm, 3);
-    wrenSetSlotBool(vm, 0, SFXIsPlayingAt(name, x, y));
+    wrenSetSlotBool(vm, 0, SoundIsPlayingAt(name, x, y));
 }
 
 static void set_listener_position(WrenVM *vm)
@@ -224,14 +161,6 @@ void RegisterSoundModule()
     RegisterMethod(filter_mod, filter_cls, false, "init new()", filter_def_init);
     RegisterMethod(filter_mod, filter_cls, false, "type", filter_def_get_type);
     RegisterMethod(filter_mod, filter_cls, false, "type=(_)", filter_def_set_type);
-    RegisterMethod(filter_mod, filter_cls, false, "reverb_room", filter_def_get_reverb_room);
-    RegisterMethod(filter_mod, filter_cls, false, "reverb_room=(_)", filter_def_set_reverb_room);
-    RegisterMethod(filter_mod, filter_cls, false, "reverb_damp", filter_def_get_reverb_damp);
-    RegisterMethod(filter_mod, filter_cls, false, "reverb_damp=(_)", filter_def_set_reverb_damp);
-    RegisterMethod(filter_mod, filter_cls, false, "reverb_width", filter_def_get_reverb_width);
-    RegisterMethod(filter_mod, filter_cls, false, "reverb_width=(_)", filter_def_set_reverb_width);
-    RegisterMethod(filter_mod, filter_cls, false, "reverb_wet", filter_def_get_reverb_wet);
-    RegisterMethod(filter_mod, filter_cls, false, "reverb_wet=(_)", filter_def_set_reverb_wet);
     RegisterMethod(filter_mod, filter_cls, false, "echo_delay", filter_def_get_echo_delay);
     RegisterMethod(filter_mod, filter_cls, false, "echo_delay=(_)", filter_def_set_echo_delay);
     RegisterMethod(filter_mod, filter_cls, false, "echo_decay", filter_def_get_echo_decay);
@@ -244,15 +173,10 @@ void RegisterSoundModule()
     const char *sound_mod = "std/wren/audio/sound";
     const char *sound_cls = "Sound";
 
-    RegisterMethod(sound_mod, sound_cls, true, "sound_play_music_(_,_,_,_,_,_,_,_,_)", sound_play_music);
-    RegisterMethod(sound_mod, sound_cls, true, "music_stop_(_)", music_stop);
-    RegisterMethod(sound_mod, sound_cls, true, "music_is_playing_(_)", music_is_playing);
-    RegisterMethod(sound_mod, sound_cls, true, "music_is_playing_at_(_,_,_)", music_is_playing_at);
-    RegisterMethod(sound_mod, sound_cls, true, "sound_play_sfx_(_,_,_,_,_,_,_,_,_)", sound_play_sfx);
-    RegisterMethod(sound_mod, sound_cls, true, "sfx_is_playing_(_)", sfx_is_playing);
-    RegisterMethod(sound_mod, sound_cls, true, "sfx_is_playing_at_(_,_,_)", sfx_is_playing_at);
-    RegisterMethod(sound_mod, sound_cls, true, "speech_say_(_,_,_,_,_,_,_,_,_)", speech_say);
+    RegisterMethod(sound_mod, sound_cls, true, "sound_play_(_,_,_,_,_,_,_,_,_)", sound_play);
+    RegisterMethod(sound_mod, sound_cls, true, "sound_stop_(_)", sound_stop);
+    RegisterMethod(sound_mod, sound_cls, true, "sound_break_(_)", sound_break);
+    RegisterMethod(sound_mod, sound_cls, true, "sound_is_playing_(_)", sound_is_playing);
+    RegisterMethod(sound_mod, sound_cls, true, "sound_is_playing_at_(_,_,_)", sound_is_playing_at);
     RegisterMethod(sound_mod, sound_cls, true, "set_listener_position_(_,_)", set_listener_position);
 }
-
-WREN_MODULE(RegisterSoundModule)

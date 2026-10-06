@@ -12,20 +12,21 @@
 
 HOT bool SpriteDraw(Sprite s, uint16 frame, float32 x, float32 y, uint8 c, int16 r, uint8 a)
 {
-    if (s.tex == NULL)
-        s.tex = TextureGet(s.name);
+    bool find = false;
+    if (!s.find)
+        s.tex = FindImage(s.name, &find);
 
-    if (s.tex == NULL)
+    if (!find)
     {
-        LOG_WARNING("Impossible to get texture : %s", s.name);
+        LOG_WARNING("Impossible to get texture: %s,default is set to 16x16", s.name);
         return false;
     }
 
-    Texture *tex = s.tex;
+    Texture tex = s.tex;
 
-    int16 tex_w = tex->w;
+    int16 tex_w = tex.w;
 
-    if (OffScreen(x, y, (float32)(tex_w * c), (float32)(tex->h * c)))
+    if (OffScreen(x, y, (float32)(tex_w * c), (float32)(tex.h * c)))
     {
         // todo log
         return false;
@@ -43,15 +44,15 @@ HOT bool SpriteDraw(Sprite s, uint16 frame, float32 x, float32 y, uint8 c, int16
                      (float32)(s.h * c)};
     SDL_FPoint center = {dst.w / 2.0f, dst.h / 2.0f};
 
-    RendererSetTextureAlpha(tex->texture, a);
+    RendererSetTextureAlpha(tex.texture, a);
     if (r == 0)
     {
 
-        SDL_RenderTexture(g_app.renderer.renderer, tex->texture, &src, &dst);
+        SDL_RenderTexture(g_app.renderer.renderer, tex.texture, &src, &dst);
     }
     else
     {
-        RendererTextureRotated(tex->texture, &src, &dst, (float64)r, &center, SDL_FLIP_NONE);
+        RendererTextureRotated(tex.texture, &src, &dst, (float64)r, &center, SDL_FLIP_NONE);
     }
 
     return true;

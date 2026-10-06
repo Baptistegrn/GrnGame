@@ -63,7 +63,7 @@ static void ConfigureSDLHints(void)
 
 static InitResult InitializeSDL(void)
 {
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS | SDL_INIT_GAMEPAD))
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS | SDL_INIT_GAMEPAD | SDL_INIT_AUDIO))
     {
         LOG_ERROR("SDL initialization failed: %s", SDL_GetError());
         return INIT_SDL_FAILED;
@@ -364,8 +364,6 @@ InitResult InitAll(void)
     result = InitializeManagers();
     if (result != INIT_OK)
         return result;
-
-    SoundInit();
 
     LoadControllerMappings();
 
