@@ -1,0 +1,41 @@
+name: Dynamic libs check
+
+on:
+  workflow_call:
+
+jobs:
+  dynamic:
+    runs-on: ubuntu-24.04
+    name: "dynamic libs check"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download native artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+          merge-multiple: false
+
+      - name: Inspect artifacts
+        run: |
+          echo "Artifacts downloaded:"
+          find artifacts/ -type f -print
+
+      - name: Install dyneeded
+        run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/barbeldotorg/dyneeded/releases/download/v0.5.5/dyneeded-installer.sh | sh
+
+      - name: Convert json + Check dependencies
+        run: |
+          for binary in $(find artifacts/ -type f \
+            ! -name '*.a' \
+            ! -name '*.lib' \
+            ! -name '*.wasm' \
+            ! -name '*.js' \
+            ! -name '*.exp' \
+            ! -name '*.html'); do
+            "$HOME/.cargo/bin/dyneeded" "$binary" -f json >> dependencies.json
+            python scripts/check_dependencies.py dependencies.json
+            rm -f dependencies.json
+          done

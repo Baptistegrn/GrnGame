@@ -1,0 +1,43 @@
+name: Auto tests
+
+on:
+  workflow_call:
+
+jobs:
+  auto-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: ubuntu-22.04, platform: linux-x64 }
+          - { runner: windows-latest, platform: windows-x64 }
+
+    runs-on: ${{ matrix.runner }}
+    name: "auto tests / ${{ matrix.platform }} / embedded = false"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+          actions-cache-folder: '.xmake-cache-tests-${{ matrix.platform }}'
+          package-cache: true
+          build-cache: true
+
+      - name: Configure
+        run: >
+          xmake config --clean
+          -m release
+          -y -vv
+          --embed_assets=false
+
+      - name: Run auto tests
+        run: xmake run auto_tests -vv

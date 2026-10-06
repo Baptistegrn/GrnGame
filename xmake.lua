@@ -26,11 +26,6 @@ option("embed_assets")
 	set_description("Generate embedded assets before building game (forced on for wasm/android/iOS)")
 option_end()
 
-option("build_embedded_on_differents_platforms")
-	set_default(false)
-	set_description("Allow to build Embedded target on differents platforms from the host build")
-option_end()
-
 local embedded = has_config("embed_assets") 
 local dev_mode = is_desktop and not embedded 
 
@@ -201,7 +196,7 @@ local mode = get_config("mode") or "release"
 
 
 if dev_mode then
-	if get_config("plat") == os.host() and get_config("arch") == os.arch() or has_config("build_embedded_on_differents_platforms") then
+	if get_config("plat") == os.host() and get_config("arch") == os.arch() then
 		target("Embedded-" .. plat .. "-" .. arch .. "-" .. mode)
 			set_languages("c17")
 			set_kind("binary")
@@ -229,78 +224,91 @@ else
 		add_deps("GrnGame")
 end
 
-target("tests/json")
+function add_test_target(name)
+	target("tests/" .. name)
+		set_kind("phony")
+		on_run(function(target)
+			import("lib.detect.find_tool")
+ 
+
+			local python = find_tool("python") or find_tool("python3")
+			assert(python, "Python not found!")
+ 
+			local target_name = target:name() 
+			local build_dir = path.join("build", target_name)
+ 
+			local embed = get_config("embed_assets")
+			local embedded = (embed == true or embed == "true" or embed == "y")
+ 
+			os.execv("xmake", { "build", "-y" })
+
+			-- only tests on desktop 
+			if is_desktop then 
+				if not embedded then
+					os.execv(python.program, {
+						"scripts/asset_pipeline.py",
+						target_name,
+						build_dir,
+					})
+				else
+					os.execv(python.program, {
+						"scripts/embedded.py",
+						target_name,
+						build_dir,
+						os.projectdir(),
+						path.join("build", "Embedded"),
+					})
+				end
+			else 
+
+				print("You cant execute tests on mobile/web")
+
+			end
+ 
+			local plat = get_config("plat")
+			local arch = get_config("arch")
+			local mode = get_config("mode") or "release"
+			local suffix = embedded and "-embedded" or "" -- à adapter à ton nommage réel
+			local ext = is_host("windows") and ".exe" or ""
+ 
+			local runtime_path =
+				path.join(build_dir, "Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix .. ext)
+ 
+			os.execv(runtime_path)
+		end)
+	target_end()
+end
+
+
+target_tests = { "json", "pad_event" }
+auto_tests = {}
+
+for _, name in ipairs(target_tests) do
+	add_test_target(name)
+end
+
+for _, name in ipairs(auto_tests) do
+	add_test_target(name)
+end
+
+target("tests")
 	set_kind("phony")
+	set_values("tests", table.unpack(target_tests))
 	on_run(function(target)
-		import("lib.detect.find_tool")
-
-		local python = find_tool("python") or find_tool("python3")
-		assert(python, "Python not found!")
-
-		local target_name = target:name()
-		os.execv("xmake")
-
-		if not embedded then
-			os.execv(python.program, {
-				"scripts/asset_pipeline.py",
-				target_name,
-				path.join("build", target_name),
-			})
-		else
-			os.execv(python.program, {
-				"scripts/embedded.py",
-				target_name,
-				path.join("build", target_name),
-				os.projectdir(),
-				path.join("build", "Embedded"),
-			})
+		for _, name in ipairs(target:values("tests") or {}) do
+			os.execv("xmake", { "run", "tests/" .. name })
 		end
-
-		local plat = get_config("plat")
-		local arch = get_config("arch")
-		local mode = get_config("mode") or "release"
-		local ext = is_host("windows") and ".exe" or ""
-
-		local runtime_path =
-			path.join("build", "tests", "json", "Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix .. ext)
-
-		os.execv(runtime_path)
 	end)
+target_end()
 
-target("tests/pad_event")
+target("auto_tests")
 	set_kind("phony")
+	if #auto_tests > 0 then
+		set_values("auto_tests", table.unpack(auto_tests))
+	end
 	on_run(function(target)
-		import("lib.detect.find_tool")
-
-		local python = find_tool("python") or find_tool("python3")
-		assert(python, "Python not found!")
-
-		local target_name = target:name()
-		os.execv("xmake")
-
-		if not embedded then
-			os.execv(python.program, {
-				"scripts/asset_pipeline.py",
-				target_name,
-				path.join("build", target_name),
-			})
-		else
-			os.execv(python.program, {
-				"scripts/embedded.py",
-				target_name,
-				path.join("build", target_name),
-				os.projectdir(),
-				path.join("build", "Embedded"),
-			})
+		for _, name in ipairs(target:values("auto_tests") or {}) do
+			os.execv("xmake", { "run", "tests/" .. name })
 		end
-
-		local plat = get_config("plat")
-		local arch = get_config("arch")
-		local mode = get_config("mode") or "release"
-		local ext = is_host("windows") and ".exe" or ""
-
-		local runtime_path =
-			path.join("build", "tests", "pad_event", "Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix .. ext)
-
-		os.execv(runtime_path)
 	end)
+target_end()
