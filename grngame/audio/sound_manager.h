@@ -11,8 +11,8 @@
 #include <SDL3_mixer/SDL_mixer.h>
 #include <cglm/types-struct.h>
 
-#define SOUND_MAX_SLOTS 64
-#define SOUND_NAME_MAX 64
+#define SOUND_MAX_SLOTS 255
+#define SOUND_NAME_MAX 128
 
 BEGIN_DECLARATIONS
 

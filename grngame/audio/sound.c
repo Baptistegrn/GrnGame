@@ -111,7 +111,7 @@ static bool SlotApplyPan(SoundSlot *slot, float32 pan)
         return MIX_SetTrack3DPosition(slot->track, NULL);
 
     pan = CLAMP(pan, -1.0f, 1.0f);
-    MIX_StereoGains gains = {1.0f - max(pan, 0.0f), 1.0f + min(pan, 0.0f)};
+    MIX_StereoGains gains = {1.0f - MAX(pan, 0.0f), 1.0f + MIN(pan, 0.0f)};
     return MIX_SetTrackStereo(slot->track, &gains);
 }
 
@@ -119,8 +119,8 @@ static MIX_Point3D ToSoundSpace(vec2s world)
 {
     SoundManager *manager = Manager();
     vec2s listener = manager->listener;
-    float32 half_width = max(manager->half_view.x, 1.0f);
-    float32 half_height = max(manager->half_view.y, 1.0f);
+    float32 half_width = MAX(manager->half_view.x, 1.0f);
+    float32 half_height = MAX(manager->half_view.y, 1.0f);
 
     MIX_Point3D point = {(world.x - listener.x) / half_width, (world.y - listener.y) / half_height, -SOUND_DEPTH};
     return point;

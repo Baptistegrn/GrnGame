@@ -26,5 +26,13 @@ static inline float64 Average(float64_vec_t vec)
     return sum / kv_size(vec);
 }
 
+#ifndef MAX
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef MIN
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+
 #define DEG2RAD(x) ((x) * pi / 180.0)
 #define RAD2DEG(x) ((x) * 180.0 / pi)
