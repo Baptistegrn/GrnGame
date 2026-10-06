@@ -26,8 +26,18 @@ option("embed_assets")
 	set_description("Generate embedded assets before building game (forced on for wasm/android/iOS)")
 option_end()
 
+option("github_workflow")
+	set_default(false)
+	set_showmenu(true)
+	set_description("set renderer on software for github actions")
+option_end()
+
 local embedded = has_config("embed_assets") 
 local dev_mode = is_desktop and not embedded 
+
+if has_config("github_workflow") then 
+	add_defines("GRNGAME_SOFTWARE", { public = true })
+end
 
 local suffix = embedded and "embedded" or ""
 

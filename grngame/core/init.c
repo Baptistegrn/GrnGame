@@ -43,6 +43,7 @@ static InitResult InitializeLogging(void)
 
 static void ConfigureSDLHints(void)
 {
+#ifndef GRNGAME_SOFTWARE
     SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "1");
 
 #if defined(GRNGAME_WINDOWS)
@@ -54,6 +55,9 @@ static void ConfigureSDLHints(void)
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "metal");
 #elif defined(GRNGAME_LINUX)
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "vulkan,opengl");
+#endif
+#else
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
 #endif
 }
 
