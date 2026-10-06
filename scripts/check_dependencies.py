@@ -19,7 +19,7 @@ ALLOWED_DEPENDENCIES = {
     "libc.so.6",
     "libm.so.6",
     "libgcc_s.so.1",
-    #"libstdc++.so.6",
+    "libstdc++.so.6",
     "ld-linux-x86-64.so.2",
 
     # Linux ARM64
@@ -29,7 +29,7 @@ ALLOWED_DEPENDENCIES = {
     "/usr/lib/libz.1.dylib",
     "/usr/lib/libiconv.2.dylib",
     "/usr/lib/libSystem.B.dylib",
-    #"/usr/lib/libc++.1.dylib",
+    "/usr/lib/libc++.1.dylib",
     "/usr/lib/libobjc.A.dylib",
 
     "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",

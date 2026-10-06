@@ -19,6 +19,12 @@ jobs:
     name: Build web
     uses: ./.github/workflows/build-web.yml
 
+  tests:
+    name: tests
+    permissions:
+      contents: write
+    uses: ./.github/workflows/tests.yml
+
   dynamic:
     name: Dynamic libs check
     needs: [build]
@@ -31,10 +37,3 @@ jobs:
     permissions:
       contents: write
     uses: ./.github/workflows/release.yml
-
-  tests:
-    name: tests
-    needs: [build]
-    permissions:
-      contents: write
-    uses: ./.github/workflows/tests.yml
