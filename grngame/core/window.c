@@ -8,7 +8,6 @@
 #include "grngame/renderer/renderer.h"
 #include "grngame/utils/attributes.h"
 
-
 static void SetFullscreen(SDL_Window *window, bool fullscreen)
 {
     if (UNLIKELY(!SDL_SetWindowFullscreen(window, fullscreen)))
