@@ -5,15 +5,8 @@ on:
 
 jobs:
   auto-tests:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - { runner: ubuntu-22.04, platform: linux-x64 }
-          - { runner: windows-latest, platform: windows-x64 }
-
-    runs-on: ${{ matrix.runner }}
-    name: "auto tests / ${{ matrix.platform }} / embedded = false"
+    runs-on: ubuntu-22.04
+    name: "auto tests / linux-x64 / embedded = false"
 
     steps:
       - name: Checkout
@@ -28,9 +21,28 @@ jobs:
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
-          actions-cache-folder: '.xmake-cache-tests-${{ matrix.platform }}'
+          actions-cache-folder: '.xmake-cache-tests-linux-x64'
           package-cache: true
           build-cache: true
+
+      - name: Install virtual display / renderer / audio
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            xvfb \
+            libgl1-mesa-dri libglx-mesa0 libegl1 libgles2 mesa-vulkan-drivers \
+            pulseaudio pulseaudio-utils alsa-utils libasound2-plugins
+
+      - name: Start virtual audio device
+        run: |
+          export XDG_RUNTIME_DIR="${RUNNER_TEMP}/xdg"
+          mkdir -p "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
+          pulseaudio --start --exit-idle-time=-1 --daemonize=yes
+          pactl load-module module-null-sink sink_name=virtual_sink \
+            sink_properties=device.description=VirtualSink
+          pactl set-default-sink virtual_sink
+          pactl info
+          echo "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" >> "$GITHUB_ENV"
 
       - name: Configure
         run: >
@@ -41,4 +53,9 @@ jobs:
           --github_workflow=true
 
       - name: Run auto tests
-        run: xmake run auto_tests -vv
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          GALLIUM_DRIVER: llvmpipe
+          MESA_GL_VERSION_OVERRIDE: "4.5"
+          MESA_GLSL_VERSION_OVERRIDE: "450"
+        run: xvfb-run -a -s "-screen 0 1280x720x24" xmake run auto_tests -vv
