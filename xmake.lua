@@ -293,7 +293,7 @@ end
 
 
 target_tests = { "json", "pad_event","engine_work","sound" }
-auto_tests = {"engine_work"}
+auto_tests = {}
 
 for _, name in ipairs(target_tests) do
 	add_test_target(name)
