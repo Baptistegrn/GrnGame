@@ -47,14 +47,14 @@ static void ConfigureSDLHints(void)
     SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "1");
 
 #if defined(GRNGAME_WINDOWS)
-    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "vulkan,opengl");
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "vulkan,opengl,software");
 #elif defined(GRNGAME_WASM)
     SDL_SetHint(SDL_HINT_EMSCRIPTEN_KEYBOARD_ELEMENT, "#window");
-    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "webgpu,opengles3,opengles2");
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengles2,software");
 #elif defined(GRNGAME_MACOS)
-    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "metal");
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "metal,opengl,software");
 #elif defined(GRNGAME_LINUX)
-    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "vulkan,opengl");
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "vulkan,opengl,software");
 #endif
 #else
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
