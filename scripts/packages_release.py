@@ -140,6 +140,3 @@ if __name__ == "__main__":
 
     for platform in PLATFORMS:
         package(platform, tag)
-
-    for zip_file in sorted(OUTPUT_DIR.glob("*.zip")):
-        print(f"{zip_file.name}  {zip_file.stat().st_size / 1_000_000:.1f} MB")

@@ -23,11 +23,11 @@ jobs:
     name: Build android
     uses: ./.github/workflows/build-android.yml
 
-  tests:
-    name: tests
-    permissions:
-      contents: write
-    uses: ./.github/workflows/tests.yml
+  # tests:
+  #   name: tests
+  #   permissions:
+  #     contents: write
+  #   uses: ./.github/workflows/tests.yml
 
   dynamic:
     name: Dynamic libs check

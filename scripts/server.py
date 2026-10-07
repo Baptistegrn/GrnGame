@@ -6,6 +6,7 @@ PORT = 8000
 class Handler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/':
+            # if you rename the output change here the name
             self.path = '/Runtime-wasm-wasm32-releaseembedded.html'
         return super().do_GET()
 
