@@ -194,7 +194,8 @@ target("GrnGame")
 			"grngame/web/shell.html",
 			"-sFORCE_FILESYSTEM=1",
 			"-sASYNCIFY",
-			"-sALLOW_MEMORY_GROWTH=0",
+			"-sINITIAL_MEMORY=512MB",
+			"-sALLOW_MEMORY_GROWTH=1",
 			"-sPTHREAD_POOL_SIZE=navigator.hardwareConcurrency",
 			"-pthread",
 			{ public = true, force = true }

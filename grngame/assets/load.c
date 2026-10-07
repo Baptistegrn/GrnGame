@@ -242,10 +242,14 @@ static MIX_Audio *LoadSoundStream(const char *file)
             return NULL;
         }
         SDL_IOStream *io = SDL_IOFromConstMem(asset->data, asset->size);
-        stream = MIX_LoadAudio_IO(g_app.sound_manager.mixer, io, true, true);
+        if (asset->size < AUDIO_PREDECODE_SIZE_THRESHOLD)
+            stream = MIX_LoadAudio_IO(g_app.sound_manager.mixer, io, true, true);
+        else
+            stream = MIX_LoadAudio_IO(g_app.sound_manager.mixer, io, false, true);
     }
 #else
     {
+        // only memory in dev
         stream = MIX_LoadAudio(g_app.sound_manager.mixer, file, false);
     }
 #endif

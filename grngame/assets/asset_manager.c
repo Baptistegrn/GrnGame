@@ -137,8 +137,9 @@ void AssetManagerLoadFolderFromMemory(const char *folder)
 {
     PROFILE_FUNCTION("LoadFolderFromMemory");
     int32 asset_count = 0;
-    LOG_DEBUG("assets count: %d,scripts count: %d,data count: %d", EmbeddedFileManagerGetCounts(EMBED_KIND_ASSET),
-              EmbeddedFileManagerGetCounts(EMBED_KIND_SCRIPT), EmbeddedFileManagerGetCounts(EMBED_KIND_DATA));
+    LOG_DEBUG(
+        "assets count: %d,scripts count: %d,data count: %d", (int32)EmbeddedFileManagerGetCounts(EMBED_KIND_ASSET),
+        (int32)EmbeddedFileManagerGetCounts(EMBED_KIND_SCRIPT), (int32)EmbeddedFileManagerGetCounts(EMBED_KIND_DATA));
 
     if (UNLIKELY(EmbeddedFileManagerGetCounts(EMBED_KIND_ASSET)) == 0)
     {

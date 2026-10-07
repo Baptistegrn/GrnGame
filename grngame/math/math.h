@@ -36,3 +36,5 @@ static inline float64 Average(float64_vec_t vec)
 
 #define DEG2RAD(x) ((x) * pi / 180.0)
 #define RAD2DEG(x) ((x) * 180.0 / pi)
+
+#define MB 1024 * 1024
