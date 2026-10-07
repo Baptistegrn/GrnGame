@@ -23,6 +23,10 @@ jobs:
     name: Build android
     uses: ./.github/workflows/build-android.yml
 
+  build-ios:
+    name: Build ios
+    uses: ./.github/workflows/build-ios.yml
+
   # tests:
   #   name: tests
   #   permissions:
@@ -36,7 +40,7 @@ jobs:
 
   release:
     name: Release
-    needs: [build, build-web, build-android]
+    needs: [build, build-web, build-android, build-ios]
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
       contents: write
