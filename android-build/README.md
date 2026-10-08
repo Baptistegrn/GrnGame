@@ -2,6 +2,8 @@ to build do : ./gradlew assembleDebug or ./gradlew assembleRelease
 
 app icon is in src/main/res
 
+app properties like name etc ... in src/main/res/values
+
 dont forget to install gradlew and android sdk system 
 
 edit local.properties if the compilation failed
