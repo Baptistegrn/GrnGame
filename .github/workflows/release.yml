@@ -67,7 +67,17 @@ jobs:
       - name: Install WiX (Windows ARM)
         if: matrix.platform == 'windows-arm64'
         shell: pwsh
-        run: choco install wixtoolset -y --no-progress
+        run: |
+          choco install wixtoolset -y --no-progress
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+          refreshenv
+
+      - name: Install Linux packaging tools
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y devscripts debhelper dpkg-dev fakeroot
+          which debuild
 
       - name: Run XPack
         run: python scripts/build_xpack.py "${{ github.ref_name }}"
