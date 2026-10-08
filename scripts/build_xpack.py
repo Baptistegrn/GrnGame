@@ -18,7 +18,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     env = os.environ.copy()
-    env["GRNGAME_STAGE"] = str(stage_dir)
+    env["GRNGAME_STAGE"] = str(stage_dir.resolve())
     env["GRNGAME_VERSION"] = tag
 
     print("::group::XPack")
