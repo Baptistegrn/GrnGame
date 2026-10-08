@@ -268,7 +268,8 @@ void ReloadConfig(void)
     LogDestroy();
     LogInit(g_app.info.log_destination);
     WindowApplyConfig(&g_app.info);
-    PaletteReload();
+    if (g_app.info.enable_palette)
+        PaletteReload();
     LOG_INFO("sucessfuly reload config");
 }
 

@@ -71,7 +71,10 @@ static void LoadFilesMultithreaded(void)
     if (count == 0)
         return;
 
-    InitPaletteRemapLUT();
+    if (g_app.info.enable_palette)
+    {
+        InitPaletteRemapLUT();
+    }
 
     LoadResult *results = malloc(count * sizeof(LoadResult));
     CLEAR_ARRAY(results, 0, count);

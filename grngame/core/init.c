@@ -150,7 +150,9 @@ static bool ParseConfig()
     if (!success)
         return false;
     g_app.info.asset_folder = tmp_str;
-
+    success = JsonGetBool(fileKey, "Config.enable_palette", &g_app.info.enable_palette);
+    if (!success)
+        return false;
     string_vec_t palette;
     success = JsonGetStringArray(fileKey, "Config.palette", &palette);
     if (!success)

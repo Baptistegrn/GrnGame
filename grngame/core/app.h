@@ -50,6 +50,7 @@ typedef struct AppInfo
 
     bool force_universe_scale; // apply black stripes to the window
 
+    bool enable_palette;
     string_vec_t palette;
 
 } AppInfo;

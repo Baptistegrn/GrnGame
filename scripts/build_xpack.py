@@ -20,6 +20,6 @@ if __name__ == "__main__":
 
     arch = platform.split("-")[1]
 
-    subprocess.run(["xmake", "pack", "-o", str(output_dir)], env=env, check=True)
+    subprocess.run(["xmake", "pack", "-o", str(output_dir), "-y"], env=env, check=True)
     
     print("::endgroup::")

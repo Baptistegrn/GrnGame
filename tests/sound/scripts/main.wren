@@ -7,6 +7,7 @@ import "std/wren/audio/sound" for Sound
 import "std/wren/audio/sound_info" for SoundInfo
 import "std/wren/audio/filter_def" for FilterDef
 import "std/wren/math/vec2" for Vec2
+import "std/wren/renderer/texture" for Texture
 
 class Main {
 static on_start() {
@@ -23,13 +24,11 @@ static on_start() {
     // Sound.play(info)
     __x = 0
     __y = 0
-    var a = Animal.new("rock")
-    var b= Animal.new("rocky")
-    System.print(b.toString())
     var info = SoundInfo.new("test")
     info.volume = 10
     info.filters = [FilterDef.echo(0.3, 2.0, 4.0), FilterDef.bassboost(3.0)]
     Sound.play(info)
+
 }
 
 static on_update(dt) {
@@ -38,7 +37,9 @@ static on_update(dt) {
 Sound.set_listener_position(Vec2.new(__x,__y))
 }
 static on_fixed_update(dt) {}
-static on_render() {}
+static on_render() {
+    Texture.draw("image",30,30)
+}
 static on_destroy() {}
 
 

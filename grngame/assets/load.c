@@ -158,21 +158,31 @@ LoadResult LoadFileParallel(const char *file)
             result.key = NULL;
             return result;
         }
-
-        SDL_Surface *rgba = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32);
-        SDL_DestroySurface(surface);
-
-        if (UNLIKELY(!rgba))
+        if (g_app.info.enable_palette)
         {
-            free(result.key);
-            result.key = NULL;
-            return result;
+            SDL_Surface *rgba = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32);
+            SDL_DestroySurface(surface);
+
+            if (UNLIKELY(!rgba))
+            {
+                free(result.key);
+                result.key = NULL;
+                return result;
+            }
+
+            result.surface_copy = SDL_DuplicateSurface(rgba);
+
+            ApplyPaletteRemap(rgba);
+            result.pixels = rgba;
+            result.success = true;
+        }
+        else
+        {
+            result.surface_copy = SDL_DuplicateSurface(surface);
+            result.pixels = surface;
+            result.success = true;
         }
 
-        result.surface_copy = SDL_DuplicateSurface(rgba);
-        ApplyPaletteRemap(rgba);
-        result.pixels = rgba;
-        result.success = true;
         return result;
     }
 
