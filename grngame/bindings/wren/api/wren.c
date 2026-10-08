@@ -7,7 +7,6 @@
 #include <grngame/utils/string_compat.h>
 #include <stdlib.h>
 
-
 void RegisterControllerModule(void);
 void RegisterDbModule(void);
 void RegisterInputTextModule(void);

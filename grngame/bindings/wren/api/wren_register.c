@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 #define KEY_SIZE 1024
 #define MODULE_SIZE_MAX_NAME 512
 
