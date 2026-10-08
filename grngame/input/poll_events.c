@@ -230,11 +230,11 @@ HOT void PollEvents()
             }
             break;
         }
-        case SDL_EVENT_GAMEPAD_ADDED:
+        case SDL_EVENT_GAMEPAD_ADDED: {
             int16 idx = FindControllerIndex(event.gdevice.which);
             ControllerOpen(event.gdevice.which, idx);
             break;
-
+        }
         case SDL_EVENT_GAMEPAD_REMOVED: {
             int16 idx = FindControllerIndex(event.gdevice.which);
             if (LIKELY(idx >= 0))
