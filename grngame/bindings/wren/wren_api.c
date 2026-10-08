@@ -274,12 +274,6 @@ static bool WrenGetObjectField(const char *module, const char *variable, const c
     return true;
 }
 
-static void WrenReleaseFieldHandles(WrenVM *vm, WrenHandle **obj, WrenHandle **call)
-{
-    wrenReleaseHandle(vm, *obj);
-    wrenReleaseHandle(vm, *call);
-}
-
 bool WrenGetVariable(const char *module, const char *variable)
 {
     WrenVM *vm = g_app.wren_manager.vm;
@@ -721,62 +715,4 @@ void WrenFree()
 
     wrenFreeVM(g_app.wren_manager.vm);
     g_app.wren_manager.vm = NULL;
-}
-
-bool CallWrenCallback(int16 index, void *data, uint8 arg_count)
-{
-    if (UNLIKELY(index < 0 || index >= 4))
-    {
-        LOG_WARNING("Event Callback index %d doesn't exist, can't call the callback", index);
-        return false;
-    }
-
-    WrenCallback *cb = &g_app.wren_manager.registry.callbacks[index];
-
-    if (UNLIKELY(!cb->is_registered))
-    {
-        LOG_WARNING("Event Callback index %d is not registered, can't call the callback", index);
-        return false;
-    }
-
-    if (UNLIKELY(cb->arity != arg_count))
-    {
-        LOG_WARNING("Event Callback index %d expects %d argument(s), got %d", index, cb->arity, arg_count);
-        return false;
-    }
-
-    WrenVM *vm = g_app.wren_manager.vm;
-    CallbackArg *args = (CallbackArg *)data;
-
-    wrenEnsureSlots(vm, arg_count + 1);
-    wrenSetSlotHandle(vm, 0, cb->handle);
-
-    for (uint8 i = 0; i < arg_count; i++)
-    {
-        switch (args[i].type)
-        {
-        case CB_ARG_NUM:
-            wrenSetSlotDouble(vm, i + 1, args[i].as.num);
-            break;
-        case CB_ARG_BOOL:
-            wrenSetSlotBool(vm, i + 1, args[i].as.boolean);
-            break;
-        case CB_ARG_STRING:
-            wrenSetSlotString(vm, i + 1, args[i].as.string);
-            break;
-        default:
-            LOG_WARNING("Event Callback index %d: unknown arg type at position %d", index, i);
-            return false;
-        }
-    }
-
-    WrenInterpretResult result = wrenCall(vm, g_app.wren_manager.call[arg_count]);
-
-    if (UNLIKELY(result != WREN_RESULT_SUCCESS))
-    {
-        LOG_WARNING("Event Callback index %d: runtime error during call", index);
-        return false;
-    }
-
-    return true;
 }

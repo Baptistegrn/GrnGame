@@ -15,7 +15,6 @@ if __name__ == "__main__":
     output_dir.mkdir(exist_ok=True)
 
     if not stage_dir.exists():
-        print(f"Dossier introuvable : {stage_dir}")
         sys.exit(1)
 
     env = os.environ.copy()
@@ -24,8 +23,8 @@ if __name__ == "__main__":
 
     print("::group::XPack")
     subprocess.run(
-        ["xmake", "pack", "-o", str(output_dir.resolve()), "-y"],
-        env=env, cwd="pack", check=True,
+        ["xmake", "pack", "-P", "pack", "-o", str(output_dir.resolve()), "-y"],
+        env=env, check=True,
     )
     print("::endgroup::")
 

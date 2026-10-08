@@ -73,15 +73,6 @@ bool ReloadWrenScript();
 
 bool WrenInit(void);
 
-void UpdateAppMetadata(void);
-void UpdateWindowSize(void);
-void UpdateUniverseSize(void);
-void UpdateResizable(void);
-void UpdateFullscreen(void);
-void UpdateMaximised(void);
-void UpdateEnableLogs(void);
-void UpdateLogDestination(void);
-
 bool CallWrenCallback(int16 index, void *data, uint8 arg_count);
 
 bool WrenGetVariable(const char *module, const char *variable);
@@ -112,5 +103,12 @@ bool WrenCallOnFixedUpdate(float32 delta);
 bool WrenCallOnRender();
 bool WrenCallOnDestroy();
 void WrenFree();
+
+void WrenSetErrorFn(WrenErrorFn errorFn);
+void WrenSetCallHandle();
+void WrenSetWriteFn(WrenWriteFn writeFn);
+void WrenSetBindMethodFn(WrenBindForeignMethodFn bindMethodFn);
+void WrenSetBindClassFn(WrenBindForeignClassFn bindClassFn);
+void WrenSetLoadModuleFn(WrenLoadModuleFn loadModuleFn);
 
 END_DECLARATIONS

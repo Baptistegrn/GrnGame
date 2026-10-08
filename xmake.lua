@@ -322,10 +322,3 @@ target("auto_tests")
 		end
 	end)
 target_end()
-
-
-includes("@builtin/xpack")
-
-local stage   = os.getenv("GRNGAME_STAGE") or ""
-local version = os.getenv("GRNGAME_VERSION") or "0.0.0"
-
