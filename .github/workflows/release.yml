@@ -43,15 +43,16 @@ jobs:
           - platform: linux-x64
             os: ubuntu-22.04
           - platform: linux-arm64
-            os: ubuntu-22.04
+            os: ubuntu-22.04-arm
           - platform: windows-x64
             os: windows-latest
           - platform: windows-arm64
-            os: windows-latest
+            os: windows-11-arm
           - platform: macos-x64
-            os: macos-latest
+            os: macos-15-intel
           - platform: macos-arm64
             os: macos-latest
+ 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -66,8 +67,23 @@ jobs:
         with:
           name: staging-folders
 
+      - name: Install Linux packaging tools
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y devscripts debhelper dpkg-dev fakeroot rpm
+
+      - name: Install WiX (Windows)
+        if: runner.os == 'Windows' && matrix.platform == 'windows-arm64'
+        shell: pwsh
+        run: |
+          choco install wixtoolset -y --no-progress
+          $wix = Get-ChildItem "C:\Program Files (x86)" -Directory -Filter "WiX Toolset*" | Select-Object -First 1
+          echo "$($wix.FullName)\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+          where.exe candle light
+          
       - name: Run XPack
-        run: python3 scripts/build_xpack.py "${{ github.ref_name }}" "${{ matrix.platform }}"
+        run: python3 scripts/build_xpack.py "${{ github.ref_name }}"
 
       - name: Upload Native Packages
         uses: actions/upload-artifact@v4

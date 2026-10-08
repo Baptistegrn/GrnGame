@@ -327,7 +327,7 @@ target_end()
 includes("@builtin/xpack")
 
 local stage   = os.getenv("GRNGAME_STAGE") or "" 
-local version = "0.0.0"
+local version = os.getenv("GRNGAME_VERSION") or "0.0.0"
 
 xpack("grngame")
     set_title("GrnGame")

@@ -5,8 +5,6 @@ from pathlib import Path
 
 if __name__ == "__main__":
     tag = sys.argv[1]
-    platform = sys.argv[2]
-    
     stage_dir = Path(f"staging_{platform}")
     output_dir = Path("release-assets")
     output_dir.mkdir(exist_ok=True)
@@ -18,8 +16,9 @@ if __name__ == "__main__":
     env["GRNGAME_STAGE"] = str(stage_dir)
     env["GRNGAME_VERSION"] = tag
 
-    arch = platform.split("-")[1]
-
-    subprocess.run(["xmake", "pack", "-o", str(output_dir), "-y"], env=env, check=True)
-    
+    print("::group::XPack")
+    subprocess.run(
+        ["xmake", "pack", "-o", str(output_dir), "-y"],
+        env=env, check=True,
+    )
     print("::endgroup::")
