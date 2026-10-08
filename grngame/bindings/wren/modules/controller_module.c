@@ -67,13 +67,6 @@ static void controller_pad_trigger_r(WrenVM *vm)
     wrenSetSlotDouble(vm, 0, (float64)PadTriggerR(index));
 }
 
-static void controller_open(WrenVM *vm)
-{
-    uint8 index = (uint8)wrenGetSlotDouble(vm, 1);
-    (void)index;
-    ControllerOpen();
-}
-
 static void controller_connected_count(WrenVM *vm)
 {
     wrenSetSlotDouble(vm, 0, (float64)ControllerConnectedCount());
@@ -132,7 +125,6 @@ void RegisterControllerModule()
     RegisterMethod(module, cls, is_static, "stick_ry(_)", controller_pad_stick_ry);
     RegisterMethod(module, cls, is_static, "trigger_l(_)", controller_pad_trigger_l);
     RegisterMethod(module, cls, is_static, "trigger_r(_)", controller_pad_trigger_r);
-    RegisterMethod(module, cls, is_static, "controller_open(_)", controller_open);
     RegisterMethod(module, cls, is_static, "connected_count()", controller_connected_count);
     RegisterMethod(module, cls, is_static, "sticks_triggers(_)", controller_pad_sticks_triggers);
 }

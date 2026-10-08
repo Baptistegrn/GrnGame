@@ -18,7 +18,6 @@ class Pad {
     foreign static trigger_l(index)
     foreign static trigger_r(index)
     foreign static sticks_triggers(index)
-    foreign static controller_open(index)
     foreign static connected_count()
 
     construct new() {
