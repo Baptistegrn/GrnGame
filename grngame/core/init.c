@@ -295,7 +295,8 @@ void InitializePalette(void)
 {
     InitLinearLut();
     g_app.palette_manager = PaletteManagerCreate();
-    PaletteParse(&g_app.info.palette);
+    if (g_app.info.enable_palette)
+        PaletteParse(&g_app.info.palette);
 }
 
 void InitializeAssets(void)

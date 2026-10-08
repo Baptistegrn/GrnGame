@@ -1,3 +1,4 @@
+#include "grngame/assets/embedded_file_manager.h"
 #include "grngame/bindings/wren/wren_api.h"
 #include "grngame/data/file.h"
 #include "grngame/dev/logging.h"
@@ -7,6 +8,7 @@
 #include "khash.h"
 #include <stdio.h>
 #include <stdlib.h>
+
 
 #define KEY_SIZE 1024
 #define MODULE_SIZE_MAX_NAME 512
