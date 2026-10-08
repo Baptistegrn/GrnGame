@@ -20,12 +20,15 @@ if __name__ == "__main__":
 
     env = os.environ.copy()
     env["GRNGAME_STAGE"] = str(stage_dir.resolve())
-    env["GRNGAME_VERSION"] = tag.lstrip("v")  
+    env["GRNGAME_VERSION"] = tag.lstrip("v")
 
     print("::group::XPack")
-    subprocess.run(["xmake", "pack", "-o", str(output_dir), "-y"], env=env, check=True)
+    subprocess.run(
+        ["xmake", "pack", "-o", str(output_dir.resolve()), "-y"],
+        env=env, cwd="pack", check=True,
+    )
     print("::endgroup::")
-    
-    #delete somes extensions
+
+    # delete somes extensions
     for f in output_dir.glob("*.wixpdb"):
         f.unlink()
