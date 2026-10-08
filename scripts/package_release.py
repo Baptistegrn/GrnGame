@@ -15,8 +15,6 @@ PLATFORMS = [
     "windows-arm64",
 ]
 
-
-
 # desktop artefacts : runtime,embedded binary 
 DESKTOP_ARTIFACTS = {
     "linux-x64": "linux-x64-release-embedfalse",
@@ -76,7 +74,7 @@ def bundle_project_model(stage_dir: Path) -> None:
 
 
 def bundle_setup_scripts(stage_dir: Path) -> None:
-    for name in ("GrnGameCreate.py", "GrnGameDist.py"):
+    for name in ("GrnGameCreate.py","GrnGameCreate.sh","GrnGameCreate.bat", "GrnGameDist.py","GrnGameDist.bat","GrnGameDist.sh"):
         copy_file(Path("scripts") / name, stage_dir / "scripts")
 
 
@@ -145,7 +143,7 @@ def package(platform: str, tag: str) -> None:
     bundle_android(stage_dir)
 
     make_zip(platform, stage_dir, tag)
-    shutil.rmtree(stage_dir)
+    #shutil.rmtree(stage_dir)
 
     print("::endgroup::")
 
