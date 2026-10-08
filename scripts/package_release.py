@@ -109,7 +109,7 @@ def bundle_runtimes(stage_dir: Path) -> None:
 
 def bundle_android(stage_dir: Path) -> None:
     android_src = Path("android-build")
-    android_dst = stage_dir / "project_model"/ "runtime" / "android-build"
+    android_dst = stage_dir / "runtime" / "android-build"
 
     copy_folder(android_src, android_dst)
 

@@ -15,12 +15,17 @@ if __name__ == "__main__":
     output_dir.mkdir(exist_ok=True)
 
     if not stage_dir.exists():
+        print(f"Dossier introuvable : {stage_dir}")
         sys.exit(1)
 
     env = os.environ.copy()
     env["GRNGAME_STAGE"] = str(stage_dir.resolve())
-    env["GRNGAME_VERSION"] = tag
+    env["GRNGAME_VERSION"] = tag.lstrip("v")  
 
     print("::group::XPack")
     subprocess.run(["xmake", "pack", "-o", str(output_dir), "-y"], env=env, check=True)
     print("::endgroup::")
+    
+    #delete somes extensions
+    for f in output_dir.glob("*.wixpdb"):
+        f.unlink()

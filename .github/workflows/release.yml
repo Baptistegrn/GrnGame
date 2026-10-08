@@ -32,17 +32,24 @@ jobs:
           name: staging-folders
           path: staging_*/**
 
-  # create xpack and upload it 
+  # create xpack and upload it
   build_xpack:
     name: XPack ${{ matrix.platform }}
     needs: prepare_assets
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
+          - platform: linux-x64
+            os: ubuntu-22.04
+          - platform: linux-arm64
+            os: ubuntu-22.04-arm
           - platform: windows-x64
             os: windows-latest
- 
+          - platform: windows-arm64
+            os: windows-11-arm
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -56,12 +63,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: staging-folders
-
-      - name: Install Linux packaging tools
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y devscripts debhelper dpkg-dev fakeroot rpm
 
       - name: Install WiX (Windows ARM)
         if: matrix.platform == 'windows-arm64'

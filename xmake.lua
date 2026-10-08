@@ -326,15 +326,15 @@ target_end()
 
 includes("@builtin/xpack")
 
-local stage   = os.getenv("GRNGAME_STAGE") or "" 
-local version = os.getenv("GRNGAME_VERSION") or "v0.0.0"
+local stage   = os.getenv("GRNGAME_STAGE") or ""
+local version = os.getenv("GRNGAME_VERSION") or "0.0.0"
 
 xpack("grngame")
     set_title("GrnGame")
     set_author("Baptiste GUERIN")
     set_description("GrnGame platformer 2d")
     set_version(version)
-    set_basename("grngame-$(plat)-$(arch)-v$(version)")
+    set_basename("grngame-$(plat)-$(arch)-$(version)")
 
     if is_plat("windows") then
         set_formats("wix")
@@ -346,7 +346,7 @@ xpack("grngame")
 ]])
         end)
     elseif is_plat("linux") then
-        set_formats("deb", "rpm")
+        set_formats("deb")
         add_installfiles(stage .. "/(**)", {prefixdir = "lib/grngame"})
         add_installfiles("launchers/(*)",  {prefixdir = "bin"})
     end
