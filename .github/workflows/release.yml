@@ -44,8 +44,6 @@ jobs:
             os: ubuntu-22.04
           - platform: windows-x64
             os: windows-latest
-          - platform: windows-arm64
-            os: windows-11-arm
  
     steps:
       - name: Checkout repository
@@ -66,15 +64,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y devscripts debhelper dpkg-dev fakeroot rpm
-
-      - name: Install WiX (Windows)
-        if: runner.os == 'Windows' && matrix.platform == 'windows-arm64'
-        shell: pwsh
-        run: |
-          choco install wixtoolset -y --no-progress
-          $wix = Get-ChildItem "C:\Program Files (x86)" -Directory -Filter "WiX Toolset*" | Select-Object -First 1
-          echo "$($wix.FullName)\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
-          where.exe candle light
 
       - name: Run XPack
         run: python scripts/build_xpack.py "${{ github.ref_name }}"
