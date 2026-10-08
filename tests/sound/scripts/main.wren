@@ -23,9 +23,12 @@ static on_start() {
     // Sound.play(info)
     __x = 0
     __y = 0
-
+    var a = Animal.new("rock")
+    var b= Animal.new("rocky")
+    System.print(b.toString())
     var info = SoundInfo.new("test")
-    info.filters = [FilterDef.echo(0.3, 0.5, 0.4), FilterDef.bassboost(1.5)]
+    info.volume = 10
+    info.filters = [FilterDef.echo(0.3, 2.0, 4.0), FilterDef.bassboost(3.0)]
     Sound.play(info)
 }
 

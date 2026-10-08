@@ -1,5 +1,3 @@
--- official package from a pull request
-includes("packages/s/soloud/xmake.lua")
 includes("packages/w/wren/xmake.lua")
 -- official package from my repo with custom settings
 includes("packages/h/haclog/xmake.lua")

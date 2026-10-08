@@ -4,20 +4,20 @@
 
 int32 main(int32 argc, char **argv)
 {
-    if (argc < 3)
+    if (argc == 1)
+    {
+        CreateEmbeddedFileDb(4, (const char *[]){"assets", "data", "std", "config"}, "Assets.pak");
+    }
+    else if (argc < 3)
     {
         fprintf(stdout, "./%s output-header dirs1 dirs2 ....", argv[0]);
         fflush(stdout);
         return 1;
     }
-
-    float64 start_time = TimeNow();
-
-    CreateEmbeddedFileDb(argc - 2, (const char **)(argv + 2), argv[1]);
-
-    float64 elapsed_time = TimeNow() - start_time;
-
-    printf("[EmbeddedAsset] Successfully embedded files in %.3f seconds.\n", elapsed_time);
+    else
+    {
+        CreateEmbeddedFileDb(argc - 2, (const char **)(argv + 2), argv[1]);
+    }
 
     return 0;
 }

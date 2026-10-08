@@ -69,6 +69,7 @@ def bundle_project_model(stage_dir: Path) -> None:
         (model_dir / name).mkdir(parents=True, exist_ok=True)
 
     copy_file(Path("ressources/config.json"), model_dir / "config")
+    copy_file(Path("ressources/main.wren"), model_dir / "scripts")
     copy_file(Path("grngame/input/gamecontrollerdb.txt"), model_dir / "data")
     copy_file(Path("scripts/server.py"), runtime_dir)
     copy_folder(Path("std"), model_dir / "std")
@@ -110,7 +111,7 @@ def bundle_runtimes(stage_dir: Path) -> None:
 
 def bundle_android(stage_dir: Path) -> None:
     android_src = Path("android-build")
-    android_dst = stage_dir / "runtime" / "android-build"
+    android_dst = stage_dir / "project_model"/ "runtime" / "android-build"
 
     copy_folder(android_src, android_dst)
 
@@ -119,7 +120,6 @@ def bundle_android(stage_dir: Path) -> None:
         lib = ARTIFACTS_DIR / artifact_name / "libGrnGame.so"
 
         if not lib.is_file():
-            warn(f"Lib android manquante : {lib}")
             continue
 
         # every abi have its own folder : app/jni/src/<abi>/libGrnGame.so

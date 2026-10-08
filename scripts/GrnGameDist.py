@@ -5,7 +5,20 @@ from pathlib import Path
 
 #todo factorise
 
+def require_assets_bundle(path: Path) -> None:
+    if not path.is_file():
+        raise FileNotFoundError(f"Required file not found:{path},execute Embedded command to create {path}")
 
+def require_file(path: Path) -> None:
+    if not path.is_file():
+        raise FileNotFoundError(f"Required file not found:{path},try to redownload release")
+
+def  require_folder(path:Path)-> None:
+       if not path.is_dir():
+        raise FileNotFoundError(
+            f"Required directory not found:\n  {path},try to redownload release"
+        )
+    
 def clean_dist(dir_to: str) -> None:
     dist_path = Path(dir_to) / "dist"
     if dist_path.exists():
@@ -31,9 +44,11 @@ def bundle_runtime(dir_from: str, dir_to: str) -> None:
         "Runtime-wasm-wasm32-releaseembedded.wasm",
     ]
 
-    for filename in server_files:
+    for filename in server_files:      
+        src = runtime_dir/ filename
+        require_file(src)     
         shutil.copy2(
-            runtime_dir / filename,
+            src,
             dist_dir / "server" / filename,
         )
 
@@ -48,13 +63,19 @@ def bundle_runtime(dir_from: str, dir_to: str) -> None:
     }
 
     for filename, platform in binaries.items():
+        src = runtime_dir /filename
+        require_file(src)
         shutil.copy2(
-            runtime_dir / filename,
+            src,
             dist_dir / platform / filename,
         )
 
+
+    src = runtime_dir / "android-build"
+    require_folder(src)
+
     shutil.copytree(
-        runtime_dir / "android-build",
+        src,
         dist_dir / "android",
         dirs_exist_ok=True,
         copy_function=shutil.copy2,
@@ -85,12 +106,12 @@ def bundle_assets(dir_to: str) -> None:
     subprocess.run(
         [
             str(embedded_bin),
-            str(project_dir / "Assets.pak"),
-            str(project_dir / "assets"),
-            str(project_dir / "scripts"),
-            str(project_dir / "std"),
-            str(project_dir / "data"),
-            str(project_dir / "config"),
+            str("Assets.pak"),
+            str("assets"),
+            str("scripts"),
+            str("std"),
+            str("data"),
+            str("config"),
         ],
         check=True,
     )
@@ -100,7 +121,8 @@ def bundle_assets_pak(dir_to: str) -> None:
     project_dir = Path(dir_to)
     dist_dir = project_dir / "dist"
     assets_pak = project_dir / "Assets.pak"
-
+    require_assets_bundle(assets_pak)
+    
     platforms = [
         "server",
         "linux-x86_64",
@@ -109,6 +131,7 @@ def bundle_assets_pak(dir_to: str) -> None:
         "macos-arm64",
         "windows-x64",
         "windows-arm64",
+        "ios-arm64",
     ]
 
     for platform in platforms:
