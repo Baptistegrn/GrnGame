@@ -81,9 +81,9 @@ jobs:
           $wix = Get-ChildItem "C:\Program Files (x86)" -Directory -Filter "WiX Toolset*" | Select-Object -First 1
           echo "$($wix.FullName)\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
           where.exe candle light
-          
+
       - name: Run XPack
-        run: python3 scripts/build_xpack.py "${{ github.ref_name }}"
+        run: python scripts/build_xpack.py "${{ github.ref_name }}"
 
       - name: Upload Native Packages
         uses: actions/upload-artifact@v4
