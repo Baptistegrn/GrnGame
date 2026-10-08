@@ -64,20 +64,7 @@ int32 ControllerConnectedCount(void)
     return count;
 }
 
-static int16 FindFreeControllerIndex(void)
-{
-    for (int16 i = 0; i < MAX_CONTROLLERS; ++i)
-    {
-        Controller *c = &g_app.input_manager.controllers[i];
-        if (c->gamepad == NULL)
-        {
-            return i;
-        }
-    }
-    return -1;
-}
-
-bool ControllerOpen()
+bool ControllerOpen(SDL_JoystickID id, int16 index)
 {
     SDL_JoystickID *pads = NULL;
     int32 count = ControllerConnectedCountptr(&pads);
@@ -85,64 +72,26 @@ bool ControllerOpen()
     if (UNLIKELY(count == 0))
         return false;
 
-    SDL_JoystickID new_pad_id = 0;
-    bool found = false;
-
-    for (int32 i = 0; i < count; i++)
-    {
-        if (!GamepadFromID(pads[i]))
-        {
-            new_pad_id = pads[i];
-            found = true;
-            break;
-        }
-    }
-
-    if (UNLIKELY(!found))
-    {
-        if (LIKELY(pads))
-            SDL_free(pads);
-        return false;
-    }
-
-    SDL_Gamepad *gp = GamepadOpen(new_pad_id);
-    if (LIKELY(pads))
-        SDL_free(pads);
+    SDL_Gamepad *gp = GamepadOpen(id);
     if (UNLIKELY(!gp))
         return false;
 
     SDL_Joystick *joy = GamepadGetJoystick(gp);
     const char *name = GamepadGetName(gp) ? GamepadGetName(gp) : "Unknown";
 
-    int index = JoystickMapGet(&g_app.input_manager.joystick_map, new_pad_id);
-
-    if (index == -1)
+    g_app.input_manager.controllers[index] = (Controller){.gamepad = gp, .joystick = joy, .id = id, .name = name};
+    if (UNLIKELY(index == -1))
     {
-        index = FindFreeControllerIndex();
-        if (UNLIKELY(index == -1))
-        {
-            LOG_WARNING("Maximum controller capacity reached.");
-            GamepadClose(gp);
-            return false;
-        }
-
-        JoystickMapAdd(&g_app.input_manager.joystick_map, new_pad_id, index);
-
-        CallbackArg args[1] = {{.type = CB_ARG_NUM, .as.num = index}};
-
-        CallWrenCallback(PAD_CONNECT, args, 1);
-    }
-    else
-    {
-        CallbackArg args[1] = {{.type = CB_ARG_NUM, .as.num = index}};
-
-        CallWrenCallback(PAD_CONNECT, args, 1);
+        LOG_WARNING("Maximum controller capacity reached.");
+        GamepadClose(gp);
+        return false;
     }
 
-    g_app.input_manager.controllers[index].gamepad = gp;
-    g_app.input_manager.controllers[index].joystick = joy;
-    g_app.input_manager.controllers[index].id = new_pad_id;
-    g_app.input_manager.controllers[index].name = name;
+    CallbackArg args[1] = {{.type = CB_ARG_NUM, .as.num = index}};
+
+    CallWrenCallback(PAD_CONNECT, args, 1);
+
+    CallWrenCallback(PAD_CONNECT, args, 1);
 
     if (UNLIKELY(!SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_LEFTX) || !SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_LEFTY)))
         LOG_WARNING("Gamepad %d (%s) lacks a left analog stick.", index, name);
@@ -172,19 +121,13 @@ void ControllerClose(int16 index)
     {
         const char *name = GamepadGetName(c->gamepad);
         LOG_INFO("Closing gamepad %d: %s", index, name ? name : "Unknown");
-
-        // wren event
-        JoystickMapRemove(&g_app.input_manager.joystick_map, c->id);
-
         GamepadClose(c->gamepad);
 
         c->gamepad = NULL;
         c->joystick = NULL;
         c->id = 0;
         c->name = NULL;
-
         CallbackArg args[1] = {{.type = CB_ARG_NUM, .as.num = index}};
-
         CallWrenCallback(PAD_DISCONNECT, args, 1);
     }
 }

@@ -21,7 +21,7 @@ typedef struct
 
 BEGIN_DECLARATIONS;
 
-bool ControllerOpen();
+bool ControllerOpen(SDL_JoystickID id, int16 index);
 void ControllerClose(int16 index);
 int32 ControllerConnectedCountptr(SDL_JoystickID **ptr);
 int32 ControllerConnectedCount(void);

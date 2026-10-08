@@ -331,10 +331,10 @@ local version = os.getenv("GRNGAME_VERSION") or "0.0.0"
 
 xpack("grngame")
     set_title("GrnGame")
-    set_author("Baptiste GUERIN")
+    set_author("Baptiste GUERIN  <baptiste.guerin34@gmail.com>")
     set_description("GrnGame platformer 2d")
     set_version(version)
-    set_basename("grngame-$(plat)-$(arch)-$(version)")
+    set_basename("grngame-$(plat)-$(arch)-$v(version)")
 
     if is_plat("windows") then
         set_formats("wix")

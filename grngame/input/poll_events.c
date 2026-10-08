@@ -14,7 +14,20 @@
 
 static int16 FindControllerIndex(SDL_JoystickID id)
 {
-    return JoystickMapGet(&g_app.input_manager.joystick_map, id);
+    for (int16 i = 0; i < MAX_CONTROLLERS; i++)
+    {
+        Controller *c = &g_app.input_manager.controllers[i];
+        if (!c->id)
+        {
+            c->id = id;
+            return i;
+        }
+        if (c->id && c->id == id)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 static int16 FindKeyboardIndex(SDL_KeyboardID id)
@@ -218,7 +231,8 @@ HOT void PollEvents()
             break;
         }
         case SDL_EVENT_GAMEPAD_ADDED:
-            ControllerOpen();
+            int16 idx = FindControllerIndex(event.gdevice.which);
+            ControllerOpen(event.gdevice.which, idx);
             break;
 
         case SDL_EVENT_GAMEPAD_REMOVED: {

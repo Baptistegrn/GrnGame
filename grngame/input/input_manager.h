@@ -11,13 +11,6 @@
 #include "grngame/input/keyboard.h"
 #include "khash.h"
 
-KHASH_MAP_INIT_INT(joymap, int16)
-
-typedef struct JoystickMap
-{
-    khash_t(joymap) * hash;
-} JoystickMap;
-
 typedef struct
 {
     Mouse mouse;
@@ -26,16 +19,9 @@ typedef struct
 
     kvec_t(char) text_input;
 
-    JoystickMap joystick_map;
-    // todo create keybord map
     Controller controllers[MAX_CONTROLLERS];
     Keyboard keyboard[MAX_KEYBOARDS];
 } InputManager;
 
 InputManager InputManagerCreate();
 void InputManagerDestroy(InputManager *manager);
-
-void JoystickMapAdd(JoystickMap *map, SDL_JoystickID id, int16 index);
-int16 JoystickMapGet(const JoystickMap *map, SDL_JoystickID id);
-void JoystickMapRemove(JoystickMap *map, SDL_JoystickID id);
-void JoystickMapDestroy(JoystickMap *map);
