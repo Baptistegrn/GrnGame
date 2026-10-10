@@ -45,8 +45,6 @@
 
 #elif defined(GRNGAME_WASM)
 
-#elif defined(GRNGAME_WASM)
-
 #include <emscripten/emscripten.h>
 
 #define LOG_DEBUG(fmt, ...) emscripten_log(EM_LOG_CONSOLE, fmt, ##__VA_ARGS__)

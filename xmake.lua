@@ -44,6 +44,11 @@ if is_plat("android") then
 	add_ldflags("-u", "JNI_OnLoad", "-u", "SDL_main", { force = true })
 end
 
+if is_plat("iphoneos") then
+    add_cxflags("-miphoneos-version-min=17.5")
+    add_ldflags("-miphoneos-version-min=17.5")
+end
+
 if is_arch("x64") then
 	add_defines("GRNGAME_X64")
 end
