@@ -35,6 +35,7 @@ jobs:
       - name: Configure
         run: >
           xmake f -p iphoneos -a ${{ matrix.arch }} -m release -c
+          --target_minver=17.5
           --embed_assets=y
           -y -vv
 
