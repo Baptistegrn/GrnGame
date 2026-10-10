@@ -27,12 +27,23 @@
 #elif defined(GRNGAME_IOS)
 
 #include <os/log.h>
+#include <stdio.h>
 
-#define LOG_DEBUG(fmt, ...) os_log_debug(OS_LOG_DEFAULT, fmt, ##__VA_ARGS__)
-#define LOG_INFO(fmt, ...) os_log_info(OS_LOG_DEFAULT, fmt, ##__VA_ARGS__)
-#define LOG_WARNING(fmt, ...) os_log(OS_LOG_DEFAULT, fmt, ##__VA_ARGS__)
-#define LOG_ERROR(fmt, ...) os_log_error(OS_LOG_DEFAULT, fmt, ##__VA_ARGS__)
-#define LOG_CRITICAL(fmt, ...) os_log_fault(OS_LOG_DEFAULT, fmt, ##__VA_ARGS__)
+#define GRN_OSLOG(fn, fmt, ...)                                                                                        \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        char grn_log_buf_[512];                                                                                        \
+        snprintf(grn_log_buf_, sizeof(grn_log_buf_), fmt, ##__VA_ARGS__);                                              \
+        fn(OS_LOG_DEFAULT, "GrnGame: %{public}s", grn_log_buf_);                                                       \
+    } while (0)
+
+#define LOG_DEBUG(fmt, ...) GRN_OSLOG(os_log, fmt, ##__VA_ARGS__)
+#define LOG_INFO(fmt, ...) GRN_OSLOG(os_log, fmt, ##__VA_ARGS__)
+#define LOG_WARNING(fmt, ...) GRN_OSLOG(os_log, fmt, ##__VA_ARGS__)
+#define LOG_ERROR(fmt, ...) GRN_OSLOG(os_log_error, fmt, ##__VA_ARGS__)
+#define LOG_CRITICAL(fmt, ...) GRN_OSLOG(os_log_fault, fmt, ##__VA_ARGS__)
+
+#elif defined(GRNGAME_WASM)
 
 #elif defined(GRNGAME_WASM)
 

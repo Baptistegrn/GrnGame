@@ -1,9 +1,19 @@
 #include "grngame/core/app.h"
 #include <stdio.h>
 
-#ifndef GRNGAME_ANDROID
+#if defined(GRNGAME_ANDROID)
 
-int32 main()
+int32 SDL_main(int argc, char **argv)
+{
+    EngineStart();
+    return 0;
+}
+
+#elif defined(GRNGAME_IOS)
+
+#include <SDL3/SDL_main.h>
+
+int main(int argc, char *argv[])
 {
     EngineStart();
     return 0;
@@ -11,7 +21,7 @@ int32 main()
 
 #else
 
-int32 SDL_main(int argc, char **argv)
+int32 main()
 {
     EngineStart();
     return 0;
