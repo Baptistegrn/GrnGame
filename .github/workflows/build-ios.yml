@@ -10,7 +10,7 @@ jobs:
       matrix:
         arch: [arm64]
 
-    runs-on: macos-14
+    runs-on: macos-26
     name: "ios-${{ matrix.arch }} / release"
 
     steps:
@@ -26,7 +26,11 @@ jobs:
           build-cache: true
 
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode.app
+        run: |
+          ls /Applications | grep Xcode
+          sudo xcode-select -s /Applications/Xcode_26.2.app
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
 
       - name: Configure
         run: >
