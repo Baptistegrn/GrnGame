@@ -1,16 +1,21 @@
-to build do : ./gradlew assembleDebug or ./gradlew assembleRelease
+# Android Build Guide
 
-app icon is in src/main/res
+## Requirements
+- Make sure **Android SDK** and **Gradle** are installed on your system.
+- If the build fails, edit the `local.properties` file to set your Android SDK path.
 
-app properties like name etc ... in src/main/res/values
+## App Settings
+- **App Icon:** You can find and change it in `app/src/main/res`.
+- **App Name & Properties:** Edit the files in `app/src/main/res/values`.
 
-dont forget to install gradlew and android sdk system 
+## Release Key
+Before building the release version, you need to create a signing key. 
 
-edit local.properties if the compilation failed
+Run this command in your terminal:
+```bash
+keytool -genkeypair -v -keystore release-key.jks -alias grngame -keyalg RSA -keysize 2048 -validity 10000
+```
 
-you can set your app key in app/src/build.gradle
+And edit app/src/build.gradle to set your password key .
 
-run this before build in release (for create the key) :
-
- keytool -genkeypair -v -keystore release-key.jks -alias grngame -keyalg RSA -keysize 2048 -validity 10000
-
+Now you can build with : ./gradlew assembleDebug (no key needed) or ./gradlew assembleRelease (for publishing)

@@ -77,6 +77,8 @@ def bundle_setup_scripts(stage_dir: Path) -> None:
     for name in ("GrnGameCreate.py","GrnGameCreate.sh","GrnGameCreate.bat", "GrnGameDist.py","GrnGameDist.bat","GrnGameDist.sh"):
         copy_file(Path("scripts") / name, stage_dir / "scripts")
 
+def bundle_ios_script(stage_dir: Path) -> None:
+    copy_file(Path("script") / "x_code_ios_project.py",stage_dir / "runtime")
 
 def bundle_desktop_binary(platform: str, stage_dir: Path) -> None:
     # runtime and embedded binary in the same folder
@@ -137,10 +139,15 @@ def package(platform: str, tag: str) -> None:
     stage_dir.mkdir(exist_ok=True)
 
     bundle_project_model(stage_dir)
+
     bundle_setup_scripts( stage_dir)
+    
     bundle_desktop_binary(platform, stage_dir)
+
     bundle_runtimes(stage_dir)
+
     bundle_android(stage_dir)
+    bundle_ios_script(stage_dir)
 
     make_zip(platform, stage_dir, tag)
     #shutil.rmtree(stage_dir)

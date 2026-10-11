@@ -81,6 +81,14 @@ def bundle_runtime(dir_from: str, dir_to: str) -> None:
         copy_function=shutil.copy2,
     )
 
+    src = runtime_dir / "xcode_ios_project.py"
+    require_file(src)
+    shutil.copy2(
+        src,
+        dist_dir / "ios-arm64" / "xcode_ios_project.py" ,
+    )
+
+
 
 def find_embedded(dir_to: str) -> Path:
     project_dir = Path(dir_to)
