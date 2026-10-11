@@ -14,7 +14,7 @@
         "logDestination": 0,
         "forceUniverseScale": false,
         "assetFolder": "assets",
-        "enable_palette": true,
+        "enable_palette": false,
         "palette": []
     }
 }

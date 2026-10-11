@@ -1,9 +1,11 @@
 #pragma once
 #include "grngame/math/types.h"
 #include "grngame/utils/c_cpp.h"
+#include "grngame/utils/memory.h"
 #include <stdbool.h>
 
-#define MAX_PATH_ 1024
+
+#define MAX_PATH_ 1024 * BUFFER_SPACE
 
 BEGIN_DECLARATIONS
 

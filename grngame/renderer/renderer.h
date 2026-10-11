@@ -5,6 +5,12 @@
 
 BEGIN_DECLARATIONS
 
+#if PIXEL_INT_ONLY
+#define PIXEL_ALIGN(x) floor(x)
+#else
+#define PIXEL_ALIGN(x) (x)
+#endif
+
 typedef struct
 {
     SDL_Renderer *renderer;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "grngame/utils/memory.h"
 #include <SDL3_mixer/SDL_mixer.h>
 #include <stdbool.h>
 
@@ -11,8 +12,8 @@
 #include <SDL3_mixer/SDL_mixer.h>
 #include <cglm/types-struct.h>
 
-#define SOUND_MAX_SLOTS 255
-#define SOUND_NAME_MAX 128
+#define SOUND_MAX_SLOTS 255 * BUFFER_SPACE
+#define SOUND_NAME_MAX 128 * BUFFER_SPACE
 
 BEGIN_DECLARATIONS
 

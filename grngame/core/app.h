@@ -19,6 +19,12 @@
 
 BEGIN_DECLARATIONS
 
+#define GARBAGE_COLLECTOR_TIME_TO_REFRESH 180
+
+#define FIXED_UPDATE_LOOP 30.0f
+
+#define FIXED_DT (1.0 / FIXED_UPDATE_LOOP)
+
 typedef struct AppInfo
 {
     sqlite3 *file_db;

@@ -1,7 +1,6 @@
 #include "sprite.h"
 #include "SDL3/SDL_surface.h"
 #include "grngame/core/app.h"
-#include "grngame/core/param.h"
 #include "grngame/dev/logging.h"
 #include "grngame/math/math.h"
 #include "grngame/utils/attributes.h"

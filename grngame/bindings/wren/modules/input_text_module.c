@@ -58,5 +58,3 @@ void RegisterInputTextModule()
     RegisterMethod(module, cls, is_static, "remove_text_char(_)", input_text_remove_text_char);
     RegisterMethod(module, cls, is_static, "replace(_,_)", input_text_replace);
 }
-
-WREN_MODULE(RegisterInputTextModule)

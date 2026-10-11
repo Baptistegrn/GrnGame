@@ -1,8 +1,7 @@
 #include "particule.h"
-#include "SDL3/SDL_oldnames.h"
+
 #include "SDL3/SDL_stdinc.h"
 #include "grngame/core/app.h"
-#include "grngame/core/param.h"
 #include "grngame/math/math.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"

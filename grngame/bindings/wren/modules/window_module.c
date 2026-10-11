@@ -83,5 +83,3 @@ void RegisterWindowModule(void)
     RegisterMethod(module, cls, is_static, "force_universe_scale", window_is_force_universe_scale);
     RegisterMethod(module, cls, is_static, "apply_config(_,_,_,_,_,_,_,_,_,_,_)", window_apply_config);
 }
-
-WREN_MODULE(RegisterWindowModule)

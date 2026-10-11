@@ -2,7 +2,6 @@
 #include "grngame/audio/sound.h"
 #include "grngame/audio/sound_info.h"
 #include "grngame/bindings/wren/wren_api.h"
-#include "grngame/core/param.h"
 #include "grngame/dev/logging.h"
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/clear.h"

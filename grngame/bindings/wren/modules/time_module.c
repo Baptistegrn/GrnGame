@@ -11,5 +11,3 @@ void RegisterTimeModule()
 {
     RegisterMethod("std/wren/core/time", "Time", true, "now()", time_now_w);
 }
-
-WREN_MODULE(RegisterTimeModule)

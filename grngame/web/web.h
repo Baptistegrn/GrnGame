@@ -6,6 +6,8 @@
 #include <emscripten.h>
 #include <emscripten/html5.h>
 
+#define RENDER_UPDATE_WEB 60
+
 // clang-format off
 EM_JS(void, WebResumeAudioContext, (), {
     var audioContext = null;

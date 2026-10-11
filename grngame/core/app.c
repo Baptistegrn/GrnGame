@@ -9,7 +9,6 @@
 #include "grngame/audio/sound_info.h"
 #include "grngame/core/app.h"
 #include "grngame/core/init.h"
-#include "grngame/core/param.h"
 #include "grngame/core/thread.h"
 #include "grngame/core/window.h"
 #include "grngame/data/data.h"
@@ -35,7 +34,6 @@
 #include "grngame/web/web.h"
 #endif
 
-#include "param.h"
 #include <stdbool.h>
 #include <stdlib.h>
 

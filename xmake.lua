@@ -30,6 +30,18 @@ option("software_renderer")
 	set_description("set renderer on software")
 option_end()
 
+option("pixel_int_position")
+	set_default(true)
+	set_showmenu(true)
+	set_description("allow only int positions for textures and sprites")
+option_end()
+
+option("big_buffer")
+	set_default(false)
+	set_showmenu(true)
+	set_description("set every stack buffer bigger x5")
+option_end()
+
 local embedded = has_config("embed_assets") 
 local dev_mode = is_desktop and not embedded 
 
@@ -94,6 +106,14 @@ end
 if is_desktop then 
 	add_requires("haclog add_colors_options", { configs = { shared = false } })
 end 
+
+if has_config("pixel_int_position") then 
+	add_defines("PIXEL_INT_ONLY",{public = true })
+end
+
+if has_config("big_buffer") then 
+	add_defines("BUFFER_BIG_MEMORY_SPACE",{public = true })
+end
 
 set_warnings("all", "extra")
 

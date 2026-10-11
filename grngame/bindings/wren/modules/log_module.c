@@ -62,5 +62,3 @@ void RegisterLogModule()
     RegisterMethod(module, cls, is_static, "debug(_)", log_debug);
     RegisterMethod(module, cls, is_static, "critical(_)", log_critical);
 }
-
-WREN_MODULE(RegisterLogModule)

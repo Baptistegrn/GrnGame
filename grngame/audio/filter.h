@@ -6,6 +6,13 @@
 
 BEGIN_DECLARATIONS
 
+#define MAX_FILTERS 4
+
+#define BASS_CUTOFF_HZ 150.0f
+#define ECHO_DELAY_MIN 0.01f
+#define ECHO_DELAY_MAX 2.0f
+#define ECHO_DECAY_MAX 0.95f
+
 typedef enum
 {
     FILTER_ECHO,

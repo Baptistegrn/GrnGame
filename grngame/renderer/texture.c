@@ -3,7 +3,6 @@
 #include "cglm/types-struct.h"
 #include "grngame/assets/asset_manager.h"
 #include "grngame/core/app.h"
-#include "grngame/core/param.h"
 #include "grngame/dev/logging.h"
 #include "grngame/math/math.h"
 #include "grngame/math/types.h"

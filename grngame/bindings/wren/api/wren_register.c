@@ -4,13 +4,14 @@
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
 #include "grngame/utils/attributes.h"
+#include "grngame/utils/memory.h"
 #include "grngame/utils/string_compat.h"
 #include "khash.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-#define KEY_SIZE 1024
-#define MODULE_SIZE_MAX_NAME 512
+#define KEY_SIZE 1024 * BUFFER_SPACE
+#define MODULE_SIZE_MAX_NAME 512 * BUFFER_SPACE
 
 KHASH_MAP_INIT_STR(wren_method_map, WrenForeignMethodFn)
 KHASH_MAP_INIT_STR(wren_class_map, WrenForeignClassMethods)

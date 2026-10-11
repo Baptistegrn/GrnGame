@@ -1,7 +1,6 @@
 #include "../core/app.h"
 #include "cglm/types-struct.h"
 #include "controller.h"
-#include "grngame/core/param.h"
 #include "grngame/core/window.h"
 #include "grngame/input/input_text.h"
 #include "grngame/utils/attributes.h"

@@ -1,8 +1,9 @@
 #pragma once
 
 #include "grngame/math/types.h"
+#include "grngame/utils/memory.h"
 
-#define DROP_FILE_PATH_MAX 1024
+#define DROP_FILE_PATH_MAX 1024 * BUFFER_SPACE
 
 const char *InputTextGet();
 void InputTextClear();

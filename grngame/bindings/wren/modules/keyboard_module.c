@@ -33,5 +33,3 @@ void RegisterKeyboardModule()
     RegisterMethod(module, cls, is_static, "just_pressed(_,_)", key_just_pressed);
     RegisterMethod(module, cls, is_static, "just_released(_,_)", key_just_released);
 }
-
-WREN_MODULE(RegisterKeyboardModule)

@@ -92,5 +92,3 @@ void RegisterMouseModule()
     RegisterMethod(module, cls, is_static, "show_cursor()", show_cursor);
     RegisterMethod(module, cls, is_static, "hide_cursor()", hide_cursor);
 }
-
-WREN_MODULE(RegisterMouseModule)

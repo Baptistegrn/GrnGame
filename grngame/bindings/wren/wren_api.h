@@ -9,19 +9,6 @@
 
 BEGIN_DECLARATIONS
 
-typedef void (*ModuleRegisterFn)(void);
-
-#define MAX_MODULES 128
-extern ModuleRegisterFn g_moduleRegistry[MAX_MODULES];
-extern int g_moduleCount;
-
-static inline void RegisterModuleEntry(ModuleRegisterFn fn)
-{
-    g_moduleRegistry[g_moduleCount++] = fn;
-}
-
-#define WREN_MODULE(fn)
-
 typedef enum
 {
     CB_ARG_NUM,

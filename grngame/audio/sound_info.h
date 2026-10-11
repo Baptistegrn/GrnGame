@@ -7,6 +7,8 @@
 
 BEGIN_DECLARATIONS
 
+#define SOUND_POSITION_EPSILON 1.0f
+
 typedef struct
 {
     float32 volume;

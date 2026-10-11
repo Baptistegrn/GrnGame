@@ -4,7 +4,6 @@
 #include "SDL3/SDL_joystick.h"
 #include "SDL3/SDL_stdinc.h"
 #include "grngame/bindings/wren/wren_event.h"
-#include "grngame/core/param.h"
 #include "grngame/dev/logging.h"
 #include "grngame/math/math.h"
 #include "grngame/utils/attributes.h"

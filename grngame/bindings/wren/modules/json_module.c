@@ -4,9 +4,10 @@
 #include "grngame/core/app.h"
 #include "grngame/data/json.h"
 #include "grngame/dev/logging.h"
+#include "grngame/utils/memory.h"
 #include "wren.h"
 
-#define MAP_KEY_SIZE 255
+#define MAP_KEY_SIZE 255 * BUFFER_SPACE
 
 // WREN -> C (read)
 // Fixed slots (4) + WrenHandle to prevent VM memory bloat

@@ -1,7 +1,6 @@
 #include "sound.h"
 #include "filter.h"
 #include "grngame/core/app.h"
-#include "grngame/core/param.h"
 #include "grngame/dev/logging.h"
 #include "grngame/math/math.h"
 #include <SDL3/SDL.h>
