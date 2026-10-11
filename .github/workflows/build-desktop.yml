@@ -32,7 +32,7 @@ jobs:
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: latest
+          xmake-version: 3.1.0
           actions-cache-folder: '.xmake-cache-${{ matrix.platform }}-embed-${{ matrix.embed }}'
           package-cache: true
           build-cache: true
