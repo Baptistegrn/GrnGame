@@ -41,7 +41,7 @@ function add_test_target(name)
 		local plat = get_config("plat") or os.host()
 		local arch = get_config("arch") or os.arch()
 		local mode = get_config("mode") or "release"
-		local suffix = embedded and "-embedded" or "" -- à adapter à ton nommage réel
+		local suffix = embedded and "embedded" or ""
 		local ext = is_host("windows") and ".exe" or ""
 
 		local runtime_path = path.join(build_dir, "Runtime-" .. plat .. "-" .. arch .. "-" .. mode .. suffix .. ext)

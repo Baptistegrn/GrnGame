@@ -8,6 +8,7 @@
 #include "grngame/core/app.h"
 #include "grngame/core/window.h"
 #include "grngame/data/data.h"
+#include "grngame/data/file.h"
 #include "grngame/data/json.h"
 #include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"

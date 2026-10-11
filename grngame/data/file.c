@@ -84,7 +84,7 @@ bool MoveFileAtInit(const char *dst, const char *name)
         return false;
     }
 
-    bool ok = SDL_SaveFile(dst, data, size);
+    bool ok = SDL_SaveFile(dst, data, (size_t)size);
     SDL_free(data);
 
     if (!ok)
