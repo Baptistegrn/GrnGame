@@ -53,7 +53,10 @@ jobs:
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: 3.1.0
+          xmake-version: latest
+
+      - name: update xmake repo
+        run: xmake repo -u
 
       - name: Download Staging Folders
         uses: actions/download-artifact@v4

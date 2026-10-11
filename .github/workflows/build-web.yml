@@ -15,11 +15,14 @@ jobs:
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: 3.1.0
+          xmake-version: latest
           actions-cache-folder: '.xmake-cache-wasm'
           package-cache: true
           build-cache: true
 
+      - name: update xmake repo
+        run: xmake repo -u
+        
       - name: Setup emsdk
         uses: mymindstorm/setup-emsdk@v14
 

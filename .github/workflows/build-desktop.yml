@@ -32,10 +32,14 @@ jobs:
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: 3.1.0
+          xmake-version: latest
           actions-cache-folder: '.xmake-cache-${{ matrix.platform }}-embed-${{ matrix.embed }}'
           package-cache: true
           build-cache: true
+
+      - name: update xmake repo
+        run: xmake repo -u
+
       #freetype is not static on macos when its on the system
       - name: Remove homebrew freetype
         if: runner.os == 'macOS'

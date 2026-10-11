@@ -20,10 +20,13 @@ jobs:
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: 3.1.0
+          xmake-version: latest
           actions-cache-folder: '.xmake-cache-tests-linux-x64'
           package-cache: true
           build-cache: true
+          
+      - name: update xmake repo
+        run: xmake repo -u
 
       - name: Install virtual display / renderer / audio
         run: |
