@@ -62,6 +62,8 @@ if is_plat("wasm") then
 	})
 end
 
+add_requires("libtool 2.5.4")
+
 
 -- render + input
 -- if we update sdl version we need to update android-build because its based on sdl build
