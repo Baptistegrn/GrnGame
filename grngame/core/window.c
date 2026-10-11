@@ -7,6 +7,7 @@
 #include "grngame/audio/sound.h"
 #include "grngame/renderer/renderer.h"
 #include "grngame/utils/attributes.h"
+#include <math.h>
 
 static void SetFullscreen(SDL_Window *window, bool fullscreen)
 {
