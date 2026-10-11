@@ -11,5 +11,5 @@ BEGIN_DECLARATIONS
 bool FileExist(const char *name);
 unsigned char *ReturnFileString(const char *name, uint64 *size_out);
 bool WriteFileString(const char *name, const char *content, bool append);
-void MoveFileAtInit(const char *dst, const char *name);
+bool MoveFileAtInit(const char *dst, const char *name);
 END_DECLARATIONS
