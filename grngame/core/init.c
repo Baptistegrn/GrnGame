@@ -333,6 +333,19 @@ InitResult InitAll(void)
 
 #ifdef GRNGAME_EMBED_ASSETS
     g_app.embedded_file_manager = EmbeddedFileManagerCreate();
+#ifdef GRNGAME_ANDROID
+    char *dst = PathFromAndroidStorage("Assets.pak");
+    if (!MoveFileAtInit(dst, "Assets.pak"))
+        return INIT_OPEN_GAME_DATA_FAILED;
+
+    g_app.info.file_db = DbCreate(dst);
+    bool res = EmbeddedFileManagerLoadDb();
+    free(dst);
+    if (!res)
+    {
+        return INIT_OPEN_GAME_DATA_FAILED;
+    }
+#else
     char *path_asset = PathFromExecutableDirectory("Assets.pak");
     g_app.info.file_db = DbCreate(path_asset);
     free(path_asset);
@@ -341,6 +354,8 @@ InitResult InitAll(void)
     {
         return INIT_OPEN_GAME_DATA_FAILED;
     }
+#endif
+
 #endif
 
     InitializeJson();

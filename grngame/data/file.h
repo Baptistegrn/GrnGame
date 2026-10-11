@@ -4,7 +4,6 @@
 #include "grngame/utils/memory.h"
 #include <stdbool.h>
 
-
 #define MAX_PATH_ 1024 * BUFFER_SPACE
 
 BEGIN_DECLARATIONS
@@ -12,5 +11,5 @@ BEGIN_DECLARATIONS
 bool FileExist(const char *name);
 unsigned char *ReturnFileString(const char *name, uint64 *size_out);
 bool WriteFileString(const char *name, const char *content, bool append);
-
+void MoveFileAtInit(const char *dst, const char *name);
 END_DECLARATIONS

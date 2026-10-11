@@ -2,6 +2,7 @@
 #include "grngame/math/types.h"
 #include "grngame/platform/directories.h"
 #include "grngame/utils/string_compat.h"
+#include <SDL3/SDL_system.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -132,4 +133,19 @@ char *PathFromExecutableDirectory(const char *relative)
     snprintf(buf, len, "%.*s/%s", (int32)exe_len, exe_dir, relative);
 
     return buf;
+}
+
+char *PathFromAndroidStorage(const char *name)
+{
+#ifdef GRNGAME_ANDROID
+    const char *internal = SDL_GetAndroidInternalStoragePath();
+    uint64 len_inter = strlen(internal);
+    uint64 len_name = strlen(name);
+    uint64 len = len_inter + len_name + 1;
+    char *buffer = malloc(len);
+    snprintf(buffer, len, "%s/%s", internal, name);
+    return buffer;
+#else
+    return NULL;
+#endif
 }

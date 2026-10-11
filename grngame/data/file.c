@@ -1,3 +1,5 @@
+#include "SDL3/SDL.h"
+#include "grngame/dev/logging.h"
 #include "grngame/math/types.h"
 #include <grngame/utils/string_compat.h>
 #include <stdbool.h>
@@ -67,4 +69,28 @@ bool WriteFileString(const char *name, const char *content, bool append)
     }
 
     return true;
+}
+
+bool MoveFileAtInit(const char *dst, const char *name)
+{
+    if (SDL_GetPathInfo(dst, NULL))
+        return true;
+
+    uint64 size = 0;
+    void *data = SDL_LoadFile(name, &size);
+    if (!data)
+    {
+        LOG_ERROR("LoadFile(%s) failed: %s", name, SDL_GetError());
+        return false;
+    }
+
+    bool ok = SDL_SaveFile(dst, data, size);
+    SDL_free(data);
+
+    if (!ok)
+    {
+        LOG_ERROR("SaveFile failed: %s", SDL_GetError());
+        SDL_RemovePath(dst);
+    }
+    return ok;
 }

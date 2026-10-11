@@ -2,7 +2,6 @@
 
 #ifdef GRNGAME_WASM
 
-#include "grngame/core/param.h"
 #include <emscripten.h>
 #include <emscripten/html5.h>
 
