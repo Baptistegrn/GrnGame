@@ -140,6 +140,39 @@ static void LoadModuleComplete(WrenVM *vm, const char *module, WrenLoadModuleRes
     }
 }
 
+static char *AddEndOfString(char *data, uint64 size)
+{
+    uint32 sz = size;
+    char *buf = malloc(sz + 1);
+    memcpy(buf, data, sz);
+    buf[sz] = '\0';
+    return buf;
+}
+
+WrenLoadModuleResult LoadModuleFnFromMemory(WrenVM *vm, const char *name)
+{
+    (void)vm;
+    WrenLoadModuleResult result = {0};
+    result.onComplete = LoadModuleComplete;
+    result.source = NULL;
+    char filename[MODULE_SIZE_MAX_NAME];
+    snprintf(filename, sizeof(filename), "%s.wren", name);
+
+    EmbeddedFile *asset = EmbeddedFileGet(filename);
+
+    if (asset)
+    {
+        char *buf = AddEndOfString((char *)asset->data, asset->size);
+        result.source = buf;
+    }
+    else
+    {
+        LOG_ERROR("Wren Import Error: Failed to find module '%s' in embedded files", name);
+    }
+
+    return result;
+}
+
 WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
 {
     (void)vm;
@@ -150,39 +183,18 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
     char filename[MODULE_SIZE_MAX_NAME];
     snprintf(filename, sizeof(filename), "%s.wren", name);
 
-#ifdef GRNGAME_EMBED_ASSETS
+    char script_path[MODULE_SIZE_MAX_NAME + 15];
+    snprintf(script_path, sizeof(script_path), "%s", filename);
+
+    char *path = PathFromExecutableDirectory(script_path);
+
+    result.source = (char *)ReturnFileString(path, NULL);
+    free(path);
+
+    if (!result.source)
     {
-        EmbeddedFile *asset = EmbeddedFileGet(filename);
-
-        if (asset)
-        {
-            uint32 sz = asset->size;
-            char *buf = malloc(sz + 1);
-            memcpy(buf, asset->data, sz);
-            buf[sz] = '\0';
-            result.source = buf;
-        }
-        else
-        {
-            LOG_ERROR("Wren Import Error: Failed to find module '%s' in embedded files", name);
-        }
+        LOG_ERROR("Wren Import Error: Failed to find module '%s'", script_path);
     }
-#else
-    {
-        char script_path[MODULE_SIZE_MAX_NAME + 15];
-        snprintf(script_path, sizeof(script_path), "%s", filename);
-
-        char *path = PathFromExecutableDirectory(script_path);
-
-        result.source = (char *)ReturnFileString(path, NULL);
-        free(path);
-
-        if (!result.source)
-        {
-            LOG_ERROR("Wren Import Error: Failed to find module '%s'", script_path);
-        }
-    }
-#endif
 
     return result;
 }

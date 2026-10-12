@@ -313,6 +313,7 @@ void InitializeAssets(void)
 
 void InitializeScripts(void)
 {
+#ifndef GRNGAME_EMBED_ASSETS
     if (!WrenInit())
     {
         HandleWrenFailure();
@@ -320,6 +321,15 @@ void InitializeScripts(void)
     }
 
     LOG_INFO("Wren runtime initialized successfully with script 'main.wren'");
+#else
+    if (!WrenInitFromMemory())
+    {
+        HandleWrenFailure();
+        return;
+    }
+
+    LOG_INFO("Wren runtime initialized successfully with script 'main.wren'");
+#endif
 }
 
 InitResult InitAll(void)

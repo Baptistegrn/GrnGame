@@ -361,8 +361,8 @@ _DMON_PRIVATE char *_dmon_strcpy(char *dst, int dst_sz, const char *src)
 
 _DMON_PRIVATE char *_dmon_unixpath(char *dst, int size, const char *path)
 {
-    size_t len = strlen(path), i;
-    len = _dmon_min(len, (size_t)size - 1);
+    uint64 len = strlen(path), i;
+    len = _dmon_min(len, (uint64)size - 1);
 
     for (i = 0; i < len; i++)
     {
@@ -605,7 +605,7 @@ _DMON_PRIVATE DWORD WINAPI _dmon_thread(LPVOID arg)
             {
                 char filepath[DMON_MAX_PATH];
                 PFILE_NOTIFY_INFORMATION notify;
-                size_t offset = 0;
+                uint64 offset = 0;
 
                 if (bytes == 0)
                 {
@@ -725,7 +725,7 @@ DMON_API_IMPL dmon_watch_id dmon_watch(const char *rootdir,
     HANDLE dir_handle = INVALID_HANDLE_VALUE;
     int num_freelist = DMON_MAX_WATCHES - _dmon.num_watches;
     int index = _dmon.freelist[num_freelist - 1];
-    size_t rootdir_len;
+    uint64 rootdir_len;
 
     {
         _DMON_WINAPI_STR(rootdir, DMON_MAX_PATH);
@@ -1554,7 +1554,7 @@ _DMON_PRIVATE void *_dmon_cf_realloc(void *ptr, CFIndex newsize, CFOptionFlags h
 {
     _DMON_UNUSED(hints);
     _DMON_UNUSED(info);
-    return DMON_REALLOC(ptr, (size_t)newsize);
+    return DMON_REALLOC(ptr, (uint64)newsize);
 }
 
 _DMON_PRIVATE void _dmon_fsevent_process_events(void)
@@ -1792,7 +1792,7 @@ DMON_API_IMPL void dmon_deinit(void)
     _dmon_init = false;
 }
 
-_DMON_PRIVATE void _dmon_fsevent_callback(ConstFSEventStreamRef stream_ref, void *user_data, size_t num_events,
+_DMON_PRIVATE void _dmon_fsevent_callback(ConstFSEventStreamRef stream_ref, void *user_data, uint64 num_events,
                                           void *event_paths, const FSEventStreamEventFlags event_flags[],
                                           const FSEventStreamEventId event_ids[])
 {
@@ -1807,7 +1807,7 @@ _DMON_PRIVATE void _dmon_fsevent_callback(ConstFSEventStreamRef stream_ref, void
     char abs_filepath_lower[DMON_MAX_PATH];
 
     {
-        size_t i;
+        uint64 i;
         for (i = 0; i < num_events; i++)
         {
             const char *filepath = ((const char **)event_paths)[i];

@@ -78,7 +78,8 @@ static bool SlotEnsureTrack(SoundSlot *slot)
     return slot->track != NULL;
 }
 
-static void SDLCALL FilterCallback(void *userdata, MIX_Track *track, const SDL_AudioSpec *spec, float *pcm, int samples)
+static void SDLCALL FilterCallback(void *userdata, MIX_Track *track, const SDL_AudioSpec *spec, float32 *pcm,
+                                   int samples)
 {
     FilterChainProcess((FilterChain *)userdata, pcm, samples, spec->channels);
 }

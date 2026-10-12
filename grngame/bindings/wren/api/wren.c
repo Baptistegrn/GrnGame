@@ -26,60 +26,64 @@ static void WrenStartVM()
     g_app.wren_manager.vm = wrenNewVM(&(g_app.wren_manager.config));
 }
 
+static char *AddEndOfString(char *data, uint64 size)
+{
+    uint32 sz = size;
+    char *buf = malloc(sz + 1);
+    memcpy(buf, data, sz);
+    buf[sz] = '\0';
+    return buf;
+}
+
+static bool WrenInterpretFromMemory(const char *filename)
+{
+    char *module_name = FileStem(filename);
+
+    EmbeddedFile *asset = EmbeddedFileGet(filename);
+    if (!asset)
+    {
+        LOG_ERROR("Failed to find script '%s' in embedded files", filename);
+        return false;
+    }
+
+    char *source = AddEndOfString((char *)asset->data, asset->size);
+    WrenInterpretResult result = wrenInterpret(g_app.wren_manager.vm, module_name, source);
+    free(source);
+
+    if (result != WREN_RESULT_SUCCESS)
+    {
+        LOG_ERROR("wrenInterpret failed for embedded '%s'", filename);
+        return false;
+    }
+
+    return true;
+}
+
 static bool WrenInterpret(const char *filename)
 {
     char *module_name = FileStem(filename);
-#ifdef GRNGAME_EMBED_ASSETS
+
+    char *path = PathFromExecutableDirectory(filename);
+
+    char *file_content = (char *)ReturnFileString(path, NULL);
+    free(path);
+
+    if (!file_content)
     {
-        EmbeddedFile *asset = EmbeddedFileGet(filename);
-        if (!asset)
-        {
-            LOG_ERROR("Failed to find script '%s' in embedded files", filename);
-            return false;
-        }
-
-        uint32 sz = asset->size;
-        char *buf = malloc(sz + 1);
-        memcpy(buf, asset->data, sz);
-        buf[sz] = '\0';
-        char *source = buf;
-        WrenInterpretResult result = wrenInterpret(g_app.wren_manager.vm, module_name, source);
-        free(buf);
-
-        if (result != WREN_RESULT_SUCCESS)
-        {
-            LOG_ERROR("wrenInterpret failed for embedded '%s'", filename);
-            return false;
-        }
-
-        return true;
+        LOG_ERROR("Failed to read script '%s'", filename);
+        return false;
     }
 
-#else
+    WrenInterpretResult result = wrenInterpret(g_app.wren_manager.vm, module_name, file_content);
+    free(file_content);
+
+    if (result != WREN_RESULT_SUCCESS)
     {
-        char *path = PathFromExecutableDirectory(filename);
-
-        char *file_content = (char *)ReturnFileString(path, NULL);
-        free(path);
-
-        if (!file_content)
-        {
-            LOG_ERROR("Failed to read script '%s'", filename);
-            return false;
-        }
-
-        WrenInterpretResult result = wrenInterpret(g_app.wren_manager.vm, module_name, file_content);
-        free(file_content);
-
-        if (result != WREN_RESULT_SUCCESS)
-        {
-            LOG_ERROR("wrenInterpret failed for '%s'", filename);
-            return false;
-        }
-
-        return true;
+        LOG_ERROR("wrenInterpret failed for '%s'", filename);
+        return false;
     }
-#endif
+
+    return true;
 }
 
 static void RegisterWrenModules(void)
@@ -98,6 +102,42 @@ static void RegisterWrenModules(void)
     RegisterEventModule();
     RegisterJsonModule();
     RegisterExitModule();
+}
+
+bool WrenInitFromMemory()
+{
+    g_app.wren_manager = (WrenManager){0};
+    RegisterWrenModules();
+    wrenInitConfiguration(&(g_app.wren_manager.config));
+    WrenSetWriteFn(WriteFn);
+    WrenSetErrorFn(ErrorFn);
+    WrenSetBindMethodFn(BindMethodFn);
+    WrenSetBindClassFn(BindClassFn);
+    WrenSetLoadModuleFn(LoadModuleFnFromMemory);
+    WrenStartVM();
+    WrenSetCallHandle();
+
+    const char *link = "scripts/main.wren";
+
+    if (!WrenInterpretFromMemory(link))
+    {
+        LOG_ERROR("Failed to interpret main.wren");
+        return false;
+    }
+
+    if (!WrenLoadMainHandles("main"))
+    {
+        LOG_ERROR("Failed to load Wren handles from 'main' module");
+        return false;
+    }
+
+    if (!WrenCallOnStart())
+    {
+        LOG_ERROR("Failed to run Wren on_start");
+        return false;
+    }
+
+    return true;
 }
 
 bool WrenInit()

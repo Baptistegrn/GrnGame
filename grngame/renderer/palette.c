@@ -18,7 +18,7 @@ void PaletteFreeStringVec(string_vec_t *vec)
     if (UNLIKELY(vec == NULL))
         return;
 
-    for (size_t i = 0; i < kv_size(*vec); i++)
+    for (uint64 i = 0; i < kv_size(*vec); i++)
     {
         free(kv_A(*vec, i));
     }

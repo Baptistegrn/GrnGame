@@ -20,7 +20,7 @@ typedef struct
 {
     CallbackArgType type;
     union {
-        double num;
+        float64 num;
         bool boolean;
         const char *string;
     } as;
@@ -59,6 +59,7 @@ typedef struct
 bool ReloadWrenScript();
 
 bool WrenInit(void);
+bool WrenInitFromMemory();
 
 bool CallWrenCallback(int16 index, void *data, uint8 arg_count);
 
@@ -97,5 +98,5 @@ void WrenSetWriteFn(WrenWriteFn writeFn);
 void WrenSetBindMethodFn(WrenBindForeignMethodFn bindMethodFn);
 void WrenSetBindClassFn(WrenBindForeignClassFn bindClassFn);
 void WrenSetLoadModuleFn(WrenLoadModuleFn loadModuleFn);
-
+WrenLoadModuleResult LoadModuleFnFromMemory(WrenVM *vm, const char *name);
 END_DECLARATIONS

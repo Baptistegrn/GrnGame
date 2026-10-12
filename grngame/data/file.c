@@ -3,6 +3,7 @@
 #include "grngame/math/types.h"
 #include <grngame/utils/string_compat.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -76,7 +77,7 @@ bool MoveFileAtInit(const char *dst, const char *name)
     if (SDL_GetPathInfo(dst, NULL))
         return true;
 
-    uint64 size = 0;
+    size_t size = 0;
     void *data = SDL_LoadFile(name, &size);
     if (!data)
     {
@@ -84,7 +85,7 @@ bool MoveFileAtInit(const char *dst, const char *name)
         return false;
     }
 
-    bool ok = SDL_SaveFile(dst, data, (size_t)size);
+    bool ok = SDL_SaveFile(dst, data, size);
     SDL_free(data);
 
     if (!ok)
