@@ -79,34 +79,55 @@ bool FileExist(const char *name)
 }
 
 // dont use sdl api because we need to free data with sdl_free
-unsigned char *ReturnFileData(const char *name, uint64 *size_out)
+unsigned char *ReturnFileData(const char *name, size_t *size_out)
 {
     FILE *file = fopen(name, "rb");
-    if (!file)
+    if (file == NULL)
     {
-        LOG_ERROR("File %s doesnt exist", name);
+        LOG_ERROR("File %s doesn't exist", name);
         return NULL;
     }
-    fseek(file, 0, SEEK_END);
-    int64 size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    if (size < 0)
+
+    if (fseek(file, 0, SEEK_END) != 0)
     {
-        LOG_ERROR("File %s is unvalid", name);
+        LOG_ERROR("Unable to seek in file %s", name);
         fclose(file);
         return NULL;
     }
-    unsigned char *buffer = malloc((uint64)size + 1);
 
-    uint64 read_count = fread(buffer, 1, (uint64)size, file);
+    long size = ftell(file);
+    if (size < 0)
+    {
+        LOG_ERROR("Invalid file size for %s", name);
+        fclose(file);
+        return NULL;
+    }
+
+    if (fseek(file, 0, SEEK_SET) != 0)
+    {
+        LOG_ERROR("Unable to rewind file %s", name);
+        fclose(file);
+        return NULL;
+    }
+
+    size_t file_size = (size_t)size;
+    unsigned char *buffer = malloc(file_size + 1);
+
+    if (buffer == NULL)
+    {
+        LOG_ERROR("Memory allocation failed for %s", name);
+        fclose(file);
+        return NULL;
+    }
+
+    size_t read_count = fread(buffer, 1, file_size, file);
     fclose(file);
 
-    if (read_count > (uint64)size)
-        read_count = (uint64)size;
-
     buffer[read_count] = '\0';
+
     if (size_out != NULL)
         *size_out = read_count;
+
     return buffer;
 }
 

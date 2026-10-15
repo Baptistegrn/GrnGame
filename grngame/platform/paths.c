@@ -119,7 +119,7 @@ bool FileIsLoadableJson(const char *file)
 char *PathFromExecutableDirectory(const char *relative)
 {
 #if defined(GRNGAME_ANDROID) || defined(GRNGAME_IOS)
-    return strdup(name);
+    return strdup(relative);
 #else
     const char *exe_dir = DirOfExecutable();
 
