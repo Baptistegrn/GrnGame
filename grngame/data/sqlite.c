@@ -69,17 +69,34 @@ void DbClose(sqlite3 *db)
     sqlite3_close(db);
 }
 
-void DbBegin(sqlite3 *db)
+bool DbBegin(sqlite3 *db)
 {
-    DataWrite(db, "BEGIN TRANSACTION;");
+    if (!DataWrite(db, "BEGIN TRANSACTION;"))
+    {
+        LOG_ERROR("Failed to begin transaction");
+        return false;
+    }
+    return true;
 }
-void DbCommit(sqlite3 *db)
+
+bool DbCommit(sqlite3 *db)
 {
-    DataWrite(db, "COMMIT;");
+    if (!DataWrite(db, "COMMIT;"))
+    {
+        LOG_ERROR("Failed to commit");
+        return false;
+    }
+    return true;
 }
-void DbRollback(sqlite3 *db)
+
+bool DbRollback(sqlite3 *db)
 {
-    DataWrite(db, "ROLLBACK;");
+    if (!DataWrite(db, "ROLLBACK;"))
+    {
+        LOG_ERROR("Failed to rollback");
+        return false;
+    }
+    return true;
 }
 
 bool DataWrite(sqlite3 *db, const char *sql)

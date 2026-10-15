@@ -63,9 +63,9 @@ bool DataWrite(sqlite3 *db, const char *sql);
 bool DataFetch(sqlite3 *db, const char *sql, DbResult *out);
 
 // wrap in begin/commit for bulk writes
-void DbBegin(sqlite3 *db);
-void DbCommit(sqlite3 *db);
-void DbRollback(sqlite3 *db);
+bool DbBegin(sqlite3 *db);
+bool DbCommit(sqlite3 *db);
+bool DbRollback(sqlite3 *db);
 
 bool DbStmtPrepare(sqlite3 *db, const char *sql, DbStmt *out);
 bool DbStmtRun(DbStmt *s, DbArg *args, int32 argc);

@@ -52,6 +52,10 @@ bool JsonCreate(const char *key, const char *text)
 {
     char *path = PathFromExecutableDirectory(key);
     bool result = WriteFileData(path, text, false);
+    if (!result)
+    {
+        LOG_ERROR("Failed to create json file :%s", key);
+    }
     free(path);
     return result;
 }
@@ -60,7 +64,12 @@ bool JsonCreateFromMemory(const char *key, const char *text)
 {
 
     uint64 size = strlen(text);
-    return EmbeddedFilePut(key, text, size);
+    if (!EmbeddedFilePut(key, text, size))
+    {
+        LOG_ERROR("Failed to create json from memory :%s", key);
+        return false;
+    }
+    return true;
 }
 
 static void JsonObjectAdd(const char *key, JsonObject *value)
@@ -70,12 +79,6 @@ static void JsonObjectAdd(const char *key, JsonObject *value)
     char *dup_key = strdup(key);
 
     khiter_t it = kh_put(JsonObjects, manager, dup_key, &ret);
-
-    if (UNLIKELY(ret < 0))
-    {
-        free(dup_key);
-        return;
-    }
 
     if (ret == 0)
     {
@@ -105,7 +108,7 @@ bool JsonObjectContains(const char *key)
     return kh_get(JsonObjects, manager, key) != kh_end(manager);
 }
 
-int32 OpenJsonObject(const char *path, uint64 min, uint64 max)
+bool OpenJsonObject(const char *path, uint64 min, uint64 max)
 {
     char *path_ = PathFromExecutableDirectory(path);
     char *text = (char *)ReturnFileData(path_, NULL);
@@ -113,7 +116,8 @@ int32 OpenJsonObject(const char *path, uint64 min, uint64 max)
 
     if (UNLIKELY(text == NULL))
     {
-        return 1;
+        LOG_ERROR("Impossible to get content from %s,did you create it?", path);
+        return false;
     }
 
     cJSON *json = cJSON_Parse(text);
@@ -121,8 +125,8 @@ int32 OpenJsonObject(const char *path, uint64 min, uint64 max)
 
     if (UNLIKELY(json == NULL))
     {
-
-        return 2;
+        LOG_ERROR("Impossitble to parse %s, is it a correct json format ?", path);
+        return false;
     }
 
     JsonObject *j = malloc(sizeof(JsonObject));
@@ -139,6 +143,7 @@ bool OpenJsonObjectFromMemory(const char *path, const unsigned char *text, uint6
     cJSON *json = cJSON_Parse((const char *)text);
     if (json == NULL)
     {
+        LOG_ERROR("Impossitble to parse %s, is it a correct json format ?", path);
         return false;
     }
 
@@ -150,6 +155,7 @@ bool OpenJsonObjectFromMemory(const char *path, const unsigned char *text, uint6
     JsonObjectAdd(path, j);
     return true;
 }
+
 static cJSON *JsonNavigateToParent(cJSON *root, char *path_copy, char **out_leaf, bool create)
 {
     char *saveptr = NULL;
@@ -317,6 +323,7 @@ bool JsonSaveObject(const char *fileKey)
     JsonObject *entry = JsonObjectGet(fileKey);
     if (UNLIKELY(entry == NULL))
     {
+        LOG_ERROR("Cant save json because %s doesnt exist", fileKey);
         return false;
     }
 
@@ -345,12 +352,14 @@ bool JsonSaveObjectFromMemory(const char *fileKey)
     JsonObject *entry = JsonObjectGet(fileKey);
     if (UNLIKELY(entry == NULL))
     {
+        LOG_ERROR("Cant save json because isnt open :%s", fileKey);
         return false;
     }
 
     char *text = cJSON_Print(entry->json);
     if (UNLIKELY(text == NULL))
     {
+        LOG_ERROR("Cant save json because json isnt valid :%s", fileKey);
         return false;
     }
 
@@ -445,6 +454,7 @@ static bool JsonCloseObject(const char *fileKey)
 
     if (UNLIKELY(it == kh_end(manager)))
     {
+        LOG_ERROR("Cant close json object from memory :%s", fileKey);
         return false;
     }
 
@@ -513,6 +523,7 @@ bool WriteInJsonObject(const char *key, cJSON *object)
     JsonObject *entry = JsonObjectGet(key);
     if (UNLIKELY(entry == NULL))
     {
+        LOG_ERROR("Cant write in json object because %s doesnt exist.did you forget to open it?");
         return false;
     }
     cJSON_Delete(entry->json);

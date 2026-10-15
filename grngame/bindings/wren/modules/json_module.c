@@ -204,31 +204,18 @@ void open_json_file(WrenVM *vm)
     const char *key = wrenGetSlotString(vm, 1);
     uint64 min = (uint64)wrenGetSlotDouble(vm, 2);
     uint64 max = (uint64)wrenGetSlotDouble(vm, 3);
-
 #ifndef GRNGAME_EMBED_ASSETS
-    int32 error = OpenJsonObject(key, min, max);
-    if (error == 1)
-    {
-        LOG_ERROR("Failed to open Json content :%s,did you write the correct path ?", key);
-    }
-    else if (error == 2)
-    {
-        LOG_ERROR("Failed to parse Json content :%s,your file isnt json...", key);
-    }
+    bool error = OpenJsonObject(key, min, max);
 #else
     if (!EmbeddedFileExists(key))
     {
         LOG_ERROR("Failed to get %s in Assets.pak,you need to create the file first.", key);
         return;
     }
-
     EmbeddedFile *asset = EmbeddedFileGet(key);
-
-    if (!OpenJsonObjectFromMemory(key, asset->data, min, max))
-    {
-        LOG_ERROR("Failed to parse Json content :%s,your file isnt json...", key);
-    }
+    bool error = OpenJsonObjectFromMemory(key, asset->data, min, max);
 #endif
+    wrenSetSlotBool(vm, 1, error);
 }
 
 void json_contains(WrenVM *vm)
@@ -265,7 +252,6 @@ void json_set(WrenVM *vm)
     bool success = WriteInJsonObject(key, value);
     if (!success)
     {
-        LOG_ERROR("Failed to get Json object from %s.Did you forget to open Json ?", key);
         cJSON_Delete(value);
     }
 
@@ -278,16 +264,9 @@ void json_save(WrenVM *vm)
     bool success = false;
 #ifndef GRNGAME_EMBED_ASSETS
     success = JsonSaveObject(key);
-    if (!success)
-    {
-        LOG_ERROR("Failed to get Json object from %s.Did you forget to open Json ?", key);
-    }
 #else
     success = JsonSaveObjectFromMemory(key);
-    if (!success)
-    {
-        LOG_ERROR("Failed to get Json object from %s in Assets.pak.Did you forget to open Json ?", key);
-    }
+
 #endif
     wrenSetSlotBool(vm, 0, success);
 }
@@ -308,16 +287,8 @@ void create_json_file(WrenVM *vm)
 
 #ifndef GRNGAME_EMBED_ASSETS
     bool success = JsonCreate(key, text);
-    if (!success)
-    {
-        LOG_ERROR("Failed to write completely %s at the creation.", key);
-    }
 #else
     bool success = JsonCreateFromMemory(key, text);
-    if (!success)
-    {
-        LOG_ERROR("Failed to write completely %s in Assets.pak at the creation.", key);
-    }
 #endif
 
     free(text);

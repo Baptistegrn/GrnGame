@@ -14,6 +14,7 @@ bool PathInfo(const char *path, SDL_PathInfo *info)
     return SDL_GetPathInfo(path, info);
 }
 
+// todo return a bool
 void *LoadFile(const char *name, size_t *size)
 {
     void *data = SDL_LoadFile(name, size);
@@ -30,6 +31,7 @@ bool SaveFile(const char *name, const void *data, size_t size)
     return ok;
 }
 
+// todo : return a bool
 SDL_IOStream *IOFromFile(const char *file, const char *mode)
 {
     SDL_IOStream *io = SDL_IOFromFile(file, mode);
@@ -138,7 +140,9 @@ bool WriteFileData(const char *name, const void *data, size_t size, bool append)
 
     SDL_IOStream *io = IOFromFile(name, "ab");
     if (!io)
+    {
         return false;
+    }
 
     bool ok = WriteIO(io, data, size);
     return CloseIO(io) && ok;
@@ -159,6 +163,13 @@ bool MoveFile_(const char *dst, const char *src)
     free(data);
 
     if (!ok)
-        RemovePath(dst);
+    {
+        LOG_ERROR("Failed to save file :%s", dst);
+        if (!RemovePath(dst))
+        {
+            LOG_ERROR("Failed to remove path of %s", dst);
+        }
+    }
+
     return ok;
 }

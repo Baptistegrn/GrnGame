@@ -31,7 +31,7 @@ JsonObject *JsonObjectGet(const char *key);
 bool JsonObjectContains(const char *key);
 
 /* Open JSON from the filesystem. */
-int OpenJsonObject(const char *key, uint64 min, uint64 max);
+bool OpenJsonObject(const char *key, uint64 min, uint64 max);
 
 /* Open JSON from embedded memory/database. */
 bool OpenJsonObjectFromMemory(const char *path, const unsigned char *text, uint64 min, uint64 max);
