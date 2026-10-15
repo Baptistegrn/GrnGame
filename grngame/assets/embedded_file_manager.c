@@ -1,6 +1,6 @@
 #include "embedded_file_manager.h"
 #include "grngame/core/app.h"
-#include "grngame/data/data.h"
+#include "grngame/data/sqlite.h"
 #include "grngame/dev/logging.h"
 #include "grngame/embedded/embedded_file_generator.h"
 #include "grngame/utils/attributes.h"
@@ -11,9 +11,22 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const EmbedKind GAME_DATA_KIND = EMBED_KIND_DATA;
+
 const char *EmbedKindTable(EmbedKind kind)
 {
     return EMBED_TABLE_NAMES[kind];
+}
+
+static EmbeddedFile *EmbeddedFileCreate(EmbedKind kind, const char *path, const void *data, uint64 size)
+{
+    EmbeddedFile *file = malloc(sizeof(*file));
+    file->name = strdup(path);
+    file->data = malloc(size);
+    file->size = size;
+    file->kind = kind;
+    memcpy(file->data, data, size);
+    return file;
 }
 
 static void EmbeddedFileFree(EmbeddedFile *file)
@@ -24,48 +37,6 @@ static void EmbeddedFileFree(EmbeddedFile *file)
     free((char *)file->name);
     free(file->data);
     free(file);
-}
-
-/* put an embedded file in memory */
-static void HashPutOwned(EmbeddedFile *File)
-{
-    EmbeddedFileManager *mgr = &g_app.embedded_file_manager;
-    int ret;
-    khiter_t k = kh_put(EmbeddedFileHash, mgr->hash, File->name, &ret);
-
-    if (ret == 0) /* replace if key already exist */
-    {
-        EmbeddedFile *old = kh_value(mgr->hash, k);
-        // need to update numbers of files
-        mgr->counts[old->kind]--;
-        mgr->total_count--;
-
-        EmbeddedFileFree(old);
-    }
-
-    kh_key(mgr->hash, k) = File->name;
-    kh_value(mgr->hash, k) = File;
-
-    mgr->counts[File->kind]++;
-    mgr->total_count++;
-}
-
-/* remove a file from memory */
-static bool HashRemove(const char *path)
-{
-    EmbeddedFileManager *mgr = &g_app.embedded_file_manager;
-    khiter_t k = kh_get(EmbeddedFileHash, mgr->hash, path);
-    if (k == kh_end(mgr->hash))
-        return false;
-
-    EmbeddedFile *File = kh_value(mgr->hash, k);
-
-    mgr->counts[File->kind]--;
-    mgr->total_count--;
-
-    kh_del(EmbeddedFileHash, mgr->hash, k);
-    EmbeddedFileFree(File);
-    return true;
 }
 
 COLD EmbeddedFileManager EmbeddedFileManagerCreate(void)
@@ -80,10 +51,7 @@ COLD void EmbeddedFileManagerDestroy(EmbeddedFileManager *manager)
     for (khiter_t k = kh_begin(manager->hash); k != kh_end(manager->hash); ++k)
     {
         if (kh_exist(manager->hash, k))
-        {
-            EmbeddedFile *file = kh_value(manager->hash, k);
-            EmbeddedFileFree(file);
-        }
+            EmbeddedFileFree(kh_value(manager->hash, k));
     }
 
     kh_destroy(EmbeddedFileHash, manager->hash);
@@ -93,59 +61,101 @@ COLD void EmbeddedFileManagerDestroy(EmbeddedFileManager *manager)
     manager->total_count = 0;
 }
 
-static bool LoadTable(EmbedKind kind)
+static void CountAdd(EmbeddedFileManager *mgr, EmbedKind kind)
 {
-    sqlite3 *db = g_app.info.file_db;
-    char sql[128];
-    snprintf(sql, sizeof(sql), "SELECT path, content FROM %s;", EmbedKindTable(kind));
+    mgr->counts[kind]++;
+    mgr->total_count++;
+}
 
-    DbResult res = DataFetch(db, sql);
+static void CountRemove(EmbeddedFileManager *mgr, EmbedKind kind)
+{
+    mgr->counts[kind]--;
+    mgr->total_count--;
+}
 
-    for (uint64 i = 0; i < kv_size(res.rows); ++i)
+static void MemoryPutOwned(EmbeddedFile *file)
+{
+    EmbeddedFileManager *mgr = &g_app.embedded_file_manager;
+    int ret;
+    khiter_t k = kh_put(EmbeddedFileHash, mgr->hash, file->name, &ret);
+
+    if (ret == 0) /* replace if key already exist */
     {
-        DbRow *row = &kv_A(res.rows, i);
-
-        if (UNLIKELY(kv_size(row->cols) < 2))
-        {
-            DbResultFree(&res);
-            return false;
-        }
-
-        DbValue *path = &kv_A(row->cols, 0);
-        DbValue *content = &kv_A(row->cols, 1);
-
-        if (UNLIKELY(path->type != TEXT || content->type != DATA))
-        {
-            LOG_ERROR("Assets.pak: invalid structure '%s'", EmbedKindTable(kind));
-            DbResultFree(&res);
-            return false;
-        }
-
-        EmbeddedFile *file = malloc(sizeof(*file));
-        file->name = strdup(path->value.s);
-        file->data = malloc(content->value.blob.size);
-        file->size = content->value.blob.size;
-        file->kind = kind;
-        memcpy(file->data, content->value.blob.data, content->value.blob.size);
-        HashPutOwned(file);
+        EmbeddedFile *old = kh_value(mgr->hash, k);
+        CountRemove(mgr, old->kind);
+        EmbeddedFileFree(old);
     }
 
-    DbResultFree(&res);
+    kh_key(mgr->hash, k) = file->name;
+    kh_value(mgr->hash, k) = file;
+    CountAdd(mgr, file->kind);
+}
+
+static bool MemoryRemove(const char *path)
+{
+    EmbeddedFileManager *mgr = &g_app.embedded_file_manager;
+    khiter_t k = kh_get(EmbeddedFileHash, mgr->hash, path);
+    if (k == kh_end(mgr->hash))
+        return false;
+
+    EmbeddedFile *file = kh_value(mgr->hash, k);
+    CountRemove(mgr, file->kind);
+
+    kh_del(EmbeddedFileHash, mgr->hash, k);
+    EmbeddedFileFree(file);
     return true;
 }
 
-static bool EmbeddedTableExists(const char *name)
+void EmbeddedFilePutMemory(EmbedKind kind, const char *path, const void *data, uint64 size)
 {
-    sqlite3 *db = g_app.info.file_db;
+    MemoryPutOwned(EmbeddedFileCreate(kind, path, data, size));
+}
+
+static bool LoadRow(DbRow *row, EmbedKind kind)
+{
+    if (UNLIKELY(kv_size(row->cols) < 2))
+        return false;
+
+    DbValue *path = &kv_A(row->cols, 0);
+    DbValue *content = &kv_A(row->cols, 1);
+
+    if (UNLIKELY(path->type != TEXT || content->type != DATA))
+        return false;
+
+    EmbeddedFilePutMemory(kind, path->value.s, content->value.blob.data, content->value.blob.size);
+    return true;
+}
+
+static bool LoadTableFrom(sqlite3 *db, const char *label, EmbedKind kind)
+{
+    char sql[128];
+    snprintf(sql, sizeof(sql), "SELECT path, content FROM %s;", EmbedKindTable(kind));
+
+    bool success;
+    DbResult res = DataFetch(db, sql, &success);
+
+    bool ok = success;
+    for (uint64 i = 0; ok && i < kv_size(res.rows); ++i)
+        ok = LoadRow(&kv_A(res.rows, i), kind);
+
+    if (!ok)
+        LOG_ERROR("%s: invalid structure '%s'", label, EmbedKindTable(kind));
+
+    DbResultFree(&res);
+    return ok;
+}
+
+static bool AssetsPakTableExists(const char *name)
+{
     char sql[256];
     snprintf(sql, sizeof(sql),
              "SELECT 1 FROM sqlite_master "
              "WHERE type = 'table' AND name = '%s' LIMIT 1;",
              name);
 
-    DbResult res = DataFetch(db, sql);
-    bool exists = kv_size(res.rows) > 0;
-
+    bool success;
+    DbResult res = DataFetch(g_app.info.file_db, sql, &success);
+    bool exists = success && kv_size(res.rows) > 0;
     DbResultFree(&res);
     return exists;
 }
@@ -154,17 +164,16 @@ bool EmbeddedDbHasValidSchema()
 {
     for (int32 i = 0; i < EMBED_KIND_COUNT; ++i)
     {
-        if (!EmbeddedTableExists(EmbedKindTable(i)))
+        if (!AssetsPakTableExists(EmbedKindTable((EmbedKind)i)))
         {
-            LOG_ERROR("Assets.pak: missing table '%s'", EmbedKindTable(i));
+            LOG_ERROR("Assets.pak: missing table '%s'", EmbedKindTable((EmbedKind)i));
             return false;
         }
     }
-
     return true;
 }
 
-bool EmbeddedFileManagerLoadDb()
+bool EmbeddedFileManagerLoadAssetsPak()
 {
     if (!EmbeddedDbHasValidSchema())
     {
@@ -174,17 +183,20 @@ bool EmbeddedFileManagerLoadDb()
 
     for (int32 i = 0; i < EMBED_KIND_COUNT; ++i)
     {
-        if (!LoadTable((EmbedKind)i))
+        if (!LoadTableFrom(g_app.info.file_db, "Assets.pak", (EmbedKind)i))
             return false;
     }
-
     return true;
+}
+
+bool EmbeddedFileManagerLoadGameData()
+{
+    return LoadTableFrom(g_app.info.data_db, "game.data", GAME_DATA_KIND);
 }
 
 const EmbeddedFile *EmbeddedFileGet(const char *path)
 {
     EmbeddedFileManager *mgr = &g_app.embedded_file_manager;
-
     khiter_t k = kh_get(EmbeddedFileHash, mgr->hash, path);
     return (k == kh_end(mgr->hash)) ? NULL : kh_value(mgr->hash, k);
 }
@@ -193,6 +205,8 @@ bool EmbeddedFileExists(const char *path)
 {
     return EmbeddedFileGet(path) != NULL;
 }
+
+const char *EmbedKindTable(EmbedKind kind);
 
 uint64 EmbeddedFileManagerGetCounts(EmbedKind kind)
 {
@@ -204,106 +218,70 @@ uint64 EmbeddedFileManagerGetTotalCount()
     return g_app.embedded_file_manager.total_count;
 }
 
-static bool EmbeddedDbWrite(EmbedKind kind, const char *path, const void *data, uint64 size)
+static bool GameDataExec(const char *sql, DbArg *args, int32 arg_count)
 {
-    sqlite3 *db = g_app.info.file_db;
+    bool prepared;
+    DbStmt stmt = DbStmtPrepare(g_app.info.data_db, sql, &prepared);
+    if (!prepared)
+    {
+        LOG_ERROR("Cant prepare statement on game.data");
+        return false;
+    }
 
+    bool ok = DbStmtRun(&stmt, args, arg_count);
+    DbStmtFree(&stmt);
+
+    if (!ok)
+        LOG_ERROR("Cant run statement on game.data");
+    return ok;
+}
+
+static bool GameDataDbWrite(const char *path, const void *data, uint64 size)
+{
     char sql[255];
     snprintf(sql, sizeof(sql),
              "INSERT INTO %s (path, content) VALUES (?, ?) "
              "ON CONFLICT(path) DO UPDATE SET content = excluded.content;",
-             EmbedKindTable(kind));
-
-    DbStmt stmt = DbStmtPrepare(db, sql);
+             EmbedKindTable(GAME_DATA_KIND));
 
     DbArg args[2] = {
-        {
-            .name = NULL,
-            .type = TEXT,
-            .value.s = path,
-        },
-        {
-            .name = NULL,
-            .type = DATA,
-            .value.blob =
-                {
-                    .data = (void *)data,
-                    .size = size,
-                },
-        },
+        {.name = NULL, .type = TEXT, .value.s = path},
+        {.name = NULL, .type = DATA, .value.blob = {.data = (void *)data, .size = size}},
     };
-
-    bool ok = DbStmtRun(&stmt, args, 2);
-    DbStmtFree(&stmt);
-
-    return ok;
+    return GameDataExec(sql, args, 2);
 }
 
-static bool EmbeddedDbDelete(EmbedKind kind, const char *path)
+static bool GameDataDbDelete(const char *path)
 {
-    sqlite3 *db = g_app.info.file_db;
-
     char sql[128];
-    snprintf(sql, sizeof(sql), "DELETE FROM %s WHERE path = ?;", EmbedKindTable(kind));
+    snprintf(sql, sizeof(sql), "DELETE FROM %s WHERE path = ?;", EmbedKindTable(GAME_DATA_KIND));
 
-    DbStmt stmt = DbStmtPrepare(db, sql);
-
-    DbArg arg;
-    arg.type = TEXT;
-    arg.value.s = path;
-
-    bool ok = DbStmtRun(&stmt, &arg, 1);
-    DbStmtFree(&stmt);
-    return ok;
+    DbArg arg = {.name = NULL, .type = TEXT, .value.s = path};
+    return GameDataExec(sql, &arg, 1);
 }
 
-// to put only in memory
-void EmbeddedFilePutMemory(EmbedKind kind, const char *path, const void *data, uint64 size)
+bool EmbeddedFilePutDisk(const char *path, const void *data, uint64 size)
 {
-
-    EmbeddedFile *file = malloc(sizeof(*file));
-    file->name = strdup(path);
-    file->data = malloc(size);
-    file->size = size;
-    file->kind = kind;
-    memcpy(file->data, data, size);
-    HashPutOwned(file);
+    return GameDataDbWrite(path, data, size);
 }
 
-// to put only in disk ( sqlite)
-bool EmbeddedFilePutDisk(EmbedKind kind, const char *path, const void *data, uint64 size)
+bool EmbeddedFilePut(const char *path, const void *data, uint64 size)
 {
-    /*if file already exist we destroy it */
-    const EmbeddedFile *old = EmbeddedFileGet(path);
-    if (old && old->kind != kind)
-    {
-        if (!EmbeddedDbDelete(old->kind, path))
-            return false;
-    }
-
-    if (!EmbeddedDbWrite(kind, path, data, size))
+    if (!EmbeddedFilePutDisk(path, data, size))
         return false;
 
-    return true;
-}
-
-bool EmbeddedFilePut(EmbedKind kind, const char *path, const void *data, uint64 size)
-{
-    if (!EmbeddedFilePutDisk(kind, path, data, size))
-        return false;
-
-    EmbeddedFilePutMemory(kind, path, data, size);
+    EmbeddedFilePutMemory(GAME_DATA_KIND, path, data, size);
     return true;
 }
 
 bool EmbeddedFileRemove(const char *path)
 {
-    const EmbeddedFile *File = EmbeddedFileGet(path);
-    if (!File)
+    const EmbeddedFile *file = EmbeddedFileGet(path);
+    if (!file || file->kind != GAME_DATA_KIND)
         return false;
 
-    if (!EmbeddedDbDelete(File->kind, path))
+    if (!GameDataDbDelete(path))
         return false;
 
-    return HashRemove(path);
+    return MemoryRemove(path);
 }

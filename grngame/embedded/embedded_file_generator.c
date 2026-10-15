@@ -1,5 +1,6 @@
 #include "embedded_file_generator.h"
 
+#include "SDL3/SDL_stdinc.h"
 #include "grngame/platform/directories.h"
 #include "grngame/platform/paths.h"
 
@@ -8,8 +9,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "grngame/data/data.h"
+#include "grngame/data/sqlite.h"
 #include "grngame/utils/attributes.h"
+#include "grngame/utils/version.h"
 #include "sqlite3.h"
 
 static int32 IsConfigJson(const char *path)
@@ -35,16 +37,9 @@ static EmbedKind ClassifyFile(const char *path)
 static sqlite3 *OpenFreshEmbeddedDb(const char *output_path)
 {
     if (DbExists(output_path))
-        remove(output_path);
+        RemovePath(output_path);
 
     return DbCreate(output_path);
-}
-
-static void ApplyDbPragmas(sqlite3 *db)
-{
-    DataWrite(db, "PRAGMA journal_mode = OFF;");    /* pas de journal */
-    DataWrite(db, "PRAGMA synchronous  = OFF;");    /* pas de fsync */
-    DataWrite(db, "PRAGMA cache_size   = -65536;"); /* cache 64 Mo */
 }
 
 static void CreateEmbedSchema(sqlite3 *db)
@@ -59,15 +54,20 @@ static void CreateEmbedSchema(sqlite3 *db)
     }
 }
 
-static void PrepareEmbedStatements(sqlite3 *db, EmbedContext *ctx)
+static bool PrepareEmbedStatements(sqlite3 *db, EmbedContext *ctx)
 {
     char sql[128];
-
+    bool success;
     for (int32 i = 0; i < EMBED_KIND_COUNT; ++i)
     {
         snprintf(sql, sizeof(sql), "INSERT INTO %s (path, content) VALUES (?, ?);", EMBED_TABLE_NAMES[i]);
-        ctx->stmts[i] = DbStmtPrepare(db, sql);
+        ctx->stmts[i] = DbStmtPrepare(db, sql, &success);
+        if (!success)
+        {
+            return false;
+        }
     }
+    return true;
 }
 
 static void FreeEmbedStatements(EmbedContext *ctx)
@@ -85,7 +85,7 @@ static void EmbedFileCallback(const char *path, void *userdata)
         return;
 
     uint64 size;
-    unsigned char *content = ReturnFileString(path, &size);
+    unsigned char *content = ReturnFileData(path, &size);
     if (UNLIKELY(!content))
     {
         fprintf(stderr, "[EmbeddedFile] Failed to load file: %s\n", path);
@@ -103,20 +103,33 @@ static void EmbedFileCallback(const char *path, void *userdata)
     free(content);
 }
 
-void CreateEmbeddedFileDb(int32 num_dirs, const char **dirs, const char *output_path)
+void CreateEmbeddedFileDb(int32 num_dirs, const char **dirs, const char *output_path, const char *version)
 {
     sqlite3 *db = OpenFreshEmbeddedDb(output_path);
     if (UNLIKELY(db == NULL))
     {
+        DbClose(db);
         fprintf(stderr, "[EmbeddedFile] Failed to create database: %s\n", output_path);
         return;
     }
 
     ApplyDbPragmas(db);
+    if (!ApplyDbVersion(db, version))
+    {
+        DbClose(db);
+        RemovePath(output_path);
+        fprintf(stderr, "[EmbeddedFile] Failed to create database: %s\n", output_path);
+        return;
+    }
+
     CreateEmbedSchema(db);
 
     EmbedContext ctx;
-    PrepareEmbedStatements(db, &ctx);
+    if (!PrepareEmbedStatements(db, &ctx))
+    {
+        fprintf(stderr, "[EmbeddedFile] Failed to insert data into database: %s\n", output_path);
+        return;
+    }
 
     DbBegin(db);
     for (int32 i = 0; i < num_dirs; ++i)

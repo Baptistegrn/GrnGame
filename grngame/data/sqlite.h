@@ -60,18 +60,22 @@ void DbResultPrint(DbResult *res);
 void DbResultFree(DbResult *res);
 
 bool DataWrite(sqlite3 *db, const char *sql);
-DbResult DataFetch(sqlite3 *db, const char *sql);
+DbResult DataFetch(sqlite3 *db, const char *sql, bool *out_error);
 
 // wrap in begin/commit for bulk writes
 void DbBegin(sqlite3 *db);
 void DbCommit(sqlite3 *db);
 void DbRollback(sqlite3 *db);
 
-DbStmt DbStmtPrepare(sqlite3 *db, const char *sql);
+DbStmt DbStmtPrepare(sqlite3 *db, const char *sql, bool *out_error);
 bool DbStmtRun(DbStmt *s, DbArg *args, int32 argc);
 void DbStmtFree(DbStmt *s);
 
-// bypass DbResult to populate Wren list directly in one pass
-void DataFetchWren(sqlite3 *db, const char *sql, WrenVM *vm);
+// read without open it
+bool ReadSqliteVersion(const char *path, int32 *out);
+
+bool ApplyDbVersion(sqlite3 *db, const char *version);
+
+bool ApplyDbPragmas(sqlite3 *db);
 
 END_DECLARATIONS

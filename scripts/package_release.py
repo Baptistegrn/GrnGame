@@ -77,6 +77,12 @@ def bundle_setup_scripts(stage_dir: Path) -> None:
     for name in ("GrnGameCreate.py","GrnGameCreate.sh","GrnGameCreate.bat", "GrnGameDist.py","GrnGameDist.bat","GrnGameDist.sh"):
         copy_file(Path("scripts") / name, stage_dir / "scripts")
 
+
+def bundle_metadata(stage_dir:Path) -> None:
+    model_dir = stage_dir / "project_model"
+    copy_file(Path("ressources/metadata.json"), model_dir)
+    copy_file(Path("scripts/metadata/read_metadata.py"), model_dir)
+
 def bundle_ios_script(stage_dir: Path) -> None:
     copy_file(Path("script") / "x_code_ios_project.py",stage_dir / "runtime")
 
@@ -141,6 +147,8 @@ def package(platform: str, tag: str) -> None:
     bundle_project_model(stage_dir)
 
     bundle_setup_scripts( stage_dir)
+
+    bundle_metadata(stage_dir)
     
     bundle_desktop_binary(platform, stage_dir)
 

@@ -90,8 +90,6 @@ bool ControllerOpen(SDL_JoystickID id, int16 index)
 
     CallWrenCallback(PAD_CONNECT, args, 1);
 
-    CallWrenCallback(PAD_CONNECT, args, 1);
-
     if (UNLIKELY(!SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_LEFTX) || !SDL_GamepadHasAxis(gp, SDL_GAMEPAD_AXIS_LEFTY)))
         LOG_WARNING("Gamepad %d (%s) lacks a left analog stick.", index, name);
 

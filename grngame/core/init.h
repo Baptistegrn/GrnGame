@@ -10,6 +10,7 @@ typedef enum
     INIT_SOUND_FAILED,
     INIT_CONFIG_FAILED,
     INIT_OPEN_GAME_DATA_FAILED,
+    INIT_METADATA_FAILED,
 } InitResult;
 
 InitResult InitAll();

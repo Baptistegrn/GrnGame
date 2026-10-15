@@ -40,16 +40,6 @@ jobs:
       - name: update xmake repo
         run: xmake repo -u
 
-      #xmake issue temporary step
-      - name: download libtool
-        if: runner.os == 'Linux'
-        run: |
-          mkdir -p "$HOME/pkgs"
-          wget --tries=5 -P "$HOME/pkgs" https://alpha.gnu.org/gnu/libtool/libtool-2.6.0.tar.xz
-          wget --tries=5 -P "$HOME/pkgs" https://ftp.gnu.org/gnu/libtool/libtool-2.5.4.tar.xz
-          wget --tries=5 -P "$HOME/pkgs" https://ftp.gnu.org/gnu/libtool/libtool-2.5.4.tar.gz
-          xmake g --pkg_searchdirs="$HOME/pkgs"
-
       #freetype is not static on macos when its on the system
       - name: Remove homebrew freetype
         if: runner.os == 'macOS'

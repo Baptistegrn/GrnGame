@@ -1,15 +1,14 @@
 #include "init.h"
-
+#include "data.h"
 #include "grngame/assets/asset_manager.h"
 #include "grngame/assets/embedded_file_manager.h"
-#include "grngame/assets/load.h"
-#include "grngame/audio/sound.h"
 #include "grngame/bindings/wren/wren_api.h"
+#include "grngame/bindings/wren/wren_event.h"
 #include "grngame/core/app.h"
 #include "grngame/core/window.h"
-#include "grngame/data/data.h"
 #include "grngame/data/file.h"
 #include "grngame/data/json.h"
+#include "grngame/data/sqlite.h"
 #include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
 #include "grngame/dev/tracy.h"
@@ -19,6 +18,7 @@
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/taskbar_icon.h"
 #include "grngame/utils/time.h"
+#include "grngame/utils/version.h"
 #include "kvec.h"
 #include <SDL3/SDL.h>
 #include <stdlib.h>
@@ -83,6 +83,40 @@ static InitResult SetSDLMetadata(void)
     return INIT_OK;
 }
 
+static bool ParseMetaData()
+{
+    const char *name = NULL;
+    if (!JsonGetString("metadata.json", "name", &name))
+        return false;
+    g_app.info.name = name;
+
+    const char *company = NULL;
+    if (!JsonGetString("metadata.json", "company", &company))
+        return false;
+    g_app.info.company = company;
+
+    const char *version = NULL;
+    if (!JsonGetString("metadata.json", "version", &version))
+        return false;
+    g_app.info.version = version;
+
+    return true;
+}
+// never embedded
+static InitResult InitAppMetaData()
+{
+    bool json_open = OpenJsonObject("metadata.json", 0, 0);
+    if (json_open != 0)
+    {
+        LOG_ERROR("%s", "Failed to open metadata.json,it is present ?");
+        return INIT_METADATA_FAILED;
+    }
+    if (!ParseMetaData())
+        return INIT_METADATA_FAILED;
+
+    return INIT_OK;
+}
+
 static bool ParseConfig()
 {
     bool success = false;
@@ -136,16 +170,6 @@ static bool ParseConfig()
     g_app.info.window_universe_height = (int32)tmp_num;
 
     const char *tmp_str = NULL;
-
-    success = JsonGetString(fileKey, "Config.name", &tmp_str);
-    if (!success)
-        return false;
-    g_app.info.name = tmp_str;
-
-    success = JsonGetString(fileKey, "Config.version", &tmp_str);
-    if (!success)
-        return false;
-    g_app.info.version = tmp_str;
 
     success = JsonGetString(fileKey, "Config.assetFolder", &tmp_str);
     if (!success)
@@ -342,34 +366,29 @@ InitResult InitAll(void)
     if (result != INIT_OK)
         return result;
 
-#ifdef GRNGAME_EMBED_ASSETS
-    g_app.embedded_file_manager = EmbeddedFileManagerCreate();
-#ifdef GRNGAME_ANDROID
-    char *dst = PathFromAndroidStorage("Assets.pak");
-    if (!MoveFileAtInit(dst, "Assets.pak"))
-        return INIT_OPEN_GAME_DATA_FAILED;
-
-    g_app.info.file_db = DbCreate(dst);
-    bool res = EmbeddedFileManagerLoadDb();
-    free(dst);
-    if (!res)
-    {
-        return INIT_OPEN_GAME_DATA_FAILED;
-    }
-#else
-    char *path_asset = PathFromExecutableDirectory("Assets.pak");
-    g_app.info.file_db = DbCreate(path_asset);
-    free(path_asset);
-    bool res = EmbeddedFileManagerLoadDb();
-    if (!res)
-    {
-        return INIT_OPEN_GAME_DATA_FAILED;
-    }
-#endif
-
-#endif
-
     InitializeJson();
+
+    if (InitAppMetaData() != INIT_OK)
+        return INIT_METADATA_FAILED;
+
+    LOG_INFO("PASSER 1");
+
+#if GRNGAME_WEB
+    g_app.embedded_file_manager = EmbeddedFileManagerCreate();
+    if (!InstallGameData() || !InitAssetsPak() || !InitGameData())
+        return INIT_OPEN_GAME_DATA_FAILED;
+
+    if (!EmbeddedFileManagerLoadAssetsPak() || !EmbeddedFileManagerLoadGameData())
+        return INIT_OPEN_GAME_DATA_FAILED;
+#elif GRNGAME_EMBED_ASSETS
+    g_app.embedded_file_manager = EmbeddedFileManagerCreate();
+    LOG_INFO("PASSER 2");
+    if (!InstallAssetsPak() || !InstallGameData() || !InitAssetsPak() || !InitGameData())
+        return INIT_OPEN_GAME_DATA_FAILED;
+    LOG_INFO("PASSER 3");
+    if (!EmbeddedFileManagerLoadAssetsPak() || !EmbeddedFileManagerLoadGameData())
+        return INIT_OPEN_GAME_DATA_FAILED;
+#endif
 
     result = InitAppConfig();
     if (result != INIT_OK)
@@ -401,6 +420,28 @@ InitResult InitAll(void)
     InitializeAssets();
 
     InitializeScripts();
+
+#ifdef GRNGAME_EMBED_ASSETS
+    if (g_app.info.update_event_data)
+    {
+        if (!ApplyDbVersion(g_app.info.data_db, g_app.info.version))
+        {
+            LOG_ERROR("Failed to store new version for game.data :'%s'", g_app.info.version);
+            g_app.info.update_event_data = false;
+        }
+    }
+#endif
+
+    // todo : refactor
+    if (g_app.info.update_event_data)
+    {
+        CallbackArg args[2] = {
+            {.type = CB_ARG_STRING, .as.string = g_app.info.old_version},
+            {.type = CB_ARG_STRING, .as.string = g_app.info.version},
+        };
+
+        CallWrenCallback(GAME_DATA_NEW_VERSION, args, 2);
+    }
 
     HotReloadInit(PathFromExecutableDirectory("."));
 

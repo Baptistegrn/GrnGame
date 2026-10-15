@@ -125,6 +125,7 @@ def bundle_assets(dir_to: str) -> None:
     )
 
 
+
 def bundle_assets_pak(dir_to: str) -> None:
     project_dir = Path(dir_to)
     dist_dir = project_dir / "dist"
@@ -148,6 +149,27 @@ def bundle_assets_pak(dir_to: str) -> None:
             dist_dir / platform / "Assets.pak",
         )
 
+def bundle_metadata(dir_to: str) ->None:
+    project_dir = Path(dir_to)
+    dist_dir = project_dir / "dist"
+    metadata_dir = project_dir / "metadata.json"
+
+    platforms = [
+    "server",
+    "linux-x86_64",
+    "linux-arm64",
+    "macos-x86_64",
+    "macos-arm64",
+    "windows-x64",
+    "windows-arm64",
+    "ios-arm64",
+    ]
+
+    for platform in platforms:
+        shutil.copy2(
+            metadata_dir,
+            dist_dir / platform / "metadata.json",
+        )
 
 if __name__ == "__main__":
     script_dir = Path(__file__).resolve().parent

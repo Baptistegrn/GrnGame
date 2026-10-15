@@ -1,18 +1,24 @@
-#include "data.h"
+#include "sqlite.h"
+#include "SDL3/SDL_iostream.h"
 #include "file.h"
 #include "grngame/dev/logging.h"
+#include "grngame/math/types.h"
 #include "grngame/utils/attributes.h"
+#include "grngame/utils/version.h"
 #include "kvec.h"
 #include "wren.h"
+#include <SDL3/SDL.h>
 #include <grngame/utils/string_compat.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static sqlite3_stmt *DbPrepareInternal(sqlite3 *db, const char *sql)
 {
     sqlite3_stmt *stmt = NULL;
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK)
-        LOG_ERROR("Prepare error: %s", sqlite3_errmsg(db));
+        LOG_ERROR("Sqlite Prepare error: %s", sqlite3_errmsg(db));
     return stmt;
 }
 
@@ -88,7 +94,7 @@ bool DataWrite(sqlite3 *db, const char *sql)
 
     if (rc != SQLITE_DONE && rc != SQLITE_ROW)
     {
-        LOG_ERROR("SQL execution error: %s", sqlite3_errmsg(db));
+        LOG_ERROR("Sqlite execution error: %s", sqlite3_errmsg(db));
         return false;
     }
     return true;
@@ -151,13 +157,17 @@ static DbResult DbResultGet(sqlite3_stmt *stmt)
     return result;
 }
 
-DbResult DataFetch(sqlite3 *db, const char *sql)
+DbResult DataFetch(sqlite3 *db, const char *sql, bool *out_error)
 {
     sqlite3_stmt *stmt = DbPrepareInternal(db, sql);
     if (!stmt)
+    {
         return (DbResult){0};
+        *out_error = false;
+    }
     DbResult res = DbResultGet(stmt);
     sqlite3_finalize(stmt);
+    *out_error = true;
     return res;
 }
 
@@ -212,11 +222,15 @@ void DbResultFree(DbResult *res)
     kv_destroy(res->rows);
 }
 
-DbStmt DbStmtPrepare(sqlite3 *db, const char *sql)
+DbStmt DbStmtPrepare(sqlite3 *db, const char *sql, bool *out_error)
 {
     DbStmt s = {0};
     if (sqlite3_prepare_v2(db, sql, -1, &s.stmt, NULL) != SQLITE_OK)
-        LOG_ERROR("Prepare error: %s", sqlite3_errmsg(db));
+    {
+        *out_error = false;
+        LOG_ERROR("Sqlite prepare error: %s", sqlite3_errmsg(db));
+    }
+    *out_error = true;
     return s;
 }
 
@@ -230,7 +244,7 @@ bool DbStmtRun(DbStmt *s, DbArg *args, int32 argc)
 
     if (rc != SQLITE_DONE && rc != SQLITE_ROW)
     {
-        LOG_ERROR("SQL step error: %s", sqlite3_errmsg(sqlite3_db_handle(s->stmt)));
+        LOG_ERROR("Sqlite step error: %s", sqlite3_errmsg(sqlite3_db_handle(s->stmt)));
         return false;
     }
     return true;
@@ -245,50 +259,60 @@ void DbStmtFree(DbStmt *s)
     }
 }
 
-void DataFetchWren(sqlite3 *db, const char *sql, WrenVM *vm)
+bool ReadSqliteVersion(const char *path, int32 *out)
 {
-    wrenEnsureSlots(vm, 4);
-    wrenSetSlotNewList(vm, 0);
+    SDL_IOStream *io = IOFromFile(path, "rb");
+    if (!io)
+        return false;
 
-    sqlite3_stmt *stmt = DbPrepareInternal(db, sql);
-    if (!stmt)
-        return;
+    uint8 h[100];
+    bool ok = ReadIO(io, h, sizeof(h));
+    CloseIO(io);
 
-    int32 colCount = sqlite3_column_count(stmt);
-    int32 rc;
+    if (!ok || memcmp(h, "SQLite format 3\0", 16) != 0)
+        return false;
 
-    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+    *out = (int32)(((uint32)h[60] << 24) | ((uint32)h[61] << 16) | ((uint32)h[62] << 8) | (uint32)h[63]);
+    return true;
+}
+
+bool ApplyDbPragmas(sqlite3 *db)
+{
+    if (!DataWrite(db, "PRAGMA journal_mode = OFF;"))
     {
-        wrenSetSlotNewMap(vm, 1);
-
-        for (int32 i = 0; i < colCount; i++)
-        {
-            wrenSetSlotString(vm, 2, sqlite3_column_name(stmt, i));
-
-            switch (sqlite3_column_type(stmt, i))
-            {
-            case SQLITE_INTEGER:
-                wrenSetSlotDouble(vm, 3, (float64)sqlite3_column_int64(stmt, i));
-                break;
-            case SQLITE_FLOAT:
-                wrenSetSlotDouble(vm, 3, sqlite3_column_double(stmt, i));
-                break;
-            case SQLITE_TEXT:
-                wrenSetSlotString(vm, 3, (const char *)sqlite3_column_text(stmt, i));
-                break;
-            default:
-                wrenSetSlotNull(vm, 3);
-                break; // BLOB / NULL
-            }
-
-            wrenSetMapValue(vm, 1, 2, 3);
-        }
-
-        wrenInsertInList(vm, 0, -1, 1);
+        LOG_ERROR("Can't write database journal_mode");
+        return false;
     }
 
-    if (rc != SQLITE_DONE)
-        LOG_ERROR("SQL step error: %s", sqlite3_errmsg(db));
+    if (!DataWrite(db, "PRAGMA synchronous = OFF;"))
+    {
+        LOG_ERROR("Can't write database synchronous");
+        return false;
+    }
 
-    sqlite3_finalize(stmt);
+    if (!DataWrite(db, "PRAGMA cache_size = -65536;"))
+    {
+        LOG_ERROR("Can't write database cache_size");
+        return false;
+    }
+
+    return true;
+}
+
+bool ApplyDbVersion(sqlite3 *db, const char *version)
+{
+    int32 ver = 0;
+    if (!ParseVersionToInt(version, &ver))
+    {
+        fprintf(stdout, "Format version is incorrect please use major.minor.fix");
+        return false;
+    }
+    char sql[64];
+    snprintf(sql, sizeof(sql), "PRAGMA user_version = %d;", ver);
+    if (!DataWrite(db, sql))
+    {
+        LOG_ERROR("Can't write database version :%s", version);
+        return false;
+    }
+    return true;
 }

@@ -73,6 +73,6 @@ end
 
 
 setup_tests(
-	{ "json", "pad_event", "engine_work", "sound" }, -- target_tests
+	{ "json", "pad_event", "engine_work", "sound" ,"version"}, -- target_tests
 	{}                                               -- auto_tests
 )

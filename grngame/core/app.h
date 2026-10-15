@@ -5,8 +5,8 @@
 #include "grngame/assets/asset_manager.h"
 #include "grngame/audio/sound_manager.h"
 #include "grngame/bindings/wren/wren_api.h"
-#include "grngame/data/data.h"
 #include "grngame/data/json.h"
+#include "grngame/data/sqlite.h"
 #include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
 #include "grngame/renderer/cielab.h"
@@ -28,9 +28,12 @@ BEGIN_DECLARATIONS
 typedef struct AppInfo
 {
     sqlite3 *file_db;
-
+    sqlite3 *data_db;
+    bool update_event_data;
     const char *name;
+    const char *company;
     const char *version;
+    const char *old_version;
     const char *asset_folder;
 
     uint16 fps;

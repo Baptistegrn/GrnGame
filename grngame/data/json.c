@@ -1,4 +1,5 @@
 #include "json.h"
+#include "SDL3/SDL_stdinc.h"
 #include "cjson/cJSON.h"
 #include "file.h"
 #include "grngame/assets/embedded_file_manager.h"
@@ -50,7 +51,7 @@ bool JsonExistFromMemory(const char *key)
 bool JsonCreate(const char *key, const char *text)
 {
     char *path = PathFromExecutableDirectory(key);
-    bool result = WriteFileString(path, text, false);
+    bool result = WriteFileData(path, text, false);
     free(path);
     return result;
 }
@@ -59,7 +60,7 @@ bool JsonCreateFromMemory(const char *key, const char *text)
 {
 
     uint64 size = strlen(text);
-    return EmbeddedFilePut(EMBED_KIND_DATA, key, text, size);
+    return EmbeddedFilePut(key, text, size);
 }
 
 static void JsonObjectAdd(const char *key, JsonObject *value)
@@ -107,7 +108,7 @@ bool JsonObjectContains(const char *key)
 int32 OpenJsonObject(const char *path, uint64 min, uint64 max)
 {
     char *path_ = PathFromExecutableDirectory(path);
-    char *text = (char *)ReturnFileString(path_, NULL);
+    char *text = (char *)ReturnFileData(path_, NULL);
     free(path_);
 
     if (UNLIKELY(text == NULL))
@@ -304,7 +305,7 @@ static void FileWriteJobRun(void *user_data)
 {
     FileWriteJob *job = user_data;
 
-    WriteFileString(job->key, job->text, false);
+    WriteFileData(job->key, job->text, false);
 
     free(job->key);
     free(job->text);
@@ -353,7 +354,7 @@ bool JsonSaveObjectFromMemory(const char *fileKey)
         return false;
     }
 
-    bool result = EmbeddedFilePutDisk(EMBED_KIND_DATA, fileKey, text, strlen(text));
+    bool result = EmbeddedFilePutDisk(fileKey, text, strlen(text));
 
     free(text);
 

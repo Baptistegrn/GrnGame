@@ -25,9 +25,12 @@ static on_start() {
     __x = 0
     __y = 0
     var info = SoundInfo.new("test")
-    info.volume = 10
+    info.volume = 1
     info.filters = [FilterDef.echo(0.3, 2.0, 4.0), FilterDef.bassboost(3.0)]
     Sound.play(info)
+    Event.callback(Event.DataNewVersion, Fn.new {|version_old, version_new|
+        Log.info("%(version_old) -> %(version_new)")
+    })
 
 }
 
@@ -38,7 +41,6 @@ Sound.set_listener_position(Vec2.new(__x,__y))
 }
 static on_fixed_update(dt) {}
 static on_render() {
-    Texture.draw("image",30,30)
 }
 static on_destroy() {}
 

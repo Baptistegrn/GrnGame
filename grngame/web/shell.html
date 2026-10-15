@@ -33,32 +33,133 @@
             image-rendering: -moz-crisp-edges;
             outline: none;
         }
+
+        #loader {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            background: #000;
+            color: #ddd;
+            font-family: monospace;
+            transition: opacity 0.3s;
+        }
+
+        #loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #loader.error {
+            color: #f66;
+        }
+
+        #loader-bar {
+            width: min(320px, 70vw);
+            height: 8px;
+            border: 1px solid #555;
+        }
+
+        #loader-fill {
+            width: 0%;
+            height: 100%;
+            background: #ddd;
+            transition: width 0.15s;
+        }
     </style>
-
-    <script>
-        var Module = {
-            preRun: [
-                function () {
-                    FS.createPreloadedFile(
-                        "/",
-                        "Assets.pak",
-                        "Assets.pak",
-                        true,
-                        false
-                    );
-                }
-            ],
-
-            canvas: (function () {
-                return document.getElementById('canvas');
-            })()
-        };
-    </script>
 </head>
 
 <body>
-    -- lock right click
+    <!-- lock right click -->
     <canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
+
+    <div id="loader">
+        <div id="loader-text">Loading...</div>
+        <div id="loader-bar">
+            <div id="loader-fill"></div>
+        </div>
+    </div>
+
+    <script>
+        var loader = document.getElementById("loader");
+        var loaderText = document.getElementById("loader-text");
+        var loaderFill = document.getElementById("loader-fill");
+
+        function setLoader(text, percent) {
+            loaderText.textContent = text;
+            if (percent !== undefined)
+                loaderFill.style.width = percent + "%";
+        }
+
+        function showLoaderError(message) {
+            loader.classList.remove("hidden");
+            loader.classList.add("error");
+            setLoader(message);
+        }
+
+        function preloadFile(name, required) {
+            var dep = "preload " + name;
+            addRunDependency(dep);
+
+            fetch(name)
+                .then(function (response) {
+                    if (!response.ok) {
+                        if (required)
+                            throw new Error("HTTP " + response.status);
+                        return null;
+                    }
+                    return response.arrayBuffer();
+                })
+                .then(function (buffer) {
+                    if (buffer)
+                        FS.writeFile("/" + name, new Uint8Array(buffer));
+                })
+                .catch(function (err) {
+                    if (required)
+                        showLoaderError("Failed to load " + name + " (" + err.message + ")");
+                    else
+                        console.warn("Optional file " + name + " not loaded:", err);
+                })
+                .finally(function () {
+                    removeRunDependency(dep);
+                });
+        }
+
+        var maxDependencies = 0;
+
+        var Module = {
+            canvas: document.getElementById("canvas"),
+
+            preRun: [
+                function () {
+                    preloadFile("Assets.pak", true);
+                    preloadFile("metadata.json", true);
+                    preloadFile("game.data", false); // doesn't exist on first launch
+                }
+            ],
+
+            monitorRunDependencies: function (left) {
+                maxDependencies = Math.max(maxDependencies, left);
+                var done = maxDependencies - left;
+                setLoader("Loading...", maxDependencies ? (done / maxDependencies) * 100 : 0);
+            },
+
+            postRun: [
+                function () {
+                    loader.classList.add("hidden");
+                    Module.canvas.focus();
+                }
+            ],
+
+            onAbort: function (what) {
+                showLoaderError("Fatal error: " + what);
+            }
+        };
+    </script>
 
     {{{ SCRIPT }}}
 </body>

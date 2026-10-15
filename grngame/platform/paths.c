@@ -1,7 +1,9 @@
 #include "paths.h"
+#include "grngame/core/app.h"
 #include "grngame/math/types.h"
 #include "grngame/platform/directories.h"
 #include "grngame/utils/string_compat.h"
+#include <SDL3/SDL.h>
 #include <SDL3/SDL_system.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -116,6 +118,9 @@ bool FileIsLoadableJson(const char *file)
 
 char *PathFromExecutableDirectory(const char *relative)
 {
+#if defined(GRNGAME_ANDROID) || defined(GRNGAME_IOS)
+    return strdup(name);
+#else
     const char *exe_dir = DirOfExecutable();
 
     // skip leading slashes on relative
@@ -133,6 +138,7 @@ char *PathFromExecutableDirectory(const char *relative)
     snprintf(buf, len, "%.*s/%s", (int32)exe_len, exe_dir, relative);
 
     return buf;
+#endif
 }
 
 char *PathFromAndroidStorage(const char *name)
@@ -147,5 +153,23 @@ char *PathFromAndroidStorage(const char *name)
     return buffer;
 #else
     return NULL;
+#endif
+}
+
+// need to free
+char *PathFromStorage(const char *file)
+{
+#ifndef GRNGAME_WASM
+    char *base = SDL_GetPrefPath(g_app.info.company, g_app.info.name); // finit par un séparateur
+    if (!base)
+        return NULL;
+    size_t n = strlen(base) + strlen(file) + 1;
+    char *out = (char *)malloc(n);
+    if (out)
+        snprintf(out, n, "%s%s", base, file);
+    SDL_free(base);
+    return out;
+#else
+    return strdup(file);
 #endif
 }

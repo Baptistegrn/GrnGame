@@ -11,8 +11,8 @@
 #include "grngame/core/init.h"
 #include "grngame/core/thread.h"
 #include "grngame/core/window.h"
-#include "grngame/data/data.h"
 #include "grngame/data/json.h"
+#include "grngame/data/sqlite.h"
 #include "grngame/dev/hotreload.h"
 #include "grngame/dev/logging.h"
 #include "grngame/dev/tracy.h"
@@ -79,7 +79,13 @@ static COLD void EnsureInitSucceeded(InitResult res)
         MessageBoxWindow("Failed to open game data.");
         exit(4);
     }
+    if (UNLIKELY(res == INIT_METADATA_FAILED))
+    {
+        MessageBoxWindow("Failed to read metadata.");
+        exit(5);
+    }
 }
+
 COLD void ShutdownScripts(void)
 {
     WrenCallOnDestroy();
@@ -234,6 +240,7 @@ static HOT void MainLoopIteration(void *arg)
     g_app.info.frame_count++;
     PROFILE_ZONE_END(main_loop_work_zone);
     UpdateEngineTime(frame_start_time);
+
     EngineRequestStop();
 }
 

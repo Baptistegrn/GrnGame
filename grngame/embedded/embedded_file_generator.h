@@ -1,6 +1,6 @@
 #pragma once
 
-#include "grngame/data/data.h"
+#include "grngame/data/sqlite.h"
 #include "grngame/math/types.h"
 
 typedef enum EmbedKind
@@ -23,4 +23,4 @@ typedef struct EmbedContext
     DbStmt stmts[EMBED_KIND_COUNT];
 } EmbedContext;
 
-void CreateEmbeddedFileDb(int32 num_dirs, const char **dirs, const char *output_path);
+void CreateEmbeddedFileDb(int32 num_dirs, const char **dirs, const char *output_path, const char *versions);

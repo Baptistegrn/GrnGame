@@ -3,8 +3,8 @@
 #include "../math/types.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_surface.h"
-#include "grngame/data/data.h"
 #include "grngame/data/json.h"
+#include "grngame/data/sqlite.h"
 #include "grngame/embedded/embedded_file_generator.h"
 #include "grngame/renderer/cielab.h"
 #include "grngame/utils/attributes.h"
@@ -27,17 +27,24 @@ typedef struct EmbeddedFileManager
     uint64 total_count;
 } EmbeddedFileManager;
 
+const char *EmbedKindTable(EmbedKind kind);
+
 EmbeddedFileManager EmbeddedFileManagerCreate(void);
 void EmbeddedFileManagerDestroy(EmbeddedFileManager *manager);
-bool EmbeddedFileManagerLoadDb();
+
+bool EmbeddedFileManagerLoadAssetsPak(void);
+bool EmbeddedFileManagerLoadGameData(void);
+
 uint64 EmbeddedFileManagerGetCounts(EmbedKind kind);
 uint64 EmbeddedFileManagerGetTotalCount(void);
 
 const EmbeddedFile *EmbeddedFileGet(const char *path);
 bool EmbeddedFileExists(const char *path);
 
-bool EmbeddedFilePut(EmbedKind kind, const char *path, const void *data, uint64 size);
-bool EmbeddedFilePutDisk(EmbedKind kind, const char *path, const void *data, uint64 size);
-void EmbeddedFilePutMemory(EmbedKind kind, const char *path, const void *data, uint64 size);
-
+// only game.data is writable
+bool EmbeddedFilePut(const char *path, const void *data, uint64 size);
+bool EmbeddedFilePutDisk(const char *path, const void *data, uint64 size);
 bool EmbeddedFileRemove(const char *path);
+
+// memory only, any kind (also used to load Assets.pak)
+void EmbeddedFilePutMemory(EmbedKind kind, const char *path, const void *data, uint64 size);

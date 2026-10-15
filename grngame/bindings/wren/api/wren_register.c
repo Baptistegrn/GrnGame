@@ -10,8 +10,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define KEY_SIZE 1024 * BUFFER_SPACE
-#define MODULE_SIZE_MAX_NAME 512 * BUFFER_SPACE
+#define KEY_SIZE (512 * BUFFER_SPACE)
+#define MODULE_SIZE_MAX_NAME (256 * BUFFER_SPACE)
 
 KHASH_MAP_INIT_STR(wren_method_map, WrenForeignMethodFn)
 KHASH_MAP_INIT_STR(wren_class_map, WrenForeignClassMethods)
@@ -188,7 +188,7 @@ WrenLoadModuleResult LoadModuleFn(WrenVM *vm, const char *name)
 
     char *path = PathFromExecutableDirectory(script_path);
 
-    result.source = (char *)ReturnFileString(path, NULL);
+    result.source = (char *)ReturnFileData(path, NULL);
     free(path);
 
     if (!result.source)

@@ -40,7 +40,10 @@ static Texture CreateDefaultTexture()
         }
     }
 
-    SDL_UpdateTexture(texture.texture, NULL, pixels, 16 * sizeof(uint32));
+    if (!SDL_UpdateTexture(texture.texture, NULL, pixels, 16 * sizeof(uint32)))
+    {
+        LOG_CRITICAL("Cant update default texture of engine");
+    }
     return texture;
 }
 

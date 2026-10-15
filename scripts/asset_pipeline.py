@@ -28,13 +28,7 @@ def bundle_controller_db(dir_to: str) -> None:
     src = Path("grngame/input")
     dst = Path(dir_to) / "data"
 
-    shutil.copytree(
-        src,
-        dst,
-        dirs_exist_ok=True,
-        copy_function=shutil.copy2,
-        ignore=shutil.ignore_patterns("*.c", "*.cpp", "*.h", "*.hpp"),
-    )
+
 
 
 def bundle_runtime(dir_to: str) -> None:

@@ -1,3 +1,4 @@
+#include "SDL3/SDL_stdinc.h"
 #include "grngame/assets/embedded_file_manager.h"
 #include "grngame/bindings/wren/wren_api.h"
 #include "grngame/core/app.h"
@@ -8,7 +9,6 @@
 #include <stdlib.h>
 
 void RegisterControllerModule(void);
-void RegisterDbModule(void);
 void RegisterInputTextModule(void);
 void RegisterKeyboardModule(void);
 void RegisterLogModule(void);
@@ -65,7 +65,7 @@ static bool WrenInterpret(const char *filename)
 
     char *path = PathFromExecutableDirectory(filename);
 
-    char *file_content = (char *)ReturnFileString(path, NULL);
+    char *file_content = (char *)ReturnFileData(path, NULL);
     free(path);
 
     if (!file_content)
@@ -90,7 +90,6 @@ static void RegisterWrenModules(void)
 {
     InitBindingSystem();
     RegisterControllerModule();
-    RegisterDbModule();
     RegisterInputTextModule();
     RegisterKeyboardModule();
     RegisterLogModule();
