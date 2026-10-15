@@ -22,7 +22,7 @@ HOT bool TextureDraw(const char *name, float32 x, float32 y, uint8 c, int16 r, u
 
     if (OffScreen(x, y, (float32)(tex.w * c), (float32)(tex.h * c)))
     {
-        // todo log
+        LOG_DEBUG("Cant draw %s because it offscreen in :%f,%f", name, x, y);
         return false;
     }
 

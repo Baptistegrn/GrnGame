@@ -10,6 +10,7 @@
 #include "grngame/utils/attributes.h"
 #include "kvec.h"
 #include <math.h>
+#include <stdbool.h>
 
 bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
 {
@@ -28,52 +29,89 @@ bool RendererTryCreate(SDL_Window *window, Renderer *renderer)
     return true;
 }
 
-void RendererClear(const Renderer *renderer)
+bool RendererClear(const Renderer *renderer)
 {
     RendererSetColor(255, 255, 255, 255);
     if (UNLIKELY(!SDL_RenderClear(renderer->renderer)))
+    {
+
         LOG_ERROR("Failed to clear renderer: %s", SDL_GetError());
+        return false;
+    }
+    return true;
 }
 
-void RendererPresent(const Renderer *renderer)
+bool RendererPresent(const Renderer *renderer)
 {
     if (UNLIKELY(!SDL_RenderPresent(renderer->renderer)))
+    {
         LOG_ERROR("Failed to present renderer: %s", SDL_GetError());
+        return false;
+    }
+
+    return true;
 }
 
-void RendererSetColor(uint8 r, uint8 g, uint8 b, uint8 a)
+bool RendererSetColor(uint8 r, uint8 g, uint8 b, uint8 a)
 {
     if (UNLIKELY(!SDL_SetRenderDrawBlendMode(g_app.renderer.renderer, SDL_BLENDMODE_BLEND)))
+    {
         LOG_ERROR("Failed to set blend mode: %s", SDL_GetError());
+        return false;
+    }
     if (UNLIKELY(!SDL_SetRenderDrawColor(g_app.renderer.renderer, r, g, b, a)))
+    {
         LOG_ERROR("Failed to set draw color: %s", SDL_GetError());
+        return false;
+    }
+    return true;
 }
-void RendererFillRect(const SDL_FRect *restrict rect)
+bool RendererFillRect(const SDL_FRect *restrict rect)
 {
     if (UNLIKELY(!SDL_RenderFillRect(g_app.renderer.renderer, rect)))
+    {
         LOG_ERROR("Failed to fill rect: %s", SDL_GetError());
+        return false;
+    }
+    return true;
 }
 
-HOT void RendererFillRects(const SDL_FRect *restrict rects, int32 count)
+bool RendererFillRects(const SDL_FRect *restrict rects, int32 count)
 {
     if (UNLIKELY(!SDL_RenderFillRects(g_app.renderer.renderer, rects, count)))
+    {
         LOG_ERROR("Failed to fill rects: %s", SDL_GetError());
+        return false;
+    }
+    return true;
 }
-void RendererRect(const SDL_FRect *restrict rect)
+bool RendererRect(const SDL_FRect *restrict rect)
 {
     if (UNLIKELY(!SDL_RenderRect(g_app.renderer.renderer, rect)))
+    {
         LOG_ERROR("Failed to draw rect: %s", SDL_GetError());
+        return false;
+    }
+    return true;
 }
-void RendererTextureRotated(SDL_Texture *restrict texture, const SDL_FRect *restrict src, const SDL_FRect *restrict dst,
+bool RendererTextureRotated(SDL_Texture *restrict texture, const SDL_FRect *restrict src, const SDL_FRect *restrict dst,
                             float64 angle, const SDL_FPoint *restrict center, SDL_FlipMode flip)
 {
     if (UNLIKELY(!SDL_RenderTextureRotated(g_app.renderer.renderer, texture, src, dst, angle, center, flip)))
+    {
         LOG_ERROR("Failed to render texture: %s", SDL_GetError());
+        return false;
+    }
+    return true;
 }
-void RendererSetTextureAlpha(SDL_Texture *restrict texture, uint8 a)
+bool RendererSetTextureAlpha(SDL_Texture *restrict texture, uint8 a)
 {
     if (UNLIKELY(!SDL_SetTextureAlphaMod(texture, a)))
+    {
         LOG_ERROR("Failed to set texture alpha: %s", SDL_GetError());
+        return false;
+    }
+    return true;
 }
 
 bool OffScreen(float32 x, float32 y, float32 w, float32 h)

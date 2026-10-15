@@ -27,7 +27,7 @@ HOT bool SpriteDraw(Sprite s, uint16 frame, float32 x, float32 y, uint8 c, int16
 
     if (OffScreen(x, y, (float32)(tex_w * c), (float32)(tex.h * c)))
     {
-        // todo log
+        LOG_DEBUG("Cant draw %s because it offscreen in :%f,%f", s.name, x, y);
         return false;
     }
 
