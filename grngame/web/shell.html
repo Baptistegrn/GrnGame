@@ -42,7 +42,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 16px;
+            gap: 64px;
             background: #000;
             color: #ddd;
             font-family: monospace;
@@ -55,13 +55,13 @@
         }
 
         #loader.error {
-            color: #f66;
+            color: rgb(199, 17, 17);
         }
 
         #loader-bar {
-            width: min(320px, 70vw);
-            height: 8px;
-            border: 1px solid #555;
+            width: min(480px, 100vw);
+            height: 20px;
+            border: 4px solid #555;
         }
 
         #loader-fill {
@@ -78,7 +78,7 @@
     <canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
 
     <div id="loader">
-        <div id="loader-text">Loading...</div>
+        <div id="loader-text">GrnGame is Loading...</div>
         <div id="loader-bar">
             <div id="loader-fill"></div>
         </div>
@@ -156,7 +156,7 @@
             ],
 
             onAbort: function (what) {
-                showLoaderError("Fatal error: " + what);
+                showLoaderError("error: " + what);
             }
         };
     </script>
