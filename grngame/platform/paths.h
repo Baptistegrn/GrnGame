@@ -31,8 +31,6 @@ bool FileIsLoadableJson(const char *file);
 /// For example , if your exe is in ~/chouffe and relative is assets/folder, it returns ~/chouffe/assets/folder
 char *PathFromExecutableDirectory(const char *relative);
 
-char *PathFromAndroidStorage(const char *file);
-
 /// need to free
 char *PathFromStorage(const char *file);
 

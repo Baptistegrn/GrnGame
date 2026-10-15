@@ -97,11 +97,9 @@ SDL_Color ColorFromHex(const char *hex)
 
     int32 ret;
     k = kh_put(ColorHex, h, hex, &ret);
+    (void)ret;
 
-    if (ret >= 0)
-    {
-        kh_value(h, k) = color;
-    }
+    kh_value(h, k) = color;
 
     return color;
 }

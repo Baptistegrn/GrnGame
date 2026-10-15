@@ -119,12 +119,6 @@ static bool RegisterTexture(char *key, SDL_Texture *texture, SDL_Surface *surfac
     int32 ret;
     khiter_t k = kh_put(TextureMap, map, key, &ret);
 
-    if (UNLIKELY(ret < 0))
-    {
-        LOG_WARNING("Failed to register texture '%s'", key);
-        return false;
-    }
-
     if (UNLIKELY(ret == 0))
     {
         free((char *)kh_key(map, k));
@@ -325,12 +319,6 @@ static bool RegisterSound(char *key, MIX_Audio *stream)
 
     int32 ret;
     khiter_t k = kh_put(SoundMap, map, key, &ret);
-
-    if (UNLIKELY(ret < 0))
-    {
-        LOG_WARNING("Failed to register sound '%s'", key);
-        return false;
-    }
 
     if (UNLIKELY(ret == 0))
     {

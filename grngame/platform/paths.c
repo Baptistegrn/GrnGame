@@ -1,5 +1,6 @@
 #include "paths.h"
 #include "grngame/core/app.h"
+#include "grngame/dev/logging.h"
 #include "grngame/math/types.h"
 #include "grngame/platform/directories.h"
 #include "grngame/utils/string_compat.h"
@@ -141,29 +142,17 @@ char *PathFromExecutableDirectory(const char *relative)
 #endif
 }
 
-char *PathFromAndroidStorage(const char *name)
-{
-#ifdef GRNGAME_ANDROID
-    const char *internal = SDL_GetAndroidInternalStoragePath();
-    uint64 len_inter = strlen(internal);
-    uint64 len_name = strlen(name);
-    uint64 len = len_inter + len_name + 1;
-    char *buffer = malloc(len);
-    snprintf(buffer, len, "%s/%s", internal, name);
-    return buffer;
-#else
-    return NULL;
-#endif
-}
-
 // need to free
 char *PathFromStorage(const char *file)
 {
 #ifndef GRNGAME_WASM
-    char *base = SDL_GetPrefPath(g_app.info.company, g_app.info.name); // finit par un séparateur
+    char *base = SDL_GetPrefPath(g_app.info.company, g_app.info.name);
     if (!base)
+    {
+        LOG_ERROR("Failed to get storage of the app");
         return NULL;
-    size_t n = strlen(base) + strlen(file) + 1;
+    }
+    uint32 n = strlen(base) + strlen(file) + 1;
     char *out = (char *)malloc(n);
     if (out)
         snprintf(out, n, "%s%s", base, file);
