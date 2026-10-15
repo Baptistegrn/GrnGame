@@ -62,7 +62,7 @@ static bool PrepareEmbedStatements(sqlite3 *db, EmbedContext *ctx)
     for (int32 i = 0; i < EMBED_KIND_COUNT; ++i)
     {
         snprintf(sql, sizeof(sql), "INSERT INTO %s (path, content) VALUES (?, ?);", EMBED_TABLE_NAMES[i]);
-        ctx->stmts[i] = DbStmtPrepare(db, sql, &success);
+        success = DbStmtPrepare(db, sql, &ctx->stmts[i]);
         if (!success)
         {
             return false;

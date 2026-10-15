@@ -6,7 +6,6 @@
 #include "grngame/utils/attributes.h"
 #include "grngame/utils/version.h"
 #include "kvec.h"
-#include "wren.h"
 #include <SDL3/SDL.h>
 #include <grngame/utils/string_compat.h>
 #include <stdbool.h>
@@ -157,18 +156,18 @@ static DbResult DbResultGet(sqlite3_stmt *stmt)
     return result;
 }
 
-DbResult DataFetch(sqlite3 *db, const char *sql, bool *out_error)
+bool DataFetch(sqlite3 *db, const char *sql, DbResult *out)
 {
     sqlite3_stmt *stmt = DbPrepareInternal(db, sql);
     if (!stmt)
     {
-        return (DbResult){0};
-        *out_error = false;
+        *out = (DbResult){0};
+        return false;
     }
     DbResult res = DbResultGet(stmt);
     sqlite3_finalize(stmt);
-    *out_error = true;
-    return res;
+    *out = res;
+    return true;
 }
 
 void DbResultPrint(DbResult *res)
@@ -222,16 +221,17 @@ void DbResultFree(DbResult *res)
     kv_destroy(res->rows);
 }
 
-DbStmt DbStmtPrepare(sqlite3 *db, const char *sql, bool *out_error)
+bool DbStmtPrepare(sqlite3 *db, const char *sql, DbStmt *out)
 {
     DbStmt s = {0};
     if (sqlite3_prepare_v2(db, sql, -1, &s.stmt, NULL) != SQLITE_OK)
     {
-        *out_error = false;
+        *out = s;
         LOG_ERROR("Sqlite prepare error: %s", sqlite3_errmsg(db));
+        return false;
     }
-    *out_error = true;
-    return s;
+    *out = s;
+    return true;
 }
 
 bool DbStmtRun(DbStmt *s, DbArg *args, int32 argc)

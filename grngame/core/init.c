@@ -87,21 +87,31 @@ static bool ParseMetaData()
 {
     const char *name = NULL;
     if (!JsonGetString("metadata.json", "name", &name))
+    {
+        LOG_ERROR("Failed to read 'name' from metadata.json");
         return false;
+    }
     g_app.info.name = name;
 
     const char *company = NULL;
     if (!JsonGetString("metadata.json", "company", &company))
+    {
+        LOG_ERROR("Failed to read 'company' from metadata.json");
         return false;
+    }
     g_app.info.company = company;
 
     const char *version = NULL;
     if (!JsonGetString("metadata.json", "version", &version))
+    {
+        LOG_ERROR("Failed to read 'version' from metadata.json");
         return false;
+    }
     g_app.info.version = version;
 
     return true;
 }
+
 // never embedded
 static InitResult InitAppMetaData()
 {
@@ -124,59 +134,98 @@ static bool ParseConfig()
 
     success = JsonGetBool(fileKey, "Config.resizable", &g_app.info.window_resizable);
     if (!success)
+    {
+        LOG_ERROR("Failed to read 'Config.resizable' from %s", fileKey);
         return false;
+    }
     success = JsonGetBool(fileKey, "Config.fullscreen", &g_app.info.window_fullscreen);
     if (!success)
+    {
+        LOG_ERROR("Failed to read 'Config.fullscreen' from %s", fileKey);
         return false;
+    }
     success = JsonGetBool(fileKey, "Config.maximised", &g_app.info.window_maximised);
     if (!success)
+    {
+        LOG_ERROR("Failed to read 'Config.maximised' from %s", fileKey);
         return false;
+    }
     success = JsonGetBool(fileKey, "Config.bordered", &g_app.info.bordered);
     if (!success)
+    {
+        LOG_ERROR("Failed to read 'Config.bordered' from %s", fileKey);
         return false;
+    }
     success = JsonGetBool(fileKey, "Config.forceUniverseScale", &g_app.info.force_universe_scale);
     if (!success)
+    {
+        LOG_ERROR("Failed to read 'Config.forceUniverseScale' from %s", fileKey);
         return false;
+    }
     float64 tmp_num = 0.0;
 
     success = JsonGetNumber(fileKey, "Config.fps", &tmp_num);
     if (!success)
+    {
+        LOG_ERROR("Failed to read 'Config.fps' from %s", fileKey);
         return false;
+    }
     g_app.info.fps = (int32)tmp_num;
 
     success = JsonGetNumber(fileKey, "Config.windowWidth", &tmp_num);
     if (!success)
+    {
+        LOG_ERROR("Failed to read 'Config.windowWidth' from %s", fileKey);
         return false;
+    }
     g_app.info.window_width = (int32)tmp_num;
 
     success = JsonGetNumber(fileKey, "Config.windowHeight", &tmp_num);
     if (!success)
+    {
+        LOG_ERROR("Failed to read 'Config.windowHeight' from %s", fileKey);
         return false;
+    }
     g_app.info.window_height = (int32)tmp_num;
 
     success = JsonGetNumber(fileKey, "Config.universeWidth", &tmp_num);
     if (!success)
+    {
+        LOG_ERROR("Failed to read 'Config.universeWidth' from %s", fileKey);
         return false;
+    }
     g_app.info.window_universe_width = (int32)tmp_num;
 
     success = JsonGetNumber(fileKey, "Config.universeHeight", &tmp_num);
     if (!success)
+    {
+        LOG_ERROR("Failed to read 'Config.universeHeight' from %s", fileKey);
         return false;
+    }
     g_app.info.window_universe_height = (int32)tmp_num;
 
     const char *tmp_str = NULL;
 
     success = JsonGetString(fileKey, "Config.assetFolder", &tmp_str);
     if (!success)
+    {
+        LOG_ERROR("Failed to read 'Config.assetFolder' from %s", fileKey);
         return false;
+    }
     g_app.info.asset_folder = tmp_str;
     success = JsonGetBool(fileKey, "Config.enable_palette", &g_app.info.enable_palette);
     if (!success)
+    {
+        LOG_ERROR("Failed to read 'Config.enable_palette' from %s", fileKey);
         return false;
+    }
     string_vec_t palette;
     success = JsonGetStringArray(fileKey, "Config.palette", &palette);
     if (!success)
+    {
+        LOG_ERROR("Failed to read 'Config.palette' from %s", fileKey);
         return false;
+    }
     g_app.info.palette = palette;
 
     return true;

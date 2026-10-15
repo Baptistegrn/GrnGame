@@ -41,7 +41,7 @@ static void SetSize(SDL_Window *window, uint16 width, uint16 height)
 
 static void SetPosition(SDL_Window *window, int32 x, int32 y)
 {
-#ifndef GRNGAME_WASM
+#ifdef GRNGAME_DESKTOP
     if (UNLIKELY(!SDL_SetWindowPosition(window, x, y)))
         LOG_ERROR("Failed to set window position: %s", SDL_GetError());
 #endif
@@ -121,8 +121,6 @@ void WindowInfoSetForceUniverseScale(AppInfo *app_info, bool force)
 {
     app_info->force_universe_scale = force;
 }
-
-// --- Scale ---
 
 bool WindowConfigureScale(uint8 scalex, uint8 scaley)
 {

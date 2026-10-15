@@ -34,9 +34,9 @@ typedef struct
     int32 index;
 } ReloadTask;
 
-LoadResult LoadFileParallel(const char *file);
-void RegisterTextureResult(LoadResult *res);
-void RegisterSoundResult(LoadResult *res);
+bool LoadFileParallel(const char *file, LoadResult *result);
+bool RegisterTextureResult(LoadResult *res);
+bool RegisterSoundResult(LoadResult *res);
 void InitPaletteRemapLUT(void);
 
 bool LoadSoundFile(const char *file);

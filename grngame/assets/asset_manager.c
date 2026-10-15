@@ -61,7 +61,7 @@ static void LoadTaskWorker(void *data)
 {
     LoadTask *task = (LoadTask *)data;
 
-    task->results[task->index] = LoadFileParallel(task->path);
+    LoadFileParallel(task->path, &task->results[task->index]);
 
     free(task);
 }

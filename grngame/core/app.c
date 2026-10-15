@@ -271,7 +271,7 @@ void ReloadConfig(void)
     PROFILE_FUNCTION("Reload");
     InitAppConfig();
     LogDestroy();
-    LogInit(g_app.info.log_destination);
+    LogInit(LOG_TO_CONSOLE);
     WindowApplyConfig(&g_app.info);
     if (g_app.info.enable_palette)
         PaletteReload();
