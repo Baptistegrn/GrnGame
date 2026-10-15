@@ -1,4 +1,5 @@
 #include "sound_manager.h"
+#include "SDL3/SDL_error.h"
 #include "grngame/dev/logging.h"
 #include "grngame/math/types.h"
 #include "grngame/utils/attributes.h"
@@ -12,6 +13,7 @@ COLD bool SoundManagerTryCreate(SoundManager *result)
 
     if (!mixer)
     {
+        LOG_ERROR("Failed to create mixer :%s", SDL_GetError());
         return false;
     }
 
