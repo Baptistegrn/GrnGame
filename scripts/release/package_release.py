@@ -52,6 +52,9 @@ SETUP_SCRIPTS = [
     "GrnGameDist.py",
     "GrnGameDist.sh",
     "GrnGameDist.bat",
+    "GrnGameUpdate.py",
+    "GrnGameUpdate.sh",
+    "GrnGameUpdate.bat",
 ]
 
 PROJECT_MODEL_DIRS = ["assets", "data", "config"]
