@@ -6,6 +6,7 @@
 
 #include "grngame/data/file.h"
 #include <grngame/utils/string_compat.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -84,7 +85,7 @@ static void EmbedFileCallback(const char *path, void *userdata)
     if (kind == EMBED_KIND_NONE)
         return;
 
-    uint64 size;
+    size_t size;
     unsigned char *content = ReturnFileData(path, &size);
     if (UNLIKELY(!content))
     {
