@@ -1,97 +1,102 @@
-import sys
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
+RUNTIME_BUILD_DIR = Path("build/Runtime")
+STD_DIR = Path("std")
+DATA_DIR = Path("data")
+GAME_CONTROLLER_DB = Path("grngame/input/gamecontrollerdb.txt")
+READ_METADATA_SCRIPT = Path("scripts/metadata/read_metadata.py")
 
-def find_embedded(dir_build_embedded: str) -> str:
-    """Return the first Embedded- binary."""
-    for path in Path(dir_build_embedded).iterdir():
-        if path.is_file() and path.name.startswith("Embedded-"):
-            return str(path)
+EMBEDDED_PATTERN = "Embedded-*"
+ASSETS_PAK = "Assets.pak"
+METADATA_FILE = "metadata.json"
+PAK_CONTENT = ["assets", "scripts", str(STD_DIR), "config", str(DATA_DIR)]
 
+IGNORED_FILES = shutil.ignore_patterns("*.exp", "*.lib")
+
+
+def find_embedded(dir_build_embedded: Path) -> Path:
+    for path in dir_build_embedded.glob(EMBEDDED_PATTERN):
+        if path.is_file():
+            return path
     raise FileNotFoundError(
-        f"No Embedded-* file found in {dir_build_embedded}"
+        f"No {EMBEDDED_PATTERN} file found in {dir_build_embedded}"
     )
 
 
-def stage_resources(dir_racine: str, dir_from: str) -> None:
-    root = Path(dir_racine)
-    destination = Path(dir_from)
-
+def stage_std(dir_racine: Path, dir_from: Path) -> None:
     shutil.copytree(
-        root / "std",
-        destination / "std",
+        dir_racine / STD_DIR,
+        dir_from / STD_DIR,
         copy_function=shutil.copy2,
     )
 
-    data_dir = destination / "data"
+
+def stage_data(dir_racine: Path, dir_from: Path) -> None:
+    data_dir = dir_from / DATA_DIR
     data_dir.mkdir()
 
     shutil.copy2(
-        root / "grngame" / "input" / "gamecontrollerdb.txt",
-        data_dir / "gamecontrollerdb.txt",
+        dir_racine / GAME_CONTROLLER_DB,
+        data_dir / GAME_CONTROLLER_DB.name,
     )
 
+
+def stage_metadata(dir_racine: Path, dir_from: Path) -> None:
     shutil.copy2(
-        root / "scripts" / "metadata" / "read_metadata.py",
-        destination / "read_metadata.py",
+        dir_racine / READ_METADATA_SCRIPT,
+        dir_from / READ_METADATA_SCRIPT.name,
     )
 
 
-def cleanup(dir_from: str) -> None:
-    directory = Path(dir_from)
-
-    shutil.rmtree(directory / "std", ignore_errors=True)
-    shutil.rmtree(directory / "data", ignore_errors=True)
-    (directory / "read_metadata.py").unlink(missing_ok=True)
+def cleanup(dir_from: Path) -> None:
+    shutil.rmtree(dir_from / STD_DIR, ignore_errors=True)
+    shutil.rmtree(dir_from / DATA_DIR, ignore_errors=True)
+    (dir_from / READ_METADATA_SCRIPT.name).unlink(missing_ok=True)
 
 
-def build_pak(embedded: str, dir_from: str) -> str:
-    command = [
-        str(Path(embedded).resolve()),
-        "Assets.pak",
-        "assets",
-        "scripts",
-        "std",
-        "config",
-        "data",
-    ]
+def build_pak(embedded: Path, dir_from: Path) -> Path:
+    command = [str(embedded.resolve()), ASSETS_PAK, *PAK_CONTENT]
 
     subprocess.run(command, cwd=dir_from, check=True)
 
-    return str(Path(dir_from) / "Assets.pak")
+    return dir_from / ASSETS_PAK
 
 
-def bundle_runtime(dir_to: str) -> None:
-    source = Path("build/Runtime")
-    destination = Path(dir_to)
+def move_pak(pak: Path, dir_to: Path) -> None:
+    dir_to.mkdir(parents=True, exist_ok=True)
 
+    shutil.move(pak, dir_to / pak.name)
+
+
+def bundle_runtime(dir_to: Path) -> None:
     shutil.copytree(
-        source,
-        destination,
+        RUNTIME_BUILD_DIR,
+        dir_to,
         dirs_exist_ok=True,
         copy_function=shutil.copy2,
-        ignore=shutil.ignore_patterns("*.exp", "*.lib"),
+        ignore=IGNORED_FILES,
     )
 
 
-def bundle_metadata(dir_from: str, dir_to: str) -> None:
-    source = Path(dir_from) / "metadata.json"
-    destination = Path(dir_to) / "metadata.json"
-
-    shutil.copy2(source, destination)
+def bundle_metadata(dir_from: Path, dir_to: Path) -> None:
+    shutil.copy2(dir_from / METADATA_FILE, dir_to / METADATA_FILE)
 
 
 if __name__ == "__main__":
-    dir_from = sys.argv[1]
-    dir_to = sys.argv[2]
-    dir_racine = sys.argv[3]
-    dir_build_embedded = sys.argv[4]
+    dir_from = Path(sys.argv[1]) #target name
+    dir_to = Path(sys.argv[2]) #build dir
+    dir_racine = Path(sys.argv[3]) #./
+    dir_build_embedded = Path(sys.argv[4]) #target embedded
 
     embedded = find_embedded(dir_build_embedded)
 
-    stage_resources(dir_racine, dir_from)
+    stage_std(dir_racine, dir_from)
+    stage_data(dir_racine, dir_from)
+    stage_metadata(dir_racine, dir_from)
+
     bundle_runtime(dir_to)
     bundle_metadata(dir_from, dir_to)
 
@@ -100,10 +105,4 @@ if __name__ == "__main__":
     finally:
         cleanup(dir_from)
 
-    destination = Path(dir_to)
-    destination.mkdir(parents=True, exist_ok=True)
-
-    shutil.move(
-        pak,
-        str(destination / Path(pak).name),
-    )
+    move_pak(pak, dir_to)

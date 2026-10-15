@@ -1,11 +1,28 @@
 import shutil
 import sys
+from contextlib import contextmanager
 from pathlib import Path
 
 ARTIFACTS_DIR = Path("artifacts")
 OUTPUT_DIR = Path("release-assets")
+SCRIPTS_DIR = Path("scripts")
+RESSOURCES_DIR = Path("ressources")
 
-#releases : only for dev 
+STD_DIR = Path("std")
+ANDROID_BUILD_DIR = Path("android-build")
+GAME_CONTROLLER_DB = Path("grngame/input/gamecontrollerdb.txt")
+
+CONFIG_FILE = RESSOURCES_DIR / "config.json"
+MAIN_SCRIPT = RESSOURCES_DIR / "main.wren"
+METADATA_FILE = RESSOURCES_DIR / "metadata.json"
+
+READ_METADATA_SCRIPT = SCRIPTS_DIR / "metadata" / "read_metadata.py"
+SETUP_SCRIPTS_DIR = SCRIPTS_DIR / "project"
+SERVER_SCRIPT = SCRIPTS_DIR / "server.py"
+IOS_SCRIPT = SCRIPTS_DIR / "xcode_ios_project.py"
+
+ANDROID_LIB_NAME = "libGrnGame.so"
+
 PLATFORMS = [
     "linux-x64",
     "linux-arm64",
@@ -15,36 +32,41 @@ PLATFORMS = [
     "windows-arm64",
 ]
 
-# desktop artefacts : runtime,embedded binary 
-DESKTOP_ARTIFACTS = {
-    "linux-x64": "linux-x64-release-embedfalse",
-    "linux-arm64": "linux-arm64-release-embedfalse",
-    "macos-x64": "macos-x64-release-embedfalse",
-    "macos-arm64": "macos-arm64-release-embedfalse",
-    "windows-x64": "windows-x64-release-embedfalse",
-    "windows-arm64": "windows-arm64-release-embedfalse",
-}
+DESKTOP_ARTIFACTS = {platform: f"{platform}-release-embedfalse" for platform in PLATFORMS}
 
-# runtimes embedded going to move to runtime/
 RUNTIME_ARTIFACTS = [
-    "linux-x64-release-embedtrue",
-    "linux-arm64-release-embedtrue",
-    "macos-x64-release-embedtrue",
-    "macos-arm64-release-embedtrue",
-    "windows-x64-release-embedtrue",
-    "windows-arm64-release-embedtrue",
+    *(f"{platform}-release-embedtrue" for platform in PLATFORMS),
     "wasm-release-embedtrue",
     "ios-arm64-release-embedtrue",
 ]
 
-# android : x2 .so files 
 ANDROID_ARTIFACTS = {
     "arm64-v8a": "android-arm64-v8a-release",
     "x86_64": "android-x86_64-release",
 }
 
-# ignored files
-IGNORED_FILES = shutil.ignore_patterns("*.lib", "*.exp", "*.pdb", "*.a", "*.ilk")
+SETUP_SCRIPTS = [
+    "GrnGameCreate.py",
+    "GrnGameCreate.sh",
+    "GrnGameCreate.bat",
+    "GrnGameDist.py",
+    "GrnGameDist.sh",
+    "GrnGameDist.bat",
+]
+
+PROJECT_MODEL_DIRS = ["assets", "data", "config"]
+
+IGNORED_SUFFIXES = {".lib", ".exp", ".pdb", ".a", ".ilk"}
+IGNORED_FILES = shutil.ignore_patterns(*(f"*{suffix}" for suffix in IGNORED_SUFFIXES))
+
+
+@contextmanager
+def log_group(title: str):
+    print(f"::group::{title}")
+    try:
+        yield
+    finally:
+        print("::endgroup::")
 
 
 def copy_folder(src: Path, dst: Path, ignore=None) -> None:
@@ -56,80 +78,87 @@ def copy_file(src: Path, dst_folder: Path) -> None:
     shutil.copy2(src, dst_folder)
 
 
-def warn(message: str) -> None:
-    print(f"::warning::{message}")
+def is_ignored(file: Path) -> bool:
+    return file.suffix in IGNORED_SUFFIXES
+
+
+def project_model_dir(stage_dir: Path) -> Path:
+    return stage_dir / "project_model"
+
+
+def runtime_dir(stage_dir: Path) -> Path:
+    return stage_dir / "runtime"
 
 
 def bundle_project_model(stage_dir: Path) -> None:
-    model_dir = stage_dir / "project_model"
-    runtime_dir = stage_dir / "runtime"
-    for name in ("assets", "data", "config"):
+    model_dir = project_model_dir(stage_dir)
+
+    for name in PROJECT_MODEL_DIRS:
         (model_dir / name).mkdir(parents=True, exist_ok=True)
 
-    copy_file(Path("ressources/config.json"), model_dir / "config")
-    copy_file(Path("ressources/main.wren"), model_dir / "scripts")
-    copy_file(Path("grngame/input/gamecontrollerdb.txt"), model_dir / "data")
-    copy_file(Path("scripts/server.py"), runtime_dir)
-    copy_folder(Path("std"), model_dir / "std")
+    copy_file(CONFIG_FILE, model_dir / "config")
+    copy_file(MAIN_SCRIPT, model_dir / "scripts")
+    copy_file(GAME_CONTROLLER_DB, model_dir / "data")
+    copy_folder(STD_DIR, model_dir / "std")
+
+
+def bundle_metadata(stage_dir: Path) -> None:
+    model_dir = project_model_dir(stage_dir)
+
+    copy_file(METADATA_FILE, model_dir)
+    copy_file(READ_METADATA_SCRIPT, model_dir)
 
 
 def bundle_setup_scripts(stage_dir: Path) -> None:
-    for name in ("GrnGameCreate.py","GrnGameCreate.sh","GrnGameCreate.bat", "GrnGameDist.py","GrnGameDist.bat","GrnGameDist.sh"):
-        copy_file(Path("scripts") / Path("project") / name, stage_dir / "scripts")
+    for name in SETUP_SCRIPTS:
+        copy_file(SETUP_SCRIPTS_DIR / name, stage_dir / "scripts")
 
 
-def bundle_metadata(stage_dir:Path) -> None:
-    model_dir = stage_dir / "project_model"
-    copy_file(Path("ressources/metadata.json"), model_dir)
-    copy_file(Path("scripts/metadata/read_metadata.py"), model_dir)
+def bundle_server_script(stage_dir: Path) -> None:
+    copy_file(SERVER_SCRIPT, runtime_dir(stage_dir))
+
 
 def bundle_ios_script(stage_dir: Path) -> None:
-    copy_file(Path("script") / "x_code_ios_project.py",stage_dir / "runtime")
+    copy_file(IOS_SCRIPT, runtime_dir(stage_dir))
+
 
 def bundle_desktop_binary(platform: str, stage_dir: Path) -> None:
-    # runtime and embedded binary in the same folder
     src = ARTIFACTS_DIR / DESKTOP_ARTIFACTS[platform]
-    ignored_extensions = {".lib", ".exp", ".pdb", ".a", ".ilk"}
+
     for file in src.rglob("*"):
-        if file.is_file() and file.suffix not in ignored_extensions:
-            copy_file(file, stage_dir / "project_model")
+        if file.is_file() and not is_ignored(file):
+            copy_file(file, project_model_dir(stage_dir))
+
+
+def resolve_runtime_source(artifact: Path) -> Path:
+    nested = artifact / "Runtime"
+    return nested if nested.is_dir() else artifact
 
 
 def bundle_runtimes(stage_dir: Path) -> None:
-    # bundle final runtime (embedded)
-    runtime_dir = stage_dir / "runtime"
-    runtime_dir.mkdir(parents=True, exist_ok=True)
+    destination = runtime_dir(stage_dir)
+    destination.mkdir(parents=True, exist_ok=True)
 
     for artifact_name in RUNTIME_ARTIFACTS:
-        # ex: artifacts/ios-arm64-release-embedtrue/
         artifact = ARTIFACTS_DIR / artifact_name
 
-        if not artifact.is_dir():
-            continue
+        if artifact.is_dir():
+            copy_folder(resolve_runtime_source(artifact), destination, ignore=IGNORED_FILES)
 
-        # desktop : Runtime/   wasm / ios : .
-        src = artifact / "Runtime"
-        if not src.is_dir():
-            src = artifact
 
-        copy_folder(src, runtime_dir, ignore=IGNORED_FILES)
+def bundle_android_libs(android_dst: Path) -> None:
+    for abi, artifact_name in ANDROID_ARTIFACTS.items():
+        lib = ARTIFACTS_DIR / artifact_name / ANDROID_LIB_NAME
+
+        if lib.is_file():
+            copy_file(lib, android_dst / "app" / "jni" / "src" / abi)
 
 
 def bundle_android(stage_dir: Path) -> None:
-    android_src = Path("android-build")
-    android_dst = stage_dir / "runtime" / "android-build"
+    android_dst = runtime_dir(stage_dir) / "android-build"
 
-    copy_folder(android_src, android_dst)
-
-    for abi, artifact_name in ANDROID_ARTIFACTS.items():
-        # ex: artifacts/android-arm64-v8a-release/libGrnGame.so
-        lib = ARTIFACTS_DIR / artifact_name / "libGrnGame.so"
-
-        if not lib.is_file():
-            continue
-
-        # every abi have its own folder : app/jni/src/<abi>/libGrnGame.so
-        copy_file(lib, android_dst / "app" / "jni" / "src" / abi)
+    copy_folder(ANDROID_BUILD_DIR, android_dst)
+    bundle_android_libs(android_dst)
 
 
 def make_zip(platform: str, stage_dir: Path, tag: str) -> None:
@@ -138,33 +167,32 @@ def make_zip(platform: str, stage_dir: Path, tag: str) -> None:
     shutil.make_archive(str(archive), "zip", root_dir=stage_dir)
 
 
-def package(platform: str, tag: str) -> None:
-    print(f"::group::Packaging {platform}")
-
-    stage_dir = Path(f"staging_{platform}")
-    stage_dir.mkdir(exist_ok=True)
-
+def build_stage(platform: str, stage_dir: Path) -> None:
     bundle_project_model(stage_dir)
-
-    bundle_setup_scripts( stage_dir)
-
     bundle_metadata(stage_dir)
-    
+    bundle_setup_scripts(stage_dir)
+    bundle_server_script(stage_dir)
     bundle_desktop_binary(platform, stage_dir)
-
     bundle_runtimes(stage_dir)
-
     bundle_android(stage_dir)
     bundle_ios_script(stage_dir)
 
-    make_zip(platform, stage_dir, tag)
-    #shutil.rmtree(stage_dir)
 
-    print("::endgroup::")
+def package(platform: str, tag: str) -> None:
+    with log_group(f"Packaging {platform}"):
+        stage_dir = Path(f"staging_{platform}")
+        stage_dir.mkdir(exist_ok=True)
+
+        build_stage(platform, stage_dir)
+        make_zip(platform, stage_dir, tag)
 
 
-if __name__ == "__main__":
+def main() -> None:
     tag = sys.argv[1]
 
     for platform in PLATFORMS:
         package(platform, tag)
+
+
+if __name__ == "__main__":
+    main()
