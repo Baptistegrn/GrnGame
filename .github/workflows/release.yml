@@ -18,7 +18,7 @@ jobs:
           path: artifacts/
 
       - name: Package zips and build staging
-        run: python3 scripts/package_release.py "${{ github.ref_name }}"
+        run: python3 scripts/release/package_release.py "${{ github.ref_name }}"
 
       - name: Upload zips
         uses: actions/upload-artifact@v4
@@ -74,7 +74,7 @@ jobs:
         run: xmake repo -u
         
       - name: Run XPack
-        run: python scripts/build_xpack.py "${{ github.ref_name }}"
+        run: python scripts/release/build_xpack.py "${{ github.ref_name }}"
 
       - name: Upload Native Packages
         uses: actions/upload-artifact@v4

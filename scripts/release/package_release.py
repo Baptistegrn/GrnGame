@@ -75,7 +75,7 @@ def bundle_project_model(stage_dir: Path) -> None:
 
 def bundle_setup_scripts(stage_dir: Path) -> None:
     for name in ("GrnGameCreate.py","GrnGameCreate.sh","GrnGameCreate.bat", "GrnGameDist.py","GrnGameDist.bat","GrnGameDist.sh"):
-        copy_file(Path("scripts") / name, stage_dir / "scripts")
+        copy_file(Path("scripts") / Path("project") / name, stage_dir / "scripts")
 
 
 def bundle_metadata(stage_dir:Path) -> None:

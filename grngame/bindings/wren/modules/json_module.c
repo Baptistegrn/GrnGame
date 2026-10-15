@@ -215,7 +215,7 @@ void open_json_file(WrenVM *vm)
     const EmbeddedFile *asset = EmbeddedFileGet(key);
     bool error = OpenJsonObjectFromMemory(key, asset->data, min, max);
 #endif
-    wrenSetSlotBool(vm, 1, error);
+    wrenSetSlotBool(vm, 0, error);
 }
 
 void json_contains(WrenVM *vm)

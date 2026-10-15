@@ -50,8 +50,11 @@ bool JsonExistFromMemory(const char *key)
 
 bool JsonCreate(const char *key, const char *text)
 {
+    if (!text)
+        return false;
+
     char *path = PathFromExecutableDirectory(key);
-    bool result = WriteFileData(path, text, false);
+    bool result = WriteFileData(path, text, strlen(text), false);
     if (!result)
     {
         LOG_ERROR("Failed to create json file :%s", key);
@@ -59,7 +62,6 @@ bool JsonCreate(const char *key, const char *text)
     free(path);
     return result;
 }
-
 bool JsonCreateFromMemory(const char *key, const char *text)
 {
 
@@ -311,7 +313,7 @@ static void FileWriteJobRun(void *user_data)
 {
     FileWriteJob *job = user_data;
 
-    WriteFileData(job->key, job->text, false);
+    WriteFileData(job->key, job->text, strlen(job->key), false);
 
     free(job->key);
     free(job->text);

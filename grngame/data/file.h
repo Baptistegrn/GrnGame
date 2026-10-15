@@ -22,6 +22,6 @@ bool RemovePath(const char *path);
 
 bool FileExist(const char *name);
 unsigned char *ReturnFileData(const char *name, size_t *size_out);
-bool WriteFileData(const char *name, const char *content, bool append);
+bool WriteFileData(const char *name, const void *data, size_t size, bool append);
 bool MoveFile_(const char *dst, const char *name);
 END_DECLARATIONS

@@ -21,13 +21,13 @@ function add_test_target(name)
 		if desktop then
 			if not embedded then
 				os.execv(python.program, {
-					"scripts/asset_pipeline.py",
+					"scripts/test/dev_pipeline.py",
 					target_name,
 					build_dir,
 				})
 			else
 				os.execv(python.program, {
-					"scripts/embedded.py",
+					"scripts/test/embedded_pipeline.py",
 					target_name,
 					build_dir,
 					os.projectdir(),
