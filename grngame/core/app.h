@@ -55,8 +55,6 @@ typedef struct AppInfo
     int16 offset_x;
     int16 offset_y;
 
-    LogDestination log_destination;
-
     bool force_universe_scale; // apply black stripes to the window
 
     bool enable_palette;

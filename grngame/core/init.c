@@ -139,11 +139,6 @@ static bool ParseConfig()
         return false;
     float64 tmp_num = 0.0;
 
-    success = JsonGetNumber(fileKey, "Config.logDestination", &tmp_num);
-    if (!success)
-        return false;
-    g_app.info.log_destination = (int32)tmp_num;
-
     success = JsonGetNumber(fileKey, "Config.fps", &tmp_num);
     if (!success)
         return false;
@@ -371,8 +366,6 @@ InitResult InitAll(void)
     if (InitAppMetaData() != INIT_OK)
         return INIT_METADATA_FAILED;
 
-    LOG_INFO("PASSER 1");
-
 #if GRNGAME_WEB
     g_app.embedded_file_manager = EmbeddedFileManagerCreate();
     if (!InstallGameData() || !InitAssetsPak() || !InitGameData())
@@ -382,10 +375,8 @@ InitResult InitAll(void)
         return INIT_OPEN_GAME_DATA_FAILED;
 #elif GRNGAME_EMBED_ASSETS
     g_app.embedded_file_manager = EmbeddedFileManagerCreate();
-    LOG_INFO("PASSER 2");
     if (!InstallAssetsPak() || !InstallGameData() || !InitAssetsPak() || !InitGameData())
         return INIT_OPEN_GAME_DATA_FAILED;
-    LOG_INFO("PASSER 3");
     if (!EmbeddedFileManagerLoadAssetsPak() || !EmbeddedFileManagerLoadGameData())
         return INIT_OPEN_GAME_DATA_FAILED;
 #endif
