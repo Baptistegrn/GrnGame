@@ -3,9 +3,11 @@
 #include "grngame/data/sqlite.h"
 #include "grngame/dev/logging.h"
 #include "grngame/platform/paths.h"
+#include "grngame/utils/string_compat.h"
 #include "grngame/utils/version.h"
 #include <SDL3/SDL.h>
 #include <stdlib.h>
+
 
 static sqlite3 *OpenStorageDb(const char *name)
 {
