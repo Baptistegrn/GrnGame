@@ -115,11 +115,6 @@ static bool SlotApplyFilters(SoundSlot *slot, const SoundInfo *info)
     }
 
     slot->filters = FilterChainCreate(info->filters, info->filter_count, &spec);
-    if (!slot->filters)
-    {
-        LOG_ERROR("Failed to create sound filter chain");
-        return false;
-    }
 
     if (!MIX_SetTrackCookedCallback(slot->track, FilterCallback, slot->filters))
     {
@@ -231,11 +226,6 @@ static bool SlotConfigure(SoundSlot *slot, MIX_Audio *audio, const char *name, c
 static bool PlayOptions(const SoundInfo *info, SDL_PropertiesID *options)
 {
     *options = SDL_CreateProperties();
-    if (!*options)
-    {
-        LOG_ERROR("Failed to create sound playback properties: %s", SDL_GetError());
-        return false;
-    }
 
     if (!SDL_SetNumberProperty(*options, MIX_PROP_PLAY_LOOPS_NUMBER, info->looping ? -1 : 0))
     {
@@ -247,8 +237,8 @@ static bool PlayOptions(const SoundInfo *info, SDL_PropertiesID *options)
 
     if (info->fade_in > 0.0f)
     {
-        if (!SDL_SetNumberProperty(
-                *options, MIX_PROP_PLAY_FADE_IN_MILLISECONDS_NUMBER, (Sint64)(info->fade_in * 1000.0f)))
+        if (!SDL_SetNumberProperty(*options, MIX_PROP_PLAY_FADE_IN_MILLISECONDS_NUMBER,
+                                   (Sint64)(info->fade_in * 1000.0f)))
         {
             LOG_ERROR("Failed to set sound fade-in properties: %s", SDL_GetError());
             SDL_DestroyProperties(*options);

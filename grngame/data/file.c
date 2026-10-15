@@ -115,13 +115,6 @@ unsigned char *ReturnFileData(const char *name, size_t *size_out)
     size_t file_size = (size_t)size;
     unsigned char *buffer = malloc(file_size + 1);
 
-    if (buffer == NULL)
-    {
-        LOG_ERROR("Memory allocation failed for %s", name);
-        fclose(file);
-        return NULL;
-    }
-
     size_t read_count = fread(buffer, 1, file_size, file);
     fclose(file);
 

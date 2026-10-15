@@ -181,14 +181,6 @@ bool LoadFileParallel(const char *file, LoadResult *result)
             }
 
             result->surface_copy = SDL_DuplicateSurface(rgba);
-            if (!result->surface_copy)
-            {
-                LOG_WARNING("Failed to duplicate texture surface '%s', SDL error: '%s'", file, SDL_GetError());
-                SDL_DestroySurface(rgba);
-                free(result->key);
-                result->key = NULL;
-                return false;
-            }
 
             ApplyPaletteRemap(rgba);
             result->pixels = rgba;
@@ -196,14 +188,6 @@ bool LoadFileParallel(const char *file, LoadResult *result)
         else
         {
             result->surface_copy = SDL_DuplicateSurface(surface);
-            if (!result->surface_copy)
-            {
-                LOG_WARNING("Failed to duplicate texture surface '%s', SDL error: '%s'", file, SDL_GetError());
-                SDL_DestroySurface(surface);
-                free(result->key);
-                result->key = NULL;
-                return false;
-            }
 
             result->pixels = surface;
         }
@@ -379,13 +363,6 @@ bool LoadTextureFile(const char *file)
     }
 
     SDL_Surface *surface_copy = SDL_DuplicateSurface(rgba);
-    if (!surface_copy)
-    {
-        LOG_WARNING("Failed to duplicate texture surface '%s', SDL error: '%s'", file, SDL_GetError());
-        SDL_DestroySurface(rgba);
-        free(key);
-        return false;
-    }
 
     ApplyPaletteRemap(rgba);
 

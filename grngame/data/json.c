@@ -332,14 +332,6 @@ bool JsonSaveObject(const char *fileKey)
     job->key = PathFromExecutableDirectory(fileKey);
     job->text = cJSON_Print(entry->json);
 
-    if (job->text == NULL)
-    {
-        free(job->key);
-        free(job->text);
-        free(job);
-        return false;
-    }
-
     // Safe asynchronous operation: the file is read once during initialization,
     // and writes occur at most once per second.
     ThreadManagerPush(FileWriteJobRun, job);
@@ -357,11 +349,6 @@ bool JsonSaveObjectFromMemory(const char *fileKey)
     }
 
     char *text = cJSON_Print(entry->json);
-    if (UNLIKELY(text == NULL))
-    {
-        LOG_ERROR("Cant save json because json isnt valid :%s", fileKey);
-        return false;
-    }
 
     bool result = EmbeddedFilePutDisk(fileKey, text, strlen(text));
 

@@ -212,7 +212,7 @@ void open_json_file(WrenVM *vm)
         LOG_ERROR("Failed to get %s in Assets.pak,you need to create the file first.", key);
         return;
     }
-    EmbeddedFile *asset = EmbeddedFileGet(key);
+    const EmbeddedFile *asset = EmbeddedFileGet(key);
     bool error = OpenJsonObjectFromMemory(key, asset->data, min, max);
 #endif
     wrenSetSlotBool(vm, 1, error);

@@ -154,8 +154,7 @@ char *PathFromStorage(const char *file)
     }
     uint32 n = strlen(base) + strlen(file) + 1;
     char *out = (char *)malloc(n);
-    if (out)
-        snprintf(out, n, "%s%s", base, file);
+    snprintf(out, n, "%s%s", base, file);
     SDL_free(base);
     return out;
 #else

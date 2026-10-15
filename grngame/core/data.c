@@ -8,7 +8,6 @@
 #include <SDL3/SDL.h>
 #include <stdlib.h>
 
-
 static sqlite3 *OpenStorageDb(const char *name)
 {
     char *path = PathFromStorage(name);
